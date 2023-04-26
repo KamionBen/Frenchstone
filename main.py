@@ -3,16 +3,13 @@
 # Import & Utils
 from classes import *
 from cartes import *
+from copy import deepcopy
 
 mon_plateau = Plateau("Mage", "Smaguy", "Chasseur", "KamionBen")
-i = 0
-while i < 100:
+
+while not(mon_plateau.pv_actuels_joueur1 <= 0 or mon_plateau.pv_actuels_joueur2 <= 0):
     ## On choisit des cartes au hasard à jouer, ou pour attaquer
-    if mon_plateau.tour_de_jeu == 1:
-        print(f"Mana disponible : {mon_plateau.mana_dispo_joueur1}")
-    else:
-        print(f"Mana disponible : {mon_plateau.mana_dispo_joueur2}")
-    carte_a_jouer = random.choice(all_cartes)
+    carte_a_jouer = deepcopy(random.choice(all_cartes))
     if mon_plateau.tour_de_jeu == 1:
         attaquant = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)
         cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur2)
@@ -20,5 +17,4 @@ while i < 100:
         attaquant = random.choice(["heros"] + mon_plateau.serviteurs_joueur2)
         cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)
     mon_plateau = RandomOrchestrator(mon_plateau).tour_au_hasard(carte_a_jouer, attaquant, cible)
-    i += 1
 

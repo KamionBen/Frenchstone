@@ -14,12 +14,12 @@ Version 0.0.1
 
 <h2>Règles du jeu</h2>
 <h3>But du jeu</h3>
-<p>Réduire la vie du héros de votre adversaire à zéro pour gagner la partie. La victoire se décide par tirage au sort si la vie des deux héros atteint zéro dans la même attaque.</p>
+<p>Réduire la vie du héros de votre adversaire à zéro pour gagner la partie. Il y a match nul si la vie des deux héros atteint zéro dans la même attaque.</p>
 
 <h3>Principes du jeu</h3>
-<p>Après avoir choisi une des 9 classes jouables du jeu, les joueurs utilisent un deck de 30 cartes. Il peut être composé de deux exemplaires d'une carte simple. En revanche, il contient une seule unité de carte légendaire. Le deck peut contenir plusieurs cartes légendaires pour autant qu'elles soient différentes. Il doit être composé à la fois de cartes identiques à toutes les classes et de cartes spécifiques à la classe choisie.</p>
-<p>Au premier tour, les joueurs reçoivent 4 cartes. Ils peuvent modifier certaines d'entre-elles afin d'éviter d'avoir de grosses cartes impossibles à jouer en début de partie.</p>
-<p>Un tirage au sort définit le joueur qui débutera la partie.</p>
+<p>Après avoir choisi une des 11 classes jouables du jeu, les joueurs utilisent un deck de 30 cartes. Il peut être composé de deux exemplaires d'une carte simple. En revanche, il contient une seule unité de carte légendaire. Le deck peut contenir plusieurs cartes légendaires pour autant qu'elles soient différentes. Il doit être composé à la fois de cartes identiques à toutes les classes et de cartes spécifiques à la classe choisie.</p>
+<p>Au premier tour, un tirage au sort a lieu pour définir le joueur qui commence. Celui-ci obtient 3 cartes, son adversaire 4 cartes + "La Pièce". Ils peuvent modifier certaines d'entre-elles afin d'éviter d'avoir de grosses cartes impossibles à jouer en début de partie.</p>
+
 <p>La ressource utilisée dans le jeu est le cristal de mana. Il est représenté sur les cartes par la gemme bleue qui se trouve en haut à gauche de la carte. Il est utilisé pour invoquer les serviteurs, les sorts et utiliser le pouvoir des héros ainsi que l'équipement.</p>
 <p>Vous débutez la partie avec un point de cristal de mana. A chaque tour, vous recevez un point de mana supplémentaire. Le maximum de cristaux de mana collecté dans le jeu est de 10.</p>
 <p>Chaque héros dispose d'une compétence propre qui lui coûte 2 cristaux de mana.</p>

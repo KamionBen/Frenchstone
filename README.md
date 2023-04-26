@@ -1,5 +1,6 @@
 # Frenchstone
 An Hearthstone simulator
+Version 0.0.1
 
 <h2>Etapes</h2>
 

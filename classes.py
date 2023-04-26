@@ -107,14 +107,14 @@ class TourEnCours:
     ## Action d'attaquer avec un serviteur ou son héros une cible adverse (serviteur ou héros aussi)
     def attaquer(self, attaquant, cible):
         if self.plateau.tour_de_jeu == 1:
-            if attaquant == "heros" and cible == "heros":
+            if (attaquant == "heros" and self.plateau.arme_joueur1 == True) and cible == "heros":
                 print(f'Votre héros attaque {self.plateau.pseudo_joueur2}'
                       f' ({self.plateau.pv_actuels_joueur2} --> {self.plateau.pv_actuels_joueur2 - self.plateau.attaque_joueur1})')
                 self.plateau.pv_actuels_joueur2 -= self.plateau.attaque_joueur1
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur2 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur1} ! Félicitations.")
-            elif attaquant == "heros" and cible != "heros":
+            elif (attaquant == "heros" and self.plateau.arme_joueur1 == True) and cible != "heros":
                 print(
                     f'Votre héros ({self.plateau.pv_actuels_joueur1} --> {self.plateau.pv_actuels_joueur1 - cible.attaque}) attaque {cible.nom}'
                     f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - self.plateau.attaque_joueur1})')
@@ -152,14 +152,14 @@ class TourEnCours:
                     self.plateau.serviteurs_joueur1 = [serviteur for serviteur in self.plateau.serviteurs_joueur1 if
                                                        serviteur.PV > 0]
         else:
-            if attaquant == "heros" and cible == "heros":
+            if (attaquant == "heros" and self.plateau.arme_joueur2 == True) and cible == "heros":
                 print(f'Votre héros attaque {self.plateau.pseudo_joueur1}'
                       f' ({self.plateau.pv_actuels_joueur1} --> {self.plateau.pv_actuels_joueur1 - self.plateau.attaque_joueur2})')
                 self.plateau.pv_actuels_joueur1 -= self.plateau.attaque_joueur2
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur1 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur2} ! Félicitations.")
-            elif attaquant == "heros" and cible != "heros":
+            elif (attaquant == "heros" and self.plateau.arme_joueur2 == True) and cible != "heros":
                 print(
                     f'Votre héros ({self.plateau.pv_actuels_joueur2} --> {self.plateau.pv_actuels_joueur2 - cible.attaque}) attaque {cible.nom}'
                     f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - self.plateau.attaque_joueur2})')
@@ -218,7 +218,8 @@ class RandomOrchestrator:
         elif action == "Jouer_carte":
             self.tourencours.jouer_carte(carte)
 
-        elif action == "Attaquer":
+        # On filtre pour n'attaquer que quand c'est légal
+        elif action == "Attaquer" and attaquant != "":
             self.tourencours.attaquer(attaquant, cible)
 
         return self.plateau

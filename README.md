@@ -1,0 +1,2 @@
+# Frenchstone
+An Hearthstone simulator

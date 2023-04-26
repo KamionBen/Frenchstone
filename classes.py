@@ -62,13 +62,22 @@ class Plateau:
 
 ### Classe permettant de décrire exhaustivement une carte
 class Carte:
-    def __init__(self, nom, type_carte, attaque, PV, cout):
+    def __init__(self, nom, type_carte, attaque, PV, cout, ecole="", description=""):
+        """ Represent a playing card """
+        """ Name as an id """
         self.nom = nom
+
+        """ Category """
         self.type = type_carte
+        self.ecole = ecole
+
+        """ Stats """
         self.attaque = attaque
         self.PV = PV
         self.cout = cout
 
+        """ Infos """
+        self.description = description
 
 
 ### Classe prenant en entrée un plateau de jeu et permettant d'effectuer toutes les actions possibles dessus.

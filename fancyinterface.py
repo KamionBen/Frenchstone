@@ -41,6 +41,12 @@ def fancy_l(cartes: list[Carte], selection=False)->str:
 
     return cards_str
 
+def fancy_j(joueur)->str:
+    """ Besoin d'une classe "Joueur" ou Héros """
+    j_str = "┌───────────────────────┐"
+
+    return j_str
+
 
 if __name__ == '__main__':
     print("\nLa liste de cartes, présentée horizontalement, avec l'entete de sélection")

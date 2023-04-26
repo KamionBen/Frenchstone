@@ -1,0 +1,1262 @@
+[
+    {
+        "NAME": "Guérison ancestrale",
+        "CATEGORY": null,
+        "TYPE": "Nature",
+        "COST": "0",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Rend tous ses points de vie à un serviteur et lui confère Provocation.",
+        "CLASS": " Chaman"
+    },
+    {
+        "NAME": "Horion de givre",
+        "CATEGORY": null,
+        "TYPE": "Givre\r\n",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 1 point de dégâts à un personnage adverse, et le gèle.",
+        "CLASS": " Chaman"
+    },
+    {
+        "NAME": "Parlevent",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "3",
+        "PV": "3",
+        "DESCR": "Cri de guerre : confère Furie des vents à un serviteur allié.",
+        "CLASS": " Chaman"
+    },
+    {
+        "NAME": "Puissance totémique",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "0",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Confère +2 PV à vos totems.",
+        "CLASS": " Chaman"
+    },
+    {
+        "NAME": "Busard affamé",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "2",
+        "PV": "1",
+        "DESCR": "Vous piochez une carte chaque fois que vous invoquez une bête.",
+        "CLASS": " Chasseur"
+    },
+    {
+        "NAME": "Flèches multiples",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 3 points de dégâts à deux serviteurs adverses aléatoires.",
+        "CLASS": " Chasseur"
+    },
+    {
+        "NAME": "Loup des bois",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": "1",
+        "PV": "1",
+        "DESCR": "Vos autres Bêtes ont +1 ATQ.",
+        "CLASS": " Chasseur"
+    },
+    {
+        "NAME": "Maître-chien",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "4",
+        "PV": "3",
+        "DESCR": "Cri de guerre : confère +2/+2 et Provocation à une Bête alliée.",
+        "CLASS": " Chasseur"
+    },
+    {
+        "NAME": "Marque du chasseur",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Fait tomber les points de vie d'un serviteur à 1.",
+        "CLASS": " Chasseur"
+    },
+    {
+        "NAME": "Ordre de tuer",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 3 points de dégâts. Si vous contrôlez une Bête, inflige 5 points de dégâts à la place.",
+        "CLASS": " Chasseur"
+    },
+    {
+        "NAME": "Rhino de la toundra",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": "2",
+        "PV": "5",
+        "DESCR": "Vos Bêtes ont Charge.",
+        "CLASS": " Chasseur"
+    },
+    {
+        "NAME": "Altruis le Marginal",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "4",
+        "PV": "2",
+        "DESCR": "Une fois que vous avez joué la carte la plus à droite ou la plus à gauche de votre main, inflige 1 point de dégâts à tous les adversaires.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Néanstradamus",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "9",
+        "ATK": "8",
+        "PV": "8",
+        "DESCR": "Cri de guerre : invoque deux serviteurs aléatoires coûtant 0 cristal. (S'améliore chaque fois qu'un serviteur allié meurt !)",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Brute furie-perçante",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": "2",
+        "PV": "6",
+        "DESCR": "Provocation Une fois que ce serviteur a été attaqué, inflige 1 point de dégâts à tous les adversaires.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Danse des lames",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige des dégâts d’un montant égal à l’Attaque de votre héros à 3 serviteurs adverses aléatoires.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Démon supérieur massif",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "8",
+        "ATK": "5",
+        "PV": "10",
+        "DESCR": "Ruée Une fois qu’il a attaqué et tué un serviteur, il peut attaquer de nouveau.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Gangrelame illidari",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "5",
+        "PV": "3",
+        "DESCR": "Ruée Marginal : est Insensible pendant ce tour.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Scission d'âme",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "4",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Vous choisissez un Démon allié. En invoque une copie.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Aile de l'ombre",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Cri de guerre : invoque deux gangrailes 1/1.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Brûlure de mana",
+        "CATEGORY": null,
+        "TYPE": "Fiel",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Votre adversaire a 2 cristaux de mana en moins au prochain tour.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Commandement des Illidari",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Invoque six Illidari 1/1 avec Ruée.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Entailles jumelles",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Donne +2 ATQ à votre héros pendant ce tour. Ajoute la carte Seconde entaille dans votre main.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Horreur ur'zul",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": "2",
+        "PV": "1",
+        "DESCR": "Râle d’agonie : ajoute une âme égarée 2/1 dans votre main.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Manavore",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Réduit au Silence un serviteur adverse. Marginal : vous piochez une carte.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Voile corrompu",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "0",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Votre héros ne peut pas subir de dégâts pendant ce tour.",
+        "CLASS": " Chasseur de démons"
+    },
+    {
+        "NAME": "Dame Murmemort",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "4",
+        "PV": "3",
+        "DESCR": "Râle d’agonie : copie tous les sorts de givre dans votre main.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Deuillegivre",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "7",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Râle d’agonie : invoque chaque serviteur tué par cette arme.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Le Fléau",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "9",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Remplit votre plateau de Morts-vivants aléatoires.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Fureur du wyrm de givre",
+        "CATEGORY": null,
+        "TYPE": "Givre\r\n",
+        "COST": "7",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 5 points de dégâts. Gèle tous les serviteurs adverses et invoque un wyrm de givre 5/5.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Furoncle sanglant",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "5",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Vol de vie Infecte tous les serviteurs adverses. Ils subissent 2 points de dégâts à la fin de vos tours.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Puissance de Menethil",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Cri de guerre : dépensez jusqu’à 3 cadavres. Gèle autant de serviteurs adverses.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Drain sanglant",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Donne +1/+1 à tous les serviteurs dans votre main. Dépensez 2 cadavres pour leur donner +1/+1 en plus.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Frénésie impie",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Vous choisissez un serviteur adverse. Vos serviteurs l’attaquent. Réinvoque ceux qui meurent.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Gardiens des tombes",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "4",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Invoque deux zombies 2/2 avec Provocation. Dépensez 4 cadavres pour leur donner Réincarnation.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Hématurge",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "2",
+        "PV": "3",
+        "DESCR": "Cri de guerre : dépensez un cadavre pour découvrir une carte Rune de sang.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Manipulatrice de moelle",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "6",
+        "ATK": "5",
+        "PV": "5",
+        "DESCR": "Cri de guerre : dépensez jusqu’à 5 cadavres. Inflige 2 points de dégâts à un adversaire aléatoire pour chaque cadavre dépensé.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Mariée cadavérique",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": "4",
+        "PV": "4",
+        "DESCR": "Cri de guerre : dépensez jusqu’à 10 cadavres. Invoque un marié ressuscité aux caractéristiques égales au nombre de cadavres dépensés.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Porte-froid de la mort",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "2",
+        "PV": "3",
+        "DESCR": "Une fois que vous avez lancé un sort, inflige 1 point de dégâts à deux adversaires aléatoires.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Ver de sang vicieux",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "3",
+        "PV": "2",
+        "DESCR": "Cri de guerre : donne à un serviteur dans votre main un montant d’ATQ égal à l’ATQ de ce serviteur.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Asphyxier",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Détruit le serviteur adverse avec l’ATQ la plus élevée.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Avancée glaciale",
+        "CATEGORY": null,
+        "TYPE": "Givre\r\n",
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 4 points de dégâts. Votre prochain sort pendant ce tour coûte (2) cristaux de moins.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Brise-givre ymirjar",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": "1",
+        "PV": "2",
+        "DESCR": "Cri de guerre : gagne +1 ATQ pour chaque sort de givre dans votre main.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Brise-os",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Une fois que votre héros ou héroïne a attaqué un serviteur, inflige 2 points de dégâts au héros ou à l’héroïne adverse.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Cor de l'hiver",
+        "CATEGORY": null,
+        "TYPE": "Givre\r\n",
+        "COST": "0",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Réinitialise 2 cristaux de mana.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Frappe pestiférée",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 3 points de dégâts à un serviteur. S’il meurt, invoque un zombie 2/2 avec Ruée.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Garde-essaim nérubien",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "1",
+        "PV": "3",
+        "DESCR": "Provocation Cri de guerre : invoque deux copies de ce serviteur.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Horreur malveillante",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "2",
+        "PV": "4",
+        "DESCR": "Réincarnation À la fin de votre tour, dépensez 4 cadavres pour invoquer une copie de ce serviteur.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Néophyte ténébrante",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "2",
+        "PV": "5",
+        "DESCR": "Cri de guerre : dépensez 2 cadavres pour donner +2 ATQ à tous les serviteurs dans votre main.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Rafale hurlante",
+        "CATEGORY": null,
+        "TYPE": "Givre\r\n",
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 3 points de dégâts à un adversaire et le gèle. Inflige 1 point de dégâts à tous les autres adversaires.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Sombre transformation",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Transforme un Mort-vivant en monstruosité morte-vivante 4/5 avec Ruée.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Toucher de glace",
+        "CATEGORY": null,
+        "TYPE": "Givre\r\n",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 2 points de dégâts à un personnage adverse et le gèle.",
+        "CLASS": " Chevalier de la mort"
+    },
+    {
+        "NAME": "Corruption",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Choisissez un serviteur adverse. Au début de votre tour, il est détruit.",
+        "CLASS": " Démoniste"
+    },
+    {
+        "NAME": "Drain de vie",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 2 |points de dégâts. Rend 2 points de vie à votre héros.",
+        "CLASS": " Démoniste"
+    },
+    {
+        "NAME": "Feu de l'âme",
+        "CATEGORY": null,
+        "TYPE": "Feu",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 4 points de dégâts. Vous défausse d'une carte aléatoire.",
+        "CLASS": " Démoniste"
+    },
+    {
+        "NAME": "Pacte sacrificiel",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "0",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Détruit un Démon allié. Rend 5 PV à votre héros.",
+        "CLASS": " Démoniste"
+    },
+    {
+        "NAME": "Trait de l'ombre",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 4 points de dégâts à un serviteur.",
+        "CLASS": " Démoniste"
+    },
+    {
+        "NAME": "Traqueur gangrené",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "4",
+        "PV": "3",
+        "DESCR": "Cri de guerre : vous défausse d'une carte aléatoire.",
+        "CLASS": " Démoniste"
+    },
+    {
+        "NAME": "Infernal de l'effroi",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "6",
+        "ATK": "6",
+        "PV": "6",
+        "DESCR": "Cri de guerre : inflige 1 point de dégâts à TOUS les autres personnages.",
+        "CLASS": " Démoniste"
+    },
+    {
+        "NAME": "Balayage",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 4 points de dégâts à un adversaire et 1 point de dégâts à tous les autres adversaires.",
+        "CLASS": " Druide"
+    },
+    {
+        "NAME": "Éclat lunaire",
+        "CATEGORY": null,
+        "TYPE": "Arcanes",
+        "COST": "0",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 1 point de dégâts.",
+        "CLASS": " Druide"
+    },
+    {
+        "NAME": "Feu stellaire",
+        "CATEGORY": null,
+        "TYPE": "Arcanes",
+        "COST": "6",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 5 points de dégâts. Vous piochez une carte.",
+        "CLASS": " Druide"
+    },
+    {
+        "NAME": "Griffe",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Donne +2 ATQ à votre héros pendant ce tour. +2 points d'armure.",
+        "CLASS": " Druide"
+    },
+    {
+        "NAME": "Protecteur Écorcefer",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "8",
+        "ATK": "8",
+        "PV": "8",
+        "DESCR": "Provocation",
+        "CLASS": " Druide"
+    },
+    {
+        "NAME": "Rugissement sauvage",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Donne +2 ATQ à vos personnages pendant ce tour.",
+        "CLASS": " Druide"
+    },
+    {
+        "NAME": "Toucher guérisseur",
+        "CATEGORY": null,
+        "TYPE": "Nature",
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Rend 8 points de vie.",
+        "CLASS": " Druide"
+    },
+    {
+        "NAME": "Charge",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Donne +2 ATQ et Charge à un serviteur allié.",
+        "CLASS": " Guerrier"
+    },
+    {
+        "NAME": "Enchaînement",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 2 points de dégâts à deux serviteurs adverses aléatoires.",
+        "CLASS": " Guerrier"
+    },
+    {
+        "NAME": "Faucheuse en arcanite",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": null,
+        "PV": null,
+        "DESCR": " ",
+        "CLASS": " Guerrier"
+    },
+    {
+        "NAME": "Frappe héroïque",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Confère +4 ATQ à votre héros pendant ce tour.",
+        "CLASS": " Guerrier"
+    },
+    {
+        "NAME": "Soldat d'élite kor'kron",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "4",
+        "PV": "3",
+        "DESCR": "Charge",
+        "CLASS": " Guerrier"
+    },
+    {
+        "NAME": "Élémentaire d'eau",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "3",
+        "PV": "6",
+        "DESCR": "Gèle tout personnage blessé par ce serviteur.",
+        "CLASS": " Mage"
+    },
+    {
+        "NAME": "Éclair de givre",
+        "CATEGORY": null,
+        "TYPE": "Givre\r\n",
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 3 |points de dégâts à un personnage et le gèle.",
+        "CLASS": " Mage"
+    },
+    {
+        "NAME": "Explosion des Arcanes",
+        "CATEGORY": null,
+        "TYPE": "Arcanes",
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 1 points de dégâts à tous les serviteurs adverses.",
+        "CLASS": " Mage"
+    },
+    {
+        "NAME": "Image miroir",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Invoque deux serviteurs 0/2 avec Provocation.",
+        "CLASS": " Mage"
+    },
+    {
+        "NAME": "Métamorphose",
+        "CATEGORY": null,
+        "TYPE": "Arcanes",
+        "COST": "4",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Transforme un serviteur en mouton 1/1.",
+        "CLASS": " Mage"
+    },
+    {
+        "NAME": "Nova de givre",
+        "CATEGORY": null,
+        "TYPE": "Givre\r\n",
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Gèle tous les serviteurs adverses.",
+        "CLASS": " Mage"
+    },
+    {
+        "NAME": "Projectiles des Arcanes",
+        "CATEGORY": null,
+        "TYPE": "Arcanes",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 3 points de dégâts répartis de façon aléatoire entre les personnages adverses.",
+        "CLASS": " Mage"
+    },
+    {
+        "NAME": "Bénédiction de puissance",
+        "CATEGORY": null,
+        "TYPE": "Sacré",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Confère +3 ATQ à un serviteur.",
+        "CLASS": " Paladin"
+    },
+    {
+        "NAME": "Humilité",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "L'Attaque d'un serviteur passe à 1.",
+        "CLASS": " Paladin"
+    },
+    {
+        "NAME": "Justice de la Lumière",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": " ",
+        "CLASS": " Paladin"
+    },
+    {
+        "NAME": "Main de protection",
+        "CATEGORY": null,
+        "TYPE": "Sacré",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Confère Bouclier divin à un serviteur.",
+        "CLASS": " Paladin"
+    },
+    {
+        "NAME": "Marteau de courroux",
+        "CATEGORY": null,
+        "TYPE": "Sacré",
+        "COST": "4",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 3 points de dégâts. Vous piochez une carte.",
+        "CLASS": " Paladin"
+    },
+    {
+        "NAME": "Contrôle mental",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "10",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Prend le contrôle d'un serviteur adverse.",
+        "CLASS": " Prêtre"
+    },
+    {
+        "NAME": "Mot de l'ombre : Douleur",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Détruit un serviteur avec 3 Attaque ou moins.",
+        "CLASS": " Prêtre"
+    },
+    {
+        "NAME": "Mot de pouvoir : Bouclier",
+        "CATEGORY": null,
+        "TYPE": "Sacré",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Donne +2 PV à un serviteur. Vous piochez une carte.",
+        "CLASS": " Prêtre"
+    },
+    {
+        "NAME": "Radiance",
+        "CATEGORY": null,
+        "TYPE": "Sacré",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Rend 5 PV à votre héros.",
+        "CLASS": " Prêtre"
+    },
+    {
+        "NAME": "Vision télépathique",
+        "CATEGORY": null,
+        "TYPE": "Ombre",
+        "COST": "1",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Place une copie d'une carte aléatoire de la main de l'adversaire dans la vôtre.",
+        "CLASS": " Prêtre"
+    },
+    {
+        "NAME": "Attaque mentale",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 5 points de dégâts au héros adverse.",
+        "CLASS": " Prêtre"
+    },
+    {
+        "NAME": "Esprit divin",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Double les points de vie d'un serviteur.",
+        "CLASS": " Prêtre"
+    },
+    {
+        "NAME": "Assommer",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Renvoie un serviteur adverse dans la main de votre adversaire.",
+        "CLASS": " Voleur"
+    },
+    {
+        "NAME": "Éventail de couteaux",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 1 point de dégâts à tous les serviteurs adverses. Vous piochez une carte.",
+        "CLASS": " Voleur"
+    },
+    {
+        "NAME": "Kriss",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Inflige 1point de dégâts. Vous piochez une carte.",
+        "CLASS": " Voleur"
+    },
+    {
+        "NAME": "Porte-peste",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "3",
+        "PV": "3",
+        "DESCR": "Cri de guerre : confère Toxicité à un serviteur allié.",
+        "CLASS": " Voleur"
+    },
+    {
+        "NAME": "Disparition",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "6",
+        "ATK": null,
+        "PV": null,
+        "DESCR": "Renvoie tous les serviteurs dans la main de leur propriétaire.",
+        "CLASS": " Voleur"
+    },
+    {
+        "NAME": "Archimage",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "6",
+        "ATK": "4",
+        "PV": "7",
+        "DESCR": "Dégâts des sorts : +1",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Chasseuse de Tranchebauge",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "2",
+        "PV": "3",
+        "DESCR": "Cri de guerre : invoque un sanglier 1/1.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Chef de guerre loup-de-givre",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": "4",
+        "PV": "4",
+        "DESCR": "Cri de guerre : gagne +1/+1 pour chaque autre serviteur allié sur le champ de bataille.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Chevalier de Hurlevent",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "2",
+        "PV": "5",
+        "DESCR": "Charge",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Chevaucheur de loup",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "3",
+        "PV": "1",
+        "DESCR": "Charge",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Chien du Magma",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "7",
+        "ATK": "9",
+        "PV": "5",
+        "DESCR": " ",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Clerc du Soleil brisé",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "3",
+        "PV": "2",
+        "DESCR": "Cri de guerre : confère +1/+1 à un serviteur allié.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Commando foudrepique",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": "4",
+        "PV": "2",
+        "DESCR": "Cri de guerre : inflige 2 points de dégâts.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Écumeur murloc",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": "2",
+        "PV": "1",
+        "DESCR": " ",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Enragé du magma",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "5",
+        "PV": "1",
+        "DESCR": "",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Fusilier de Forgefer",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "2",
+        "PV": "2",
+        "DESCR": "Cri de guerre : inflige 1 point de dégâts.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Garde de Baie-du-Butin",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": "5",
+        "PV": "4",
+        "DESCR": "Provocation",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Golem de guerre",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "7",
+        "ATK": "7",
+        "PV": "7",
+        "DESCR": " ",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Grizzly Ferpoil",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "3",
+        "PV": "3",
+        "DESCR": "Provocation",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Grunt loup-de-givre",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "2",
+        "PV": "2",
+        "DESCR": "Provocation",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Guerrier branchie-bleue",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "2",
+        "PV": "1",
+        "DESCR": "Ruée",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Gueule d'acier des oasis",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "2",
+        "PV": "7",
+        "DESCR": " ",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Ingénieur novice",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "1",
+        "PV": "1",
+        "DESCR": "Cri de guerre : vous piochez une carte.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Inventrice gnome",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "2",
+        "PV": "4",
+        "DESCR": "Cri de guerre : vous piochez une carte.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Lamenuit",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": "4",
+        "PV": "4",
+        "DESCR": "Cri de guerre : inflige 3 points de dégâts au héros adverse.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Mage de Dalaran",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "1",
+        "PV": "4",
+        "DESCR": "Dégâts des sorts : +1",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Mécano de petit dragon",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "2",
+        "PV": "4",
+        "DESCR": "Cri de guerre : invoque un petit dragon mécanique 2/1.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Missilière téméraire",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "6",
+        "ATK": "5",
+        "PV": "2",
+        "DESCR": "Charge",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Ogre rochepoing",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "6",
+        "ATK": "6",
+        "PV": "7",
+        "DESCR": " ",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Ogre-magi",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "4",
+        "ATK": "4",
+        "PV": "4",
+        "DESCR": "Dégâts des sorts : +1",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Oracle sinistrécaille",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": "1",
+        "PV": "1",
+        "DESCR": "Vos autres murlocs ont +1 ATQ.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Patriarche dos-argenté",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "3",
+        "ATK": "1",
+        "PV": "4",
+        "DESCR": "Provocation",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Raptor Rougefange",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "2",
+        "ATK": "3",
+        "PV": "2",
+        "DESCR": " ",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Sanglier brocheroc",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": "1",
+        "PV": "1",
+        "DESCR": "Ruée",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Seigneur de l'arène",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "6",
+        "ATK": "6",
+        "PV": "5",
+        "DESCR": "Provocation",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Soigneuse sombrécaille",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "5",
+        "ATK": "4",
+        "PV": "5",
+        "DESCR": "Cri de guerre : rend 2 PV à tous les personnages alliés.",
+        "CLASS": " Neutre"
+    },
+    {
+        "NAME": "Soldat de Comté-de-l'Or",
+        "CATEGORY": null,
+        "TYPE": null,
+        "COST": "1",
+        "ATK": "1",
+        "PV": "2",
+        "DESCR": "Provocation",
+        "CLASS": " Neutre"
+    }
+]

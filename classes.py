@@ -38,7 +38,7 @@ class Plateau:
         self.durabilite_joueur2 = 0
         self.tour_de_jeu = 2
 
-    # méthode tour_suivant, permettant de passer au tour de l'adversaire
+    # méthode tour_suivant, permettant de passer au tour de l'adversaire en mettant à jour le plateau
     def tour_suivant(self):
         self.tour_de_jeu = 3 - self.tour_de_jeu  # alterne entre 1 et 2
         if self.tour_de_jeu == 1:
@@ -76,6 +76,8 @@ class TourEnCours:
     def __init__(self, plateau):
         self.plateau = plateau
 
+    ## Action de poser une carte depuis la main du joueur dont c'est le tour.
+    ## Le plateau est mis à jour en conséquence
     def jouer_carte(self, carte):
         if self.plateau.tour_de_jeu == 1:
             if carte.cout <= self.plateau.mana_dispo_joueur1:
@@ -100,6 +102,7 @@ class TourEnCours:
                         self.plateau.serviteurs_joueur2.append(carte)
                 print(f"Carte jouée : {carte.nom}")
 
+    ## Action d'attaquer avec un serviteur ou son héros une cible adverse (serviteur ou héros aussi)
     def attaquer(self, attaquant, cible):
         if self.plateau.tour_de_jeu == 1:
             if attaquant == "heros" and cible == "heros":
@@ -147,15 +150,17 @@ class TourEnCours:
     def fin_du_tour(self):
         self.plateau.tour_suivant()
 
+## L'orchestrateur, qui appelle la classe tourencours pour lui faire effectuer une action aléatoire sur le plateau
 class RandomOrchestrator:
     def __init__(self, plateau):
         self.plateau = plateau
         self.tourencours = TourEnCours(plateau)
+        ## On liste les différentes actions possibles pendant un tour
         self.action_possible = ["Passer_tour", "Jouer_carte", "Attaquer"]
 
+    ## On génère une action aléatoire et on la fait jouer par la classe Tourencours
     def tour_au_hasard(self, carte, attaquant, cible):
         action = random.choice(self.action_possible)
-        print(action)
         if action == "Passer_tour":
             self.tourencours.fin_du_tour()
 

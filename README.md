@@ -14,7 +14,7 @@ Version 0.0.1
 
 <h2>Règles du jeu</h2>
 <h3>But du jeu</h3>
-<p>Réduire la vie du héros de votre adversaire à zéro pour gagner la partie. La victoire se décide par tirage au sort si la vie des deux héros atteint zéro dans la même attaque.</p>
+<p>Réduire la vie du héros de votre adversaire à zéro pour gagner la partie. Si les points de vie des deux héros tombent à zéro lors de la même attaque, il y a match nul.</p>
 
 <h3>Principes du jeu</h3>
 <p>Après avoir choisi une des 9 classes jouables du jeu, les joueurs utilisent un deck de 30 cartes. Il peut être composé de deux exemplaires d'une carte simple. En revanche, il contient une seule unité de carte légendaire. Le deck peut contenir plusieurs cartes légendaires pour autant qu'elles soient différentes. Il doit être composé à la fois de cartes identiques à toutes les classes et de cartes spécifiques à la classe choisie.</p>

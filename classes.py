@@ -84,23 +84,25 @@ class TourEnCours:
                 if carte.type == "sort":
                     self.plateau.cartes_joueur1 -= 1
                     self.plateau.mana_dispo_joueur1 -= carte.cout
+                    print(f"Carte jouée : {carte.nom}")
                 elif carte.type == "serviteur":
                     if len(self.plateau.serviteurs_joueur1) < 7:
                         self.plateau.cartes_joueur1 -= 1
                         self.plateau.mana_dispo_joueur1 -= carte.cout
                         self.plateau.serviteurs_joueur1.append(carte)
-                print(f"Carte jouée : {carte.nom}")
+                        print(f"Carte jouée : {carte.nom}")
         else:
             if carte.cout <= self.plateau.mana_dispo_joueur2:
                 if carte.type == "sort":
                     self.plateau.cartes_joueur2 -= 1
                     self.plateau.mana_dispo_joueur2 -= carte.cout
+                    print(f"Carte jouée : {carte.nom}")
                 elif carte.type == "serviteur":
                     if len(self.plateau.serviteurs_joueur2) < 7:
                         self.plateau.cartes_joueur2 -= 1
                         self.plateau.mana_dispo_joueur2 -= carte.cout
                         self.plateau.serviteurs_joueur2.append(carte)
-                print(f"Carte jouée : {carte.nom}")
+                        print(f"Carte jouée : {carte.nom}")
 
     ## Action d'attaquer avec un serviteur ou son héros une cible adverse (serviteur ou héros aussi)
     def attaquer(self, attaquant, cible):

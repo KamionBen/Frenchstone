@@ -8,6 +8,10 @@ mon_plateau = Plateau("Mage", "Smaguy", "Chasseur", "KamionBen")
 i = 0
 while i < 100:
     ## On choisit des cartes au hasard à jouer, ou pour attaquer
+    if mon_plateau.tour_de_jeu == 1:
+        print(f"Mana disponible : {mon_plateau.mana_dispo_joueur1}")
+    else:
+        print(f"Mana disponible : {mon_plateau.mana_dispo_joueur2}")
     carte_a_jouer = random.choice(all_cartes)
     if mon_plateau.tour_de_jeu == 1:
         attaquant = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)

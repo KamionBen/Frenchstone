@@ -68,14 +68,6 @@ class Plateau:
                 serviteur.atq_restante = 1
 
 
-        print('-----------------------------------------')
-        if self.tour_de_jeu == 1:
-            print(f'Tour de jeu : {self.pseudo_joueur1}')
-        else:
-            print(f'Tour de jeu : {self.pseudo_joueur2}')
-        print('-----------------------------------------')
-
-
 
 ### Classe permettant de décrire exhaustivement une carte
 class Carte:
@@ -111,53 +103,40 @@ class TourEnCours:
                 if carte.type == "sort":
                     self.plateau.cartes_joueur1 -= 1
                     self.plateau.mana_dispo_joueur1 -= carte.cout
-                    print(f"Carte jouée : {carte.nom}")
                 elif carte.type == "serviteur":
                     if len(self.plateau.serviteurs_joueur1) < 7:
                         self.plateau.cartes_joueur1 -= 1
                         self.plateau.mana_dispo_joueur1 -= carte.cout
                         self.plateau.serviteurs_joueur1.append(carte)
-                        print(f"Carte jouée : {carte.nom}")
         else:
             if carte.cout <= self.plateau.mana_dispo_joueur2:
                 if carte.type == "sort":
                     self.plateau.cartes_joueur2 -= 1
                     self.plateau.mana_dispo_joueur2 -= carte.cout
-                    print(f"Carte jouée : {carte.nom}")
                 elif carte.type == "serviteur":
                     if len(self.plateau.serviteurs_joueur2) < 7:
                         self.plateau.cartes_joueur2 -= 1
                         self.plateau.mana_dispo_joueur2 -= carte.cout
                         self.plateau.serviteurs_joueur2.append(carte)
-                        print(f"Carte jouée : {carte.nom}")
 
     ## Action d'attaquer avec un serviteur ou son héros une cible adverse (serviteur ou héros aussi)
     def attaquer(self, attaquant, cible):
         if self.plateau.tour_de_jeu == 1:
             if (attaquant == "heros" and self.plateau.arme_joueur1 == True) and cible == "heros":
-                print(f'Votre héros attaque {self.plateau.pseudo_joueur2}'
-                      f' ({self.plateau.pv_actuels_joueur2} --> {self.plateau.pv_actuels_joueur2 - self.plateau.attaque_joueur1})')
                 self.plateau.pv_actuels_joueur2 -= self.plateau.attaque_joueur1
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur2 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur1} ! Félicitations.")
             elif (attaquant == "heros" and self.plateau.arme_joueur1 == True) and cible != "heros":
-                print(
-                    f'Votre héros ({self.plateau.pv_actuels_joueur1} --> {self.plateau.pv_actuels_joueur1 - cible.attaque}) attaque {cible.nom}'
-                    f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - self.plateau.attaque_joueur1})')
                 self.plateau.pv_actuels_joueur1 -= cible.attaque
                 cible.PV -= self.plateau.attaque_joueur1
                 ## Mort de la cible ou de notre propre héros
                 if cible.PV <= 0:
-                    print(f"{cible.nom} a succombé")
                     #MàJ du plateau si le serviteur meurt
                     self.plateau.serviteurs_joueur2 = [serviteur for serviteur in self.plateau.serviteurs_joueur2 if serviteur.PV > 0]
                 if self.plateau.pv_actuels_joueur1 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur2} ! Félicitations.")
             elif attaquant != "heros" and cible == "heros":
-                print(f'Votre {attaquant.nom} attaque {self.plateau.pseudo_joueur2}'
-                      f' ({self.plateau.pv_actuels_joueur2} --> {self.plateau.pv_actuels_joueur2 - attaquant.attaque})')
-
                 # Conséquences de l'attaque
                 self.plateau.pv_actuels_joueur2 -= attaquant.attaque
                 attaquant.atq_restante -= 1
@@ -166,10 +145,6 @@ class TourEnCours:
                 if self.plateau.pv_actuels_joueur2 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur1} ! Félicitations.")
             else:
-                print(f'Votre {attaquant.nom} ({attaquant.attaque}, {attaquant.PV}) --> ({attaquant.attaque}, {attaquant.PV - cible.attaque})'
-                      f' attaque {cible.nom}'
-                      f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - attaquant.attaque})')
-
                 # Conséquences de l'attaque
                 attaquant.PV -= cible.attaque
                 cible.PV -= attaquant.attaque
@@ -177,43 +152,32 @@ class TourEnCours:
 
                 ## Mort de l'attaquant ou/et de la cible
                 if cible.PV <= 0:
-                    print(f"{cible.nom} a succombé")
                     # MàJ du plateau si le serviteur meurt
                     self.plateau.serviteurs_joueur2 = [serviteur for serviteur in self.plateau.serviteurs_joueur2 if
                                                        serviteur.PV > 0]
                 if attaquant.PV <= 0:
-                    print(f"{attaquant.nom} a succombé")
                     # MàJ du plateau si le serviteur meurt
                     self.plateau.serviteurs_joueur1 = [serviteur for serviteur in self.plateau.serviteurs_joueur1 if
                                                        serviteur.PV > 0]
         else:
             if (attaquant == "heros" and self.plateau.arme_joueur2 == True) and cible == "heros":
-                print(f'Votre héros attaque {self.plateau.pseudo_joueur1}'
-                      f' ({self.plateau.pv_actuels_joueur1} --> {self.plateau.pv_actuels_joueur1 - self.plateau.attaque_joueur2})')
                 self.plateau.pv_actuels_joueur1 -= self.plateau.attaque_joueur2
 
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur1 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur2} ! Félicitations.")
             elif (attaquant == "heros" and self.plateau.arme_joueur2 == True) and cible != "heros":
-                print(
-                    f'Votre héros ({self.plateau.pv_actuels_joueur2} --> {self.plateau.pv_actuels_joueur2 - cible.attaque}) attaque {cible.nom}'
-                    f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - self.plateau.attaque_joueur2})')
                 self.plateau.pv_actuels_joueur2 -= cible.attaque
                 cible.PV -= self.plateau.attaque_joueur2
 
                 ## Mort de la cible ou de notre propre héros
                 if cible.PV <= 0:
-                    print(f"{cible.nom} a succombé")
                     # MàJ du plateau si le serviteur meurt
                     self.plateau.serviteurs_joueur1 = [serviteur for serviteur in self.plateau.serviteurs_joueur1 if
                                                        serviteur.PV > 0]
                 if self.plateau.pv_actuels_joueur2 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur1} ! Félicitations.")
             elif attaquant != "heros" and cible == "heros":
-                print(f'Votre {attaquant.nom} attaque {self.plateau.pseudo_joueur1}'
-                      f' ({self.plateau.pv_actuels_joueur1} --> {self.plateau.pv_actuels_joueur1 - attaquant.attaque})')
-
                 # Conséquences de l'attaque
                 self.plateau.pv_actuels_joueur1 -= attaquant.attaque
                 attaquant.atq_restante -= 1
@@ -222,9 +186,6 @@ class TourEnCours:
                 if self.plateau.pv_actuels_joueur1 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur2} ! Félicitations.")
             else:
-                print(f'Votre {attaquant.nom} ({attaquant.attaque}, {attaquant.PV}) --> ({attaquant.attaque}, {attaquant.PV - cible.attaque})'
-                      f' attaque {cible.nom}'
-                      f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - attaquant.attaque})')
 
                 # Conséquences de l'attaque
                 attaquant.PV -= cible.attaque
@@ -233,12 +194,10 @@ class TourEnCours:
 
                 ## Mort de l'attaquant ou/et de la cible
                 if cible.PV <= 0:
-                    print(f"{cible.nom} a succombé")
                     # MàJ du plateau si le serviteur meurt
                     self.plateau.serviteurs_joueur1 = [serviteur for serviteur in self.plateau.serviteurs_joueur1 if
                                                        serviteur.PV > 0]
                 if attaquant.PV <= 0:
-                    print(f"{attaquant.nom} a succombé")
                     # MàJ du plateau si le serviteur meurt
                     self.plateau.serviteurs_joueur2 = [serviteur for serviteur in self.plateau.serviteurs_joueur2 if
                                                        serviteur.PV > 0]

@@ -5,6 +5,7 @@ import random
 from init_variables import *
 from random import shuffle
 from Entities import *
+from copy import deepcopy
 
 """ Décrit exhaustivement le plateau de jeu """
 class Plateau:
@@ -309,12 +310,10 @@ class TourEnCours:
 
 ## L'orchestrateur, qui appelle la classe tourencours pour lui faire effectuer une action aléatoire sur le plateau
 class RandomOrchestrator:
-    def __init__(self, plateau):
-        self.plateau = plateau
-        self.tourencours = TourEnCours(plateau)
 
     ## On génère une action aléatoire et on la fait jouer par la classe Tourencours
-    def tour_au_hasard(self, carte, attaquant, cible):
+    def tour_au_hasard(self, carte, attaquant, cible, plateau):
+        tour_en_cours = TourEnCours(plateau)
         ## On liste les différentes actions possibles pendant un tour
         action_possible = ["Passer_tour", "Jouer_carte", "Attaquer"]
         ## Choix des actions possibles en fonction du plateau
@@ -335,74 +334,74 @@ class RandomOrchestrator:
                 "cible": "",
                 "cible_atq": "",
                 "cible_pv": "",
-                "classe_j" : self.plateau.classe_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.classe_joueur2,
-                "classe_adv" : self.plateau.classe_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.classe_joueur1,
-                "mana_dispo_j" : self.plateau.mana_dispo_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_dispo_joueur2,
-                "mana_max_j" : self.plateau.mana_max_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_max_joueur2,
-                "mana_max_adv" : self.plateau.mana_max_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_max_joueur1,
-                "surcharge_j" : self.plateau.surcharge_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.surcharge_joueur2,
-                "surcharge_adv" : self.plateau.surcharge_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.surcharge_joueur1,
-                "pv_j" : self.plateau.pv_actuels_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_actuels_joueur2,
-                "pv_adv" : self.plateau.pv_actuels_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_actuels_joueur1,
-                "pv_max_j" : self.plateau.pv_max_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_max_joueur2,
-                "pv_max_adv" : self.plateau.pv_max_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_max_joueur1,
-                "nbre_cartes_j" : self.plateau.cartes_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.cartes_joueur2,
-                "nbre_cartes_adv" : self.plateau.cartes_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.cartes_joueur1,
-                "dispo_ph_j" : self.plateau.dispo_pouvoir_hero_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.dispo_pouvoir_hero_joueur2,
-                "cout_ph_j" : self.plateau.cout_pouvoir_hero_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.cout_pouvoir_hero_joueur2,
-                "serv1_j" : self.plateau.serviteurs_joueur1[0].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "atq_serv1_j" : self.plateau.serviteurs_joueur1[0].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "pv_serv1_j" : self.plateau.serviteurs_joueur1[0].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "serv2_j" : self.plateau.serviteurs_joueur1[1].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "atq_serv2_j" : self.plateau.serviteurs_joueur1[1].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "pv_serv2_j" : self.plateau.serviteurs_joueur1[1].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "serv3_j" : self.plateau.serviteurs_joueur1[2].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "atq_serv3_j" : self.plateau.serviteurs_joueur1[2].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "pv_serv3_j" : self.plateau.serviteurs_joueur1[2].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "serv4_j" : self.plateau.serviteurs_joueur1[3].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "atq_serv4_j" : self.plateau.serviteurs_joueur1[3].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "pv_serv4_j" : self.plateau.serviteurs_joueur1[3].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "serv5_j" : self.plateau.serviteurs_joueur1[4].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "atq_serv5_j" : self.plateau.serviteurs_joueur1[4].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "pv_serv5_j" : self.plateau.serviteurs_joueur1[4].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "serv6_j" : self.plateau.serviteurs_joueur1[5].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "atq_serv6_j" : self.plateau.serviteurs_joueur1[5].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "pv_serv6_j" : self.plateau.serviteurs_joueur1[5].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "serv7_j" : self.plateau.serviteurs_joueur1[6].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "atq_serv7_j" : self.plateau.serviteurs_joueur1[6].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "pv_serv7_j" : self.plateau.serviteurs_joueur1[6].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "serv1_adv" : self.plateau.serviteurs_joueur2[0].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "atq_serv1_adv" : self.plateau.serviteurs_joueur2[0].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "pv_serv1_adv" : self.plateau.serviteurs_joueur2[0].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "serv2_adv" : self.plateau.serviteurs_joueur2[1].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "atq_serv2_adv" : self.plateau.serviteurs_joueur2[1].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "pv_serv2_adv" : self.plateau.serviteurs_joueur2[1].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "serv3_adv" : self.plateau.serviteurs_joueur2[2].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "atq_serv3_adv" : self.plateau.serviteurs_joueur2[2].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "pv_serv3_adv" : self.plateau.serviteurs_joueur2[2].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "serv4_adv" : self.plateau.serviteurs_joueur2[3].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "atq_serv4_adv" : self.plateau.serviteurs_joueur2[3].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "pv_serv4_adv" : self.plateau.serviteurs_joueur2[3].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "serv5_adv" : self.plateau.serviteurs_joueur2[4].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "atq_serv5_adv" : self.plateau.serviteurs_joueur2[4].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "pv_serv5_adv" : self.plateau.serviteurs_joueur2[4].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "serv6_adv" : self.plateau.serviteurs_joueur2[5].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "atq_serv6_adv" : self.plateau.serviteurs_joueur2[5].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "pv_serv6_adv" : self.plateau.serviteurs_joueur2[5].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "serv7_adv" : self.plateau.serviteurs_joueur2[6].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "atq_serv7_adv" : self.plateau.serviteurs_joueur2[6].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "pv_serv7_adv" : self.plateau.serviteurs_joueur2[6].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "arme_j" : self.plateau.arme_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.arme_joueur2,
-                "arme_adv" : self.plateau.arme_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.arme_joueur1,
-                "attaque_j" : self.plateau.attaque_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.attaque_joueur2,
-                "attaque_adv" : self.plateau.attaque_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.attaque_joueur1,
-                "durabilite_arme_j" : self.plateau.durabilite_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.durabilite_joueur2,
-                "durabilite_arme_adv" : self.plateau.durabilite_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.durabilite_joueur1
+                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
+                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
+                "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
+                "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
+                "surcharge_j" : plateau.surcharge_joueur1 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur2,
+                "surcharge_adv" : plateau.surcharge_joueur2 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur1,
+                "pv_j" : plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur2,
+                "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
+                "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
+                "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
+                "nbre_cartes_j" : plateau.cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur2,
+                "nbre_cartes_adv" : plateau.cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur1,
+                "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
+                "cout_ph_j" : plateau.cout_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.cout_pouvoir_hero_joueur2,
+                "serv1_j" : plateau.serviteurs_joueur1[0].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "atq_serv1_j" : plateau.serviteurs_joueur1[0].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "pv_serv1_j" : plateau.serviteurs_joueur1[0].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "serv2_j" : plateau.serviteurs_joueur1[1].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "atq_serv2_j" : plateau.serviteurs_joueur1[1].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "pv_serv2_j" : plateau.serviteurs_joueur1[1].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "serv3_j" : plateau.serviteurs_joueur1[2].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "atq_serv3_j" : plateau.serviteurs_joueur1[2].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "pv_serv3_j" : plateau.serviteurs_joueur1[2].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "serv4_j" : plateau.serviteurs_joueur1[3].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "atq_serv4_j" : plateau.serviteurs_joueur1[3].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "pv_serv4_j" : plateau.serviteurs_joueur1[3].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "serv5_j" : plateau.serviteurs_joueur1[4].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "atq_serv5_j" : plateau.serviteurs_joueur1[4].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "pv_serv5_j" : plateau.serviteurs_joueur1[4].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "serv6_j" : plateau.serviteurs_joueur1[5].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "atq_serv6_j" : plateau.serviteurs_joueur1[5].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "pv_serv6_j" : plateau.serviteurs_joueur1[5].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "serv7_j" : plateau.serviteurs_joueur1[6].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "atq_serv7_j" : plateau.serviteurs_joueur1[6].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "pv_serv7_j" : plateau.serviteurs_joueur1[6].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "serv1_adv" : plateau.serviteurs_joueur2[0].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "atq_serv1_adv" : plateau.serviteurs_joueur2[0].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "pv_serv1_adv" : plateau.serviteurs_joueur2[0].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "serv2_adv" : plateau.serviteurs_joueur2[1].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "atq_serv2_adv" : plateau.serviteurs_joueur2[1].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "pv_serv2_adv" : plateau.serviteurs_joueur2[1].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "serv3_adv" : plateau.serviteurs_joueur2[2].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "atq_serv3_adv" : plateau.serviteurs_joueur2[2].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "pv_serv3_adv" : plateau.serviteurs_joueur2[2].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "serv4_adv" : plateau.serviteurs_joueur2[3].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "atq_serv4_adv" : plateau.serviteurs_joueur2[3].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "pv_serv4_adv" : plateau.serviteurs_joueur2[3].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "serv5_adv" : plateau.serviteurs_joueur2[4].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "atq_serv5_adv" : plateau.serviteurs_joueur2[4].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "pv_serv5_adv" : plateau.serviteurs_joueur2[4].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "serv6_adv" : plateau.serviteurs_joueur2[5].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "atq_serv6_adv" : plateau.serviteurs_joueur2[5].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "pv_serv6_adv" : plateau.serviteurs_joueur2[5].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "serv7_adv" : plateau.serviteurs_joueur2[6].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "atq_serv7_adv" : plateau.serviteurs_joueur2[6].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "pv_serv7_adv" : plateau.serviteurs_joueur2[6].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "arme_j" : plateau.arme_joueur1 if plateau.tour_de_jeu == 1 else plateau.arme_joueur2,
+                "arme_adv" : plateau.arme_joueur2 if plateau.tour_de_jeu == 1 else plateau.arme_joueur1,
+                "attaque_j" : plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2,
+                "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
+                "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
+                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1
             }
             logs_hs.loc[len(logs_hs)] = action_line
 
             ## Action
-            self.tourencours.fin_du_tour()
+            tour_en_cours.fin_du_tour()
 
         elif action == "Jouer_carte":
             ## Génération des logs associés à l'action
@@ -415,74 +414,74 @@ class RandomOrchestrator:
                 "cible": "",
                 "cible_atq": "",
                 "cible_pv": "",
-                "classe_j": self.plateau.classe_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.classe_joueur2,
-                "classe_adv": self.plateau.classe_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.classe_joueur1,
-                "mana_dispo_j": self.plateau.mana_dispo_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_dispo_joueur2,
-                "mana_max_j": self.plateau.mana_max_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_max_joueur2,
-                "mana_max_adv": self.plateau.mana_max_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_max_joueur1,
-                "surcharge_j": self.plateau.surcharge_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.surcharge_joueur2,
-                "surcharge_adv": self.plateau.surcharge_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.surcharge_joueur1,
-                "pv_j": self.plateau.pv_actuels_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_actuels_joueur2,
-                "pv_adv": self.plateau.pv_actuels_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_actuels_joueur1,
-                "pv_max_j": self.plateau.pv_max_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_max_joueur2,
-                "pv_max_adv": self.plateau.pv_max_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_max_joueur1,
-                "nbre_cartes_j": self.plateau.cartes_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.cartes_joueur2,
-                "nbre_cartes_adv": self.plateau.cartes_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.cartes_joueur1,
-                "dispo_ph_j": self.plateau.dispo_pouvoir_hero_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.dispo_pouvoir_hero_joueur2,
-                "cout_ph_j": self.plateau.cout_pouvoir_hero_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.cout_pouvoir_hero_joueur2,
-                "serv1_j" : self.plateau.serviteurs_joueur1[0].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "atq_serv1_j" : self.plateau.serviteurs_joueur1[0].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "pv_serv1_j" : self.plateau.serviteurs_joueur1[0].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "serv2_j" : self.plateau.serviteurs_joueur1[1].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "atq_serv2_j" : self.plateau.serviteurs_joueur1[1].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "pv_serv2_j" : self.plateau.serviteurs_joueur1[1].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "serv3_j" : self.plateau.serviteurs_joueur1[2].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "atq_serv3_j" : self.plateau.serviteurs_joueur1[2].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "pv_serv3_j" : self.plateau.serviteurs_joueur1[2].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "serv4_j" : self.plateau.serviteurs_joueur1[3].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "atq_serv4_j" : self.plateau.serviteurs_joueur1[3].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "pv_serv4_j" : self.plateau.serviteurs_joueur1[3].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "serv5_j" : self.plateau.serviteurs_joueur1[4].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "atq_serv5_j" : self.plateau.serviteurs_joueur1[4].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "pv_serv5_j" : self.plateau.serviteurs_joueur1[4].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "serv6_j" : self.plateau.serviteurs_joueur1[5].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "atq_serv6_j" : self.plateau.serviteurs_joueur1[5].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "pv_serv6_j" : self.plateau.serviteurs_joueur1[5].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "serv7_j" : self.plateau.serviteurs_joueur1[6].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "atq_serv7_j" : self.plateau.serviteurs_joueur1[6].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "pv_serv7_j" : self.plateau.serviteurs_joueur1[6].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "serv1_adv" : self.plateau.serviteurs_joueur2[0].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "atq_serv1_adv" : self.plateau.serviteurs_joueur2[0].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "pv_serv1_adv" : self.plateau.serviteurs_joueur2[0].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "serv2_adv" : self.plateau.serviteurs_joueur2[1].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "atq_serv2_adv" : self.plateau.serviteurs_joueur2[1].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "pv_serv2_adv" : self.plateau.serviteurs_joueur2[1].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "serv3_adv" : self.plateau.serviteurs_joueur2[2].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "atq_serv3_adv" : self.plateau.serviteurs_joueur2[2].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "pv_serv3_adv" : self.plateau.serviteurs_joueur2[2].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "serv4_adv" : self.plateau.serviteurs_joueur2[3].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "atq_serv4_adv" : self.plateau.serviteurs_joueur2[3].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "pv_serv4_adv" : self.plateau.serviteurs_joueur2[3].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "serv5_adv" : self.plateau.serviteurs_joueur2[4].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "atq_serv5_adv" : self.plateau.serviteurs_joueur2[4].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "pv_serv5_adv" : self.plateau.serviteurs_joueur2[4].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "serv6_adv" : self.plateau.serviteurs_joueur2[5].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "atq_serv6_adv" : self.plateau.serviteurs_joueur2[5].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "pv_serv6_adv" : self.plateau.serviteurs_joueur2[5].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "serv7_adv" : self.plateau.serviteurs_joueur2[6].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "atq_serv7_adv" : self.plateau.serviteurs_joueur2[6].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "pv_serv7_adv" : self.plateau.serviteurs_joueur2[6].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "arme_j": self.plateau.arme_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.arme_joueur2,
-                "arme_adv": self.plateau.arme_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.arme_joueur1,
-                "attaque_j": self.plateau.attaque_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.attaque_joueur2,
-                "attaque_adv": self.plateau.attaque_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.attaque_joueur1,
-                "durabilite_arme_j": self.plateau.durabilite_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.durabilite_joueur2,
-                "durabilite_arme_adv": self.plateau.durabilite_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.durabilite_joueur1
+                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
+                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
+                "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
+                "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
+                "surcharge_j" : plateau.surcharge_joueur1 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur2,
+                "surcharge_adv" : plateau.surcharge_joueur2 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur1,
+                "pv_j" : plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur2,
+                "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
+                "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
+                "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
+                "nbre_cartes_j" : plateau.cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur2,
+                "nbre_cartes_adv" : plateau.cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur1,
+                "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
+                "cout_ph_j" : plateau.cout_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.cout_pouvoir_hero_joueur2,
+                "serv1_j" : plateau.serviteurs_joueur1[0].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "atq_serv1_j" : plateau.serviteurs_joueur1[0].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "pv_serv1_j" : plateau.serviteurs_joueur1[0].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "serv2_j" : plateau.serviteurs_joueur1[1].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "atq_serv2_j" : plateau.serviteurs_joueur1[1].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "pv_serv2_j" : plateau.serviteurs_joueur1[1].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "serv3_j" : plateau.serviteurs_joueur1[2].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "atq_serv3_j" : plateau.serviteurs_joueur1[2].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "pv_serv3_j" : plateau.serviteurs_joueur1[2].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "serv4_j" : plateau.serviteurs_joueur1[3].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "atq_serv4_j" : plateau.serviteurs_joueur1[3].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "pv_serv4_j" : plateau.serviteurs_joueur1[3].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "serv5_j" : plateau.serviteurs_joueur1[4].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "atq_serv5_j" : plateau.serviteurs_joueur1[4].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "pv_serv5_j" : plateau.serviteurs_joueur1[4].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "serv6_j" : plateau.serviteurs_joueur1[5].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "atq_serv6_j" : plateau.serviteurs_joueur1[5].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "pv_serv6_j" : plateau.serviteurs_joueur1[5].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "serv7_j" : plateau.serviteurs_joueur1[6].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "atq_serv7_j" : plateau.serviteurs_joueur1[6].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "pv_serv7_j" : plateau.serviteurs_joueur1[6].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "serv1_adv" : plateau.serviteurs_joueur2[0].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "atq_serv1_adv" : plateau.serviteurs_joueur2[0].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "pv_serv1_adv" : plateau.serviteurs_joueur2[0].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "serv2_adv" : plateau.serviteurs_joueur2[1].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "atq_serv2_adv" : plateau.serviteurs_joueur2[1].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "pv_serv2_adv" : plateau.serviteurs_joueur2[1].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "serv3_adv" : plateau.serviteurs_joueur2[2].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "atq_serv3_adv" : plateau.serviteurs_joueur2[2].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "pv_serv3_adv" : plateau.serviteurs_joueur2[2].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "serv4_adv" : plateau.serviteurs_joueur2[3].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "atq_serv4_adv" : plateau.serviteurs_joueur2[3].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "pv_serv4_adv" : plateau.serviteurs_joueur2[3].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "serv5_adv" : plateau.serviteurs_joueur2[4].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "atq_serv5_adv" : plateau.serviteurs_joueur2[4].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "pv_serv5_adv" : plateau.serviteurs_joueur2[4].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "serv6_adv" : plateau.serviteurs_joueur2[5].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "atq_serv6_adv" : plateau.serviteurs_joueur2[5].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "pv_serv6_adv" : plateau.serviteurs_joueur2[5].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "serv7_adv" : plateau.serviteurs_joueur2[6].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "atq_serv7_adv" : plateau.serviteurs_joueur2[6].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "pv_serv7_adv" : plateau.serviteurs_joueur2[6].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "arme_j" : plateau.arme_joueur1 if plateau.tour_de_jeu == 1 else plateau.arme_joueur2,
+                "arme_adv" : plateau.arme_joueur2 if plateau.tour_de_jeu == 1 else plateau.arme_joueur1,
+                "attaque_j" : plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2,
+                "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
+                "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
+                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1
             }
             logs_hs.loc[len(logs_hs)] = action_line
 
             ## Action
-            self.tourencours.jouer_carte(carte)
+            tour_en_cours.jouer_carte(carte)
 
         # On filtre pour n'attaquer que quand c'est légal
         elif action == "Attaquer" and attaquant != "":
@@ -491,85 +490,132 @@ class RandomOrchestrator:
                 "action": "attaquer",
                 "carte_jouee": "",
                 "attaquant": attaquant.name if attaquant != "heros" else "heros",
-                "attaquant_atq": attaquant.attack if attaquant != "heros" else self.plateau.attaque_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.attaque_joueur2 if self.plateau.tour_de_jeu == 2 else "",
-                "attaquant_pv": attaquant.health if attaquant != "heros" else self.plateau.pv_actuels_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_actuels_joueur2 if self.plateau.tour_de_jeu == 2 else "",
+                "attaquant_atq": attaquant.attack if attaquant != "heros" else plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2 if plateau.tour_de_jeu == 2 else "",
+                "attaquant_pv": attaquant.health if attaquant != "heros" else plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 2 else "",
                 "cible": cible.name if cible != "heros" else "heros",
                 "cible_atq": cible.attack if cible != "heros" else 0,
-                "cible_pv": cible.health if cible != "heros" else self.plateau.pv_actuels_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_actuels_joueur1 if self.plateau.tour_de_jeu == 2 else "",
-                "classe_j": self.plateau.classe_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.classe_joueur2,
-                "classe_adv": self.plateau.classe_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.classe_joueur1,
-                "mana_dispo_j": self.plateau.mana_dispo_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_dispo_joueur2,
-                "mana_max_j": self.plateau.mana_max_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_max_joueur2,
-                "mana_max_adv": self.plateau.mana_max_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.mana_max_joueur1,
-                "surcharge_j": self.plateau.surcharge_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.surcharge_joueur2,
-                "surcharge_adv": self.plateau.surcharge_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.surcharge_joueur1,
-                "pv_j": self.plateau.pv_actuels_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_actuels_joueur2,
-                "pv_adv": self.plateau.pv_actuels_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_actuels_joueur1,
-                "pv_max_j": self.plateau.pv_max_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_max_joueur2,
-                "pv_max_adv": self.plateau.pv_max_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.pv_max_joueur1,
-                "nbre_cartes_j": self.plateau.cartes_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.cartes_joueur2,
-                "nbre_cartes_adv": self.plateau.cartes_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.cartes_joueur1,
-                "dispo_ph_j": self.plateau.dispo_pouvoir_hero_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.dispo_pouvoir_hero_joueur2,
-                "cout_ph_j": self.plateau.cout_pouvoir_hero_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.cout_pouvoir_hero_joueur2,
-                "serv1_j" : self.plateau.serviteurs_joueur1[0].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "atq_serv1_j" : self.plateau.serviteurs_joueur1[0].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "pv_serv1_j" : self.plateau.serviteurs_joueur1[0].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 0 else self.plateau.serviteurs_joueur2[0].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 0 else "",
-                "serv2_j" : self.plateau.serviteurs_joueur1[1].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "atq_serv2_j" : self.plateau.serviteurs_joueur1[1].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "pv_serv2_j" : self.plateau.serviteurs_joueur1[1].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 1 else self.plateau.serviteurs_joueur2[1].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 1 else "",
-                "serv3_j" : self.plateau.serviteurs_joueur1[2].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "atq_serv3_j" : self.plateau.serviteurs_joueur1[2].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "pv_serv3_j" : self.plateau.serviteurs_joueur1[2].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 2 else self.plateau.serviteurs_joueur2[2].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 2 else "",
-                "serv4_j" : self.plateau.serviteurs_joueur1[3].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "atq_serv4_j" : self.plateau.serviteurs_joueur1[3].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "pv_serv4_j" : self.plateau.serviteurs_joueur1[3].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 3 else self.plateau.serviteurs_joueur2[3].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 3 else "",
-                "serv5_j" : self.plateau.serviteurs_joueur1[4].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "atq_serv5_j" : self.plateau.serviteurs_joueur1[4].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "pv_serv5_j" : self.plateau.serviteurs_joueur1[4].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 4 else self.plateau.serviteurs_joueur2[4].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 4 else "",
-                "serv6_j" : self.plateau.serviteurs_joueur1[5].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "atq_serv6_j" : self.plateau.serviteurs_joueur1[5].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "pv_serv6_j" : self.plateau.serviteurs_joueur1[5].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 5 else self.plateau.serviteurs_joueur2[5].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 5 else "",
-                "serv7_j" : self.plateau.serviteurs_joueur1[6].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "atq_serv7_j" : self.plateau.serviteurs_joueur1[6].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "pv_serv7_j" : self.plateau.serviteurs_joueur1[6].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur1) > 6 else self.plateau.serviteurs_joueur2[6].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur2) > 6 else "",
-                "serv1_adv" : self.plateau.serviteurs_joueur2[0].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "atq_serv1_adv" : self.plateau.serviteurs_joueur2[0].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "pv_serv1_adv" : self.plateau.serviteurs_joueur2[0].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 0 else self.plateau.serviteurs_joueur1[0].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 0 else "",
-                "serv2_adv" : self.plateau.serviteurs_joueur2[1].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "atq_serv2_adv" : self.plateau.serviteurs_joueur2[1].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "pv_serv2_adv" : self.plateau.serviteurs_joueur2[1].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 1 else self.plateau.serviteurs_joueur1[1].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 1 else "",
-                "serv3_adv" : self.plateau.serviteurs_joueur2[2].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "atq_serv3_adv" : self.plateau.serviteurs_joueur2[2].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "pv_serv3_adv" : self.plateau.serviteurs_joueur2[2].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 2 else self.plateau.serviteurs_joueur1[2].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 2 else "",
-                "serv4_adv" : self.plateau.serviteurs_joueur2[3].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "atq_serv4_adv" : self.plateau.serviteurs_joueur2[3].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "pv_serv4_adv" : self.plateau.serviteurs_joueur2[3].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 3 else self.plateau.serviteurs_joueur1[3].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 3 else "",
-                "serv5_adv" : self.plateau.serviteurs_joueur2[4].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "atq_serv5_adv" : self.plateau.serviteurs_joueur2[4].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "pv_serv5_adv" : self.plateau.serviteurs_joueur2[4].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 4 else self.plateau.serviteurs_joueur1[4].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 4 else "",
-                "serv6_adv" : self.plateau.serviteurs_joueur2[5].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "atq_serv6_adv" : self.plateau.serviteurs_joueur2[5].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "pv_serv6_adv" : self.plateau.serviteurs_joueur2[5].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 5 else self.plateau.serviteurs_joueur1[5].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 5 else "",
-                "serv7_adv" : self.plateau.serviteurs_joueur2[6].name if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].name if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "atq_serv7_adv" : self.plateau.serviteurs_joueur2[6].attack if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].attack if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "pv_serv7_adv" : self.plateau.serviteurs_joueur2[6].health if self.plateau.tour_de_jeu == 1 and len(self.plateau.serviteurs_joueur2) > 6 else self.plateau.serviteurs_joueur1[6].health if self.plateau.tour_de_jeu == 2 and len(self.plateau.serviteurs_joueur1) > 6 else "",
-                "arme_j": self.plateau.arme_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.arme_joueur2,
-                "arme_adv": self.plateau.arme_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.arme_joueur1,
-                "attaque_j": self.plateau.attaque_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.attaque_joueur2,
-                "attaque_adv": self.plateau.attaque_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.attaque_joueur1,
-                "durabilite_arme_j": self.plateau.durabilite_joueur1 if self.plateau.tour_de_jeu == 1 else self.plateau.durabilite_joueur2,
-                "durabilite_arme_adv": self.plateau.durabilite_joueur2 if self.plateau.tour_de_jeu == 1 else self.plateau.durabilite_joueur1
+                "cible_pv": cible.health if cible != "heros" else plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 2 else "",
+                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
+                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
+                "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
+                "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
+                "surcharge_j" : plateau.surcharge_joueur1 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur2,
+                "surcharge_adv" : plateau.surcharge_joueur2 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur1,
+                "pv_j" : plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur2,
+                "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
+                "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
+                "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
+                "nbre_cartes_j" : plateau.cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur2,
+                "nbre_cartes_adv" : plateau.cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur1,
+                "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
+                "cout_ph_j" : plateau.cout_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.cout_pouvoir_hero_joueur2,
+                "serv1_j" : plateau.serviteurs_joueur1[0].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "atq_serv1_j" : plateau.serviteurs_joueur1[0].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "pv_serv1_j" : plateau.serviteurs_joueur1[0].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else "",
+                "serv2_j" : plateau.serviteurs_joueur1[1].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "atq_serv2_j" : plateau.serviteurs_joueur1[1].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "pv_serv2_j" : plateau.serviteurs_joueur1[1].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 1 else plateau.serviteurs_joueur2[1].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 1 else "",
+                "serv3_j" : plateau.serviteurs_joueur1[2].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "atq_serv3_j" : plateau.serviteurs_joueur1[2].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "pv_serv3_j" : plateau.serviteurs_joueur1[2].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 2 else plateau.serviteurs_joueur2[2].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 2 else "",
+                "serv4_j" : plateau.serviteurs_joueur1[3].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "atq_serv4_j" : plateau.serviteurs_joueur1[3].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "pv_serv4_j" : plateau.serviteurs_joueur1[3].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 3 else plateau.serviteurs_joueur2[3].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 3 else "",
+                "serv5_j" : plateau.serviteurs_joueur1[4].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "atq_serv5_j" : plateau.serviteurs_joueur1[4].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "pv_serv5_j" : plateau.serviteurs_joueur1[4].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 4 else plateau.serviteurs_joueur2[4].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 4 else "",
+                "serv6_j" : plateau.serviteurs_joueur1[5].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "atq_serv6_j" : plateau.serviteurs_joueur1[5].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "pv_serv6_j" : plateau.serviteurs_joueur1[5].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 5 else plateau.serviteurs_joueur2[5].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 5 else "",
+                "serv7_j" : plateau.serviteurs_joueur1[6].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "atq_serv7_j" : plateau.serviteurs_joueur1[6].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "pv_serv7_j" : plateau.serviteurs_joueur1[6].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 6 else plateau.serviteurs_joueur2[6].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 6 else "",
+                "serv1_adv" : plateau.serviteurs_joueur2[0].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "atq_serv1_adv" : plateau.serviteurs_joueur2[0].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "pv_serv1_adv" : plateau.serviteurs_joueur2[0].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 0 else plateau.serviteurs_joueur1[0].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 0 else "",
+                "serv2_adv" : plateau.serviteurs_joueur2[1].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "atq_serv2_adv" : plateau.serviteurs_joueur2[1].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "pv_serv2_adv" : plateau.serviteurs_joueur2[1].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 1 else plateau.serviteurs_joueur1[1].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 1 else "",
+                "serv3_adv" : plateau.serviteurs_joueur2[2].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "atq_serv3_adv" : plateau.serviteurs_joueur2[2].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "pv_serv3_adv" : plateau.serviteurs_joueur2[2].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 2 else plateau.serviteurs_joueur1[2].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 2 else "",
+                "serv4_adv" : plateau.serviteurs_joueur2[3].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "atq_serv4_adv" : plateau.serviteurs_joueur2[3].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "pv_serv4_adv" : plateau.serviteurs_joueur2[3].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 3 else plateau.serviteurs_joueur1[3].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 3 else "",
+                "serv5_adv" : plateau.serviteurs_joueur2[4].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "atq_serv5_adv" : plateau.serviteurs_joueur2[4].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "pv_serv5_adv" : plateau.serviteurs_joueur2[4].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 4 else plateau.serviteurs_joueur1[4].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 4 else "",
+                "serv6_adv" : plateau.serviteurs_joueur2[5].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "atq_serv6_adv" : plateau.serviteurs_joueur2[5].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "pv_serv6_adv" : plateau.serviteurs_joueur2[5].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 5 else plateau.serviteurs_joueur1[5].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 5 else "",
+                "serv7_adv" : plateau.serviteurs_joueur2[6].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].name if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "atq_serv7_adv" : plateau.serviteurs_joueur2[6].attack if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].attack if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "pv_serv7_adv" : plateau.serviteurs_joueur2[6].health if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur2) > 6 else plateau.serviteurs_joueur1[6].health if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur1) > 6 else "",
+                "arme_j" : plateau.arme_joueur1 if plateau.tour_de_jeu == 1 else plateau.arme_joueur2,
+                "arme_adv" : plateau.arme_joueur2 if plateau.tour_de_jeu == 1 else plateau.arme_joueur1,
+                "attaque_j" : plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2,
+                "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
+                "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
+                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1
             }
             logs_hs.loc[len(logs_hs)] = action_line
 
             ## Action
             if attaquant != "heros": # attaque seulement si le serviteur le peut
-                self.tourencours.attaquer(attaquant, cible)
+                tour_en_cours.attaquer(attaquant, cible)
             elif attaquant == "heros":
-                if (self.plateau.tour_de_jeu == 1 and self.plateau.attaque_joueur1 != 0) or \
-                    (self.plateau.tour_de_jeu == 2 and self.plateau.attaque_joueur2 != 0): # n'attaque que si le héros a de l'attaque
-                    self.tourencours.attaquer(attaquant, cible)
-        return self.plateau
+                if (plateau.tour_de_jeu == 1 and plateau.attaque_joueur1 != 0) or \
+                    (plateau.tour_de_jeu == 2 and plateau.attaque_joueur2 != 0): # n'attaque que si le héros a de l'attaque
+                    tour_en_cours.attaquer(attaquant, cible)
+        return plateau
+
+    """ Génère un nombre donné de parties et créé les logs associés"""
+    def generate_game(self, nb_games, classe_j1, pseudo_j1, classe_j2, pseudo_j2):
+        i = 0
+        victoires_j1 = 0
+        victoires_j2 = 0
+        while i < nb_games:
+            mon_plateau = Plateau(classe_j1, pseudo_j1, classe_j2, pseudo_j2)
+            while not (mon_plateau.pv_actuels_joueur1 <= 0 or mon_plateau.pv_actuels_joueur2 <= 0):
+                if mon_plateau.tour_de_jeu == 1:
+                    ## On choisit une carte au hasard à jouer si on a le mana pour
+                    cartes_jouables = [x for x in mon_plateau.player1.deck if x.cost <= mon_plateau.mana_dispo_joueur1]
+                    carte_a_jouer = deepcopy(random.choice(cartes_jouables)) if len(cartes_jouables) != 0 else ""
+
+                    # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur pouvant attaquer est présent sur le plateau
+                    serv_pvnt_attaquer = [x for x in mon_plateau.serviteurs_joueur1 if x.remaining_atk != 0]
+                    if mon_plateau.attaque_joueur1 != 0:
+                        attaquant = random.choice(["heros"] + serv_pvnt_attaquer)
+                    else:
+                        try:
+                            attaquant = random.choice(serv_pvnt_attaquer)
+                        except:
+                            attaquant = ""
+                    cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur2)
+                else:
+                    ## On choisit une carte au hasard à jouer si on a le mana pour
+                    cartes_jouables = [x for x in mon_plateau.player2.deck if x.cost <= mon_plateau.mana_dispo_joueur2]
+                    carte_a_jouer = deepcopy(random.choice(cartes_jouables)) if len(cartes_jouables) != 0 else ""
+
+                    # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur pouvant attaquer est présent sur le plateau
+                    serv_pvnt_attaquer = [x for x in mon_plateau.serviteurs_joueur2 if x.remaining_atk != 0]
+                    if mon_plateau.attaque_joueur2 != 0:
+                        attaquant = random.choice(["heros"] + serv_pvnt_attaquer)
+                    else:
+                        try:
+                            attaquant = random.choice(serv_pvnt_attaquer)
+                        except:
+                            attaquant = ""
+                    cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)
+                mon_plateau = RandomOrchestrator().tour_au_hasard(carte_a_jouer, attaquant, cible, mon_plateau)
+                if mon_plateau.pv_actuels_joueur1 <= 0:
+                    victoires_j2 += 1
+                if mon_plateau.pv_actuels_joueur2 <= 0:
+                    victoires_j1 += 1
+            i += 1
+        return logs_hs
+
 
 # if __name__ == '__main__':
 #     deck = CardGroup((Carte("Yéti Noroit", "serviteur", 4, 5, 4),

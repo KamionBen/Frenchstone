@@ -26,9 +26,9 @@ class Plateau:
         self.pseudo_joueur2 = pseudo_joueur2
 
         """ Mana """
-        self.mana_max_joueur1 = 0
+        self.mana_max_joueur1 = 1
         self.mana_max_joueur2 = 0
-        self.mana_dispo_joueur1 = 0
+        self.mana_dispo_joueur1 = 1
         self.mana_dispo_joueur2 = 0
         self.surcharge_joueur1 = 0
         self.surcharge_joueur2 = 0
@@ -64,7 +64,7 @@ class Plateau:
         self.durabilite_joueur2 = 0
 
         """ Tour de jeu """
-        self.tour_de_jeu = 2
+        self.tour_de_jeu = 1
 
     """ Met à jour le plateau à la fin du tour d'un joueur """
     def tour_suivant(self):
@@ -272,7 +272,7 @@ class TourEnCours:
 class RandomOrchestrator:
 
     ## On génère une action aléatoire et on la fait jouer par la classe Tourencours
-    def tour_au_hasard(self, carte, attaquant, cible, plateau):
+    def tour_au_hasard(self, carte, attaquant, cible, plateau, logs):
         tour_en_cours = TourEnCours(plateau)
         ## On liste les différentes actions possibles pendant un tour
         action_possible = ["Passer_tour", "Jouer_carte", "Attaquer"]
@@ -361,7 +361,7 @@ class RandomOrchestrator:
                 "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
                 "victoire" : 0
             }
-            logs_hs.loc[len(logs_hs)] = action_line
+            logs.loc[len(logs)] = action_line
 
             ## Action
             tour_en_cours.fin_du_tour()
@@ -444,7 +444,7 @@ class RandomOrchestrator:
                 "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
                 "victoire": 0
             }
-            logs_hs.loc[len(logs_hs)] = action_line
+            logs.loc[len(logs)] = action_line
 
             ## Action
             tour_en_cours.jouer_carte(carte)
@@ -528,7 +528,7 @@ class RandomOrchestrator:
                 "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
                 "victoire": 0
             }
-            logs_hs.loc[len(logs_hs)] = action_line
+            logs.loc[len(logs)] = action_line
 
             ## Action
             if attaquant != "heros": # attaque seulement si le serviteur le peut
@@ -541,6 +541,8 @@ class RandomOrchestrator:
 
     """ Génère un nombre donné de parties et créé les logs associés"""
     def generate_game(self, nb_games, classe_j1, pseudo_j1, classe_j2, pseudo_j2):
+        logs_hs = pd.DataFrame(columns=columns_logs)
+        logs_inter = pd.DataFrame(columns=columns_logs)
         i = 0
         victoires_j1 = 0
         victoires_j2 = 0
@@ -578,11 +580,15 @@ class RandomOrchestrator:
                         except:
                             attaquant = ""
                     cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)
-                mon_plateau = RandomOrchestrator().tour_au_hasard(carte_a_jouer, attaquant, cible, mon_plateau)
+                mon_plateau = RandomOrchestrator().tour_au_hasard(carte_a_jouer, attaquant, cible, mon_plateau, logs_inter)
                 if mon_plateau.pv_actuels_joueur1 <= 0:
+                    logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == mon_plateau.pseudo_joueur2, 1, 0)
+                    logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis = 1)
                     victoires_j2 += 1
                 if mon_plateau.pv_actuels_joueur2 <= 0:
+                    logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == mon_plateau.pseudo_joueur1, 1, 0)
+                    logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis = 1)
                     victoires_j1 += 1
             i += 1
             print(i)
-        return (victoires_j1, victoires_j2)
+        return logs_hs, (victoires_j1, victoires_j2)

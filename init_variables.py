@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 columns_logs = ["action", "carte_jouee", "attaquant", "attaquant_atq", "attaquant_pv", "cible", "cible_atq", "cible_pv",
                 "classe_j", "classe_adv", "mana_dispo_j", "mana_max_j",
@@ -12,5 +13,3 @@ columns_logs = ["action", "carte_jouee", "attaquant", "attaquant_atq", "attaquan
                 "arme_j", "arme_adv", "attaque_j", "attaque_adv", "durabilite_arme_j", "durabilite_arme_adv",
                 "pseudo_j", "pseudo_adv", "victoire"
                 ]
-
-logs_hs = pd.DataFrame(columns = columns_logs)

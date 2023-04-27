@@ -1,48 +1,65 @@
-## Les différentes classes utilisées pour la simulation
+""" Les différentes classes utilisées pour la simulation """
 
-### Imports
+""" Imports """
 import random
 from init_variables import *
 from random import shuffle
 
-### La classe plateau permet de décrire l'ensemble des caractéristiques du plateau à un moment donnée de la partie
+""" Décrit exhaustivement le plateau de jeu """
 class Plateau:
     def __init__(self, classe_joueur1, pseudo_joueur1, classe_joueur2, pseudo_joueur2):
+        """ Initialisation du plateau au tour 0"""
+        """ Caractéristiques joueurs """
         self.classe_joueur1 = classe_joueur1
         self.classe_joueur2 = classe_joueur2
         self.pseudo_joueur1 = pseudo_joueur1
         self.pseudo_joueur2 = pseudo_joueur2
+
+        """ Mana """
         self.mana_max_joueur1 = 0
         self.mana_max_joueur2 = 0
         self.mana_dispo_joueur1 = 0
         self.mana_dispo_joueur2 = 0
         self.surcharge_joueur1 = 0
         self.surcharge_joueur2 = 0
+
+        """ Points de vie """
         self.pv_max_joueur1 = 30
         self.pv_max_joueur2 = 30
         self.pv_actuels_joueur1 = 30
         self.pv_actuels_joueur2 = 30
+
+        """ Cartes en main """
         self.cartes_joueur1 = 0
         self.cartes_joueur2 = 0
+
+        """ Pouvoir héroïque """
         self.dispo_pouvoir_hero_joueur1 = True
         self.dispo_pouvoir_hero_joueur2 = True
         self.cout_pouvoir_hero_joueur1 = 2
         self.cout_pouvoir_hero_joueur2 = 2
         self.effet_pouvoir_hero_joueur1 = None
         self.effet_pouvoir_hero_joueur2 = None
+
+        """ Serviteurs posés """
         self.serviteurs_joueur1 = []
         self.serviteurs_joueur2 = []
+
+        """ Attaque et arme des héros """
         self.arme_joueur1 = False
         self.arme_joueur2 = False
         self.attaque_joueur1 = 0
         self.attaque_joueur2 = 0
         self.durabilite_joueur1 = 0
         self.durabilite_joueur2 = 0
+
+        """ Tour de jeu """
         self.tour_de_jeu = 2
 
-    # méthode tour_suivant, permettant de passer au tour de l'adversaire en mettant à jour le plateau
+    """ Met à jour le plateau à la fin du tour d'un joueur """
     def tour_suivant(self):
         self.tour_de_jeu = 3 - self.tour_de_jeu  # alterne entre 1 et 2
+
         if self.tour_de_jeu == 1:
 
             # Réinitialisation du mana et du pouvoir héroïque
@@ -55,8 +72,8 @@ class Plateau:
             # Réinitialisation de l'attaque des seviteurs présents sur le plateau
             for serviteur in self.serviteurs_joueur1:
                 serviteur.atq_restante = 1
-        else:
 
+        else:
             # Réinitialisation du mana et du pouvoir héroïque
             self.mana_max_joueur2 = min(self.mana_max_joueur2 + 1, 10)
             self.mana_dispo_joueur2 = self.mana_max_joueur2 - self.surcharge_joueur2

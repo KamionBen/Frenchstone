@@ -93,12 +93,15 @@ class Carte:
         """ Infos """
         self.description = description
 
+
     def __eq__(self, other):
         """ Compare la carte avec l'id ou la carte donnée """
         if type(other) == Carte:
             return other.id == self.id
         elif type(other) == int:
             return other == self.id
+        elif type(other) == str:
+            return False
         else:
             raise ValueError(f"Impossible de comparer la carte avec {other} (type:{type(other)}")
 

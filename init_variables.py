@@ -9,7 +9,8 @@ columns_logs = ["action", "carte_jouee", "attaquant", "attaquant_atq", "attaquan
                 "serv1_adv", "atq_serv1_adv", "pv_serv1_adv", "serv2_adv", "atq_serv2_adv", "pv_serv2_adv",
                 "serv3_adv", "atq_serv3_adv", "pv_serv3_adv", "serv4_adv", "atq_serv4_adv", "pv_serv4_adv", "serv5_adv", "atq_serv5_adv", "pv_serv5_adv",
                 "serv6_adv", "atq_serv6_adv", "pv_serv6_adv", "serv7_adv", "atq_serv7_adv", "pv_serv7_adv",
-                "arme_j", "arme_adv", "attaque_j", "attaque_adv", "durabilite_arme_j", "durabilite_arme_adv"
+                "arme_j", "arme_adv", "attaque_j", "attaque_adv", "durabilite_arme_j", "durabilite_arme_adv",
+                "pseudo_j", "pseudo_adv", "victoire"
                 ]
 
 logs_hs = pd.DataFrame(columns = columns_logs)

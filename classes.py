@@ -90,46 +90,6 @@ class Plateau:
             for serviteur in self.serviteurs_joueur2:
                 serviteur.remaining_atk = 1
 
-
-#
-# ### Classe permettant de décrire exhaustivement une carte
-# class Carte:
-#     id = 0
-#     def __init__(self, nom, type_carte, attaque, PV, cout, atq_restante = 0, ecole="", description=""):
-#         """ Represent a playing card """
-#         """ Name & id """
-#         self.id = Carte.id
-#         Carte.id += 1
-#         self.nom = nom
-#
-#         """ Category """
-#         self.type = type_carte
-#         self.ecole = ecole
-#
-#         """ Stats """
-#         self.attaque = attaque
-#         self.PV = PV
-#         self.cout = cout
-#         self.atq_restante = atq_restante
-#
-#         """ Infos """
-#         self.description = description
-#
-#
-#     def __eq__(self, other):
-#         """ Compare la carte avec l'id ou la carte donnée """
-#         if type(other) == Carte:
-#             return other.id == self.id
-#         elif type(other) == int:
-#             return other == self.id
-#         elif type(other) == str:
-#             return False
-#         else:
-#             raise ValueError(f"Impossible de comparer la carte avec {other} (type:{type(other)}")
-#
-#     def __repr__(self):
-#         return self.nom
-
 class CardGroup:
     def __init__(self, cards=()):
         self.cards = list(cards)
@@ -391,7 +351,10 @@ class RandomOrchestrator:
                 "attaque_j" : plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2,
                 "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
                 "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
-                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1
+                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1,
+                "pseudo_j" : plateau.pseudo_joueur1 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur2,
+                "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
+                "victoire" : 0
             }
             logs_hs.loc[len(logs_hs)] = action_line
 
@@ -471,7 +434,10 @@ class RandomOrchestrator:
                 "attaque_j" : plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2,
                 "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
                 "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
-                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1
+                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1,
+                "pseudo_j": plateau.pseudo_joueur1 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur2,
+                "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
+                "victoire": 0
             }
             logs_hs.loc[len(logs_hs)] = action_line
 
@@ -552,7 +518,10 @@ class RandomOrchestrator:
                 "attaque_j" : plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2,
                 "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
                 "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
-                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1
+                "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1,
+                "pseudo_j": plateau.pseudo_joueur1 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur2,
+                "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
+                "victoire": 0
             }
             logs_hs.loc[len(logs_hs)] = action_line
 
@@ -570,6 +539,7 @@ class RandomOrchestrator:
         i = 0
         victoires_j1 = 0
         victoires_j2 = 0
+        """ On simule n parties """
         while i < nb_games:
             mon_plateau = Plateau(classe_j1, pseudo_j1, classe_j2, pseudo_j2)
             while not (mon_plateau.pv_actuels_joueur1 <= 0 or mon_plateau.pv_actuels_joueur2 <= 0):
@@ -609,20 +579,5 @@ class RandomOrchestrator:
                 if mon_plateau.pv_actuels_joueur2 <= 0:
                     victoires_j1 += 1
             i += 1
-        return logs_hs
-
-
-# if __name__ == '__main__':
-#     deck = CardGroup((Carte("Yéti Noroit", "serviteur", 4, 5, 4),
-#                       Carte("Raptor", "serviteur", 3, 2, 2)))
-#
-#     print(deck)
-#     for elt in deck:
-#         print(elt)
-#
-#     deck.add_one(Carte("Michel", "serviteur", 1, 1, 1))
-#     print(deck)
-#     deck.shuffle()
-#     main = deck.pick(2)
-#     for elt in main:
-#         print(elt)
+            print(i)
+        return (victoires_j1, victoires_j2)

@@ -20,11 +20,6 @@ class Plateau:
         self.player2 = Player(pseudo_joueur2)
         self.player2.set_deck(classe_joueur2, class_files[classe_joueur2])
 
-        self.classe_joueur1 = classe_joueur1
-        self.classe_joueur2 = classe_joueur2
-        self.pseudo_joueur1 = pseudo_joueur1
-        self.pseudo_joueur2 = pseudo_joueur2
-
         """ Mana """
         self.mana_max_joueur1 = 1
         self.mana_max_joueur2 = 0
@@ -73,6 +68,8 @@ class Plateau:
         if self.tour_de_jeu == 1:
 
             # Réinitialisation du mana et du pouvoir héroïque
+            self.player1.start_turn()
+
             self.mana_max_joueur1 = min(self.mana_max_joueur1 + 1, 10)
             self.mana_dispo_joueur1 = self.mana_max_joueur1 - self.surcharge_joueur1
             self.surcharge_joueur1 = 0
@@ -94,63 +91,6 @@ class Plateau:
             # Réinitialisation de l'attaque des seviteurs présents sur le plateau
             for serviteur in self.serviteurs_joueur2:
                 serviteur.remaining_atk = 1
-
-class CardGroup:
-    def __init__(self, cards=()):
-        self.cards = list(cards)
-        self.c_dict = {card.id: card for card in cards}
-
-    def __iter__(self):
-        return iter(self.cards)
-
-    def __getitem__(self, item):
-        for card in self:
-            if card == item:
-                return card
-
-    def shuffle(self):
-        """ Mélange le groupe de cartes """
-        shuffle(self.cards)
-
-    def pick_one(self):
-        """ Renvoie la première carte du paquet et la retire du groupe """
-        selected = self.cards[0]
-        self.cards = self.cards[1:]
-        self.reconstruct()
-        return selected
-
-    def pick(self, nb):
-        """ Renvoie un groupe de 'nb' cartes et les retire du groupe actuel """
-        ls = CardGroup()
-        while nb > 0:
-            ls.add_one(self.pick_one())
-            nb -= 1
-
-        return ls
-
-    def add_one(self, card):
-        """ Ajoute une carte au groupe """
-        self.cards.append(card)
-        self.reconstruct()
-
-    def merge(self, other_group):
-        """ Fusionne un groupe de cartes avec le groupe actuel """
-        for card in other_group:
-            self.add_one(card)
-        self.reconstruct()
-
-    def reconstruct(self):
-        """ Reconstruit le dictionnaire de cartes """
-        self.c_dict = {card.id: card for card in self.cards}
-
-    def remove(self, card):
-        """ Retire une carte particulière du groupe """
-        self.cards.pop(card)
-        self.reconstruct()
-
-    def __repr__(self):
-        return f"Groupe de {len(self.cards)} cartes"
-
 
 
 ### Classe prenant en entrée un plateau de jeu et permettant d'effectuer toutes les actions possibles dessus.
@@ -206,7 +146,7 @@ class TourEnCours:
 
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur2 <= 0:
-                    print(f"Victoire de {self.plateau.pseudo_joueur1} ! Félicitations.")
+                    print(f"Victoire de {self.plateau.player1.name} ! Félicitations.")
             else:
                 # Conséquences de l'attaque
                 attaquant.health -= cible.attack
@@ -247,7 +187,7 @@ class TourEnCours:
 
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur1 <= 0:
-                    print(f"Victoire de {self.plateau.pseudo_joueur2} ! Félicitations.")
+                    print(f"Victoire de {self.plateau.player2.name} ! Félicitations.")
             else:
 
                 # Conséquences de l'attaque
@@ -294,8 +234,8 @@ class RandomOrchestrator:
                 "cible": "",
                 "cible_atq": "",
                 "cible_pv": "",
-                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
-                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
+                "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
                 "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
                 "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
                 "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
@@ -357,8 +297,8 @@ class RandomOrchestrator:
                 "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
                 "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
                 "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1,
-                "pseudo_j" : plateau.pseudo_joueur1 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur2,
-                "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
+                "pseudo_j" : plateau.player1.name if plateau.tour_de_jeu == 1 else plateau.player2.name,
+                "pseudo_adv": plateau.player2.name if plateau.tour_de_jeu == 1 else plateau.player1.name,
                 "victoire" : 0
             }
             logs.loc[len(logs)] = action_line
@@ -377,8 +317,8 @@ class RandomOrchestrator:
                 "cible": "",
                 "cible_atq": "",
                 "cible_pv": "",
-                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
-                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
+                "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
                 "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
                 "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
                 "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
@@ -440,8 +380,8 @@ class RandomOrchestrator:
                 "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
                 "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
                 "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1,
-                "pseudo_j": plateau.pseudo_joueur1 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur2,
-                "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
+                "pseudo_j": plateau.player1.name if plateau.tour_de_jeu == 1 else plateau.player2.name,
+                "pseudo_adv": plateau.player2.name if plateau.tour_de_jeu == 1 else plateau.player1.name,
                 "victoire": 0
             }
             logs.loc[len(logs)] = action_line
@@ -461,8 +401,8 @@ class RandomOrchestrator:
                 "cible": cible.name if cible != "heros" else "heros",
                 "cible_atq": cible.attack if cible != "heros" else 0,
                 "cible_pv": cible.health if cible != "heros" else plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 2 else "",
-                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
-                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
+                "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
                 "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
                 "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
                 "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
@@ -524,8 +464,8 @@ class RandomOrchestrator:
                 "attaque_adv" : plateau.attaque_joueur2 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur1,
                 "durabilite_arme_j" : plateau.durabilite_joueur1 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur2,
                 "durabilite_arme_adv" : plateau.durabilite_joueur2 if plateau.tour_de_jeu == 1 else plateau.durabilite_joueur1,
-                "pseudo_j": plateau.pseudo_joueur1 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur2,
-                "pseudo_adv": plateau.pseudo_joueur2 if plateau.tour_de_jeu == 1 else plateau.pseudo_joueur1,
+                "pseudo_j": plateau.player1.name if plateau.tour_de_jeu == 1 else plateau.player2.name,
+                "pseudo_adv": plateau.player2.name if plateau.tour_de_jeu == 1 else plateau.player1.name,
                 "victoire": 0
             }
             logs.loc[len(logs)] = action_line

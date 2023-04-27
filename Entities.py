@@ -36,6 +36,12 @@ class Player:
 
         self.mana, self.mana_max = 0, 0
 
+    def start_turn(self):
+        """ Remise à zéro de début de tour """
+        self.mana_grow()
+        self.mana_reset()
+        self.power_reset()
+
     def mana_spend(self, nb):
         self.mana -= nb
 
@@ -44,6 +50,9 @@ class Player:
 
     def mana_reset(self):
         self.mana = self.mana_max
+
+    def power_reset(self):
+        pass
 
     def pick(self):
         """ Prendre une carte du deck et l'ajouter à sa main """

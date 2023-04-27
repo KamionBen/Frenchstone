@@ -522,11 +522,11 @@ class RandomOrchestrator:
                     cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)
                 mon_plateau = RandomOrchestrator().tour_au_hasard(carte_a_jouer, attaquant, cible, mon_plateau, logs_inter)
                 if mon_plateau.pv_actuels_joueur1 <= 0:
-                    logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == mon_plateau.pseudo_joueur2, 1, 0)
+                    logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == mon_plateau.player2.name, 1, 0)
                     logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis = 1)
                     victoires_j2 += 1
                 if mon_plateau.pv_actuels_joueur2 <= 0:
-                    logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == mon_plateau.pseudo_joueur1, 1, 0)
+                    logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == mon_plateau.player1.name, 1, 0)
                     logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis = 1)
                     victoires_j1 += 1
             i += 1

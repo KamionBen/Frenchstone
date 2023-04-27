@@ -5,7 +5,7 @@ from os import path
 cardsfile = "cards.json"
 
 
-def int_to_id(nb):
+def int_to_id(nb: int) -> str:
     if nb < 10:
         return f"00{nb}"
     elif nb < 100:
@@ -14,7 +14,7 @@ def int_to_id(nb):
         return str(nb)
 
 
-def get_cards_data(file):
+def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
         return json.load(jsonfile)
 
@@ -26,12 +26,19 @@ class Player:
         self.ia = ia
 
         self.hero = None
+        self.classe = None
         self.deck = None
+
+        self.mana, self.mana_max = 0, 0
 
     def set_hero(self, name):
         self.hero = Hero(name)
 
-    def __repr__(self):
+    def set_deck(self, classe, file):
+        self.classe = classe
+        self.deck = Deck(classe, file)
+
+    def __repr__(self) -> str:
         return self.name
 
 
@@ -45,6 +52,7 @@ class Hero:
         self.power = hero_powers[self.name]
 
         self.health, self.base_health = 30, 30
+        self.weapon = None
 
     def damage(self, nb):
         self.health -= nb
@@ -56,7 +64,7 @@ class Hero:
         if self.health > self.base_health:
             self.health = self.base_health
 
-    def is_dead(self):
+    def is_dead(self) -> bool:
         return self.health == 0
 
 
@@ -131,16 +139,16 @@ class Card:
         self.attack, self.base_attack = kw["attack"], kw["attack"]
         self.health, self.base_health = kw["health"], kw["health"]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if type(other) == Card:
             return other.id == self.id
         if type(other) == str:
             return other == self.id or other == self.name
 
-    def data(self):
+    def data(self) -> str:
         return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \
                f"Coût = {self.cost} - Attaque = {self.attack} - Santé = {self.health}"
 

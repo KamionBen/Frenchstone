@@ -4,12 +4,21 @@
 import random
 from init_variables import *
 from random import shuffle
+from Entities import *
 
 """ Décrit exhaustivement le plateau de jeu """
 class Plateau:
     def __init__(self, classe_joueur1, pseudo_joueur1, classe_joueur2, pseudo_joueur2):
         """ Initialisation du plateau au tour 0"""
         """ Caractéristiques joueurs """
+        class_files = {'Chasseur': 'basic_chasseur.csv',
+                       'Mage': 'basic_chasseur.csv'}
+        self.player1 = Player(pseudo_joueur1)
+        self.player1.set_deck(classe_joueur1, class_files[classe_joueur1])
+
+        self.player2 = Player(pseudo_joueur2)
+        self.player2.set_deck(classe_joueur2, class_files[classe_joueur2])
+
         self.classe_joueur1 = classe_joueur1
         self.classe_joueur2 = classe_joueur2
         self.pseudo_joueur1 = pseudo_joueur1

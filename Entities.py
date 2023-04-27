@@ -36,9 +36,22 @@ class Player:
 
         self.mana, self.mana_max = 0, 0
 
+    def mana_spend(self, nb):
+        self.mana -= nb
+
+    def mana_grow(self):
+        self.mana_max += 1
+
+    def mana_reset(self):
+        self.mana = self.mana_max
+
     def pick(self):
         """ Prendre une carte du deck et l'ajouter à sa main """
         self.hand.add(self.deck.pick_one())
+
+    def pick_multi(self, nb):
+        for _ in range(nb):
+            self.pick()
 
     def set_hero(self, name):
         self.hero = Hero(name)

@@ -162,7 +162,7 @@ class Card:
         if type(other) == Card:
             return other.id == self.id
         if type(other) == str:
-            return other == self.id or other == self.name
+            return other == self.id or other.lower() == self.name.lower()
 
     def data(self) -> str:
         return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \

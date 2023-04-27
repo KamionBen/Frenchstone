@@ -58,7 +58,8 @@ def get_cardstat_from_page(url: str) -> dict:
     else:
         raise ValueError(f"{url} est inaccessible")
 
-if __name__ == '__main__':
+
+def fetch_all():
     """ Va chercher les cartes de base et les enregistre dans un json """
     cards_file = "cards.json"
 
@@ -74,6 +75,22 @@ if __name__ == '__main__':
 
     with open(cards_file, 'w', encoding='utf-8') as jsonfile:
         json.dump(card_list, jsonfile, indent=4, ensure_ascii=False)
+
+
+def add_card(card, file):
+    with open(file, 'r', encoding='utf-8') as jsonfile:
+        cardls = json.load(jsonfile)
+    if len(cardls) > 1:
+        cardls.append(card)
+    with open(file, 'w', encoding='utf-8') as jsonfile:
+        json.dump(cardls, jsonfile, indent=4, ensure_ascii=False)
+
+if __name__ == '__main__':
+    """ Mettez l'url de la carte que vous voulez rajouter et lancez le script """
+    url = "https://www.hearthstone-decks.com/carte/voir/patriarche-dos-argente-classic"
+    card = get_cardstat_from_page(url)
+    add_card(card, "cards.json")
+
 
 
 

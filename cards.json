@@ -1258,5 +1258,55 @@
         "attack": 1,
         "health": 2,
         "description": "Provocation"
+    },
+    {
+        "name": "Pistage",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": null,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "description": "Affiche les trois cartes du dessus du deck. Vous en piochez une et vous vous défaussez des autres."
+    },
+    {
+        "name": "Tir des Arcanes",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": null,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "description": "Inflige 2 points de dégâts."
+    },
+    {
+        "name": "Crocilisque des rivières",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": "Bête",
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "description": " "
+    },
+    {
+        "name": "Chef de raid",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 3,
+        "attack": 2,
+        "health": 2,
+        "description": "Vos autres serviteurs ont +1 ATQ."
+    },
+    {
+        "name": "Patriarche dos-argenté",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": "Bête",
+        "cost": 3,
+        "attack": 1,
+        "health": 4,
+        "description": "Provocation"
     }
 ]

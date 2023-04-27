@@ -1,6 +1,7 @@
 import csv
 import json
 from os import path
+from random import shuffle
 
 cardsfile = "cards.json"
 
@@ -27,16 +28,25 @@ class Player:
 
         self.hero = None
         self.classe = None
-        self.deck = None
+
+        # Cartes
+        self.deck = CardGroup()  # Le tas de cartes à l'envers
+        self.hand = CardGroup()  # La main du joueur
+        self.fighters = CardGroup()  # Les cartes sur le "terrain"
 
         self.mana, self.mana_max = 0, 0
+
+    def pick(self):
+        """ Prendre une carte du deck et l'ajouter à sa main """
+        self.hand.add(self.deck.pick_one())
 
     def set_hero(self, name):
         self.hero = Hero(name)
 
     def set_deck(self, classe, file):
         self.classe = classe
-        self.deck = Deck(classe, file)
+        self.deck = import_deck(file)
+        self.deck.shuffle()
 
     def __repr__(self) -> str:
         return self.name
@@ -56,8 +66,6 @@ class Hero:
 
     def damage(self, nb):
         self.health -= nb
-        if self.health < 0:
-            self.health = 0
 
     def heal(self, nb):
         self.health += nb
@@ -65,40 +73,7 @@ class Hero:
             self.health = self.base_health
 
     def is_dead(self) -> bool:
-        return self.health == 0
-
-
-class Deck:
-    def __init__(self, classe, file=None):
-        """ Permet de créer son deck de jeu """
-        self.classe = classe
-        self.all_cards = CardGroup()
-        self.selected_cards = CardGroup()
-        if file is not None:
-            self.import_deck(file)
-
-    def __iter__(self):
-        return iter(self.all_cards)
-
-    def import_deck(self, file):
-        jsoncards = get_cards_data('cards.json')
-        with open(path.join('decks', file), 'r') as csvdeck:
-            reader = csv.reader(csvdeck, delimiter=";")
-            for line in reader:
-                name = line[0]
-                number = int(line[1])
-                found = False
-                for jsoncard in jsoncards:
-                    if jsoncard['name'] == name:
-                        found = True
-                        for _ in range(number):
-                            card = Card(**jsoncard)
-                            self.all_cards.add(card)
-                            if len(self.selected_cards) < 30:
-                                self.selected_cards.add(card)
-                        break
-                if found is False:
-                    print(f"\033[91mERREUR : La carte {name} n'a pas été trouvée dans le fichier cards.json\033[0m")
+        return self.health <= 0
 
 
 class CardGroup:
@@ -109,6 +84,21 @@ class CardGroup:
     def add(self, new_card):
         if type(new_card) == Card:
             self.cards.append(new_card)
+
+    def shuffle(self):
+        shuffle(self.cards)
+
+    def pick_one(self):
+        """ Renvoie la première carte de la liste et l'enlève du deck """
+        picked = self.cards[0]
+        self.cards = self.cards[1:]
+        return picked
+
+    def pick_multi(self, nb):
+        picked_ls = []
+        for _ in range(nb):
+            picked_ls.append(self.pick_one())
+        return picked_ls
 
     def __len__(self):
         return len(self.cards)
@@ -138,8 +128,9 @@ class Card:
         self.cost, self.base_cost = kw["cost"], kw["cost"]
         self.attack, self.base_attack = kw["attack"], kw["attack"]
         self.health, self.base_health = kw["health"], kw["health"]
-
+        
         """ Combat """
+        self.effects = []  # Inutile pour l'instant
         self.remaining_atk = 0
 
     def __repr__(self) -> str:
@@ -155,6 +146,30 @@ class Card:
         return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \
                f"Coût = {self.cost} - Attaque = {self.attack} - Santé = {self.health}"
 
+
+class Weapon:
+    def __init__(self, name):
+        self.name = name
+
+def import_deck(file: str) -> CardGroup:
+    jsoncards = get_cards_data('cards.json')
+    deck = CardGroup()
+    with open(path.join('decks', file), 'r') as csvdeck:
+        reader = csv.reader(csvdeck, delimiter=";")
+        for line in reader:
+            name = line[0]
+            number = int(line[1])
+            found = False
+            for jsoncard in jsoncards:
+                if jsoncard['name'] == name:
+                    found = True
+                    for _ in range(number):
+                        card = Card(**jsoncard)
+                        deck.add(card)
+                    break
+            if found is False:
+                print(f"\033[91mERREUR : La carte {name} n'a pas été trouvée dans le fichier cards.json\033[0m")
+    return deck
 
 classes = {'CA': 'Chaman',
            'CH': 'Chasseur',
@@ -175,9 +190,9 @@ if __name__ == '__main__':
     player = Player("KamionBen")
     player.set_hero("Michel")
     print(player)
-    deck = Deck("Chasseur", "basic_chasseur.csv")
+    player.set_deck("Chasseur", "basic_chasseur.csv")
 
-    for card in deck:
+    for card in player.deck:
         print(card.data())
 
 

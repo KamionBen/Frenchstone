@@ -4,6 +4,7 @@
 from classes import *
 from cartes import *
 from copy import deepcopy
+from tabulate import tabulate
 
 mon_plateau = Plateau("Mage", "Smaguy", "Chasseur", "KamionBen")
 
@@ -32,3 +33,4 @@ while not(mon_plateau.pv_actuels_joueur1 <= 0 or mon_plateau.pv_actuels_joueur2 
         cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)
     mon_plateau = RandomOrchestrator(mon_plateau).tour_au_hasard(carte_a_jouer, attaquant, cible)
 
+print(tabulate(logs_hs, headers='keys'))

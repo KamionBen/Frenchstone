@@ -9,25 +9,33 @@ from tabulate import tabulate
 mon_plateau = Plateau("Mage", "Smaguy", "Chasseur", "KamionBen")
 
 while not(mon_plateau.pv_actuels_joueur1 <= 0 or mon_plateau.pv_actuels_joueur2 <= 0):
-    ## On choisit des cartes au hasard à jouer, ou pour attaquer
-    carte_a_jouer = deepcopy(random.choice(all_cartes))
     if mon_plateau.tour_de_jeu == 1:
-        # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur est présent sur le plateau
+        ## On choisit une carte au hasard à jouer si on a le mana pour
+        cartes_jouables = [x for x in all_cartes if x.cout <= mon_plateau.mana_dispo_joueur1]
+        carte_a_jouer = deepcopy(random.choice(cartes_jouables)) if len(cartes_jouables) != 0 else ""
+
+        # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur pouvant attaquer est présent sur le plateau
+        serv_pvnt_attaquer = [x for x in mon_plateau.serviteurs_joueur1 if x.atq_restante != 0]
         if mon_plateau.attaque_joueur1 != 0:
-            attaquant = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)
+            attaquant = random.choice(["heros"] + serv_pvnt_attaquer)
         else:
             try:
-                attaquant = random.choice(mon_plateau.serviteurs_joueur1)
+                attaquant = random.choice(serv_pvnt_attaquer)
             except:
                 attaquant = ""
         cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur2)
     else:
-        # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur est présent sur le plateau
+        ## On choisit une carte au hasard à jouer si on a le mana pour
+        cartes_jouables = [x for x in all_cartes if x.cout <= mon_plateau.mana_dispo_joueur2]
+        carte_a_jouer = deepcopy(random.choice(cartes_jouables)) if len(cartes_jouables) != 0 else ""
+
+        # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur pouvant attaquer est présent sur le plateau
+        serv_pvnt_attaquer = [x for x in mon_plateau.serviteurs_joueur2 if x.atq_restante != 0]
         if mon_plateau.attaque_joueur2 != 0:
-            attaquant = random.choice(["heros"] + mon_plateau.serviteurs_joueur2)
+            attaquant = random.choice(["heros"] + serv_pvnt_attaquer)
         else:
             try:
-                attaquant = random.choice(mon_plateau.serviteurs_joueur2)
+                attaquant = random.choice(serv_pvnt_attaquer)
             except:
                 attaquant = ""
         cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)

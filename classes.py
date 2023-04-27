@@ -3,6 +3,7 @@
 ### Imports
 import random
 from init_variables import *
+from random import shuffle
 
 ### La classe plateau permet de décrire l'ensemble des caractéristiques du plateau à un moment donnée de la partie
 class Plateau:
@@ -71,9 +72,12 @@ class Plateau:
 
 ### Classe permettant de décrire exhaustivement une carte
 class Carte:
+    id = 0
     def __init__(self, nom, type_carte, attaque, PV, cout, atq_restante = 0, ecole="", description=""):
         """ Represent a playing card """
-        """ Name as an id """
+        """ Name & id """
+        self.id = Carte.id
+        Carte.id += 1
         self.nom = nom
 
         """ Category """
@@ -88,6 +92,75 @@ class Carte:
 
         """ Infos """
         self.description = description
+
+    def __eq__(self, other):
+        """ Compare la carte avec l'id ou la carte donnée """
+        if type(other) == Carte:
+            return other.id == self.id
+        elif type(other) == int:
+            return other == self.id
+        else:
+            raise ValueError(f"Impossible de comparer la carte avec {other} (type:{type(other)}")
+
+    def __repr__(self):
+        return self.nom
+
+class CardGroup:
+    def __init__(self, cards=()):
+        self.cards = list(cards)
+        self.c_dict = {card.id: card for card in cards}
+
+    def __iter__(self):
+        return iter(self.cards)
+
+    def __getitem__(self, item):
+        for card in self:
+            if card == item:
+                return card
+
+    def shuffle(self):
+        """ Mélange le groupe de cartes """
+        shuffle(self.cards)
+
+    def pick_one(self):
+        """ Renvoie la première carte du paquet et la retire du groupe """
+        selected = self.cards[0]
+        self.cards = self.cards[1:]
+        self.reconstruct()
+        return selected
+
+    def pick(self, nb):
+        """ Renvoie un groupe de 'nb' cartes et les retire du groupe actuel """
+        ls = CardGroup()
+        while nb > 0:
+            ls.add_one(self.pick_one())
+            nb -= 1
+
+        return ls
+
+    def add_one(self, card):
+        """ Ajoute une carte au groupe """
+        self.cards.append(card)
+        self.reconstruct()
+
+    def merge(self, other_group):
+        """ Fusionne un groupe de cartes avec le groupe actuel """
+        for card in other_group:
+            self.add_one(card)
+        self.reconstruct()
+
+    def reconstruct(self):
+        """ Reconstruit le dictionnaire de cartes """
+        self.c_dict = {card.id: card for card in self.cards}
+
+    def remove(self, card):
+        """ Retire une carte particulière du groupe """
+        self.cards.pop(card)
+        self.reconstruct()
+
+    def __repr__(self):
+        return f"Groupe de {len(self.cards)} cartes"
+
 
 
 ### Classe prenant en entrée un plateau de jeu et permettant d'effectuer toutes les actions possibles dessus.
@@ -634,3 +707,18 @@ class RandomOrchestrator:
 
 
         return self.plateau
+
+if __name__ == '__main__':
+    deck = CardGroup((Carte("Yéti Noroit", "serviteur", 4, 5, 4),
+                      Carte("Raptor", "serviteur", 3, 2, 2)))
+
+    print(deck)
+    for elt in deck:
+        print(elt)
+
+    deck.add_one(Carte("Michel", "serviteur", 1, 1, 1))
+    print(deck)
+    deck.shuffle()
+    main = deck.pick(2)
+    for elt in main:
+        print(elt)

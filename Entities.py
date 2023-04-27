@@ -139,6 +139,9 @@ class Card:
         self.attack, self.base_attack = kw["attack"], kw["attack"]
         self.health, self.base_health = kw["health"], kw["health"]
 
+        """ Combat """
+        self.remaining_atk = 0
+
     def __repr__(self) -> str:
         return self.name
 

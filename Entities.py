@@ -173,6 +173,7 @@ class Weapon:
     def __init__(self, name):
         self.name = name
 
+
 def import_deck(file: str) -> CardGroup:
     jsoncards = get_cards_data('cards.json')
     deck = CardGroup()
@@ -192,6 +193,7 @@ def import_deck(file: str) -> CardGroup:
             if found is False:
                 print(f"\033[91mERREUR : La carte {name} n'a pas été trouvée dans le fichier cards.json\033[0m")
     return deck
+
 
 classes = {'CA': 'Chaman',
            'CH': 'Chasseur',

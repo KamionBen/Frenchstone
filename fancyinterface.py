@@ -41,9 +41,10 @@ def fancy_l(cartes: list[Card], selection=False) -> str:
 
     return cards_str
 
-def fancy_j(joueur)->str:
+
+def fancy_j(hero) -> str:
     """ Besoin d'une classe "Joueur" ou Héros """
-    j_str = "┌───────────────────────┐"
+    j_str = f"┌───────{hero.name}───────┐"
 
     return j_str
 

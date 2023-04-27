@@ -42,15 +42,29 @@ class Plateau:
     def tour_suivant(self):
         self.tour_de_jeu = 3 - self.tour_de_jeu  # alterne entre 1 et 2
         if self.tour_de_jeu == 1:
+
+            # Réinitialisation du mana et du pouvoir héroïque
             self.mana_max_joueur1 = min(self.mana_max_joueur1 + 1, 10)
             self.mana_dispo_joueur1 = self.mana_max_joueur1 - self.surcharge_joueur1
             self.surcharge_joueur1 = 0
             self.dispo_pouvoir_hero_joueur1 = True
+
+            # Réinitialisation de l'attaque des seviteurs présents sur le plateau
+            for serviteur in self.serviteurs_joueur1:
+                serviteur.atq_restante = 1
         else:
+
+            # Réinitialisation du mana et du pouvoir héroïque
             self.mana_max_joueur2 = min(self.mana_max_joueur2 + 1, 10)
             self.mana_dispo_joueur2 = self.mana_max_joueur2 - self.surcharge_joueur2
             self.surcharge_joueur1 = 0
             self.dispo_pouvoir_hero_joueur2 = True
+
+            # Réinitialisation de l'attaque des seviteurs présents sur le plateau
+            for serviteur in self.serviteurs_joueur2:
+                serviteur.atq_restante = 1
+
+
         print('-----------------------------------------')
         if self.tour_de_jeu == 1:
             print(f'Tour de jeu : {self.pseudo_joueur1}')
@@ -62,7 +76,7 @@ class Plateau:
 
 ### Classe permettant de décrire exhaustivement une carte
 class Carte:
-    def __init__(self, nom, type_carte, attaque, PV, cout, ecole="", description=""):
+    def __init__(self, nom, type_carte, attaque, PV, cout, atq_restante = 0, ecole="", description=""):
         """ Represent a playing card """
         """ Name as an id """
         self.nom = nom
@@ -75,6 +89,7 @@ class Carte:
         self.attaque = attaque
         self.PV = PV
         self.cout = cout
+        self.atq_restante = atq_restante
 
         """ Infos """
         self.description = description
@@ -139,7 +154,11 @@ class TourEnCours:
             elif attaquant != "heros" and cible == "heros":
                 print(f'Votre {attaquant.nom} attaque {self.plateau.pseudo_joueur2}'
                       f' ({self.plateau.pv_actuels_joueur2} --> {self.plateau.pv_actuels_joueur2 - attaquant.attaque})')
+
+                # Conséquences de l'attaque
                 self.plateau.pv_actuels_joueur2 -= attaquant.attaque
+                attaquant.atq_restante -= 1
+
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur2 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur1} ! Félicitations.")
@@ -147,8 +166,12 @@ class TourEnCours:
                 print(f'Votre {attaquant.nom} ({attaquant.attaque}, {attaquant.PV}) --> ({attaquant.attaque}, {attaquant.PV - cible.attaque})'
                       f' attaque {cible.nom}'
                       f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - attaquant.attaque})')
+
+                # Conséquences de l'attaque
                 attaquant.PV -= cible.attaque
                 cible.PV -= attaquant.attaque
+                attaquant.atq_restante -= 1
+
                 ## Mort de l'attaquant ou/et de la cible
                 if cible.PV <= 0:
                     print(f"{cible.nom} a succombé")
@@ -165,6 +188,7 @@ class TourEnCours:
                 print(f'Votre héros attaque {self.plateau.pseudo_joueur1}'
                       f' ({self.plateau.pv_actuels_joueur1} --> {self.plateau.pv_actuels_joueur1 - self.plateau.attaque_joueur2})')
                 self.plateau.pv_actuels_joueur1 -= self.plateau.attaque_joueur2
+
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur1 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur2} ! Félicitations.")
@@ -174,6 +198,7 @@ class TourEnCours:
                     f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - self.plateau.attaque_joueur2})')
                 self.plateau.pv_actuels_joueur2 -= cible.attaque
                 cible.PV -= self.plateau.attaque_joueur2
+
                 ## Mort de la cible ou de notre propre héros
                 if cible.PV <= 0:
                     print(f"{cible.nom} a succombé")
@@ -185,7 +210,11 @@ class TourEnCours:
             elif attaquant != "heros" and cible == "heros":
                 print(f'Votre {attaquant.nom} attaque {self.plateau.pseudo_joueur1}'
                       f' ({self.plateau.pv_actuels_joueur1} --> {self.plateau.pv_actuels_joueur1 - attaquant.attaque})')
+
+                # Conséquences de l'attaque
                 self.plateau.pv_actuels_joueur1 -= attaquant.attaque
+                attaquant.atq_restante -= 1
+
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur1 <= 0:
                     print(f"Victoire de {self.plateau.pseudo_joueur2} ! Félicitations.")
@@ -193,8 +222,12 @@ class TourEnCours:
                 print(f'Votre {attaquant.nom} ({attaquant.attaque}, {attaquant.PV}) --> ({attaquant.attaque}, {attaquant.PV - cible.attaque})'
                       f' attaque {cible.nom}'
                       f' ({cible.attaque}, {cible.PV}) --> ({cible.attaque}, {cible.PV - attaquant.attaque})')
+
+                # Conséquences de l'attaque
                 attaquant.PV -= cible.attaque
                 cible.PV -= attaquant.attaque
+                attaquant.atq_restante -= 1
+
                 ## Mort de l'attaquant ou/et de la cible
                 if cible.PV <= 0:
                     print(f"{cible.nom} a succombé")
@@ -229,6 +262,10 @@ class RandomOrchestrator:
 
         # On filtre pour n'attaquer que quand c'est légal
         elif action == "Attaquer" and attaquant != "":
-            self.tourencours.attaquer(attaquant, cible)
-
+            if (attaquant != "heros" and attaquant.atq_restante != 0): # attaque seulement si le serviteur le peut
+                self.tourencours.attaquer(attaquant, cible)
+            elif attaquant == "heros":
+                if (self.plateau.tour_de_jeu == 1 and self.plateau.attaque_joueur1 != 0) or \
+                    (self.plateau.tour_de_jeu == 2 and self.plateau.attaque_joueur2 != 0): # n'attaque que si le héros a de l'attaque
+                    self.tourencours.attaquer(attaquant, cible)
         return self.plateau

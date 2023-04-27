@@ -20,11 +20,6 @@ class Plateau:
         self.player2 = Player(pseudo_joueur2)
         self.player2.set_deck(classe_joueur2, class_files[classe_joueur2])
 
-        self.classe_joueur1 = classe_joueur1
-        self.classe_joueur2 = classe_joueur2
-        self.pseudo_joueur1 = pseudo_joueur1
-        self.pseudo_joueur2 = pseudo_joueur2
-
         """ Mana """
         self.mana_max_joueur1 = 0
         self.mana_max_joueur2 = 0
@@ -246,7 +241,7 @@ class TourEnCours:
 
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur2 <= 0:
-                    print(f"Victoire de {self.plateau.pseudo_joueur1} ! Félicitations.")
+                    print(f"Victoire de {self.plateau.player1.name} ! Félicitations.")
             else:
                 # Conséquences de l'attaque
                 attaquant.health -= cible.attack
@@ -287,7 +282,7 @@ class TourEnCours:
 
                 ## Mort du héros adverse
                 if self.plateau.pv_actuels_joueur1 <= 0:
-                    print(f"Victoire de {self.plateau.pseudo_joueur2} ! Félicitations.")
+                    print(f"Victoire de {self.plateau.player2.name} ! Félicitations.")
             else:
 
                 # Conséquences de l'attaque
@@ -334,8 +329,8 @@ class RandomOrchestrator:
                 "cible": "",
                 "cible_atq": "",
                 "cible_pv": "",
-                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
-                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
+                "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
                 "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
                 "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
                 "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
@@ -414,8 +409,8 @@ class RandomOrchestrator:
                 "cible": "",
                 "cible_atq": "",
                 "cible_pv": "",
-                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
-                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
+                "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
                 "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
                 "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
                 "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
@@ -495,8 +490,8 @@ class RandomOrchestrator:
                 "cible": cible.name if cible != "heros" else "heros",
                 "cible_atq": cible.attack if cible != "heros" else 0,
                 "cible_pv": cible.health if cible != "heros" else plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 2 else "",
-                "classe_j" : plateau.classe_joueur1 if plateau.tour_de_jeu == 1 else plateau.classe_joueur2,
-                "classe_adv" : plateau.classe_joueur2 if plateau.tour_de_jeu == 1 else plateau.classe_joueur1,
+                "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
+                "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
                 "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
                 "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
                 "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,

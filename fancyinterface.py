@@ -5,6 +5,13 @@ from time import sleep
 import pickle
 from init_variables import *
 
+ICON = "______                   _         _ \n" \
+       "|  ___|                 | |       | |\n" \
+       "| |_ _ __ ___ _ __   ___| |__  ___| |_ ___  _ __   ___ \n" \
+       "|  _| '__/ _ \ '_ \ / __| '_ \/ __| __/ _ \| '_ \ / _ \\\n" \
+       "| | | | |  __/ | | | (__| | | \__ \ || (_) | | | |  __/\n" \
+       "\_| |_|  \___|_| |_|\___|_| |_|___/\__\___/|_| |_|\___|"
+
 def center_text(text: str, length: int, filler=' ', bold=False, color=None) -> str:
     left = (length - len(text)) // 2
     right = length - left - len(text)
@@ -143,13 +150,39 @@ class FancyLog:
         return self.log[index] + " " * (whitespace - len(self.log[index]))
 
 
-
 def import_log(file: str) -> pandas.core.frame.DataFrame:
     with open(file, 'rb') as f:
         return pickle.load(f)
 
 
-if __name__ == '__main__':
+RED = '\033[91m'
+GREEN = '\033[92m'
+ENDC = '\033[0m'
+
+def fancier(text: str) -> str:
+    """ Rajoute des couleurs """
+    fancy = text.split("[")
+    if len(fancy) == 1:
+        return text
+    elif "est mort." in text:
+        text = text.split("est mort.")
+        return RED+text[0] + "est mort."+ENDC+text[1]
+    else:
+        try:
+            fancy = [fancy[0], fancy[1].split("]")[0], fancy[1].split("]")[1]]
+            nb = int(fancy[1])
+            if nb < 0:
+                nb = RED+f"[{nb}]"+ENDC
+            elif nb > 0:
+                nb = GREEN+f"[{nb}]"+ENDC
+            return fancy[0]+nb+fancy[2]
+        except ValueError:
+            return text
+        except IndexError:
+            return text
+
+
+def print_fancy_battlelog():
     fancylog = FancyLog()
     log = import_log("modelisation/logs_games.pickle")
     sample = {columns_logs[i]: elt for i, elt in enumerate(log.values[0])}
@@ -157,14 +190,18 @@ if __name__ == '__main__':
     players = [Player(sample["pseudo_j"], sample["classe_j"]), Player(sample["pseudo_adv"], sample["classe_adv"])]
     players[0].set_deck("test_deck.csv")
     players[1].set_deck("test_deck.csv")
-
+    players[0].mana_grow()
     turn = 1
     side = 0
 
-    for line in log.values[:50]:
+    for line in log.values[:100]:
         event = {columns_logs[i]: elt for i, elt in enumerate(line)}
+        player = players[side]
+        adverse = players[1 - side]
         if event["action"] == "passer_tour":
             fancylog.add(f"{players[side].name} passe son tour.")
+            player.mana_grow()
+            player.mana_reset()
             if side == 0:
                 side = 1
             else:
@@ -172,68 +209,73 @@ if __name__ == '__main__':
                 turn += 1
         elif event["action"] == "jouer_carte":
             carte = get_card(event['carte_jouee'])
+            player.mana_spend(carte.cost)
             fancylog.add(f"{players[side].name} joue {carte.name}")
             players[side].fighters.add(carte)
 
         elif event["action"] == "attaquer":
             attaquant = get_card(event['attaquant'])
             if event['cible'] == "heros":
-                fancylog.add(f"{attaquant.name} attaque le héros adverse")
+                fancylog.add(f"{attaquant.name} attaque le héros adverse [-{attaquant.attack}]")
+                adverse.hero.damage(attaquant.attack)
             else:
                 cible = get_card(event['cible'])
-                fancylog.add(f"{attaquant.name} attaque {cible.name}")
-                for card in players[1-side].fighters:
+                fancylog.add(f"{attaquant.name} attaque {cible.name} [-{attaquant.attack}]")
+                for card in players[1 - side].fighters:
                     if cible.name == card.name:
                         card.damages(attaquant.attack)
                         if card.is_dead():
-                            players[1-side].fighters.remove(card)
+                            fancylog.add(f"{card.name} est mort.")
+                            players[1 - side].fighters.remove(card)
                 for card in players[side].fighters:
                     if attaquant.name == card.name:
                         card.damages(cible.attack)
                         if card.is_dead():
+                            fancylog.add(f"{card.name} est mort.")
                             players[side].fighters.remove(card)
         else:
             fancylog.add(event['action'])
 
-        players[side].mana, players[side].mana_max = event["mana_dispo_j"], event["mana_max_j"]
-        players[side].hero.health = event["pv_j"]
-
-        players[1-side].mana, players[1-side].mana_max = event["mana_max_adv"], event["mana_max_adv"]
-        players[1-side].hero.health = event["pv_adv"]
-
         print("\n" * 50)
         print(event)
         log_width = 60
-
-        print(">>> " + fancylog.print(0) + f"Tour {turn}")
-        print(fancylog.print(1) + fancy_mana(players[1].mana, players[1].mana_max))
+        for elt in ICON.split('\n'):
+            print(" " * 50 + elt)
+        print("\n" * 2)
+        print(fancier(">>> " + fancylog.print(0) + f"Tour {turn}"))
+        print(fancier(fancylog.print(1) + fancy_mana(players[1].mana, players[1].mana_max)))
         adv = fancy_hero(players[1].hero, playing=side == 1).split('\n')
-        print(fancylog.print(2) + adv[0])
-        print(fancylog.print(3) + adv[1])
-        print(fancylog.print(4) + adv[2])
+        print(fancier(fancylog.print(2) + adv[0]))
+        print(fancier(fancylog.print(3) + adv[1]))
+        print(fancier(fancylog.print(4) + adv[2]))
         if len(players[1].fighters) > 0:
             adv_fighters = fancy_cardlist(players[1].fighters).split('\n')
         else:
             adv_fighters = ["" for _ in range(6)]
-        print(fancylog.print(5) + adv_fighters[0])
-        print(fancylog.print(6) + adv_fighters[1])
-        print(fancylog.print(7) + adv_fighters[2])
-        print(fancylog.print(8) + adv_fighters[3])
-        print(fancylog.print(9) + adv_fighters[4])
-        print(fancylog.print(10) + adv_fighters[5])
+        print(fancier(fancylog.print(5) + adv_fighters[0]))
+        print(fancier(fancylog.print(6) + adv_fighters[1]))
+        print(fancier(fancylog.print(7) + adv_fighters[2]))
+        print(fancier(fancylog.print(8) + adv_fighters[3]))
+        print(fancier(fancylog.print(9) + adv_fighters[4]))
+        print(fancier(fancylog.print(10) + adv_fighters[5]))
 
         if len(players[0].fighters) > 0:
             jr_fighters = fancy_cardlist(players[0].fighters).split('\n')
         else:
             jr_fighters = ["" for _ in range(6)]
         for i, elt in enumerate(jr_fighters):
-            print(fancylog.print(11 + i) + elt)
+            print(fancier(fancylog.print(11 + i) + elt))
 
         jr = fancy_hero(players[0].hero, playing=side == 0).split("\n")
-        print(" "*log_width + jr[0])
-        print(" "*log_width + jr[1])
-        print(" "*log_width + jr[2])
-        print(" "*log_width + fancy_mana(players[0].mana, players[0].mana_max))
+        print(" " * log_width + jr[0])
+        print(" " * log_width + jr[1])
+        print(" " * log_width + jr[2])
+        print(" " * log_width + fancy_mana(players[0].mana, players[0].mana_max))
         sleep(2)
+
+
+if __name__ == '__main__':
+    print_fancy_battlelog()
+
 
 

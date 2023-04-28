@@ -2,6 +2,7 @@ import csv
 import json
 from os import path
 from random import shuffle
+from typing import Union
 
 cardsfile = "cards.json"
 
@@ -170,6 +171,12 @@ class Card:
         self.effects = []  # Inutile pour l'instant
         self.remaining_atk = 0
 
+    def damages(self, nb):
+        self.health -= nb
+
+    def is_dead(self):
+        return self.health <= 0
+
     def __repr__(self) -> str:
         return self.name
 
@@ -210,14 +217,29 @@ def import_deck(file: str) -> CardGroup:
     return deck
 
 
-def get_card(key, file="cards.json") -> Card:
+def get_card(key: Union[int, str], file="cards.json") -> Card:
     """ Renvoie l'objet Card en fonction de 'key', qui peut être l'id où le nom de la carte """
     found = False
     with open(file, 'r', encoding='utf-8') as jsonfile:
         cardls = json.load(jsonfile)
-    for elt in cardls:
-        if elt['id'] == key or elt['name'] == key:
-            return Card(**elt)
+    if type(key) is int:
+        # Recherche par id fixe
+        for elt in cardls:
+            if elt['id'] == key:
+                return Card(**elt)
+    elif type(key) is str:
+        ext = None
+        if key[-2] == '-':
+            # Recherche par id temporaire
+            key, ext = key.split('-')
+            for elt in cardls:
+                if str(elt['id']) == key:
+                    return Card(cid=f"{key}-{ext}", **elt)
+        else:
+            for elt in cardls:
+                if elt['name'].lower() == key.lower():
+                    return Card(**elt)
+
     if found is False:
         raise KeyError(f"Impossible de trouver {key}")
 
@@ -238,13 +260,9 @@ classes = {'CA': 'Chaman',
 reverse_classes = {value: key for key, value in classes.items()}
 
 if __name__ == '__main__':
-    player = Player("KamionBen", "Chasseur")
-    print(player)
-    player.set_deck("basic_chasseur.csv")
-    print(type(player.hand))
-    player.start_game()
-    print(type(player.hand))
-    player.start_turn()
+    print(get_card(1))
+    print(get_card("Horion de givre"))
+    print(get_card("1-2"))
 
 
 

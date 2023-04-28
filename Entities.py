@@ -27,8 +27,7 @@ class Player:
         self.classe = classe
         self.ia = ia
 
-        self.hero = None
-
+        self.hero = Hero(hero_powers[self.classe][0])  # Premier héros par défaut
 
         # Cartes
         self.deck = CardGroup()  # Le tas de cartes à l'envers
@@ -72,21 +71,23 @@ class Player:
 
     def set_deck(self, file):
         self.deck = import_deck(file)
-        self.deck.shuffle()
+        #self.deck.shuffle()
 
     def __repr__(self) -> str:
         return self.name
 
 
-hero_powers = {"Michel": "Blagues de Totems"}  # Devra être dans un fichier à part
+hero_powers = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
+               "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"]}  # Devra être dans un fichier à part
 
 
 class Hero:
     def __init__(self, name):
         """ Héros choisi par le joueur """
         self.name = name
-        self.power = hero_powers[self.name]
+        self.power = None
 
+        self.attack = 0
         self.health, self.base_health = 30, 30
         self.weapon = None
 

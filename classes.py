@@ -17,8 +17,10 @@ class Plateau:
 
         """ Début de partie """
         """ Choix au hasard du joueur qui commence"""
-        self.player1 = random.choice([Player(pseudo_joueur1, classe_joueur1), Player(pseudo_joueur2, classe_joueur2)])
-        self.player2 = Player(pseudo_joueur2, classe_joueur2) if self.player1.name == Player(pseudo_joueur1, classe_joueur1).name else Player(pseudo_joueur1, classe_joueur1)
+        players = (Player(pseudo_joueur1, classe_joueur1), Player(pseudo_joueur2, classe_joueur2))
+        choix = random.choice((0, 1))
+        self.player1 = players[choix]
+        self.player2 = players[1-choix]  # C'est plus clair comme ça, non ?
 
         """ Importation des decks de chaque joueur """
         self.player1.set_deck(class_files[self.player1.classe])

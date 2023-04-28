@@ -182,9 +182,9 @@ def fancier(text: str) -> str:
             return text
 
 
-def print_fancy_battlelog():
+def print_fancy_battlelog(battlelog: str, nb: int):
     fancylog = FancyLog()
-    log = import_log("modelisation/logs_games.pickle")
+    log = import_log(path.join("modelisation", battlelog))
     sample = {columns_logs[i]: elt for i, elt in enumerate(log.values[0])}
 
     players = [Player(sample["pseudo_j"], sample["classe_j"]), Player(sample["pseudo_adv"], sample["classe_adv"])]
@@ -194,7 +194,7 @@ def print_fancy_battlelog():
     turn = 1
     side = 0
 
-    for line in log.values[:100]:
+    for line in log.values[:nb]:
         event = {columns_logs[i]: elt for i, elt in enumerate(line)}
         player = players[side]
         adverse = players[1 - side]
@@ -211,7 +211,7 @@ def print_fancy_battlelog():
             carte = get_card(event['carte_jouee'])
             player.mana_spend(carte.cost)
             fancylog.add(f"{players[side].name} joue {carte.name}")
-            players[side].fighters.add(carte)
+            players[side].servants.add(carte)
 
         elif event["action"] == "attaquer":
             attaquant = get_card(event['attaquant'])
@@ -221,18 +221,18 @@ def print_fancy_battlelog():
             else:
                 cible = get_card(event['cible'])
                 fancylog.add(f"{attaquant.name} attaque {cible.name} [-{attaquant.attack}]")
-                for card in players[1 - side].fighters:
+                for card in players[1 - side].servants:
                     if cible.name == card.name:
                         card.damages(attaquant.attack)
                         if card.is_dead():
                             fancylog.add(f"{card.name} est mort.")
-                            players[1 - side].fighters.remove(card)
-                for card in players[side].fighters:
+                            players[1 - side].servants.remove(card)
+                for card in players[side].servants:
                     if attaquant.name == card.name:
                         card.damages(cible.attack)
                         if card.is_dead():
                             fancylog.add(f"{card.name} est mort.")
-                            players[side].fighters.remove(card)
+                            players[side].servants.remove(card)
         else:
             fancylog.add(event['action'])
 
@@ -248,8 +248,8 @@ def print_fancy_battlelog():
         print(fancier(fancylog.print(2) + adv[0]))
         print(fancier(fancylog.print(3) + adv[1]))
         print(fancier(fancylog.print(4) + adv[2]))
-        if len(players[1].fighters) > 0:
-            adv_fighters = fancy_cardlist(players[1].fighters).split('\n')
+        if len(players[1].servants) > 0:
+            adv_fighters = fancy_cardlist(players[1].servants).split('\n')
         else:
             adv_fighters = ["" for _ in range(6)]
         print(fancier(fancylog.print(5) + adv_fighters[0]))
@@ -259,8 +259,8 @@ def print_fancy_battlelog():
         print(fancier(fancylog.print(9) + adv_fighters[4]))
         print(fancier(fancylog.print(10) + adv_fighters[5]))
 
-        if len(players[0].fighters) > 0:
-            jr_fighters = fancy_cardlist(players[0].fighters).split('\n')
+        if len(players[0].servants) > 0:
+            jr_fighters = fancy_cardlist(players[0].servants).split('\n')
         else:
             jr_fighters = ["" for _ in range(6)]
         for i, elt in enumerate(jr_fighters):
@@ -275,7 +275,7 @@ def print_fancy_battlelog():
 
 
 if __name__ == '__main__':
-    print_fancy_battlelog()
+    print_fancy_battlelog("logs_games.pickle", 50)
 
 
 

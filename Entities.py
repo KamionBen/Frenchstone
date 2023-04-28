@@ -33,7 +33,7 @@ class Player:
         # Cartes
         self.deck = CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
-        self.fighters = CardGroup()  # Les cartes sur le "terrain"
+        self.servants = CardGroup()  # Les cartes sur le "terrain"
 
         self.mana, self.mana_max = 0, 0
 

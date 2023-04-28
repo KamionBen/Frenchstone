@@ -40,10 +40,10 @@ class Plateau:
         self.surcharge_joueur1, self.surcharge_joueur2 = 0, 0
 
         """ Points de vie """
-        self.pv_max_joueur1 = 30
-        self.pv_max_joueur2 = 30
-        self.pv_actuels_joueur1 = 30
-        self.pv_actuels_joueur2 = 30
+        self.pv_max_joueur1 = self.player1.hero.base_health
+        self.pv_max_joueur2 = self.player2.hero.base_health
+        self.pv_actuels_joueur1 = self.player1.hero.health
+        self.pv_actuels_joueur2 = self.player2.hero.health
 
         """ Cartes en main """
         self.nbre_cartes_joueur1, self.nbre_cartes_joueur2 = len(self.player1.hand), len(self.player2.hand)

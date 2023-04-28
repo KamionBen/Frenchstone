@@ -15,6 +15,7 @@ class Plateau:
         class_files = {'Chasseur': 'test_deck.csv',
                        'Mage': 'test_deck.csv'}
 
+        """ Début de partie """
         """ Choix au hasard du joueur qui commence"""
         self.player1 = random.choice([Player(pseudo_joueur1, classe_joueur1), Player(pseudo_joueur2, classe_joueur2)])
         self.player2 = Player(pseudo_joueur2, classe_joueur2) if self.player1.name == Player(pseudo_joueur1, classe_joueur1).name else Player(pseudo_joueur1, classe_joueur1)
@@ -23,9 +24,15 @@ class Plateau:
         self.player1.set_deck(class_files[self.player1.classe])
         self.player2.set_deck(class_files[self.player2.classe])
 
+        """ Mélange des decks et tirage de la main de départ """
+        self.player1.start_game()
+        self.player2.start_game()
+
+
         """ Gestion du mana """
         """ Le premier joueur démarre son tour à l'initialisation """
         self.player1.start_turn()
+
         """ Évolution du mana des joueurs """
         self.mana_max_joueur1, self.mana_max_joueur2 = self.player1.mana_max, self.player2.mana_max
         self.mana_dispo_joueur1, self.mana_dispo_joueur2 = self.player1.mana, self.player2.mana
@@ -38,8 +45,7 @@ class Plateau:
         self.pv_actuels_joueur2 = 30
 
         """ Cartes en main """
-        self.cartes_joueur1 = 0
-        self.cartes_joueur2 = 0
+        self.cartes_joueur1, self.cartes_joueur2 = len(self.player1.hand), len(self.player2.hand)
 
         """ Pouvoir héroïque """
         self.dispo_pouvoir_hero_joueur1 = True

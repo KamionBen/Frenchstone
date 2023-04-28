@@ -21,13 +21,14 @@ def get_cards_data(file: str) -> list:
 
 
 class Player:
-    def __init__(self, name, ia=True):
+    def __init__(self, name, classe, ia=True):
         """ Profil de l'utilisateur ou de l'IA"""
         self.name = name
+        self.classe = classe
         self.ia = ia
 
         self.hero = None
-        self.classe = None
+
 
         # Cartes
         self.deck = CardGroup()  # Le tas de cartes à l'envers
@@ -69,8 +70,7 @@ class Player:
     def set_hero(self, name):
         self.hero = Hero(name)
 
-    def set_deck(self, classe, file):
-        self.classe = classe
+    def set_deck(self, file):
         self.deck = import_deck(file)
         self.deck.shuffle()
 

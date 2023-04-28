@@ -14,13 +14,16 @@ class Plateau:
         """ Caractéristiques joueurs """
         class_files = {'Chasseur': 'test_deck.csv',
                        'Mage': 'test_deck.csv'}
-        self.player1 = Player(pseudo_joueur1)
-        self.player1.set_deck(classe_joueur1, class_files[classe_joueur1])
 
-        self.player2 = Player(pseudo_joueur2)
-        self.player2.set_deck(classe_joueur2, class_files[classe_joueur2])
+        """ Choix au hasard du joueur qui commence"""
+        self.player1 = random.choice([Player(pseudo_joueur1, classe_joueur1), Player(pseudo_joueur2, classe_joueur2)])
+        self.player2 = Player(pseudo_joueur2, classe_joueur2) if self.player1.name == Player(pseudo_joueur1, classe_joueur1).name else Player(pseudo_joueur1, classe_joueur1)
 
-        """ Mana """
+        """ Importation des decks de chaque joueur """
+        self.player1.set_deck(class_files[self.player1.classe])
+        self.player2.set_deck(class_files[self.player2.classe])
+
+        """ Gestion du mana """
         self.mana_max_joueur1 = 1
         self.mana_max_joueur2 = 0
         self.mana_dispo_joueur1 = 1

@@ -137,6 +137,21 @@ class CardGroup:
     def __iter__(self):
         return iter(self.cards)
 
+    def __add__(self, other):
+        if type(other) is Card:
+            ls = self.cards.copy()
+            ls.append(other)
+            return CardGroup(ls)
+        elif type(other) is list:
+            ls = self.cards.copy()
+            for l in other:
+                ls.append(l)
+            return ls
+
+    def __getitem__(self, item):
+        if type(item) is int:
+            return self.cards[item]
+
 
 class Card:
     created = []

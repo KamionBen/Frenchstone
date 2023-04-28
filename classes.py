@@ -35,15 +35,8 @@ class Plateau:
         self.player1.start_turn()
 
         """ Évolution du mana des joueurs """
-        self.mana_max_joueur1, self.mana_max_joueur2 = self.player1.mana_max, self.player2.mana_max
-        self.mana_dispo_joueur1, self.mana_dispo_joueur2 = self.player1.mana, self.player2.mana
+        # Reste surcharge à gérer
         self.surcharge_joueur1, self.surcharge_joueur2 = 0, 0
-
-        """ Points de vie """
-        self.pv_max_joueur1 = self.player1.hero.base_health
-        self.pv_max_joueur2 = self.player2.hero.base_health
-        self.pv_actuels_joueur1 = self.player1.hero.health
-        self.pv_actuels_joueur2 = self.player2.hero.health
 
         """ Cartes en main """
         self.nbre_cartes_joueur1, self.nbre_cartes_joueur2 = len(self.player1.hand), len(self.player2.hand)
@@ -80,8 +73,8 @@ class Plateau:
             # Réinitialisation du mana et du pouvoir héroïque
             self.player1.start_turn()
 
-            self.mana_max_joueur1 = self.player1.mana_max
-            self.mana_dispo_joueur1 = self.player1.mana - self.surcharge_joueur1
+            self.player1.mana_max = self.player1.mana_max
+            self.player1.mana = self.player1.mana - self.surcharge_joueur1
             self.surcharge_joueur1 = 0
             self.dispo_pouvoir_hero_joueur1 = True
             self.nbre_cartes_joueur1 = len(self.player1.hand)
@@ -93,8 +86,8 @@ class Plateau:
         else:
             # Réinitialisation du mana et du pouvoir héroïque
             self.player2.start_turn()
-            self.mana_max_joueur2 = self.player2.mana_max
-            self.mana_dispo_joueur2 = self.player2.mana - self.surcharge_joueur2
+            self.player2.mana_max = self.player2.mana_max
+            self.player2.mana = self.player2.mana - self.surcharge_joueur2
             self.surcharge_joueur2 = 0
             self.dispo_pouvoir_hero_joueur2 = True
             self.nbre_cartes_joueur2 = len(self.player2.hand)
@@ -113,35 +106,35 @@ class TourEnCours:
     ## Le plateau est mis à jour en conséquence
     def jouer_carte(self, carte):
         if self.plateau.tour_de_jeu == 1:
-            if carte.cost <= self.plateau.mana_dispo_joueur1:
+            if carte.cost <= self.plateau.player1.mana:
                 if carte.type == "sort":
                     self.plateau.nbre_cartes_joueur1 -= 1
-                    self.plateau.mana_dispo_joueur1 -= carte.cost
+                    self.plateau.player1.mana -= carte.cost
                 elif carte.type == "Serviteur":
                     if len(self.plateau.serviteurs_joueur1) < 7:
                         self.plateau.player1.hand.remove(carte)
                         self.plateau.nbre_cartes_joueur1 = len(self.plateau.player1.hand)
-                        self.plateau.mana_dispo_joueur1 -= carte.cost
+                        self.plateau.player1.mana -= carte.cost
                         self.plateau.serviteurs_joueur1.append(carte)
         else:
-            if carte.cost <= self.plateau.mana_dispo_joueur2:
+            if carte.cost <= self.plateau.player2.mana:
                 if carte.type == "sort":
                     self.plateau.nbre_cartes_joueur2 -= 1
-                    self.plateau.mana_dispo_joueur2 -= carte.cost
+                    self.plateau.player2.mana -= carte.cost
                 elif carte.type == "Serviteur":
                     if len(self.plateau.serviteurs_joueur2) < 7:
                         self.plateau.player2.hand.remove(carte)
                         self.plateau.nbre_cartes_joueur2 = len(self.plateau.player2.hand)
-                        self.plateau.mana_dispo_joueur2 -= carte.cost
+                        self.plateau.player2.mana -= carte.cost
                         self.plateau.serviteurs_joueur2.append(carte)
 
     ## Action d'attaquer avec un serviteur ou son héros une cible adverse (serviteur ou héros aussi)
     def attaquer(self, attaquant, cible):
         if self.plateau.tour_de_jeu == 1:
             if (attaquant == "heros" and self.plateau.arme_joueur1 == True) and cible == "heros":
-                self.plateau.pv_actuels_joueur2 -= self.plateau.attaque_joueur1
+                self.plateau.player2.hero.health -= self.plateau.attaque_joueur1
             elif (attaquant == "heros" and self.plateau.arme_joueur1 == True) and cible != "heros":
-                self.plateau.pv_actuels_joueur1 -= cible.attack
+                self.plateau.player1.hero.health -= cible.attack
                 cible.health -= self.plateau.attaque_joueur1
                 ## Mort de la cible ou de notre propre héros
                 if cible.health <= 0:
@@ -149,7 +142,7 @@ class TourEnCours:
                     self.plateau.serviteurs_joueur2 = [serviteur for serviteur in self.plateau.serviteurs_joueur2 if serviteur.PV > 0]
             elif attaquant != "heros" and cible == "heros":
                 # Conséquences de l'attaque
-                self.plateau.pv_actuels_joueur2 -= attaquant.attack
+                self.plateau.player2.hero.health -= attaquant.attack
                 attaquant.remaining_atk -= 1
             else:
                 # Conséquences de l'attaque
@@ -168,9 +161,9 @@ class TourEnCours:
                                                        serviteur.health > 0]
         else:
             if (attaquant == "heros" and self.plateau.arme_joueur2 == True) and cible == "heros":
-                self.plateau.pv_actuels_joueur1 -= self.plateau.attaque_joueur2
+                self.plateau.player1.hero.health -= self.plateau.attaque_joueur2
             elif (attaquant == "heros" and self.plateau.arme_joueur2 == True) and cible != "heros":
-                self.plateau.pv_actuels_joueur2 -= cible.attack
+                self.plateau.player2.hero.health -= cible.attack
                 cible.health -= self.plateau.attaque_joueur2
 
                 ## Mort de la cible ou de notre propre héros
@@ -180,7 +173,7 @@ class TourEnCours:
                                                        serviteur.health > 0]
             elif attaquant != "heros" and cible == "heros":
                 # Conséquences de l'attaque
-                self.plateau.pv_actuels_joueur1 -= attaquant.attack
+                self.plateau.player1.hero.health -= attaquant.attack
                 attaquant.remaining_atk -= 1
             else:
 
@@ -258,15 +251,15 @@ class RandomOrchestrator:
                 "cible_pv": "",
                 "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
                 "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
-                "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
-                "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
-                "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
+                "mana_dispo_j" : plateau.player1.mana if plateau.tour_de_jeu == 1 else plateau.player2.mana,
+                "mana_max_j" : plateau.player1.mana_max if plateau.tour_de_jeu == 1 else plateau.player2.mana_max,
+                "mana_max_adv" : plateau.player2.mana_max if plateau.tour_de_jeu == 1 else plateau.player1.mana_max,
                 "surcharge_j" : plateau.surcharge_joueur1 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur2,
                 "surcharge_adv" : plateau.surcharge_joueur2 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur1,
-                "pv_j" : plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur2,
-                "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
-                "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
-                "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
+                "pv_j" : plateau.player1.hero.health if plateau.tour_de_jeu == 1 else plateau.player2.hero.health,
+                "pv_adv" : plateau.player2.hero.health if plateau.tour_de_jeu == 1 else plateau.player1.hero.health,
+                "pv_max_j" : plateau.player1.hero.base_health if plateau.tour_de_jeu == 1 else plateau.player2.hero.base_health,
+                "pv_max_adv" : plateau.player2.hero.base_health if plateau.tour_de_jeu == 1 else plateau.player1.hero.base_health,
                 "nbre_cartes_j" : plateau.nbre_cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur2,
                 "nbre_cartes_adv" : plateau.nbre_cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur1,
                 "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
@@ -371,15 +364,15 @@ class RandomOrchestrator:
                 "cible_pv": "",
                 "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
                 "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
-                "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
-                "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
-                "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
+                "mana_dispo_j" : plateau.player1.mana if plateau.tour_de_jeu == 1 else plateau.player2.mana,
+                "mana_max_j" : plateau.player1.mana_max if plateau.tour_de_jeu == 1 else plateau.player2.mana_max,
+                "mana_max_adv" : plateau.player2.mana_max if plateau.tour_de_jeu == 1 else plateau.player1.mana_max,
                 "surcharge_j" : plateau.surcharge_joueur1 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur2,
                 "surcharge_adv" : plateau.surcharge_joueur2 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur1,
-                "pv_j" : plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur2,
-                "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
-                "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
-                "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
+                "pv_j" : plateau.player1.hero.health if plateau.tour_de_jeu == 1 else plateau.player2.hero.health,
+                "pv_adv" : plateau.player2.hero.health if plateau.tour_de_jeu == 1 else plateau.player1.hero.health,
+                "pv_max_j" : plateau.player1.hero.base_health if plateau.tour_de_jeu == 1 else plateau.player2.hero.base_health,
+                "pv_max_adv" : plateau.player2.hero.base_health if plateau.tour_de_jeu == 1 else plateau.player1.hero.base_health,
                 "nbre_cartes_j" : plateau.nbre_cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur2,
                 "nbre_cartes_adv" : plateau.nbre_cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur1,
                 "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
@@ -479,21 +472,21 @@ class RandomOrchestrator:
                 "carte_jouee": "",
                 "attaquant": attaquant.name if attaquant != "heros" else "heros",
                 "attaquant_atq": attaquant.attack if attaquant != "heros" else plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2 if plateau.tour_de_jeu == 2 else -99,
-                "attaquant_pv": attaquant.health if attaquant != "heros" else plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 2 else -99,
+                "attaquant_pv": attaquant.health if attaquant != "heros" else plateau.player1.hero.health if plateau.tour_de_jeu == 1 else plateau.player2.hero.health if plateau.tour_de_jeu == 2 else -99,
                 "cible": cible.name if cible != "heros" else "heros",
                 "cible_atq": cible.attack if cible != "heros" else 0,
-                "cible_pv": cible.health if cible != "heros" else plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 2 else -99,
+                "cible_pv": cible.health if cible != "heros" else plateau.player2.hero.health if plateau.tour_de_jeu == 1 else plateau.player1.hero.health if plateau.tour_de_jeu == 2 else -99,
                 "classe_j" : plateau.player1.classe if plateau.tour_de_jeu == 1 else plateau.player2.classe,
                 "classe_adv" : plateau.player2.classe if plateau.tour_de_jeu == 1 else plateau.player1.classe,
-                "mana_dispo_j" : plateau.mana_dispo_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_dispo_joueur2,
-                "mana_max_j" : plateau.mana_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur2,
-                "mana_max_adv" : plateau.mana_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.mana_max_joueur1,
+                "mana_dispo_j" : plateau.player1.mana if plateau.tour_de_jeu == 1 else plateau.player2.mana,
+                "mana_max_j" : plateau.player1.mana_max if plateau.tour_de_jeu == 1 else plateau.player2.mana_max,
+                "mana_max_adv" : plateau.player2.mana_max if plateau.tour_de_jeu == 1 else plateau.player1.mana_max,
                 "surcharge_j" : plateau.surcharge_joueur1 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur2,
                 "surcharge_adv" : plateau.surcharge_joueur2 if plateau.tour_de_jeu == 1 else plateau.surcharge_joueur1,
-                "pv_j" : plateau.pv_actuels_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur2,
-                "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
-                "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
-                "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
+                "pv_j" : plateau.player1.hero.health if plateau.tour_de_jeu == 1 else plateau.player2.hero.health,
+                "pv_adv" : plateau.player2.hero.health if plateau.tour_de_jeu == 1 else plateau.player1.hero.health,
+                "pv_max_j" : plateau.player1.hero.base_health if plateau.tour_de_jeu == 1 else plateau.player2.hero.base_health,
+                "pv_max_adv" : plateau.player2.hero.base_health if plateau.tour_de_jeu == 1 else plateau.player1.hero.base_health,
                 "nbre_cartes_j" : plateau.nbre_cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur2,
                 "nbre_cartes_adv" : plateau.nbre_cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur1,
                 "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
@@ -571,10 +564,10 @@ class RandomOrchestrator:
         while i < nb_games:
             logs_inter = pd.DataFrame(columns=columns_logs)
             mon_plateau = Plateau(classe_j1, pseudo_j1, classe_j2, pseudo_j2)
-            while not (mon_plateau.pv_actuels_joueur1 <= 0 or mon_plateau.pv_actuels_joueur2 <= 0):
+            while not (mon_plateau.player1.hero.health <= 0 or mon_plateau.player2.hero.health <= 0):
                 if mon_plateau.tour_de_jeu == 1:
                     ## On choisit une carte au hasard à jouer si on a le mana pour
-                    cartes_jouables = [x for x in mon_plateau.player1.hand if x.cost <= mon_plateau.mana_dispo_joueur1]
+                    cartes_jouables = [x for x in mon_plateau.player1.hand if x.cost <= mon_plateau.player1.mana]
                     carte_a_jouer = deepcopy(random.choice(cartes_jouables)) if len(cartes_jouables) != 0 else -99
 
                     # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur pouvant attaquer est présent sur le plateau
@@ -589,7 +582,7 @@ class RandomOrchestrator:
                     cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur2)
                 else:
                     ## On choisit une carte au hasard à jouer si on a le mana pour
-                    cartes_jouables = [x for x in mon_plateau.player2.hand if x.cost <= mon_plateau.mana_dispo_joueur2]
+                    cartes_jouables = [x for x in mon_plateau.player2.hand if x.cost <= mon_plateau.player2.mana]
                     carte_a_jouer = deepcopy(random.choice(cartes_jouables)) if len(cartes_jouables) != 0 else -99
 
                     # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur pouvant attaquer est présent sur le plateau
@@ -603,11 +596,11 @@ class RandomOrchestrator:
                             attaquant = ""
                     cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur1)
                 mon_plateau = RandomOrchestrator().tour_au_hasard(carte_a_jouer, attaquant, cible, mon_plateau, logs_inter)
-                if mon_plateau.pv_actuels_joueur1 <= 0:
+                if mon_plateau.player1.hero.health <= 0:
                     logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == mon_plateau.player2.name, 1, -1)
                     logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis = 1)
                     victoires_j2 += 1
-                if mon_plateau.pv_actuels_joueur2 <= 0:
+                if mon_plateau.player2.hero.health <= 0:
                     logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == mon_plateau.player1.name, 1, -1)
                     logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis = 1)
                     victoires_j1 += 1

@@ -44,7 +44,7 @@ class Plateau:
         self.pv_actuels_joueur2 = 30
 
         """ Cartes en main """
-        self.cartes_joueur1, self.cartes_joueur2 = len(self.player1.hand), len(self.player2.hand)
+        self.nbre_cartes_joueur1, self.nbre_cartes_joueur2 = len(self.player1.hand), len(self.player2.hand)
 
         """ Pouvoir héroïque """
         self.dispo_pouvoir_hero_joueur1 = True
@@ -82,7 +82,7 @@ class Plateau:
             self.mana_dispo_joueur1 = self.player1.mana - self.surcharge_joueur1
             self.surcharge_joueur1 = 0
             self.dispo_pouvoir_hero_joueur1 = True
-            self.cartes_joueur1 = len(self.player1.hand)
+            self.nbre_cartes_joueur1 = len(self.player1.hand)
 
             # Réinitialisation de l'attaque des seviteurs présents sur le plateau
             for serviteur in self.serviteurs_joueur1:
@@ -95,7 +95,7 @@ class Plateau:
             self.mana_dispo_joueur2 = self.player2.mana - self.surcharge_joueur2
             self.surcharge_joueur2 = 0
             self.dispo_pouvoir_hero_joueur2 = True
-            self.cartes_joueur2 = len(self.player2.hand)
+            self.nbre_cartes_joueur2 = len(self.player2.hand)
 
             # Réinitialisation de l'attaque des seviteurs présents sur le plateau
             for serviteur in self.serviteurs_joueur2:
@@ -113,21 +113,21 @@ class TourEnCours:
         if self.plateau.tour_de_jeu == 1:
             if carte.cost <= self.plateau.mana_dispo_joueur1:
                 if carte.type == "sort":
-                    self.plateau.cartes_joueur1 -= 1
+                    self.plateau.nbre_cartes_joueur1 -= 1
                     self.plateau.mana_dispo_joueur1 -= carte.cost
                 elif carte.type == "Serviteur":
                     if len(self.plateau.serviteurs_joueur1) < 7:
-                        self.plateau.cartes_joueur1 -= 1
+                        self.plateau.player1.hand.remove(carte)
                         self.plateau.mana_dispo_joueur1 -= carte.cost
                         self.plateau.serviteurs_joueur1.append(carte)
         else:
             if carte.cost <= self.plateau.mana_dispo_joueur2:
                 if carte.type == "sort":
-                    self.plateau.cartes_joueur2 -= 1
+                    self.plateau.nbre_cartes_joueur2 -= 1
                     self.plateau.mana_dispo_joueur2 -= carte.cost
                 elif carte.type == "Serviteur":
                     if len(self.plateau.serviteurs_joueur2) < 7:
-                        self.plateau.cartes_joueur2 -= 1
+                        self.plateau.player2.hand.remove(carte)
                         self.plateau.mana_dispo_joueur2 -= carte.cost
                         self.plateau.serviteurs_joueur2.append(carte)
 
@@ -235,8 +235,8 @@ class RandomOrchestrator:
                 "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
                 "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
                 "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
-                "nbre_cartes_j" : plateau.cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur2,
-                "nbre_cartes_adv" : plateau.cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur1,
+                "nbre_cartes_j" : plateau.nbre_cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur2,
+                "nbre_cartes_adv" : plateau.nbre_cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur1,
                 "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
                 "cout_ph_j" : plateau.cout_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.cout_pouvoir_hero_joueur2,
                 "serv1_j" : plateau.serviteurs_joueur1[0].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].id if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else -99,
@@ -318,8 +318,8 @@ class RandomOrchestrator:
                 "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
                 "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
                 "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
-                "nbre_cartes_j" : plateau.cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur2,
-                "nbre_cartes_adv" : plateau.cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur1,
+                "nbre_cartes_j" : plateau.nbre_cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur2,
+                "nbre_cartes_adv" : plateau.nbre_cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur1,
                 "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
                 "cout_ph_j" : plateau.cout_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.cout_pouvoir_hero_joueur2,
                 "serv1_j" : plateau.serviteurs_joueur1[0].name if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].id if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else -99,
@@ -402,8 +402,8 @@ class RandomOrchestrator:
                 "pv_adv" : plateau.pv_actuels_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_actuels_joueur1,
                 "pv_max_j" : plateau.pv_max_joueur1 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur2,
                 "pv_max_adv" : plateau.pv_max_joueur2 if plateau.tour_de_jeu == 1 else plateau.pv_max_joueur1,
-                "nbre_cartes_j" : plateau.cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur2,
-                "nbre_cartes_adv" : plateau.cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.cartes_joueur1,
+                "nbre_cartes_j" : plateau.nbre_cartes_joueur1 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur2,
+                "nbre_cartes_adv" : plateau.nbre_cartes_joueur2 if plateau.tour_de_jeu == 1 else plateau.nbre_cartes_joueur1,
                 "dispo_ph_j" : plateau.dispo_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.dispo_pouvoir_hero_joueur2,
                 "cout_ph_j" : plateau.cout_pouvoir_hero_joueur1 if plateau.tour_de_jeu == 1 else plateau.cout_pouvoir_hero_joueur2,
                 "serv1_j" : plateau.serviteurs_joueur1[0].id if plateau.tour_de_jeu == 1 and len(plateau.serviteurs_joueur1) > 0 else plateau.serviteurs_joueur2[0].id if plateau.tour_de_jeu == 2 and len(plateau.serviteurs_joueur2) > 0 else -99,
@@ -475,14 +475,14 @@ class RandomOrchestrator:
         i = 0
         victoires_j1 = 0
         victoires_j2 = 0
-        """ On simule n parties """
+        """ On simule nb_games parties """
         while i < nb_games:
             logs_inter = pd.DataFrame(columns=columns_logs)
             mon_plateau = Plateau(classe_j1, pseudo_j1, classe_j2, pseudo_j2)
             while not (mon_plateau.pv_actuels_joueur1 <= 0 or mon_plateau.pv_actuels_joueur2 <= 0):
                 if mon_plateau.tour_de_jeu == 1:
                     ## On choisit une carte au hasard à jouer si on a le mana pour
-                    cartes_jouables = [x for x in mon_plateau.player1.deck if x.cost <= mon_plateau.mana_dispo_joueur1]
+                    cartes_jouables = [x for x in mon_plateau.player1.hand if x.cost <= mon_plateau.mana_dispo_joueur1]
                     carte_a_jouer = deepcopy(random.choice(cartes_jouables)) if len(cartes_jouables) != 0 else -99
 
                     # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur pouvant attaquer est présent sur le plateau
@@ -497,7 +497,7 @@ class RandomOrchestrator:
                     cible = random.choice(["heros"] + mon_plateau.serviteurs_joueur2)
                 else:
                     ## On choisit une carte au hasard à jouer si on a le mana pour
-                    cartes_jouables = [x for x in mon_plateau.player2.deck if x.cost <= mon_plateau.mana_dispo_joueur2]
+                    cartes_jouables = [x for x in mon_plateau.player2.hand if x.cost <= mon_plateau.mana_dispo_joueur2]
                     carte_a_jouer = deepcopy(random.choice(cartes_jouables)) if len(cartes_jouables) != 0 else -99
 
                     # On ne peut attaquer que si notre héros a de l'attaque ou qu'un serviteur pouvant attaquer est présent sur le plateau

@@ -113,6 +113,10 @@ class CardGroup:
         if type(new_card) == Card:
             self.cards.append(new_card)
 
+    def remove(self, card):
+        if type(card) == Card:
+            self.cards.remove(card)
+
     def shuffle(self):
         shuffle(self.cards)
 

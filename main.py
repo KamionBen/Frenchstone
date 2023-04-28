@@ -6,7 +6,7 @@ from tabulate import tabulate
 import pickle
 
 """ Générateur de parties aléatoires """
-logs_hs = RandomOrchestrator().generate_game(50, "Mage", "Smaguy", "Chasseur", "KamionBen")[0]
+logs_hs = RandomOrchestrator().generate_game(500, "Mage", "Smaguy", "Chasseur", "KamionBen")[0]
 
 """ Affichage des résultats """
 # print(tabulate(logs_hs, headers='keys'))

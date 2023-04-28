@@ -11,60 +11,73 @@ dict_actions = {
 }
 class FrenchstoneEnvironment(gym.Env):
   """ Notre environnement pour le projet d'AI Hearthstone : Frenchstone """
-  def __init__(self, data):
+  def __init__(self, data, data_action, data_reward):
 
+    """ Chargement de nos bases de données """
     self.data = data
+    self.data_action = data_action
+    self.data_reward = data_reward
     """ Actions possibles : passer_tour, jouer_carte, attaquer """
     self.action_space = spaces.Discrete(3)
 
     """ Vecteur d'état : les différents attributs du plateau sont compris entre 0 et 100 """
     self.observation_space = spaces.Box(low = 0, high = 100, shape = (1, self.data.shape[1]))
-    self.state = data.loc[random.randint(0, self.data.shape[1])].values
+    self.state = data.loc[random.randint(0, self.data.shape[0])].values
 
     """ Nombre de pas à réaliser"""
-    self.nb_steps = 50
+    self.nb_steps = 1000
 
   def step(self, action):
     """ Calcul de l'état choisi aléatoirement """
-    obs = random.randint(0, self.data.shape[1])
+    obs = random.randint(0, self.data.shape[0] - 1)
     self.state = self.data.loc[obs].values
 
     """ Un pas en moins """
     self.nb_steps -= 1
 
     """ Calcul de la récompense """
-    if dict_actions[action] != df_action.loc[obs].values[0]:
+    if dict_actions[action] != self.data_action.loc[obs].values[0]:
       reward = 0
     else:
-      reward = df_reward.loc[obs].values[0]
+      reward = self.data_reward.loc[obs].values[0]
 
     """ On regarde si on a terminé """
-    if self.nb_steps <= 0 :
+    if self.nb_steps <= 0:
       done = True
     else:
       done = False
 
-    return self.state, reward, done
+    info = {}
+
+    # print(f"Ligne observée : {obs}")
+    # print(f"Action choisie : {dict_actions[action]}")
+    # print(f"Action BDD : {self.data_action.loc[obs].values[0]}")
+    # print(f"Vecteur d'état : {self.state}")
+    # print(f"Récompense attendue : {self.data_reward.loc[obs].values[0]}")
+    # print(f"Récompense : {reward}")
+    # print('---------------------------------------------------------------------')
+
+    return self.state, reward, done, info
 
   def reset(self):
     """ Revient à un état aléatoire """
-    self.state = self.data.loc[random.randint(0, self.data.shape[1])].values
+    self.state = self.data.loc[random.randint(0, self.data.shape[0])].values
 
     """ Réinitialise le nombre de pas à réaliser"""
-    self.nb_steps = 50
+    self.nb_steps = 1000
     return self.state
 
-env = FrenchstoneEnvironment(df_state)
+env = FrenchstoneEnvironment(df_state, df_action, df_reward)
 
-
-episodes = 10
-for episode in range(1, episodes + 1):
-  state = env.reset()
-  done = False
-  score = 0
-
-  while not done:
-    action = env.action_space.sample()
-    n_state, reward, done = env.step(action)
-    score += reward
-  print('Episode:{} Score:{}'.format(episode, score))
+""" Test maison """
+# episodes = 1
+# for episode in range(1, episodes + 1):
+#   state = env.reset()
+#   done = False
+#   score = 0
+#
+#   while not done:
+#     action = env.action_space.sample()
+#     n_state, reward, done, info = env.step(action)
+#     score += reward
+#   print('Episode:{} Score:{}'.format(episode, score))

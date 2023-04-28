@@ -3,3 +3,7 @@ bs4
 tabulate
 pandas
 numpy
+gym
+tensorflow
+keras
+keras-rl2

@@ -38,7 +38,7 @@ class Player:
 
     def start_game(self):
         self.deck.shuffle()
-        self.hand = self.deck.pick_multi(3)
+        self.pick_multi(3)
 
     def start_turn(self):
         """ Remise à zéro de début de tour """
@@ -135,12 +135,15 @@ class CardGroup:
 
 
 class Card:
-    nb = 0
+    created = []
 
     def __init__(self, **kw):
         """ Classe généraliste pour les cartes à jouer """
-        self.id = reverse_classes[kw['classe']] + '-' + int_to_id(Card.nb)
-        Card.nb += 1
+        x = 1
+        while f"{kw['id']}-{x}" in Card.created:
+            x += 1
+        self.id = f"{kw['id']}-{x}"
+        Card.created.append(self.id)
 
         """ Description """
         self.name = kw["name"]
@@ -200,6 +203,18 @@ def import_deck(file: str) -> CardGroup:
     return deck
 
 
+def get_card(key, file="cards.json") -> Card:
+    """ Renvoie l'objet Card en fonction de 'key', qui peut être l'id où le nom de la carte """
+    found = False
+    with open(file, 'r', encoding='utf-8') as jsonfile:
+        cardls = json.load(jsonfile)
+    for elt in cardls:
+        if elt['id'] == key or elt['name'] == key:
+            return Card(**elt)
+    if found is False:
+        raise KeyError(f"Impossible de trouver {key}")
+
+
 classes = {'CA': 'Chaman',
            'CH': 'Chasseur',
            'CD': 'Chasseur de démons',
@@ -216,14 +231,13 @@ classes = {'CA': 'Chaman',
 reverse_classes = {value: key for key, value in classes.items()}
 
 if __name__ == '__main__':
-    player = Player("KamionBen")
-    player.set_hero("Michel")
+    player = Player("KamionBen", "Chasseur")
     print(player)
-    player.set_deck("Chasseur", "basic_chasseur.csv")
-
-    for card in player.deck:
-        print(card.data())
-
+    player.set_deck("basic_chasseur.csv")
+    print(type(player.hand))
+    player.start_game()
+    print(type(player.hand))
+    player.start_turn()
 
 
 

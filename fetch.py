@@ -80,15 +80,30 @@ def fetch_all():
 def add_card(card, file):
     with open(file, 'r', encoding='utf-8') as jsonfile:
         cardls = json.load(jsonfile)
-    if len(cardls) > 1:
-        cardls.append(card)
-    with open(file, 'w', encoding='utf-8') as jsonfile:
-        json.dump(cardls, jsonfile, indent=4, ensure_ascii=False)
+    exist = False
+    for carddict in cardls:
+        if carddict['name'] == card['name']:
+            exist = True
+            break
+    if exist:
+        print(f"La carte {card['name']} est déjà connue.")
+    else:
+        cardls.sort(key=lambda c: c['id'])
+        new_card = {'id': cardls[-1]['id'] + 1}
+        for key, value in card.items():
+            new_card[key] = value
+        print(new_card)
+        if len(cardls) > 1:
+            cardls.append(new_card)
+        with open(file, 'w', encoding='utf-8') as jsonfile:
+            json.dump(cardls, jsonfile, indent=4, ensure_ascii=False)
+
 
 if __name__ == '__main__':
     """ Mettez l'url de la carte que vous voulez rajouter et lancez le script """
-    url = "https://www.hearthstone-decks.com/carte/voir/patriarche-dos-argente-classic"
+    url = "https://www.hearthstone-decks.com/carte/voir/malefice-classic"
     card = get_cardstat_from_page(url)
+    #add_card(card, "cards.json")
     add_card(card, "cards.json")
 
 

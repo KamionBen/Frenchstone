@@ -36,6 +36,10 @@ class Player:
 
         self.mana, self.mana_max = 0, 0
 
+    def start_game(self):
+        self.deck.shuffle()
+        self.hand = self.deck.pick_multi(3)
+
     def start_turn(self):
         """ Remise à zéro de début de tour """
         self.mana_grow()

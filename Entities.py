@@ -42,6 +42,7 @@ class Player:
 
     def start_turn(self):
         """ Remise à zéro de début de tour """
+        self.pick()
         self.mana_grow()
         self.mana_reset()
         self.power_reset()
@@ -117,15 +118,12 @@ class CardGroup:
 
     def pick_one(self):
         """ Renvoie la première carte de la liste et l'enlève du deck """
-        picked = self.cards[0]
-        self.cards = self.cards[1:]
-        return picked
-
-    def pick_multi(self, nb):
-        picked_ls = []
-        for _ in range(nb):
-            picked_ls.append(self.pick_one())
-        return picked_ls
+        if len(self.cards) > 0:
+            picked = self.cards[0]
+            self.cards = self.cards[1:]
+            return picked
+        else:
+            raise IndexError("Le groupe de cartes est vide")
 
     def __len__(self):
         return len(self.cards)
@@ -137,12 +135,16 @@ class CardGroup:
 class Card:
     created = []
 
-    def __init__(self, **kw):
+    def __init__(self, cid=None, **kw):
         """ Classe généraliste pour les cartes à jouer """
-        x = 1
-        while f"{kw['id']}-{x}" in Card.created:
-            x += 1
-        self.id = f"{kw['id']}-{x}"
+        if cid is None:
+            # Génération d'un id de carte
+            x = 1
+            while f"{kw['id']}-{x}" in Card.created:
+                x += 1
+            self.id = f"{kw['id']}-{x}"
+        else:
+            self.id = cid
         Card.created.append(self.id)
 
         """ Description """

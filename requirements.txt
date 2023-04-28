@@ -1,6 +1,5 @@
 requests
 bs4
-tabulate
 pandas
 numpy
 gym

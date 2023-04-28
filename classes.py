@@ -118,6 +118,7 @@ class TourEnCours:
                 elif carte.type == "Serviteur":
                     if len(self.plateau.serviteurs_joueur1) < 7:
                         self.plateau.player1.hand.remove(carte)
+                        self.plateau.nbre_cartes_joueur1 = len(self.plateau.player1.hand)
                         self.plateau.mana_dispo_joueur1 -= carte.cost
                         self.plateau.serviteurs_joueur1.append(carte)
         else:
@@ -128,6 +129,7 @@ class TourEnCours:
                 elif carte.type == "Serviteur":
                     if len(self.plateau.serviteurs_joueur2) < 7:
                         self.plateau.player2.hand.remove(carte)
+                        self.plateau.nbre_cartes_joueur2 = len(self.plateau.player2.hand)
                         self.plateau.mana_dispo_joueur2 -= carte.cost
                         self.plateau.serviteurs_joueur2.append(carte)
 
@@ -217,6 +219,34 @@ class RandomOrchestrator:
             ## Génération des logs associés à l'action
             action_line = {
                 "action" : "passer_tour",
+                "carte_en_main1" : plateau.player1.hand.cards[0] if plateau.tour_de_jeu == 1 and len(plateau.player1.hand) > 0 else plateau.player2.hand.cards[0] if plateau.tour_de_jeu == 2 and len(plateau.player2.hand) > 0 else -99,
+                "carte_en_main2": plateau.player1.hand.cards[1] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 1 else plateau.player2.hand.cards[1] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 1 else -99,
+                "carte_en_main3": plateau.player1.hand.cards[2] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 2 else plateau.player2.hand.cards[2] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 2 else -99,
+                "carte_en_main4": plateau.player1.hand.cards[3] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 3 else plateau.player2.hand.cards[3] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 3 else -99,
+                "carte_en_main5": plateau.player1.hand.cards[4] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 4 else plateau.player2.hand.cards[4] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 4 else -99,
+                "carte_en_main6": plateau.player1.hand.cards[5] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 5 else plateau.player2.hand.cards[5] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 5 else -99,
+                "carte_en_main7": plateau.player1.hand.cards[6] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 6 else plateau.player2.hand.cards[6] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 6 else -99,
+                "carte_en_main8": plateau.player1.hand.cards[7] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 7 else plateau.player2.hand.cards[7] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 7 else -99,
+                "carte_en_main9": plateau.player1.hand.cards[8] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 8 else plateau.player2.hand.cards[8] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 8 else -99,
+                "carte_en_main10": plateau.player1.hand.cards[9] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 9 else plateau.player2.hand.cards[9] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 9 else -99,
                 "carte_jouee" : "",
                 "attaquant": "",
                 "attaquant_atq": "",
@@ -300,6 +330,36 @@ class RandomOrchestrator:
             ## Génération des logs associés à l'action
             action_line = {
                 "action": "jouer_carte",
+                "carte_en_main1": plateau.player1.hand.cards[0] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 0 else plateau.player2.hand.cards[0] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 0 else -99,
+                "carte_en_main2": plateau.player1.hand.cards[1] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 1 else plateau.player2.hand.cards[1] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 1 else -99,
+                "carte_en_main3": plateau.player1.hand.cards[2] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 2 else plateau.player2.hand.cards[2] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 2 else -99,
+                "carte_en_main4": plateau.player1.hand.cards[3] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 3 else plateau.player2.hand.cards[3] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 3 else -99,
+                "carte_en_main5": plateau.player1.hand.cards[4] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 4 else plateau.player2.hand.cards[4] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 4 else -99,
+                "carte_en_main6": plateau.player1.hand.cards[5] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 5 else plateau.player2.hand.cards[5] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 5 else -99,
+                "carte_en_main7": plateau.player1.hand.cards[6] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 6 else plateau.player2.hand.cards[6] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 6 else -99,
+                "carte_en_main8": plateau.player1.hand.cards[7] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 7 else plateau.player2.hand.cards[7] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 7 else -99,
+                "carte_en_main9": plateau.player1.hand.cards[8] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 8 else plateau.player2.hand.cards[8] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 8 else -99,
+                "carte_en_main10": plateau.player1.hand.cards[9] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 9 else plateau.player2.hand.cards[9] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 9 else -99,
                 "carte_jouee": carte.name,
                 "attaquant": "",
                 "attaquant_atq": "",
@@ -384,6 +444,36 @@ class RandomOrchestrator:
             ## Génération des logs associés à l'action
             action_line = {
                 "action": "attaquer",
+                "carte_en_main1": plateau.player1.hand.cards[0] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 0 else plateau.player2.hand.cards[0] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 0 else -99,
+                "carte_en_main2": plateau.player1.hand.cards[1] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 1 else plateau.player2.hand.cards[1] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 1 else -99,
+                "carte_en_main3": plateau.player1.hand.cards[2] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 2 else plateau.player2.hand.cards[2] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 2 else -99,
+                "carte_en_main4": plateau.player1.hand.cards[3] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 3 else plateau.player2.hand.cards[3] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 3 else -99,
+                "carte_en_main5": plateau.player1.hand.cards[4] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 4 else plateau.player2.hand.cards[4] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 4 else -99,
+                "carte_en_main6": plateau.player1.hand.cards[5] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 5 else plateau.player2.hand.cards[5] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 5 else -99,
+                "carte_en_main7": plateau.player1.hand.cards[6] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 6 else plateau.player2.hand.cards[6] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 6 else -99,
+                "carte_en_main8": plateau.player1.hand.cards[7] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 7 else plateau.player2.hand.cards[7] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 7 else -99,
+                "carte_en_main9": plateau.player1.hand.cards[8] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 8 else plateau.player2.hand.cards[8] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 8 else -99,
+                "carte_en_main10": plateau.player1.hand.cards[9] if plateau.tour_de_jeu == 1 and len(
+                    plateau.player1.hand) > 9 else plateau.player2.hand.cards[9] if plateau.tour_de_jeu == 2 and len(
+                    plateau.player2.hand) > 9 else -99,
                 "carte_jouee": "",
                 "attaquant": attaquant.name if attaquant != "heros" else "heros",
                 "attaquant_atq": attaquant.attack if attaquant != "heros" else plateau.attaque_joueur1 if plateau.tour_de_jeu == 1 else plateau.attaque_joueur2 if plateau.tour_de_jeu == 2 else -99,

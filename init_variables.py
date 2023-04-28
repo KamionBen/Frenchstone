@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 
-columns_logs = ["action", "carte_jouee", "attaquant", "attaquant_atq", "attaquant_pv", "cible", "cible_atq", "cible_pv",
-                "classe_j", "classe_adv", "mana_dispo_j", "mana_max_j",
+columns_logs = ["classe_j", "classe_adv", "action", "carte_jouee", "carte_en_main1", "carte_en_main2", "carte_en_main3",
+                "carte_en_main4", "carte_en_main5", "carte_en_main6", "carte_en_main7", "carte_en_main8", "carte_en_main9", "carte_en_main10",
+                "attaquant", "attaquant_atq", "attaquant_pv", "cible", "cible_atq", "cible_pv", "mana_dispo_j", "mana_max_j",
                 "mana_max_adv", "surcharge_j", "surcharge_adv", "pv_j", "pv_adv", "pv_max_j", "pv_max_adv", "nbre_cartes_j",
                 "nbre_cartes_adv", "dispo_ph_j", "cout_ph_j", "serv1_j", "atq_serv1_j", "pv_serv1_j", "serv2_j", "atq_serv2_j", "pv_serv2_j",
                 "serv3_j", "atq_serv3_j", "pv_serv3_j", "serv4_j", "atq_serv4_j", "pv_serv4_j", "serv5_j", "atq_serv5_j", "pv_serv5_j",

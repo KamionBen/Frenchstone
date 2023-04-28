@@ -28,7 +28,6 @@ class Plateau:
         self.player1.start_game()
         self.player2.start_game()
 
-
         """ Gestion du mana """
         """ Le premier joueur démarre son tour à l'initialisation """
         self.player1.start_turn()
@@ -83,7 +82,7 @@ class Plateau:
             self.mana_dispo_joueur1 = self.player1.mana - self.surcharge_joueur1
             self.surcharge_joueur1 = 0
             self.dispo_pouvoir_hero_joueur1 = True
-            self.cartes_joueur1 += 1
+            self.cartes_joueur1 = len(self.player1.hand)
 
             # Réinitialisation de l'attaque des seviteurs présents sur le plateau
             for serviteur in self.serviteurs_joueur1:
@@ -96,7 +95,7 @@ class Plateau:
             self.mana_dispo_joueur2 = self.player2.mana - self.surcharge_joueur2
             self.surcharge_joueur2 = 0
             self.dispo_pouvoir_hero_joueur2 = True
-            self.cartes_joueur2 += 1
+            self.cartes_joueur2 = len(self.player2.hand)
 
             # Réinitialisation de l'attaque des seviteurs présents sur le plateau
             for serviteur in self.serviteurs_joueur2:

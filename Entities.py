@@ -123,7 +123,8 @@ class CardGroup:
             self.cards = self.cards[1:]
             return picked
         else:
-            raise IndexError("Le groupe de cartes est vide")
+            # raise IndexError("Le groupe de cartes est vide")
+            pass
 
     def __len__(self):
         return len(self.cards)

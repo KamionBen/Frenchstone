@@ -51,7 +51,7 @@ class Player:
         self.mana -= nb
 
     def mana_grow(self):
-        self.mana_max += 1
+        self.mana_max = min(self.mana_max + 1, 10)
 
     def mana_reset(self):
         self.mana = self.mana_max

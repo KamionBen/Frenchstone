@@ -24,12 +24,12 @@ class Plateau:
         self.player2.set_deck(class_files[self.player2.classe])
 
         """ Gestion du mana """
-        self.mana_max_joueur1 = 1
-        self.mana_max_joueur2 = 0
-        self.mana_dispo_joueur1 = 1
-        self.mana_dispo_joueur2 = 0
-        self.surcharge_joueur1 = 0
-        self.surcharge_joueur2 = 0
+        """ Le premier joueur démarre son tour à l'initialisation """
+        self.player1.start_turn()
+        """ Évolution du mana des joueurs """
+        self.mana_max_joueur1, self.mana_max_joueur2 = self.player1.mana_max, self.player2.mana_max
+        self.mana_dispo_joueur1, self.mana_dispo_joueur2 = self.player1.mana, self.player2.mana
+        self.surcharge_joueur1, self.surcharge_joueur2 = 0, 0
 
         """ Points de vie """
         self.pv_max_joueur1 = 30
@@ -73,8 +73,8 @@ class Plateau:
             # Réinitialisation du mana et du pouvoir héroïque
             self.player1.start_turn()
 
-            self.mana_max_joueur1 = min(self.mana_max_joueur1 + 1, 10)
-            self.mana_dispo_joueur1 = self.mana_max_joueur1 - self.surcharge_joueur1
+            self.mana_max_joueur1 = self.player1.mana_max
+            self.mana_dispo_joueur1 = self.player1.mana - self.surcharge_joueur1
             self.surcharge_joueur1 = 0
             self.dispo_pouvoir_hero_joueur1 = True
             self.cartes_joueur1 += 1
@@ -85,9 +85,10 @@ class Plateau:
 
         else:
             # Réinitialisation du mana et du pouvoir héroïque
-            self.mana_max_joueur2 = min(self.mana_max_joueur2 + 1, 10)
-            self.mana_dispo_joueur2 = self.mana_max_joueur2 - self.surcharge_joueur2
-            self.surcharge_joueur1 = 0
+            self.player2.start_turn()
+            self.mana_max_joueur2 = self.player2.mana_max
+            self.mana_dispo_joueur2 = self.player2.mana - self.surcharge_joueur2
+            self.surcharge_joueur2 = 0
             self.dispo_pouvoir_hero_joueur2 = True
             self.cartes_joueur2 += 1
 

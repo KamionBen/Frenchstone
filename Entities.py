@@ -4,21 +4,13 @@ from os import path
 from random import shuffle
 from typing import Union
 
+""" CONSTANTS """
 cardsfile = "cards.json"
+heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
+          "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"]}  # Devra être dans un fichier à part
 
 
-def int_to_id(nb: int) -> str:
-    if nb < 10:
-        return f"00{nb}"
-    elif nb < 100:
-        return f"0{nb}"
-    else:
-        return str(nb)
-
-
-def get_cards_data(file: str) -> list:
-    with open(file, 'r', encoding='utf-8') as jsonfile:
-        return json.load(jsonfile)
+""" CLASSES """
 
 
 class Player:
@@ -28,7 +20,7 @@ class Player:
         self.classe = classe
         self.ia = ia
 
-        self.hero = Hero(hero_powers[self.classe][0])  # Premier héros par défaut
+        self.hero = Hero(heroes[self.classe][0])  # Premier héros par défaut
 
         # Cartes
         self.deck = CardGroup()  # Le tas de cartes à l'envers
@@ -79,10 +71,6 @@ class Player:
         return self.name
 
 
-hero_powers = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
-               "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"]}  # Devra être dans un fichier à part
-
-
 class Hero:
     def __init__(self, name):
         """ Héros choisi par le joueur """
@@ -109,6 +97,7 @@ class CardGroup:
     def __init__(self, cards=()):
         """ Permet de faire des opérations sur un groupe de cartes """
         self.cards = list(cards)
+        self.carddict = {c.cid: c for c in self.cards}
 
     def add(self, new_card):
         if type(new_card) == Card:
@@ -147,10 +136,25 @@ class CardGroup:
             for l in other:
                 ls.append(l)
             return ls
+        else:
+            raise TypeError(f"Impossible d'additionner {other} (type:{type(other)}) avec le type CardGroup")
 
-    def __getitem__(self, item):
-        if type(item) is int:
-            return self.cards[item]
+    def __getitem__(self, x):
+        """ Renvoie la xième carte du groupe"""
+        if type(x) is int:
+            return self.cards[x]
+        else:
+            raise TypeError
+
+    def get(self, cid):
+        """ Renvoie une carte en particulier """
+        if is_card_id(cid):
+            if cid in self.carddict:
+                return self.carddict[cid]
+            else:
+                return KeyError
+        else:
+            raise TypeError
 
 
 class Card:
@@ -187,9 +191,11 @@ class Card:
         self.remaining_atk = 0
 
     def damages(self, nb):
+        """ Removes nb from the card health """
         self.health -= nb
 
     def is_dead(self):
+        """ Return True if the card health <= 0"""
         return self.health <= 0
 
     def __repr__(self) -> str:
@@ -198,8 +204,10 @@ class Card:
     def __eq__(self, other) -> bool:
         if type(other) == Card:
             return other.id == self.id
-        if type(other) == str:
+        elif type(other) == str:
             return other == self.id or other.lower() == self.name.lower()
+        else:
+            raise TypeError
 
     def data(self) -> str:
         return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \
@@ -211,7 +219,19 @@ class Weapon:
         self.name = name
 
 
+""" FUNCTIONS """
+
+
+def get_cards_data(file: str) -> list:
+    with open(file, 'r', encoding='utf-8') as jsonfile:
+        return json.load(jsonfile)
+
+
 def import_deck(file: str) -> CardGroup:
+    """
+    :param file: A csv file with the card's name and the number of this card in the deck
+    :return: A CardGroup
+    """
     jsoncards = get_cards_data('cards.json')
     deck = CardGroup()
     with open(path.join('decks', file), 'r') as csvdeck:
@@ -229,7 +249,10 @@ def import_deck(file: str) -> CardGroup:
                     break
             if found is False:
                 print(f"\033[91mERREUR : La carte {name} n'a pas été trouvée dans le fichier cards.json\033[0m")
-    return deck
+    if len(deck) == 0:
+        raise ImportError("Le deck est vide")
+    else:
+        return deck
 
 
 def get_card(key: Union[int, str], file="cards.json") -> Card:
@@ -243,7 +266,6 @@ def get_card(key: Union[int, str], file="cards.json") -> Card:
             if elt['id'] == key:
                 return Card(**elt)
     elif type(key) is str:
-        ext = None
         if key[-2] == '-':
             # Recherche par id temporaire
             key, ext = key.split('-')
@@ -254,30 +276,44 @@ def get_card(key: Union[int, str], file="cards.json") -> Card:
             for elt in cardls:
                 if elt['name'].lower() == key.lower():
                     return Card(**elt)
+    else:
+        raise TypeError
 
     if found is False:
         raise KeyError(f"Impossible de trouver {key}")
 
 
-classes = {'CA': 'Chaman',
-           'CH': 'Chasseur',
-           'CD': 'Chasseur de démons',
-           'CM': 'Chevalier de la mort',
-           'DM': 'Démoniste',
-           'DR': 'Druide',
-           'GR': 'Guerrier',
-           'MG': 'Mage',
-           'PL': 'Paladin',
-           'PR': 'Prêtre',
-           'VL': 'Voleur',
-           'NT': 'Neutre'}
+def int_to_id(baseid: int, nb: int) -> str:
+    if type(baseid) is int and type(nb) is int:
+        if baseid < 10:
+            return f"000{baseid}-{nb}"
+        elif baseid < 100:
+            return f"00{baseid}-{nb}"
+        elif baseid < 1000:
+            return f"0{baseid}-{nb}"
+        else:
+            return f"{baseid}-{nb}"
+    else:
+        raise TypeError
 
-reverse_classes = {value: key for key, value in classes.items()}
+
+def is_card_id(elt) -> bool:
+    """ Renvoie vrai si elt est au format int-int """
+    try:
+        parse = elt.split('-')
+        cid = int(parse[0])
+        number = int(parse[1])
+        return True
+    except ValueError:
+        return False
+    except IndexError:
+        return False
+    except AttributeError:
+        return False
+
 
 if __name__ == '__main__':
-    print(get_card(1))
-    print(get_card("Horion de givre"))
-    print(get_card("1-2"))
+    pass
 
 
 

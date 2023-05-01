@@ -223,13 +223,13 @@ def print_fancy_battlelog(battlelog: str, nb: int):
                 fancylog.add(f"{attaquant.name} attaque {cible.name} [-{attaquant.attack}]")
                 for card in players[1 - side].servants:
                     if cible.name == card.name:
-                        card.damages(attaquant.attack)
+                        card.damage(attaquant.attack)
                         if card.is_dead():
                             fancylog.add(f"{card.name} est mort.")
                             players[1 - side].servants.remove(card)
                 for card in players[side].servants:
                     if attaquant.name == card.name:
-                        card.damages(cible.attack)
+                        card.damage(cible.attack)
                         if card.is_dead():
                             fancylog.add(f"{card.name} est mort.")
                             players[side].servants.remove(card)

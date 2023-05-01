@@ -216,12 +216,11 @@ class RandomOrchestrator:
             mon_plateau = Plateau()
             while mon_plateau.game_on:
                 mon_plateau = RandomOrchestrator().tour_au_hasard(mon_plateau, logs_inter)
-                print(logs_inter.values[-1])
+                print(f"{mon_plateau.players[0].name} : {mon_plateau.players[0].hero.health}")
             i += 1
-            print(i)
         return logs_hs, (victoires_j1, victoires_j2)
 
 
 if __name__ == '__main__':
-    logs_hs = RandomOrchestrator().generate_game(1)[0]
-    print(logs_hs.to_string())
+    logs_hs = RandomOrchestrator().generate_game(1)
+

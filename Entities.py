@@ -36,11 +36,16 @@ class Player:
 
     def start_turn(self):
         """ Remise à zéro de début de tour """
-        self.pick()
+        if len(self.deck) > 0:
+            self.pick()
+        else:
+            self.hero.fatigue += 1
+        self.hero.damage(self.hero.fatigue)
         self.mana_grow()
         self.mana_reset()
         self.power_reset()
         self.servants.reset()
+
 
     def mana_spend(self, nb):
         self.mana -= nb
@@ -89,6 +94,8 @@ class Hero:
         self.health, self.base_health = 30, 30
         self.weapon = None
 
+        self.fatigue = 0
+
     def damage(self, nb):
         self.health -= nb
 
@@ -129,8 +136,7 @@ class CardGroup:
             self.cards = self.cards[1:]
             return picked
         else:
-            # raise IndexError("Le groupe de cartes est vide")
-            pass
+            raise IndexError("Le groupe de cartes est vide")
 
     def __len__(self):
         return len(self.cards)
@@ -213,9 +219,9 @@ class Card:
 
     def reset(self):
         # TODO : Mettre dans une autre classe
-        pass
+        self.remaining_atk = 1
 
-    def damages(self, nb):
+    def damage(self, nb):
         """ Removes nb from the card health """
         self.health -= nb
 
@@ -244,7 +250,7 @@ class Card:
 class Servant(Card):
     def __init__(self, cid=None, **kw):
         Card.__init__(cid, **kw)
-        
+
 
 class Weapon:
     def __init__(self, name):

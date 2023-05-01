@@ -28,6 +28,7 @@ class Player:
         self.servants = CardGroup()  # Les cartes sur le "terrain"
 
         self.mana, self.mana_max = 0, 0
+        self.surcharge = 0
 
     def start_game(self):
         self.deck.shuffle()
@@ -39,6 +40,7 @@ class Player:
         self.mana_grow()
         self.mana_reset()
         self.power_reset()
+        self.servants.reset()
 
     def mana_spend(self, nb):
         self.mana -= nb
@@ -47,13 +49,14 @@ class Player:
         self.mana_max = min(self.mana_max + 1, 10)
 
     def mana_reset(self):
-        self.mana = self.mana_max
+        self.mana = self.mana_max - self.surcharge
+        self.surcharge = 0
 
     def power_reset(self):
         pass
 
     def pick(self):
-        """ Prendre une carte du deck et l'ajouter à sa main """
+        """ Prendre la première carte du deck et l'ajouter à sa main """
         self.hand.add(self.deck.pick_one())
 
     def pick_multi(self, nb):
@@ -77,7 +80,12 @@ class Hero:
         self.name = name
         self.power = None
 
+        self.dispo_pouvoir = True
+        self.cout_pouvoir = 2
+        self.effet_pouvoir = None
+
         self.attack = 0
+        self.defense = 0
         self.health, self.base_health = 30, 30
         self.weapon = None
 
@@ -98,6 +106,10 @@ class CardGroup:
         """ Permet de faire des opérations sur un groupe de cartes """
         self.cards = list(cards)
         self.carddict = {c.id: c for c in self.cards}
+
+    def reset(self):
+        for card in self.cards:
+            card.reset()
 
     def add(self, new_card):
         if type(new_card) == Card:
@@ -199,6 +211,10 @@ class Card:
         self.effects = []  # Inutile pour l'instant
         self.remaining_atk = 0
 
+    def reset(self):
+        # TODO : Mettre dans une autre classe
+        pass
+
     def damages(self, nb):
         """ Removes nb from the card health """
         self.health -= nb
@@ -225,9 +241,17 @@ class Card:
                f"Coût = {self.cost} - Attaque = {self.attack} - Santé = {self.health}"
 
 
+class Servant(Card):
+    def __init__(self, cid=None, **kw):
+        Card.__init__(cid, **kw)
+        
+
 class Weapon:
     def __init__(self, name):
         self.name = name
+
+        self.attack = 0
+        self.durability = 0
 
 
 """ FUNCTIONS """

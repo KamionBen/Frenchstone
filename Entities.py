@@ -227,12 +227,13 @@ def get_cards_data(file: str) -> list:
         return json.load(jsonfile)
 
 
-def import_deck(file: str) -> CardGroup:
+def import_deck(file: str, data='cards.json') -> CardGroup:
     """
     :param file: A csv file with the card's name and the number of this card in the deck
+    :param data : The .json file
     :return: A CardGroup
     """
-    jsoncards = get_cards_data('cards.json')
+    jsoncards = get_cards_data(data)
     deck = CardGroup()
     with open(path.join('decks', file), 'r') as csvdeck:
         reader = csv.reader(csvdeck, delimiter=";")
@@ -255,10 +256,10 @@ def import_deck(file: str) -> CardGroup:
         return deck
 
 
-def get_card(key: Union[int, str], file="cards.json") -> Card:
+def get_card(key: Union[int, str], data="cards.json") -> Card:
     """ Renvoie l'objet Card en fonction de 'key', qui peut être l'id où le nom de la carte """
     found = False
-    with open(file, 'r', encoding='utf-8') as jsonfile:
+    with open(data, 'r', encoding='utf-8') as jsonfile:
         cardls = json.load(jsonfile)
     if type(key) is int:
         # Recherche par id fixe

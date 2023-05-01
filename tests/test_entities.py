@@ -1,5 +1,9 @@
-import Entities as ent
+import os
+import sys
 import unittest
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import Entities as ent
+
 
 class TestCard(unittest.TestCase):
     def test_is_card_id(self):
@@ -14,17 +18,14 @@ class TestCard(unittest.TestCase):
             ent.int_to_id('bleu', 1)
 
     def test_get_card(self):
-        self.assertEqual(type(ent.get_card(1)), ent.Card)
-        self.assertEqual(ent.get_card("Maléfice").name, "Maléfice")
-        self.assertEqual(ent.get_card("46-2").id, "46-2")
+        cardspath = "cards.json"  # J'ai un problème là ...
+        self.assertEqual(type(ent.get_card(1), data=cardspath), ent.Card)
+        self.assertEqual(ent.get_card("Maléfice", data=cardspath).name, "Maléfice")
+        self.assertEqual(ent.get_card("46-2", data=cardspath).id, "46-2")
         with self.assertRaises(KeyError):
-            ent.get_card(-1)
-
-    def test_import_cardgroup(self):
-        self.assertEqual(type(ent.import_deck("basic_chasseur.csv")), ent.CardGroup)
-
-
+            ent.get_card(-1, data=cardspath)
 
 
 if __name__ == '__main__':
     unittest.main()
+

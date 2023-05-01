@@ -1,7 +1,7 @@
 import csv
 import json
 from os import path
-from random import shuffle
+from random import shuffle, choice
 from typing import Union
 
 """ CONSTANTS """
@@ -97,7 +97,7 @@ class CardGroup:
     def __init__(self, cards=()):
         """ Permet de faire des opérations sur un groupe de cartes """
         self.cards = list(cards)
-        self.carddict = {c.cid: c for c in self.cards}
+        self.carddict = {c.id: c for c in self.cards}
 
     def add(self, new_card):
         if type(new_card) == Card:
@@ -156,6 +156,15 @@ class CardGroup:
         else:
             raise TypeError
 
+    def choice(self):
+        """ Retire une carte au hasard """
+        if len(self.cards) == 0:
+            return None
+        else:
+            my_choice = choice(self.cards)
+            self.cards.remove(my_choice)
+            return my_choice
+
 
 class Card:
     created = []
@@ -207,7 +216,9 @@ class Card:
         elif type(other) == str:
             return other == self.id or other.lower() == self.name.lower()
         else:
-            raise TypeError
+            pass
+            # TODO Adapter classes.py
+            #raise TypeError
 
     def data(self) -> str:
         return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \

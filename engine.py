@@ -11,10 +11,13 @@ class Plateau:
                        'Mage': 'test_deck.csv'}
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
-            for player in self.players:
-                player.set_deck(class_files[player.classe])
+
         else:
             self.players = list(players)
+
+        for player in self.players:
+            player.set_deck(class_files[player.classe])
+
         shuffle(self.players)
 
         """ Mélange des decks et tirage de la main de départ """
@@ -48,6 +51,21 @@ class Plateau:
             for servant in player.servants:
                 if servant.is_dead():
                     player.servants.remove(servant)
+
+    def get_targets(self, serviteur):
+        if serviteur not in self.players[0].servants:
+            raise KeyError("Le serviteur choisi n'est pas sur le plateau du joueur actif")
+        else:
+            adv = self.players[1]
+            targets = []
+            if "Ruée" in serviteur.get_effects():
+                if serviteur.effects["Ruée"].active is False:
+                    targets.append(adv.hero)
+            else:
+                targets.append(adv.hero)
+            for carte in adv.servants:
+                targets.append(carte)
+        return targets
 
     def get_gamestate(self) -> dict:
         player = self.players[0]
@@ -165,7 +183,8 @@ class RandomOrchestrator:
         action_possible = ["Passer_tour"]
         for carte in player.servants:
             if carte.attack > 0 and carte.remaining_atk > 0:
-                action_possible.append(carte)
+                if len(tour_en_cours.plt.get_targets(carte)) > 0:
+                    action_possible.append(carte)
         for carte in player.hand:
             if carte.cost <= player.mana:
                 action_possible.append(carte)
@@ -190,18 +209,24 @@ class RandomOrchestrator:
         elif action in player.servants or type(action) == Hero:
             provocation = False
             for carte in adv.servants:
-                if "provocation" in carte.effects:
+                if "provocation" in carte.get_effects():
                     provocation = True
 
             targets = []
             if provocation:
                 for carte in adv.servants:
-                    if "provocation" in carte.effects:
+                    if "provocation" in carte.get_effects():
                         targets.append(carte)
             else:
-                targets.append(adv.hero)
+                if "Ruée" in action.get_effects():
+                    if action.effects["Ruée"].active is False:
+                        targets.append(adv.hero)
+                else:
+                    targets.append(adv.hero)
                 for carte in adv.servants:
                     targets.append(carte)
+
+
 
             target = choice(targets)
 
@@ -220,21 +245,30 @@ class RandomOrchestrator:
         return plateau
 
     """ Génère un nombre donné de parties et créé les logs associés"""
-    def generate_game(self, nb_games):
+    def generate_game(self, nb_games, players=()):
         logs_hs = pd.DataFrame(columns=columns_logs)
         i = 0
-        victoires_j1 = 0
-        victoires_j2 = 0
+        scores = {}
         """ On simule nb_games parties """
         while i < nb_games:
             logs_inter = pd.DataFrame(columns=columns_logs)
-            mon_plateau = Plateau()
+            mon_plateau = Plateau(players)
             while mon_plateau.game_on:
                 mon_plateau = RandomOrchestrator().tour_au_hasard(mon_plateau, logs_inter)
+
+            # Actions de fin de partie
+            winner = mon_plateau.winner
+            logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
+            logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis=1)
+            if winner.name in scores.keys():
+                scores[winner.name] += 1
+            else:
+                scores[winner.name] = 1
             i += 1
-        return logs_inter, (victoires_j1, victoires_j2)
+        return logs_hs, list(scores.values())
 
 
 if __name__ == '__main__':
-    logs_hs = RandomOrchestrator().generate_game(1)[0]
+    logs_hs, scores = RandomOrchestrator().generate_game(10)
+    print(scores)
 

@@ -1,15 +1,16 @@
 ## Lanceur de la simulation Hearthstone
 
 # Import & Utils
-from classes import *
+from engine import *
 import pickle
 
 """ Générateur de parties aléatoires """
-logs_hs = RandomOrchestrator().generate_game(1, "Mage", "Smaguy", "Chasseur", "KamionBen")[0]
+players = (Player("Smaguy", "Mage"), Player("Rupert", "Chasseur"))
+logs_hs, score = RandomOrchestrator().generate_game(1, players)
 
 """ Affichage des résultats """
-# print(logs_hs.to_string())
+print(logs_hs.to_string())
 
 """ Sauvegarde des logs """
-#with open('modelisation/logs_games.pickle', 'wb') as f:
+#with open('modelisation/logs_games2.pickle', 'wb') as f:
     #pickle.dump(logs_hs, f)

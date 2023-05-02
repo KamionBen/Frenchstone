@@ -6,6 +6,7 @@ import pickle
 from init_variables import *
 from engine import *
 
+CARD_POOL = get_cards_data("cards.json")
 ICON = "______                   _         _ \n" \
        "|  ___|                 | |       | |\n" \
        "| |_ _ __ ___ _ __   ___| |__  ___| |_ ___  _ __   ___ \n" \
@@ -182,17 +183,17 @@ def fancier(text: str) -> str:
         except IndexError:
             return text
 
-def basic_logline(logline, card_pool):
+def basic_logline(logline):
     event = {columns_logs[i]: elt for i, elt in enumerate(logline)}
-    player, adv = players_from_logline(logline, card_pool)
+    player, adv = players_from_logline(logline)
     basic = ""
-    basic += f"{event}\n\n"
+    #basic += f"{event}\n\n"
     basic += f"___{player} : {player.hero}, santé = {player.hero.health}\n"
     basic += f"___Main : {player.hand}\n"
     basic += f"___Serviteurs : "
     for i, s in enumerate(player.servants):
         text = f"{s} ({s.attack}/{s.health})"
-        for effect in s.effects:
+        for effect in s.get_effects():
             text += f"[{effect.name[:1]}]"
         if i == 0:
             basic += text
@@ -203,17 +204,17 @@ def basic_logline(logline, card_pool):
     if event['action'] == "passer_tour":
         basic += f"{player} passe son tour."
     if event['action'] == "jouer_carte":
-        carte = get_card(event['carte_jouee'], card_pool)
+        carte = get_card(event['carte_jouee'], CARD_POOL)
         basic += f"{player} joue {carte}"
     if event['action'] == "attaquer":
-        attaquant = player.hero if event['attaquant'] == 'heros' else get_card(event['attaquant'], card_pool)
-        cible = adv.hero if event['cible'] == 'heros' else get_card(event['cible'], card_pool)
+        attaquant = player.hero if event['attaquant'] == 'heros' else get_card(event['attaquant'], CARD_POOL)
+        cible = adv.hero if event['cible'] == 'heros' else get_card(event['cible'], CARD_POOL)
         basic += f"{attaquant} attaque {cible}"
     basic += "\n\n"
     basic += f"___Serviteurs : "
     for i, s in enumerate(adv.servants):
         text = f"{s} ({s.attack}/{s.health})"
-        for effect in s.effects:
+        for effect in s.get_effects():
             text += f"[{effect.name[:1]}]"
         if i == 0:
             basic += text
@@ -230,14 +231,14 @@ def basic_logline(logline, card_pool):
     return basic
 
 
-def players_from_logline(logline, cardpool):
+def players_from_logline(logline):
     event = {columns_logs[i]: elt for i, elt in enumerate(logline)}
     """ JOUEUR """
     player = Player(event['pseudo_j'], event['classe_j'])
     hand = [event[f"carte_en_main{i+1}"] for i in range(10)]
-    player.hand = [get_card(c, cardpool) for c in hand if c != -99]
+    player.hand = [get_card(c, CARD_POOL) for c in hand if c != -99]
     servants = [event[f"serv{i+1}_j"] for i in range(7)]
-    player.servants = [get_card(c, cardpool) for c in servants if c != -99]
+    player.servants = [get_card(c, CARD_POOL) for c in servants if c != -99]
     for i, servant in enumerate(player.servants):
         servant.attack = event[f"atq_serv{i+1}_j"]
         servant.health = event[f"pv_serv{i+1}_j"]
@@ -246,7 +247,7 @@ def players_from_logline(logline, cardpool):
     """ ADVERSAIRE """
     adv = Player(event['pseudo_adv'], event['classe_adv'])
     servants = [event[f"serv{i + 1}_adv"] for i in range(7)]
-    adv.servants = [get_card(c, cardpool) for c in servants if c != -99]
+    adv.servants = [get_card(c, CARD_POOL) for c in servants if c != -99]
     adv.hero.health = event['pv_adv']
 
     return player, adv
@@ -344,11 +345,12 @@ def print_fancy_battlelog(battlelog: str, nb: int):
         sleep(2)
 
 
+
+
 if __name__ == '__main__':
-    card_pool = get_cards_data("cards.json")
     logs_hs = RandomOrchestrator().generate_game(1)[0]
     for line in logs_hs.values:
-        print(basic_logline(line, card_pool))
+        print(basic_logline(line))
 
 
 

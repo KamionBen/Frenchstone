@@ -239,21 +239,35 @@ class Card:
         self.health, self.base_health = kw["health"], kw["health"]
         
         """ Combat """
-        self.effects = []  # Inutile pour l'instant
+        self.effects = {}
         self.remaining_atk = 0
 
         self.parse_description()
 
+    def get_effects(self):
+        return list(self.effects.values())
+
     def parse_description(self):
         if self.description == "Provocation":
-            self.effects.append(Effect("Provocation"))
+            self.effects["Provocation"] = Effect("Provocation")
         if self.description == "Ruée":
-            self.effects.append(Effect("Ruée"))
+            self.effects["Ruée"] = Effect("Ruée", active=True)
+            self.remaining_atk = 1
+        if self.description == "Charge":
+            self.effects["Charge"] = Effect("Charge")
             self.remaining_atk = 1
 
     def reset(self):
-        # TODO : Mettre dans une autre classe
+        """ Reset de début de tour """
         self.remaining_atk = 1
+        if "Ruée" in self.effects:
+            self.effects["Ruée"].active = False
+
+    def reset_complete(self):
+        self.cost = self.base_cost
+        self.attack = self.base_attack
+        self.health = self.base_health
+
 
     def damage(self, nb):
         """ Removes nb from the card health """
@@ -290,8 +304,9 @@ class Weapon:
 
 
 class Effect:
-    def __init__(self, name):
+    def __init__(self, name, active=None):
         self.name = name
+        self.active = active
 
     def __eq__(self, other):
         return other.lower() == self.name.lower()

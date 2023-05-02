@@ -242,7 +242,7 @@ class Card:
         self.parse_description()
 
     def generate_id(self, base_id):
-        x = -1
+        x = 0
         while f"{base_id}-{x}" in Card.created:
             x += 1
         return f"{base_id}-{x}"

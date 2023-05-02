@@ -28,6 +28,7 @@ class Plateau:
         """ Tour de jeu """
         self.game_turn = 0  # Décompte des tours
         self.game_on = True
+        self.winner = None
 
     def tour_suivant(self):
         """ Met à jour le plateau à la fin du tour d'un joueur """
@@ -39,54 +40,18 @@ class Plateau:
     def update(self):
         """ Vérifie les servants morts et les pdv des joueurs """
         for player in self.players:
-            player.hero.is_dead()
-            self.game_on = False
-            looser = player
+            if player.hero.is_dead():
+                self.game_on = False
+                for winner in self.players:
+                    if winner != player:
+                        self.winner = winner
             for servant in player.servants:
                 if servant.is_dead():
                     player.servants.remove(servant)
 
-
-class TourEnCours:
-    """Classe prenant en entrée un plateau de jeu et permettant d'effectuer toutes les actions possibles dessus."""
-    def __init__(self, plateau):
-        self.plt = plateau
-
-    def jouer_carte(self, carte):
-        """ Action de poser une carte depuis la main du joueur dont c'est le tour.
-        Le plateau est mis à jour en conséquence """
-        player = self.plt.players[0]
-        if carte.cost <= player.mana:
-            if carte.type.lower() == "sort":
-                player.hand.remove(carte)
-                player.mana_spend(carte.cost)
-            elif carte.type.lower() == "Serviteur":
-                if len(player.servants) < 7:
-                    player.hand.remove(carte)
-                    player.servants.add(carte)
-                    player.mana_spend(carte.cost)
-                else:
-                    raise PermissionError("Nombre maximum de serviteurs atteint")
-        else:
-            raise PermissionError("Carte plus chère que la mana du joueru")
-
-    def attaquer(self, attaquant, cible):
-        """ Action d'attaquer avec un serviteur ou son héros une cible adverse (serviteur ou héros aussi) """
-        cible.damage(attaquant.attack)
-        attaquant.damage(cible.attack)
-        self.plt.update()
-        attaquant.remaining_atk -= 1
-
-    def fin_du_tour(self):
-        self.plt.tour_suivant()
-
-
-class RandomOrchestrator:
-    def tour_au_hasard(self, plateau, logs):
-        """ On génère une action aléatoire et on la fait jouer par la classe Tourencours """
-        player = plateau.players[0]
-        adv = plateau.players[1]
-        tour_en_cours = TourEnCours(plateau)
+    def get_gamestate(self) -> dict:
+        player = self.players[0]
+        adv = self.players[1]
 
         # On assigne les actions de base avant les actions spécifiques au choix
         action_line = {"action": "",
@@ -112,7 +77,6 @@ class RandomOrchestrator:
                        "pseudo_j": player.name,
                        "pseudo_adv": adv.name,
                        "victoire": 0}
-
         """ HAND """
         cartes_en_main = {i: carte.id for i, carte in enumerate(player.hand)}
         for i in range(10):
@@ -148,6 +112,57 @@ class RandomOrchestrator:
                 action_line[f"atq_serv{i + 1}_adv"] = -99
                 action_line[f"pv_serv{i + 1}_adv"] = -99
 
+        return action_line
+
+
+
+
+class TourEnCours:
+    """Classe prenant en entrée un plateau de jeu et permettant d'effectuer toutes les actions possibles dessus."""
+    def __init__(self, plateau):
+        self.plt = plateau
+
+    def jouer_carte(self, carte):
+        """ Action de poser une carte depuis la main du joueur dont c'est le tour.
+        Le plateau est mis à jour en conséquence """
+        player = self.plt.players[0]
+        if carte.cost <= player.mana:
+            if carte.type.lower() == "sort":
+                player.hand.remove(carte)
+                player.mana_spend(carte.cost)
+            elif carte.type.lower() == "Serviteur":
+                if len(player.servants) < 7:
+                    player.hand.remove(carte)
+                    player.servants.add(carte)
+                    player.mana_spend(carte.cost)
+                else:
+                    raise PermissionError("Nombre maximum de serviteurs atteint")
+        else:
+            raise PermissionError("Carte plus chère que la mana du joueru")
+
+    def attaquer(self, attaquant, cible):
+        """ Action d'attaquer avec un serviteur ou son héros une cible adverse (serviteur ou héros aussi) """
+        if type(attaquant) in (Hero, Card) and type(cible) in (Hero, Card):
+            cible.damage(attaquant.attack)
+            attaquant.damage(cible.attack)
+            self.plt.update()
+            attaquant.remaining_atk -= 1
+        else:
+            raise TypeError
+
+    def fin_du_tour(self):
+        self.plt.tour_suivant()
+
+
+class RandomOrchestrator:
+    def tour_au_hasard(self, plateau, logs):
+        """ On génère une action aléatoire et on la fait jouer par la classe Tourencours """
+        player = plateau.players[0]
+        adv = plateau.players[1]
+        tour_en_cours = TourEnCours(plateau)
+
+        action_line = plateau.get_gamestate()
+
         """ ON CHOISIT L'ACTION """
         action_possible = ["Passer_tour"]
         for carte in player.servants:
@@ -170,6 +185,8 @@ class RandomOrchestrator:
             action_line["action"] = "jouer_carte"
             action_line["carte_jouee"] = action.name  # name ou id ?
             logs.loc[len(logs)] = action_line
+            player.hand.remove(action)
+            player.servants.add(action)
             tour_en_cours.jouer_carte(action)
 
         elif action in player.servants or type(action) == Hero:
@@ -201,7 +218,7 @@ class RandomOrchestrator:
             logs.loc[len(logs)] = action_line
 
             tour_en_cours.attaquer(action, target)
-
+        plateau.update()
         return plateau
 
     """ Génère un nombre donné de parties et créé les logs associés"""
@@ -216,7 +233,9 @@ class RandomOrchestrator:
             mon_plateau = Plateau()
             while mon_plateau.game_on:
                 mon_plateau = RandomOrchestrator().tour_au_hasard(mon_plateau, logs_inter)
-                print(f"{mon_plateau.players[0].name} : {mon_plateau.players[0].hero.health}")
+                print(f"Tour {mon_plateau.game_turn//2+1} : {mon_plateau.players[0]}")
+                if mon_plateau.winner is not None:
+                    print(f"Vainqueur : {mon_plateau.winner}")
             i += 1
         return logs_hs, (victoires_j1, victoires_j2)
 

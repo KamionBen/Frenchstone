@@ -33,6 +33,7 @@ class Player:
     def start_game(self):
         self.deck.shuffle()
         self.pick_multi(3)
+        self.hero.reset_complete()
 
     def start_turn(self):
         """ Remise à zéro de début de tour """
@@ -41,6 +42,7 @@ class Player:
         else:
             self.hero.fatigue += 1
         self.hero.damage(self.hero.fatigue)
+        self.hero.reset()
         self.mana_grow()
         self.mana_reset()
         self.power_reset()
@@ -73,7 +75,6 @@ class Player:
 
     def set_deck(self, file):
         self.deck = import_deck(file)
-        #self.deck.shuffle()
 
     def __repr__(self) -> str:
         return self.name
@@ -98,6 +99,23 @@ class Hero:
 
     def damage(self, nb):
         self.health -= nb
+
+    def reset(self):
+        """ Le reset de début de tour """
+        self.dispo_pouvoir = True
+
+    def reset_complete(self):
+        """ Le reset de début de partie """
+        self.dispo_pouvoir = True
+        self.cout_pouvoir = 2
+        self.effet_pouvoir = None
+
+        self.attack = 0
+        self.defense = 0
+        self.health, self.base_health = 30, 30
+        self.weapon = None
+
+        self.fatigue = 0
 
     def heal(self, nb):
         self.health += nb

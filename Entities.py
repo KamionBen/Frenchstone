@@ -48,7 +48,6 @@ class Player:
         self.power_reset()
         self.servants.reset()
 
-
     def mana_spend(self, nb):
         self.mana -= nb
 
@@ -65,6 +64,8 @@ class Player:
     def pick(self):
         """ Prendre la première carte du deck et l'ajouter à sa main """
         self.hand.add(self.deck.pick_one())
+        if len(self.hand) > 10:
+            raise PermissionError("Il a plus de cartes en main que de place prévue dans le log")
 
     def pick_multi(self, nb):
         for _ in range(nb):
@@ -96,6 +97,9 @@ class Hero:
         self.weapon = None
 
         self.fatigue = 0
+
+    def __repr__(self):
+        return self.name
 
     def damage(self, nb):
         self.health -= nb
@@ -201,6 +205,9 @@ class CardGroup:
             self.cards.remove(my_choice)
             return my_choice
 
+    def __repr__(self):
+        return str(self.cards)
+
 
 class Card:
     created = []
@@ -235,6 +242,15 @@ class Card:
         self.effects = []  # Inutile pour l'instant
         self.remaining_atk = 0
 
+        self.parse_description()
+
+    def parse_description(self):
+        if self.description == "Provocation":
+            self.effects.append(Effect("Provocation"))
+        if self.description == "Ruée":
+            self.effects.append(Effect("Ruée"))
+            self.remaining_atk = 1
+
     def reset(self):
         # TODO : Mettre dans une autre classe
         self.remaining_atk = 1
@@ -265,11 +281,6 @@ class Card:
                f"Coût = {self.cost} - Attaque = {self.attack} - Santé = {self.health}"
 
 
-class Servant(Card):
-    def __init__(self, cid=None, **kw):
-        Card.__init__(cid, **kw)
-
-
 class Weapon:
     def __init__(self, name):
         self.name = name
@@ -277,6 +288,16 @@ class Weapon:
         self.attack = 0
         self.durability = 0
 
+
+class Effect:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return other.lower() == self.name.lower()
+
+    def __repr__(self):
+        return self.name
 
 """ FUNCTIONS """
 
@@ -315,25 +336,23 @@ def import_deck(file: str, data='cards.json') -> CardGroup:
         return deck
 
 
-def get_card(key: Union[int, str], data="cards.json") -> Card:
+def get_card(key: Union[int, str], cardpool: list) -> Card:
     """ Renvoie l'objet Card en fonction de 'key', qui peut être l'id où le nom de la carte """
     found = False
-    with open(data, 'r', encoding='utf-8') as jsonfile:
-        cardls = json.load(jsonfile)
     if type(key) is int:
         # Recherche par id fixe
-        for elt in cardls:
+        for elt in cardpool:
             if elt['id'] == key:
                 return Card(**elt)
     elif type(key) is str:
-        if key[-2] == '-':
+        if len(key.split('-')) == 2:
             # Recherche par id temporaire
             key, ext = key.split('-')
-            for elt in cardls:
+            for elt in cardpool:
                 if str(elt['id']) == key:
                     return Card(cid=f"{key}-{ext}", **elt)
         else:
-            for elt in cardls:
+            for elt in cardpool:
                 if elt['name'].lower() == key.lower():
                     return Card(**elt)
     else:

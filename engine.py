@@ -115,8 +115,6 @@ class Plateau:
         return action_line
 
 
-
-
 class TourEnCours:
     """Classe prenant en entrée un plateau de jeu et permettant d'effectuer toutes les actions possibles dessus."""
     def __init__(self, plateau):
@@ -183,7 +181,7 @@ class RandomOrchestrator:
         elif action in player.hand:
             """ La carte est jouée depuis la main """
             action_line["action"] = "jouer_carte"
-            action_line["carte_jouee"] = action.name  # name ou id ?
+            action_line["carte_jouee"] = action.id  # name ou id ?
             logs.loc[len(logs)] = action_line
             player.hand.remove(action)
             player.servants.add(action)
@@ -208,10 +206,10 @@ class RandomOrchestrator:
             target = choice(targets)
 
             action_line["action"] = "attaquer"
-            action_line["attaquant"] = action.name if type(action) is Card else "heros"
+            action_line["attaquant"] = action.id if type(action) is Card else "heros"
             action_line["attaquant_atq"] = action.attack
             action_line["attaquant_pv"] = action.health
-            action_line["cible"] = target.name if type(target) is Card else "heros"
+            action_line["cible"] = target.id if type(target) is Card else "heros"
             action_line["cible_atq"] = target.attack
             action_line['target_pv'] = target.health
 
@@ -233,13 +231,10 @@ class RandomOrchestrator:
             mon_plateau = Plateau()
             while mon_plateau.game_on:
                 mon_plateau = RandomOrchestrator().tour_au_hasard(mon_plateau, logs_inter)
-                print(f"Tour {mon_plateau.game_turn//2+1} : {mon_plateau.players[0]}")
-                if mon_plateau.winner is not None:
-                    print(f"Vainqueur : {mon_plateau.winner}")
             i += 1
-        return logs_hs, (victoires_j1, victoires_j2)
+        return logs_inter, (victoires_j1, victoires_j2)
 
 
 if __name__ == '__main__':
-    logs_hs = RandomOrchestrator().generate_game(1)
+    logs_hs = RandomOrchestrator().generate_game(1)[0]
 

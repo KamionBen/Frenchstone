@@ -33,7 +33,7 @@ class Card(object):
                 continue
                 
             class_type = CLASS_BY_TYPE[_data["type"]]
-            yield class_type(cid, data)
+            yield class_type(data)
 
     @classmethod
     def from_id(cls, cid):
@@ -43,12 +43,13 @@ class Card(object):
             raise ValueError("Card not found.")
 
         class_type = CLASS_BY_TYPE[_data["type"]]
-        return class_type(cid, data)
+        return class_type(data)
     
-    def __init__(self, cid, _data):
+    def __init__(self, _data):
         
-        self._id = cid
+        self._id = _data["id"]
         self._data = _data
+        self.type = _data["type"]
     
     @property
     def name(self):
@@ -81,8 +82,8 @@ class ServantCard(Card):
     _have_shield = False
     _have_provoc = False
     
-    def __init__(self, cid, _data):
-        super(ServantCard, self).__init__(cid, _data)
+    def __init__(self, _data):
+        super(ServantCard, self).__init__(_data)
     
     def damages(self, nb):
         rest = self.armor - nb
@@ -118,17 +119,15 @@ class ServantCard(Card):
 
 
 class SpellCard(Card):
-    _type = "Sort"
-    
-    def __init__(self, cid, _data):
-        super(SpellCard, self).__init__(cid, _data)
+
+    def __init__(self, _data):
+        super(SpellCard, self).__init__(_data)
 
 
 class WeaponCard(Card):
-    _type = "Arme"
     
-    def __init__(self, cid, _data):
-        super(WeaponCard, self).__init__(cid, _data)
+    def __init__(self, _data):
+        super(WeaponCard, self).__init__(_data)
     
     @property
     def attack(self):

@@ -1,6 +1,6 @@
 [
     {
-        "id": 0,
+        "id": 1,
         "name": "Guérison ancestrale",
         "classe": "Chaman",
         "type": "Sort",
@@ -11,7 +11,7 @@
         "description": "Rend tous ses points de vie à un serviteur et lui confère Provocation."
     },
     {
-        "id": 1,
+        "id": 2,
         "name": "Horion de givre",
         "classe": "Chaman",
         "type": "Sort",
@@ -22,7 +22,7 @@
         "description": "Inflige 1 point de dégâts à un personnage adverse, et le gèle."
     },
     {
-        "id": 2,
+        "id": 3,
         "name": "Parlevent",
         "classe": "Chaman",
         "type": "Serviteur",
@@ -33,7 +33,7 @@
         "description": "Cri de guerre: confère Furie des vents à un serviteur allié."
     },
     {
-        "id": 3,
+        "id": 4,
         "name": "Puissance totémique",
         "classe": "Chaman",
         "type": "Sort",
@@ -44,7 +44,7 @@
         "description": "Confère +2 PV à vos totems."
     },
     {
-        "id": 4,
+        "id": 5,
         "name": "Busard affamé",
         "classe": "Chasseur",
         "type": "Serviteur",
@@ -55,7 +55,7 @@
         "description": "Vous piochez une carte chaque fois que vous invoquez une bête."
     },
     {
-        "id": 5,
+        "id": 6,
         "name": "Flèches multiples",
         "classe": "Chasseur",
         "type": "Sort",
@@ -66,7 +66,7 @@
         "description": "Inflige 3 points de dégâts à deux serviteurs adverses aléatoires."
     },
     {
-        "id": 6,
+        "id": 7,
         "name": "Loup des bois",
         "classe": "Chasseur",
         "type": "Serviteur",
@@ -77,7 +77,7 @@
         "description": "Vos autres Bêtes ont +1 ATQ."
     },
     {
-        "id": 7,
+        "id": 8,
         "name": "Maître-chien",
         "classe": "Chasseur",
         "type": "Serviteur",
@@ -88,7 +88,7 @@
         "description": "Cri de guerre: confère +2/+2 et Provocation à une Bête alliée."
     },
     {
-        "id": 8,
+        "id": 9,
         "name": "Marque du chasseur",
         "classe": "Chasseur",
         "type": "Sort",
@@ -99,7 +99,7 @@
         "description": "Fait tomber les points de vie d'un serviteur à 1."
     },
     {
-        "id": 9,
+        "id": 10,
         "name": "Ordre de tuer",
         "classe": "Chasseur",
         "type": "Sort",
@@ -110,7 +110,7 @@
         "description": "Inflige 3 points de dégâts. Si vous contrôlez une Bête, inflige 5 points de dégâts à la place."
     },
     {
-        "id": 10,
+        "id": 11,
         "name": "Rhino de la toundra",
         "classe": "Chasseur",
         "type": "Serviteur",
@@ -121,7 +121,7 @@
         "description": "Vos Bêtes ont Charge."
     },
     {
-        "id": 11,
+        "id": 12,
         "name": "Altruis le Marginal",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
@@ -132,7 +132,7 @@
         "description": "Une fois que vous avez joué la carte la plus à droite ou la plus à gauche de votre main, inflige 1 point de dégâts à tous les adversaires."
     },
     {
-        "id": 12,
+        "id": 13,
         "name": "Néanstradamus",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
@@ -143,7 +143,7 @@
         "description": "Cri de guerre : invoque deux serviteurs aléatoires coûtant 0 cristal. (S'améliore chaque fois qu'un serviteur allié meurt !)"
     },
     {
-        "id": 13,
+        "id": 14,
         "name": "Brute furie-perçante",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
@@ -154,7 +154,7 @@
         "description": "Provocation Une fois que ce serviteur a été attaqué, inflige 1 point de dégâts à tous les adversaires."
     },
     {
-        "id": 14,
+        "id": 15,
         "name": "Danse des lames",
         "classe": "Chasseur de démons",
         "type": "Sort",
@@ -165,7 +165,7 @@
         "description": "Inflige des dégâts d’un montant égal à l’Attaque de votre héros à 3 serviteurs adverses aléatoires."
     },
     {
-        "id": 15,
+        "id": 16,
         "name": "Démon supérieur massif",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
@@ -176,7 +176,7 @@
         "description": "Ruée Une fois qu’il a attaqué et tué un serviteur, il peut attaquer de nouveau."
     },
     {
-        "id": 16,
+        "id": 17,
         "name": "Gangrelame illidari",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
@@ -187,7 +187,7 @@
         "description": "Ruée Marginal : est Insensible pendant ce tour."
     },
     {
-        "id": 17,
+        "id": 18,
         "name": "Scission d'âme",
         "classe": "Chasseur de démons",
         "type": "Sort",
@@ -198,7 +198,7 @@
         "description": "Vous choisissez un Démon allié. En invoque une copie."
     },
     {
-        "id": 18,
+        "id": 19,
         "name": "Aile de l'ombre",
         "classe": "Chasseur de démons",
         "type": "Arme",
@@ -209,7 +209,7 @@
         "description": "Cri de guerre : invoque deux gangrailes 1/1."
     },
     {
-        "id": 19,
+        "id": 20,
         "name": "Brûlure de mana",
         "classe": "Chasseur de démons",
         "type": "Sort",
@@ -220,7 +220,7 @@
         "description": "Votre adversaire a 2 cristaux de mana en moins au prochain tour."
     },
     {
-        "id": 20,
+        "id": 21,
         "name": "Commandement des Illidari",
         "classe": "Chasseur de démons",
         "type": "Sort",
@@ -231,7 +231,7 @@
         "description": "Invoque six Illidari 1/1 avec Ruée."
     },
     {
-        "id": 21,
+        "id": 22,
         "name": "Entailles jumelles",
         "classe": "Chasseur de démons",
         "type": "Sort",
@@ -242,7 +242,7 @@
         "description": "Donne +2 ATQ à votre héros pendant ce tour. Ajoute la carte Seconde entaille dans votre main."
     },
     {
-        "id": 22,
+        "id": 23,
         "name": "Horreur ur'zul",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
@@ -253,7 +253,7 @@
         "description": "Râle d’agonie : ajoute une âme égarée 2/1 dans votre main."
     },
     {
-        "id": 23,
+        "id": 24,
         "name": "Manavore",
         "classe": "Chasseur de démons",
         "type": "Sort",
@@ -264,7 +264,7 @@
         "description": "Réduit au Silence un serviteur adverse. Marginal : vous piochez une carte."
     },
     {
-        "id": 24,
+        "id": 25,
         "name": "Voile corrompu",
         "classe": "Chasseur de démons",
         "type": "Sort",
@@ -275,7 +275,7 @@
         "description": "Votre héros ne peut pas subir de dégâts pendant ce tour."
     },
     {
-        "id": 25,
+        "id": 26,
         "name": "Dame Murmemort",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -286,7 +286,7 @@
         "description": "Râle d’agonie : copie tous les sorts de givre dans votre main."
     },
     {
-        "id": 26,
+        "id": 27,
         "name": "Deuillegivre",
         "classe": "Chevalier de la mort",
         "type": "Arme",
@@ -297,7 +297,7 @@
         "description": "Râle d’agonie : invoque chaque serviteur tué par cette arme."
     },
     {
-        "id": 27,
+        "id": 28,
         "name": "Le Fléau",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -308,7 +308,7 @@
         "description": "Remplit votre plateau de Morts-vivants aléatoires."
     },
     {
-        "id": 28,
+        "id": 29,
         "name": "Fureur du wyrm de givre",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -319,7 +319,7 @@
         "description": "Inflige 5 points de dégâts. Gèle tous les serviteurs adverses et invoque un wyrm de givre 5/5."
     },
     {
-        "id": 29,
+        "id": 30,
         "name": "Furoncle sanglant",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -330,7 +330,7 @@
         "description": "Vol de vie Infecte tous les serviteurs adverses. Ils subissent 2 points de dégâts à la fin de vos tours."
     },
     {
-        "id": 30,
+        "id": 31,
         "name": "Puissance de Menethil",
         "classe": "Chevalier de la mort",
         "type": "Arme",
@@ -341,7 +341,7 @@
         "description": "Cri de guerre : dépensez jusqu’à 3 cadavres. Gèle autant de serviteurs adverses."
     },
     {
-        "id": 31,
+        "id": 32,
         "name": "Drain sanglant",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -352,7 +352,7 @@
         "description": "Donne +1/+1 à tous les serviteurs dans votre main. Dépensez 2 cadavres pour leur donner +1/+1 en plus."
     },
     {
-        "id": 32,
+        "id": 33,
         "name": "Frénésie impie",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -363,7 +363,7 @@
         "description": "Vous choisissez un serviteur adverse. Vos serviteurs l’attaquent. Réinvoque ceux qui meurent."
     },
     {
-        "id": 33,
+        "id": 34,
         "name": "Gardiens des tombes",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -374,7 +374,7 @@
         "description": "Invoque deux zombies 2/2 avec Provocation. Dépensez 4 cadavres pour leur donner Réincarnation."
     },
     {
-        "id": 34,
+        "id": 35,
         "name": "Hématurge",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -385,7 +385,7 @@
         "description": "Cri de guerre : dépensez un cadavre pour découvrir une carte Rune de sang."
     },
     {
-        "id": 35,
+        "id": 36,
         "name": "Manipulatrice de moelle",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -396,7 +396,7 @@
         "description": "Cri de guerre : dépensez jusqu’à 5 cadavres. Inflige 2 points de dégâts à un adversaire aléatoire pour chaque cadavre dépensé."
     },
     {
-        "id": 36,
+        "id": 37,
         "name": "Mariée cadavérique",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -407,7 +407,7 @@
         "description": "Cri de guerre : dépensez jusqu’à 10 cadavres. Invoque un marié ressuscité aux caractéristiques égales au nombre de cadavres dépensés."
     },
     {
-        "id": 37,
+        "id": 38,
         "name": "Porte-froid de la mort",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -418,7 +418,7 @@
         "description": "Une fois que vous avez lancé un sort, inflige 1 point de dégâts à deux adversaires aléatoires."
     },
     {
-        "id": 38,
+        "id": 39,
         "name": "Ver de sang vicieux",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -429,7 +429,7 @@
         "description": "Cri de guerre : donne à un serviteur dans votre main un montant d’ATQ égal à l’ATQ de ce serviteur."
     },
     {
-        "id": 39,
+        "id": 40,
         "name": "Asphyxier",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -440,7 +440,7 @@
         "description": "Détruit le serviteur adverse avec l’ATQ la plus élevée."
     },
     {
-        "id": 40,
+        "id": 41,
         "name": "Avancée glaciale",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -451,7 +451,7 @@
         "description": "Inflige 4 points de dégâts. Votre prochain sort pendant ce tour coûte (2) cristaux de moins."
     },
     {
-        "id": 41,
+        "id": 42,
         "name": "Brise-givre ymirjar",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -462,7 +462,7 @@
         "description": "Cri de guerre : gagne +1 ATQ pour chaque sort de givre dans votre main."
     },
     {
-        "id": 42,
+        "id": 43,
         "name": "Brise-os",
         "classe": "Chevalier de la mort",
         "type": "Arme",
@@ -473,7 +473,7 @@
         "description": "Une fois que votre héros ou héroïne a attaqué un serviteur, inflige 2 points de dégâts au héros ou à l’héroïne adverse."
     },
     {
-        "id": 43,
+        "id": 44,
         "name": "Cor de l'hiver",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -484,7 +484,7 @@
         "description": "Réinitialise 2 cristaux de mana."
     },
     {
-        "id": 44,
+        "id": 45,
         "name": "Frappe pestiférée",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -495,7 +495,7 @@
         "description": "Inflige 3 points de dégâts à un serviteur. S’il meurt, invoque un zombie 2/2 avec Ruée."
     },
     {
-        "id": 45,
+        "id": 46,
         "name": "Garde-essaim nérubien",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -506,7 +506,7 @@
         "description": "Provocation Cri de guerre : invoque deux copies de ce serviteur."
     },
     {
-        "id": 46,
+        "id": 47,
         "name": "Horreur malveillante",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -517,7 +517,7 @@
         "description": "Réincarnation À la fin de votre tour, dépensez 4 cadavres pour invoquer une copie de ce serviteur."
     },
     {
-        "id": 47,
+        "id": 48,
         "name": "Néophyte ténébrante",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
@@ -528,7 +528,7 @@
         "description": "Cri de guerre : dépensez 2 cadavres pour donner +2 ATQ à tous les serviteurs dans votre main."
     },
     {
-        "id": 48,
+        "id": 49,
         "name": "Rafale hurlante",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -539,7 +539,7 @@
         "description": "Inflige 3 points de dégâts à un adversaire et le gèle. Inflige 1 point de dégâts à tous les autres adversaires."
     },
     {
-        "id": 49,
+        "id": 50,
         "name": "Sombre transformation",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -550,7 +550,7 @@
         "description": "Transforme un Mort-vivant en monstruosité morte-vivante 4/5 avec Ruée."
     },
     {
-        "id": 50,
+        "id": 51,
         "name": "Toucher de glace",
         "classe": "Chevalier de la mort",
         "type": "Sort",
@@ -561,7 +561,7 @@
         "description": "Inflige 2 points de dégâts à un personnage adverse et le gèle."
     },
     {
-        "id": 51,
+        "id": 52,
         "name": "Corruption",
         "classe": "Démoniste",
         "type": "Sort",
@@ -572,7 +572,7 @@
         "description": "Choisissez un serviteur adverse. Au début de votre tour, il est détruit."
     },
     {
-        "id": 52,
+        "id": 53,
         "name": "Drain de vie",
         "classe": "Démoniste",
         "type": "Sort",
@@ -583,7 +583,7 @@
         "description": "Inflige 2 |points de dégâts. Rend 2 points de vie à votre héros."
     },
     {
-        "id": 53,
+        "id": 54,
         "name": "Feu de l'âme",
         "classe": "Démoniste",
         "type": "Sort",
@@ -594,7 +594,7 @@
         "description": "Inflige 4 points de dégâts. Vous défausse d'une carte aléatoire."
     },
     {
-        "id": 54,
+        "id": 55,
         "name": "Pacte sacrificiel",
         "classe": "Démoniste",
         "type": "Sort",
@@ -605,7 +605,7 @@
         "description": "Détruit un Démon allié. Rend 5 PV à votre héros."
     },
     {
-        "id": 55,
+        "id": 56,
         "name": "Trait de l'ombre",
         "classe": "Démoniste",
         "type": "Sort",
@@ -616,7 +616,7 @@
         "description": "Inflige 4 points de dégâts à un serviteur."
     },
     {
-        "id": 56,
+        "id": 57,
         "name": "Traqueur gangrené",
         "classe": "Démoniste",
         "type": "Serviteur",
@@ -627,7 +627,7 @@
         "description": "Cri de guerre : vous défausse d'une carte aléatoire."
     },
     {
-        "id": 57,
+        "id": 58,
         "name": "Infernal de l'effroi",
         "classe": "Démoniste",
         "type": "Serviteur",
@@ -638,7 +638,7 @@
         "description": "Cri de guerre : inflige 1 point de dégâts à TOUS les autres personnages."
     },
     {
-        "id": 58,
+        "id": 59,
         "name": "Balayage",
         "classe": "Druide",
         "type": "Sort",
@@ -649,7 +649,7 @@
         "description": "Inflige 4 points de dégâts à un adversaire et 1 point de dégâts à tous les autres adversaires."
     },
     {
-        "id": 59,
+        "id": 60,
         "name": "Éclat lunaire",
         "classe": "Druide",
         "type": "Sort",
@@ -660,7 +660,7 @@
         "description": "Inflige 1 point de dégâts."
     },
     {
-        "id": 60,
+        "id": 61,
         "name": "Feu stellaire",
         "classe": "Druide",
         "type": "Sort",
@@ -671,7 +671,7 @@
         "description": "Inflige 5 points de dégâts. Vous piochez une carte."
     },
     {
-        "id": 61,
+        "id": 62,
         "name": "Griffe",
         "classe": "Druide",
         "type": "Sort",
@@ -682,7 +682,7 @@
         "description": "Donne +2 ATQ à votre héros pendant ce tour. +2 points d'armure."
     },
     {
-        "id": 62,
+        "id": 63,
         "name": "Protecteur Écorcefer",
         "classe": "Druide",
         "type": "Serviteur",
@@ -693,7 +693,7 @@
         "description": "Provocation"
     },
     {
-        "id": 63,
+        "id": 64,
         "name": "Rugissement sauvage",
         "classe": "Druide",
         "type": "Sort",
@@ -704,7 +704,7 @@
         "description": "Donne +2 ATQ à vos personnages pendant ce tour."
     },
     {
-        "id": 64,
+        "id": 65,
         "name": "Toucher guérisseur",
         "classe": "Druide",
         "type": "Sort",
@@ -715,7 +715,7 @@
         "description": "Rend 8 points de vie."
     },
     {
-        "id": 65,
+        "id": 66,
         "name": "Charge",
         "classe": "Guerrier",
         "type": "Sort",
@@ -726,7 +726,7 @@
         "description": "Donne +2 ATQ et Charge à un serviteur allié."
     },
     {
-        "id": 66,
+        "id": 67,
         "name": "Enchaînement",
         "classe": "Guerrier",
         "type": "Sort",
@@ -737,7 +737,7 @@
         "description": "Inflige 2 points de dégâts à deux serviteurs adverses aléatoires."
     },
     {
-        "id": 67,
+        "id": 68,
         "name": "Faucheuse en arcanite",
         "classe": "Guerrier",
         "type": "Arme",
@@ -748,7 +748,7 @@
         "description": " "
     },
     {
-        "id": 68,
+        "id": 69,
         "name": "Frappe héroïque",
         "classe": "Guerrier",
         "type": "Sort",
@@ -759,7 +759,7 @@
         "description": "Confère +4 ATQ à votre héros pendant ce tour."
     },
     {
-        "id": 69,
+        "id": 70,
         "name": "Soldat d'élite kor'kron",
         "classe": "Guerrier",
         "type": "Serviteur",
@@ -770,7 +770,7 @@
         "description": "Charge"
     },
     {
-        "id": 70,
+        "id": 71,
         "name": "Élémentaire d'eau",
         "classe": "Mage",
         "type": "Serviteur",
@@ -781,7 +781,7 @@
         "description": "Gèle tout personnage blessé par ce serviteur."
     },
     {
-        "id": 71,
+        "id": 72,
         "name": "Éclair de givre",
         "classe": "Mage",
         "type": "Sort",
@@ -792,7 +792,7 @@
         "description": "Inflige 3 |points de dégâts à un personnage et le gèle."
     },
     {
-        "id": 72,
+        "id": 73,
         "name": "Explosion des Arcanes",
         "classe": "Mage",
         "type": "Sort",
@@ -803,7 +803,7 @@
         "description": "Inflige 1 points de dégâts à tous les serviteurs adverses."
     },
     {
-        "id": 73,
+        "id": 74,
         "name": "Image miroir",
         "classe": "Mage",
         "type": "Sort",
@@ -814,7 +814,7 @@
         "description": "Invoque deux serviteurs 0/2 avec Provocation."
     },
     {
-        "id": 74,
+        "id": 75,
         "name": "Métamorphose",
         "classe": "Mage",
         "type": "Sort",
@@ -825,7 +825,7 @@
         "description": "Transforme un serviteur en mouton 1/1."
     },
     {
-        "id": 75,
+        "id": 76,
         "name": "Nova de givre",
         "classe": "Mage",
         "type": "Sort",
@@ -836,7 +836,7 @@
         "description": "Gèle tous les serviteurs adverses."
     },
     {
-        "id": 76,
+        "id": 77,
         "name": "Projectiles des Arcanes",
         "classe": "Mage",
         "type": "Sort",
@@ -847,7 +847,7 @@
         "description": "Inflige 3 points de dégâts répartis de façon aléatoire entre les personnages adverses."
     },
     {
-        "id": 77,
+        "id": 78,
         "name": "Bénédiction de puissance",
         "classe": "Paladin",
         "type": "Sort",
@@ -858,7 +858,7 @@
         "description": "Confère +3 ATQ à un serviteur."
     },
     {
-        "id": 78,
+        "id": 79,
         "name": "Humilité",
         "classe": "Paladin",
         "type": "Sort",
@@ -869,7 +869,7 @@
         "description": "L'Attaque d'un serviteur passe à 1."
     },
     {
-        "id": 79,
+        "id": 80,
         "name": "Justice de la Lumière",
         "classe": "Paladin",
         "type": "Arme",
@@ -880,7 +880,7 @@
         "description": " "
     },
     {
-        "id": 80,
+        "id": 81,
         "name": "Main de protection",
         "classe": "Paladin",
         "type": "Sort",
@@ -891,7 +891,7 @@
         "description": "Confère Bouclier divin à un serviteur."
     },
     {
-        "id": 81,
+        "id": 82,
         "name": "Marteau de courroux",
         "classe": "Paladin",
         "type": "Sort",
@@ -902,7 +902,7 @@
         "description": "Inflige 3 points de dégâts. Vous piochez une carte."
     },
     {
-        "id": 82,
+        "id": 83,
         "name": "Contrôle mental",
         "classe": "Prêtre",
         "type": "Sort",
@@ -913,7 +913,7 @@
         "description": "Prend le contrôle d'un serviteur adverse."
     },
     {
-        "id": 83,
+        "id": 84,
         "name": "Mot de l'ombre : Douleur",
         "classe": "Prêtre",
         "type": "Sort",
@@ -924,7 +924,7 @@
         "description": "Détruit un serviteur avec 3 Attaque ou moins."
     },
     {
-        "id": 84,
+        "id": 85,
         "name": "Mot de pouvoir : Bouclier",
         "classe": "Prêtre",
         "type": "Sort",
@@ -935,7 +935,7 @@
         "description": "Donne +2 PV à un serviteur. Vous piochez une carte."
     },
     {
-        "id": 85,
+        "id": 86,
         "name": "Radiance",
         "classe": "Prêtre",
         "type": "Sort",
@@ -946,7 +946,7 @@
         "description": "Rend 5 PV à votre héros."
     },
     {
-        "id": 86,
+        "id": 87,
         "name": "Vision télépathique",
         "classe": "Prêtre",
         "type": "Sort",
@@ -957,7 +957,7 @@
         "description": "Place une copie d'une carte aléatoire de la main de l'adversaire dans la vôtre."
     },
     {
-        "id": 87,
+        "id": 88,
         "name": "Attaque mentale",
         "classe": "Prêtre",
         "type": "Sort",
@@ -968,7 +968,7 @@
         "description": "Inflige 5 points de dégâts au héros adverse."
     },
     {
-        "id": 88,
+        "id": 89,
         "name": "Esprit divin",
         "classe": "Prêtre",
         "type": "Sort",
@@ -979,7 +979,7 @@
         "description": "Double les points de vie d'un serviteur."
     },
     {
-        "id": 89,
+        "id": 90,
         "name": "Assommer",
         "classe": "Voleur",
         "type": "Sort",
@@ -990,7 +990,7 @@
         "description": "Renvoie un serviteur adverse dans la main de votre adversaire."
     },
     {
-        "id": 90,
+        "id": 91,
         "name": "Éventail de couteaux",
         "classe": "Voleur",
         "type": "Sort",
@@ -1001,7 +1001,7 @@
         "description": "Inflige 1 point de dégâts à tous les serviteurs adverses. Vous piochez une carte."
     },
     {
-        "id": 91,
+        "id": 92,
         "name": "Kriss",
         "classe": "Voleur",
         "type": "Sort",
@@ -1012,7 +1012,7 @@
         "description": "Inflige 1point de dégâts. Vous piochez une carte."
     },
     {
-        "id": 92,
+        "id": 93,
         "name": "Porte-peste",
         "classe": "Voleur",
         "type": "Serviteur",
@@ -1023,7 +1023,7 @@
         "description": "Cri de guerre : confère Toxicité à un serviteur allié."
     },
     {
-        "id": 93,
+        "id": 94,
         "name": "Disparition",
         "classe": "Voleur",
         "type": "Sort",
@@ -1034,7 +1034,7 @@
         "description": "Renvoie tous les serviteurs dans la main de leur propriétaire."
     },
     {
-        "id": 94,
+        "id": 95,
         "name": "Archimage",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1045,7 +1045,7 @@
         "description": "Dégâts des sorts : +1"
     },
     {
-        "id": 95,
+        "id": 96,
         "name": "Chasseuse de Tranchebauge",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1056,7 +1056,7 @@
         "description": "Cri de guerre : invoque un sanglier 1/1."
     },
     {
-        "id": 96,
+        "id": 97,
         "name": "Chef de guerre loup-de-givre",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1067,7 +1067,7 @@
         "description": "Cri de guerre : gagne +1/+1 pour chaque autre serviteur allié sur le champ de bataille."
     },
     {
-        "id": 97,
+        "id": 98,
         "name": "Chevalier de Hurlevent",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1078,7 +1078,7 @@
         "description": "Charge"
     },
     {
-        "id": 98,
+        "id": 99,
         "name": "Chevaucheur de loup",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1089,7 +1089,7 @@
         "description": "Charge"
     },
     {
-        "id": 99,
+        "id": 100,
         "name": "Chien du Magma",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1100,7 +1100,7 @@
         "description": " "
     },
     {
-        "id": 100,
+        "id": 101,
         "name": "Clerc du Soleil brisé",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1111,7 +1111,7 @@
         "description": "Cri de guerre : confère +1/+1 à un serviteur allié."
     },
     {
-        "id": 101,
+        "id": 102,
         "name": "Commando foudrepique",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1122,7 +1122,7 @@
         "description": "Cri de guerre : inflige 2 points de dégâts."
     },
     {
-        "id": 102,
+        "id": 103,
         "name": "Écumeur murloc",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1133,7 +1133,7 @@
         "description": " "
     },
     {
-        "id": 103,
+        "id": 104,
         "name": "Enragé du magma",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1144,7 +1144,7 @@
         "description": ""
     },
     {
-        "id": 104,
+        "id": 105,
         "name": "Fusilier de Forgefer",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1155,7 +1155,7 @@
         "description": "Cri de guerre : inflige 1 point de dégâts."
     },
     {
-        "id": 105,
+        "id": 106,
         "name": "Garde de Baie-du-Butin",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1166,7 +1166,7 @@
         "description": "Provocation"
     },
     {
-        "id": 106,
+        "id": 107,
         "name": "Golem de guerre",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1177,7 +1177,7 @@
         "description": " "
     },
     {
-        "id": 107,
+        "id": 108,
         "name": "Grizzly Ferpoil",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1188,7 +1188,7 @@
         "description": "Provocation"
     },
     {
-        "id": 108,
+        "id": 109,
         "name": "Grunt loup-de-givre",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1199,7 +1199,7 @@
         "description": "Provocation"
     },
     {
-        "id": 109,
+        "id": 110,
         "name": "Guerrier branchie-bleue",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1210,7 +1210,7 @@
         "description": "Ruée"
     },
     {
-        "id": 110,
+        "id": 111,
         "name": "Gueule d'acier des oasis",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1221,7 +1221,7 @@
         "description": " "
     },
     {
-        "id": 111,
+        "id": 112,
         "name": "Ingénieur novice",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1232,7 +1232,7 @@
         "description": "Cri de guerre : vous piochez une carte."
     },
     {
-        "id": 112,
+        "id": 113,
         "name": "Inventrice gnome",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1243,7 +1243,7 @@
         "description": "Cri de guerre : vous piochez une carte."
     },
     {
-        "id": 113,
+        "id": 114,
         "name": "Lamenuit",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1254,7 +1254,7 @@
         "description": "Cri de guerre : inflige 3 points de dégâts au héros adverse."
     },
     {
-        "id": 114,
+        "id": 115,
         "name": "Mage de Dalaran",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1265,7 +1265,7 @@
         "description": "Dégâts des sorts : +1"
     },
     {
-        "id": 115,
+        "id": 116,
         "name": "Mécano de petit dragon",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1276,7 +1276,7 @@
         "description": "Cri de guerre : invoque un petit dragon mécanique 2/1."
     },
     {
-        "id": 116,
+        "id": 117,
         "name": "Missilière téméraire",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1287,7 +1287,7 @@
         "description": "Charge"
     },
     {
-        "id": 117,
+        "id": 118,
         "name": "Ogre rochepoing",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1298,7 +1298,7 @@
         "description": " "
     },
     {
-        "id": 118,
+        "id": 119,
         "name": "Ogre-magi",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1309,7 +1309,7 @@
         "description": "Dégâts des sorts : +1"
     },
     {
-        "id": 119,
+        "id": 120,
         "name": "Oracle sinistrécaille",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1320,7 +1320,7 @@
         "description": "Vos autres murlocs ont +1 ATQ."
     },
     {
-        "id": 120,
+        "id": 121,
         "name": "Patriarche dos-argente",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1331,7 +1331,7 @@
         "description": "Provocation"
     },
     {
-        "id": 121,
+        "id": 122,
         "name": "Raptor Rougefange",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1342,7 +1342,7 @@
         "description": " "
     },
     {
-        "id": 122,
+        "id": 123,
         "name": "Sanglier brocheroc",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1353,7 +1353,7 @@
         "description": "Ruée"
     },
     {
-        "id": 123,
+        "id": 124,
         "name": "Seigneur de l'arène",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1364,7 +1364,7 @@
         "description": "Provocation"
     },
     {
-        "id": 124,
+        "id": 125,
         "name": "Soigneuse sombrécaille",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1375,7 +1375,7 @@
         "description": "Cri de guerre : rend 2 PV à tous les personnages alliés."
     },
     {
-        "id": 125,
+        "id": 126,
         "name": "Soldat de Comté-de-l'Or",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1386,7 +1386,7 @@
         "description": "Provocation"
     },
     {
-        "id": 126,
+        "id": 127,
         "name": "Pistage",
         "classe": "Chasseur",
         "type": "Sort",
@@ -1397,7 +1397,7 @@
         "description": "Affiche les trois cartes du dessus du deck. Vous en piochez une et vous vous défaussez des autres."
     },
     {
-        "id": 127,
+        "id": 128,
         "name": "Tir des Arcanes",
         "classe": "Chasseur",
         "type": "Sort",
@@ -1408,7 +1408,7 @@
         "description": "Inflige 2 points de dégâts."
     },
     {
-        "id": 128,
+        "id": 129,
         "name": "Crocilisque des rivières",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1416,10 +1416,10 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "description": " "
+        "description": " "
     },
     {
-        "id": 129,
+        "id": 130,
         "name": "Chef de raid",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1430,7 +1430,7 @@
         "description": "Vos autres serviteurs ont +1 ATQ."
     },
     {
-        "id": 130,
+        "id": 131,
         "name": "Patriarche dos-argenté",
         "classe": "Neutre",
         "type": "Serviteur",
@@ -1441,7 +1441,7 @@
         "description": "Provocation"
     },
     {
-        "id": 131,
+        "id": 132,
         "name": "Maléfice",
         "classe": "Chaman",
         "type": "Sort",

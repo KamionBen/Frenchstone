@@ -216,10 +216,7 @@ class Card:
         """ Classe généraliste pour les cartes à jouer """
         if cid is None:
             # Génération d'un id de carte
-            x = 1
-            while f"{kw['id']}-{x}" in Card.created:
-                x += 1
-            self.id = f"{kw['id']}-{x}"
+            self.id = self.generate_id(kw['id'])
         else:
             self.id = cid
         Card.created.append(self.id)
@@ -243,6 +240,12 @@ class Card:
         self.remaining_atk = 0
 
         self.parse_description()
+
+    def generate_id(self, base_id):
+        x = -1
+        while f"{base_id}-{x}" in Card.created:
+            x += 1
+        return f"{base_id}-{x}"
 
     def get_effects(self):
         return list(self.effects.values())
@@ -286,13 +289,13 @@ class Card:
         elif type(other) == str:
             return other == self.id or other.lower() == self.name.lower()
         else:
-            pass
-            # TODO Adapter classes.py
-            #raise TypeError
+            raise TypeError
 
     def data(self) -> str:
         return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \
                f"Coût = {self.cost} - Attaque = {self.attack} - Santé = {self.health}"
+
+
 
 
 class Weapon:
@@ -314,8 +317,8 @@ class Effect:
     def __repr__(self):
         return self.name
 
-""" FUNCTIONS """
 
+""" FUNCTIONS """
 
 def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
@@ -404,6 +407,7 @@ def is_card_id(elt) -> bool:
         return False
     except AttributeError:
         return False
+
 
 
 if __name__ == '__main__':

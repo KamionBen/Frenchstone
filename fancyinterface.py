@@ -187,7 +187,7 @@ def basic_logline(logline):
     event = {columns_logs[i]: elt for i, elt in enumerate(logline)}
     player, adv = players_from_logline(logline)
     basic = ""
-    #basic += f"{event}\n\n"
+    basic += f"{event}\n\n"
     basic += f"___{player} : {player.hero}, santé = {player.hero.health}\n"
     basic += f"___Main : {player.hand}\n"
     basic += f"___Serviteurs : "

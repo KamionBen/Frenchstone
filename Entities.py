@@ -1,8 +1,12 @@
 import csv
 import json
+
 from os import path
 from random import shuffle
 from typing import Union
+
+import log
+from effects import effect_handler
 
 cardsfile = "cards.json"
 
@@ -19,6 +23,19 @@ def int_to_id(nb: int) -> str:
 def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
         return json.load(jsonfile)
+    
+    
+def get_card_data_by_id(file, cid):
+    with open(file, "r") as jsonfile:
+        data = json.load(jsonfile)
+    
+    for card in data:
+        if card["id"] != cid:
+            continue
+            
+        return card
+    
+    return None
 
 
 class Player:
@@ -111,8 +128,7 @@ class CardGroup:
         self.cards = list(cards)
 
     def add(self, new_card):
-        if type(new_card) == Card:
-            self.cards.append(new_card)
+        self.cards.append(new_card)
 
     def remove(self, card):
         if type(card) == Card:
@@ -124,11 +140,10 @@ class CardGroup:
     def pick_one(self):
         """ Renvoie la première carte de la liste et l'enlève du deck """
         if len(self.cards) > 0:
-            picked = self.cards[0]
-            self.cards = self.cards[1:]
+            picked = self.cards.pop(0)
             return picked
         else:
-            # raise IndexError("Le groupe de cartes est vide")
+            log.CARTE.debug("Le deck est vide.")
             pass
 
     def __len__(self):
@@ -138,77 +153,124 @@ class CardGroup:
         return iter(self.cards)
 
     def __add__(self, other):
-        if type(other) is Card:
-            ls = self.cards.copy()
-            ls.append(other)
-            return CardGroup(ls)
-        elif type(other) is list:
-            ls = self.cards.copy()
-            for l in other:
-                ls.append(l)
-            return ls
+        self.add(other)
+        return self.cards
 
     def __getitem__(self, item):
-        if type(item) is int:
-            return self.cards[item]
-
-
-class Card:
-    created = []
-
-    def __init__(self, cid=None, **kw):
-        """ Classe généraliste pour les cartes à jouer """
-        if cid is None:
-            # Génération d'un id de carte
-            x = 1
-            while f"{kw['id']}-{x}" in Card.created:
-                x += 1
-            self.id = f"{kw['id']}-{x}"
-        else:
-            self.id = cid
-        Card.created.append(self.id)
-
-        """ Description """
-        self.name = kw["name"]
-        self.description = kw["description"]
-        self.genre = kw["genre"]
-
-        """ Category """
-        self.classe = kw["classe"]
-        self.type = kw["type"]
-
-        """ Stats """
-        self.cost, self.base_cost = kw["cost"], kw["cost"]
-        self.attack, self.base_attack = kw["attack"], kw["attack"]
-        self.health, self.base_health = kw["health"], kw["health"]
+        return self.cards[item]
+    
+    
+class Card(object):
+    
+    def __init__(self, cid):
+        self._id = cid
         
-        """ Combat """
-        self.effects = []  # Inutile pour l'instant
-        self.remaining_atk = 0
-
+        _data = get_card_data_by_id("card.json", cid)
+        
+        if not _data:
+            raise ValueError("Card not found.")
+        
+        self._data = _data
+        
+    @property
+    def name(self):
+        return self._data["name"]
+    
+    @property
+    def cost(self):
+        return self._data["cost"]
+    
+    @property
+    def classe(self):
+        return self._data["classe"]
+    
+    @property
+    def description(self):
+        return self._data["description"]
+    
+    @property
+    def race(self):
+        return self._data.get("race", None)
+    
+    @property
+    def magic_type(self):
+        return self._data.get("magic_type", None)
+    
+    
+class ServitorCard(Card):
+    
+    _type = "Sertiveur"
+    _have_fury = False
+    _have_shield = False
+    _have_provoc = False
+    
+    def __init__(self, cid):
+        super(ServitorCard, self).__init__(cid)
+        
     def damages(self, nb):
-        self.health -= nb
+        rest = self.armor - nb
+        
+        if rest < 0:
+            self.health -= abs(rest)
+        
+        self.armor -= nb
+ 
+        
+    @property
+    def health(self):
+        return self._data["health"]
+    
+    @health.setter
+    def health(self, value):
+        self._data["heath"] = value
 
-    def is_dead(self):
-        return self.health <= 0
+    @property
+    def attack(self):
+        return self._data["attack"]
 
-    def __repr__(self) -> str:
-        return self.name
+    @attack.setter
+    def attack(self, value):
+        self._data["attack"] = value
+        
+    @property
+    def armor(self):
+        return self._data.get("armor", 0)
+    
+    @armor.setter
+    def armor(self, value):
+        self._data["armor"] = value
+        
+        
+class SpellCard(Card):
+    
+    _type = "Sort"
+    
+    def __init__(self, cid):
+        super(SpellCard, self).__init__(cid)
+        
+    
+class WeaponCard(Card):
+    
+    _type = "Arme"
+    
+    def __init__(self, cid):
+        super(WeaponCard, self).__init__(cid)
 
-    def __eq__(self, other) -> bool:
-        if type(other) == Card:
-            return other.id == self.id
-        if type(other) == str:
-            return other == self.id or other.lower() == self.name.lower()
+    @property
+    def attack(self):
+        return self._data["attack"]
 
-    def data(self) -> str:
-        return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \
-               f"Coût = {self.cost} - Attaque = {self.attack} - Santé = {self.health}"
-
-
-class Weapon:
-    def __init__(self, name):
-        self.name = name
+    @attack.setter
+    def attack(self, value):
+        self._data["attack"] = value
+    
+    @property
+    def durability(self):
+        return self._data["durability"]
+    
+    @durability.setter
+    def durability(self, value):
+        self._data["durability"] = value
 
 
 def import_deck(file: str) -> CardGroup:

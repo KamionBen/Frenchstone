@@ -190,6 +190,7 @@ def basic_logline(logline):
     basic += f"{event}\n\n"
     basic += f"___{player} : {player.hero}, santé = {player.hero.health}\n"
     basic += f"___Main : {player.hand}\n"
+    basic += f"___Mana : ({event['mana_dispo_j']}/{event['mana_max_j']})\n"
     basic += f"___Serviteurs : "
     for i, s in enumerate(player.servants):
         text = f"{s} ({s.attack}/{s.health})"

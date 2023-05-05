@@ -249,6 +249,9 @@ def players_from_logline(logline):
     adv = Player(event['pseudo_adv'], event['classe_adv'])
     servants = [event[f"serv{i + 1}_adv"] for i in range(7)]
     adv.servants = [get_card(c, CARD_POOL) for c in servants if c != -99]
+    for i, servant in enumerate(adv.servants):
+        servant.attack = event[f"atq_serv{i+1}_adv"]
+        servant.health = event[f"pv_serv{i+1}_adv"]
     adv.hero.health = event['pv_adv']
 
     return player, adv

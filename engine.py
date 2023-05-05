@@ -251,25 +251,29 @@ class RandomOrchestrator:
 
     """ Génère un nombre donné de parties et créé les logs associés"""
     def generate_game(self, nb_games, players=()):
-        logs_hs = pd.DataFrame(columns=columns_logs)
+        # logs_hs = pd.DataFrame(columns=columns_logs)
+        logs_hs = []
         i = 0
         scores = {}
         """ On simule nb_games parties """
         while i < nb_games:
             logs_inter = pd.DataFrame(columns=columns_logs)
-            mon_plateau = Plateau(players)
+            mon_plateau = Plateau(deepcopy(players))
             while mon_plateau.game_on:
                 mon_plateau = RandomOrchestrator().tour_au_hasard(mon_plateau, logs_inter)
 
             # Actions de fin de partie
             winner = mon_plateau.winner
             logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
-            logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis=1)
+            # logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis=1)
+            logs_hs.append(logs_inter)
             if winner.name in scores.keys():
                 scores[winner.name] += 1
             else:
                 scores[winner.name] = 1
             i += 1
+            print(i)
+        logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis = 1)
         return logs_hs, list(scores.values())
 
 

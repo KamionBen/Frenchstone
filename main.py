@@ -5,7 +5,7 @@ from engine import *
 import pickle
 
 """ Générateur de parties aléatoires """
-players = (Player("Smaguy", "Mage"), Player("Rupert", "Chasseur"))
+players = (Player("Pascal", "Mage"), Player("Joseph", "Chasseur"))
 logs_hs, score = RandomOrchestrator().generate_game(10, players)
 
 """ Affichage des résultats """

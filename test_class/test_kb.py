@@ -1,3 +1,5 @@
+import json
+
 from Entities import *
 
 
@@ -258,8 +260,41 @@ class Effect:
         return other == self.name
 
 
+def parse_description(text):
+    effects = ['Provocation', 'Ruée', 'Charge', 'Réincarnation', "Cri de guerre", "Dégâts des sorts", "Râle d’agonie",
+               "Toxicité"]
+    actions = ['inflige', 'piochez', 'confère', 'gagne', 'invoque', 'renvoie', 'rend', 'transforme', 'affiche',
+               'double', 'place', 'donne', 'détruit', 'prend le contrôle', 'gèle', 'choisissez', 'réinitialise']
+    splitword = text.split(' ')
+    parsed = {}
+    for effect in effects:
+        if effect.lower() in text.lower():
+            if text.split(' ')[0].lower() == effect.lower():
+                parsed['self'] = effect.lower()
+            if effect == 'Dégâts des sorts':
+                for elt in splitword:
+                    try:
+                        parsed['self'] = (effect.lower(), int(elt))
+                    except ValueError:
+                        pass
+
+    i = 0
+    for action in actions:
+        if action.lower() in text.lower():
+            if f"action{i}" in parsed.keys():
+                i += 1
+            parsed[f"action{i}"] = action.lower()
+    return parsed
+
+
 if __name__ == '__main__':
-    print(Card.from_id(1))
+    with open('cards.json', 'r', encoding='utf-8') as f:
+        all_cards = json.load(f)
+
+    for card in all_cards:
+        print('---')
+        print(f"{card['name']} [{card['description']}]")
+        print("Détecté : ", parse_description(card['description']))
 
 
 

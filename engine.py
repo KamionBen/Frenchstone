@@ -191,7 +191,7 @@ class RandomOrchestrator:
                 if len(tour_en_cours.plt.get_targets(carte)) > 0:
                     action_possible.append(carte)
         for carte in player.hand:
-            if carte.cost <= player.mana:
+            if carte.cost <= player.mana and not (carte.type.lower() == "serviteur" and len(player.servants) == 7):
                 action_possible.append(carte)
         if player.hero.attack > 0:
             action_possible.append(player.hero)

@@ -6,7 +6,7 @@ import pickle
 
 """ Générateur de parties aléatoires """
 players = (Player("Smaguy", "Mage"), Player("Rupert", "Chasseur"))
-logs_hs, score = RandomOrchestrator().generate_game(1, players)
+logs_hs, score = RandomOrchestrator().generate_game(10, players)
 
 """ Affichage des résultats """
 print(logs_hs.to_string())

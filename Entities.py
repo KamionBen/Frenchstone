@@ -63,9 +63,11 @@ class Player:
 
     def pick(self):
         """ Prendre la première carte du deck et l'ajouter à sa main """
-        self.hand.add(self.deck.pick_one())
-        if len(self.hand) > 10:
-            raise PermissionError("Il a plus de cartes en main que de place prévue dans le log")
+        if len(self.hand) < 10:
+            self.hand.add(self.deck.pick_one())
+        else:
+            self.deck.pick_one()
+            # raise PermissionError("Il a plus de cartes en main que de place prévue dans le log")
 
     def pick_multi(self, nb):
         for _ in range(nb):

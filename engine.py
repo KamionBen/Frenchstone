@@ -4,6 +4,10 @@ from init_variables import *
 from copy import deepcopy
 
 
+""" TO DO """
+# Le mana n'est pas mis à jour après avoir joué une carte
+# Les dégâts de fatigue ne sont pas loggés
+
 class Plateau:
     def __init__(self, players=()):
         """ Décrit exhaustivement le plateau de jeu """
@@ -41,7 +45,7 @@ class Plateau:
         self.players[0].start_turn()
 
     def update(self):
-        """ Vérifie les servants morts et les pdv des joueurs """
+        """ Vérifie les serviteurs morts et les pdv des joueurs """
         for player in self.players:
             if player.hero.is_dead():
                 self.game_on = False
@@ -72,6 +76,7 @@ class Plateau:
         adv = self.players[1]
 
         # On assigne les actions de base avant les actions spécifiques au choix
+        """ BOARD """
         action_line = {"action": "",
                        "carte_jouee": "",
                        "attaquant": "", "attaquant_atq": "", "attaquant_pv": "",
@@ -146,7 +151,7 @@ class TourEnCours:
             if carte.type.lower() == "sort":
                 player.hand.remove(carte)
                 player.mana_spend(carte.cost)
-            elif carte.type.lower() == "Serviteur":
+            elif carte.type.lower() == "serviteur":
                 if len(player.servants) < 7:
                     player.hand.remove(carte)
                     player.servants.add(carte)
@@ -154,7 +159,7 @@ class TourEnCours:
                 else:
                     raise PermissionError("Nombre maximum de serviteurs atteint")
         else:
-            raise PermissionError("Carte plus chère que la mana du joueru")
+            raise PermissionError("Carte plus chère que la mana du joueur")
 
     def attaquer(self, attaquant, cible):
         """ Action d'attaquer avec un serviteur ou son héros une cible adverse (serviteur ou héros aussi) """
@@ -202,8 +207,8 @@ class RandomOrchestrator:
             action_line["action"] = "jouer_carte"
             action_line["carte_jouee"] = action.id  # name ou id ?
             logs.loc[len(logs)] = action_line
-            player.hand.remove(action)
-            player.servants.add(action)
+            # player.hand.remove(action)
+            # player.servants.add(action)
             tour_en_cours.jouer_carte(action)
 
         elif action in player.servants or type(action) == Hero:
@@ -236,7 +241,7 @@ class RandomOrchestrator:
             action_line["attaquant_pv"] = action.health
             action_line["cible"] = target.id if type(target) is Card else "heros"
             action_line["cible_atq"] = target.attack
-            action_line['target_pv'] = target.health
+            action_line["cible_pv"] = target.health
 
             logs.loc[len(logs)] = action_line
 

@@ -32,17 +32,24 @@ class FrenchstoneEnvironment(gym.Env):
     obs = random.randint(0, self.data.shape[0] - 1)
     self.state = self.data.loc[obs].values
     real_state = self.data.loc[obs]
-    legal_actions = [0, 1]
+    legal_actions = [0]
 
     """ Un pas en moins """
     self.nb_steps -= 1
 
     """ Calcul de la récompense """
-    """ Ici, on doit déterminer les actions légales en fonction de obs"""
+    """ Ici, on doit déterminer les actions légales en fonction de l'état tiré au hasard """
+    """ Peut-on jouer une carte ? """
+    for i in range(int(real_state["nbre_cartes_j"])):
+      if real_state[f"carte_en_main{i + 1}_cost"] <= real_state["mana_dispo_j"]:
+        legal_actions.append(1)
+        break
+    """ Peut-on attaquer ? """
     for i in range(7):
       if real_state[f"atq_remain_serv{i + 1}_j"] > 0:
         legal_actions.append(2)
         break
+
 
     if action in legal_actions:
       if dict_actions[action] != self.data_action.loc[obs].values[0]:

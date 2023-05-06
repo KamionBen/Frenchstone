@@ -24,16 +24,20 @@ def build_agent(model, actions):
     policy = LinearAnnealedPolicy(EpsGreedyQPolicy(),
                                   attr='eps',
                                   value_max=1.,
-                                  value_min=0.05,
+                                  value_min=0.02,
                                   value_test=.05,
-                                  nb_steps=100000)
+                                  nb_steps=3000)
     # policy = BoltzmannQPolicy()
     memory = SequentialMemory(limit=100000, window_length=1)
     dqn = DQNAgent(model=model, memory=memory, policy=policy, nb_actions=actions, nb_steps_warmup=50, target_model_update=1e-2, batch_size=512)
     return dqn
 
+""" Création et entraînement de l'agent """
 model = build_model(states, actions)
-
 dqn = build_agent(model, actions)
 dqn.compile(Adam(lr=2.5e-4), metrics=['mae'])
-dqn.fit(env, nb_steps=200000, visualize=False, verbose=1)
+dqn.fit(env, nb_steps=6000, visualize=False, verbose=1)
+
+""" Sauvegarde de l'agent """
+model.save('frenchstone_model.h5', overwrite=True)
+dqn.save_weights('frenchstone_model_weights.h5', overwrite=True)

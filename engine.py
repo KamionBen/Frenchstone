@@ -103,10 +103,11 @@ class Plateau:
                        "pseudo_adv": adv.name,
                        "victoire": 0}
         """ HAND """
-        cartes_en_main = {i: carte.id for i, carte in enumerate(player.hand)}
+        cartes_en_main = {i: carte for i, carte in enumerate(player.hand)}
         for i in range(10):
             if i in cartes_en_main.keys():
-                action_line[f"carte_en_main{i + 1}"] = cartes_en_main[i]
+                action_line[f"carte_en_main{i + 1}"] = cartes_en_main[i].id
+                action_line[f"carte_en_main{i + 1}_cost"] = int(cartes_en_main[i].cost)
             else:
                 action_line[f"carte_en_main{i + 1}"] = -99
 
@@ -207,13 +208,11 @@ class RandomOrchestrator:
             logs.append(action_line)
             tour_en_cours.fin_du_tour()
 
-        elif action in player.hand:
+        elif (action in player.hand) and (action.cost <= player.mana):
             """ La carte est jouée depuis la main """
             action_line["action"] = "jouer_carte"
             action_line["carte_jouee"] = action.id  # name ou id ?
             logs.append(action_line)
-            # player.hand.remove(action)
-            # player.servants.add(action)
             tour_en_cours.jouer_carte(action)
 
         elif action in player.servants or type(action) == Hero:
@@ -260,12 +259,34 @@ class RandomOrchestrator:
         logs_hs = []
         i = 0
         scores = {}
-        with open('plateau_init.pickle', 'wb') as f:
-            pickle.dump(Plateau(players), f)
+        with open('plateau_init1.pickle', 'wb') as f:
+            pickle.dump(Plateau((players[0], players[1])), f)
+        with open('plateau_init2.pickle', 'wb') as f:
+            pickle.dump(Plateau((players[1], players[0])), f)
         """ On simule nb_games parties """
-        for i in range(0, nb_games):
+        """ La moitié où le joueur 1 commence """
+        for i in range(0, round(nb_games/2)):
             logs_inter = []
-            with open('plateau_init.pickle', 'rb') as f:
+            with open('plateau_init1.pickle', 'rb') as f:
+                mon_plateau = pickle.load(f)
+            while mon_plateau.game_on:
+                mon_plateau = RandomOrchestrator().tour_au_hasard(mon_plateau, logs_inter)
+
+            """Actions de fin de partie"""
+            winner = mon_plateau.winner
+            logs_inter = pd.DataFrame(logs_inter)
+            logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
+            logs_hs.append(logs_inter)
+            if winner.name in scores.keys():
+                scores[winner.name] += 1
+            else:
+                scores[winner.name] = 1
+            i += 1
+            print(i)
+        """ L'autre moitié où le joueur 2 commence """
+        for i in range(round(nb_games/2), nb_games):
+            logs_inter = []
+            with open('plateau_init2.pickle', 'rb') as f:
                 mon_plateau = pickle.load(f)
             while mon_plateau.game_on:
                 mon_plateau = RandomOrchestrator().tour_au_hasard(mon_plateau, logs_inter)
@@ -282,7 +303,8 @@ class RandomOrchestrator:
             i += 1
             print(i)
         logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis = 1)
-        os.remove('plateau_init.pickle')
+        os.remove('plateau_init1.pickle')
+        os.remove('plateau_init2.pickle')
         return logs_hs, scores
 
 

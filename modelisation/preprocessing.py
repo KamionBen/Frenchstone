@@ -15,6 +15,9 @@ columns_actual_state = ["mana_dispo_j", "mana_max_j",
                 "mana_max_adv", "surcharge_j", "surcharge_adv", "pv_j", "pv_adv", "pv_max_j", "pv_max_adv", "nbre_cartes_j",
                 "nbre_cartes_adv"]
 
+for i in range(10):
+    columns_actual_state.append(f"carte_en_main{i + 1}_cost")
+
 for i in range(7):
     columns_actual_state.append(f"atq_serv{i + 1}_j")
     columns_actual_state.append(f"pv_serv{i + 1}_j")

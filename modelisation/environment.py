@@ -31,15 +31,30 @@ class FrenchstoneEnvironment(gym.Env):
     """ Calcul de l'état choisi aléatoirement """
     obs = random.randint(0, self.data.shape[0] - 1)
     self.state = self.data.loc[obs].values
+    real_state = self.data.loc[obs]
+    legal_actions = [0, 1]
 
     """ Un pas en moins """
     self.nb_steps -= 1
 
     """ Calcul de la récompense """
-    if dict_actions[action] != self.data_action.loc[obs].values[0]:
-      reward = 0
+    """ Ici, on doit déterminer les actions légales en fonction de obs"""
+    for i in range(7):
+      if real_state[f"atq_remain_serv{i + 1}_j"] > 0:
+        legal_actions.append(2)
+        break
+
+    if action in legal_actions:
+      if dict_actions[action] != self.data_action.loc[obs].values[0]:
+        """ Action légale mais non-jouée dans la ligne observée --> récompense nulle """
+        reward = 0
+      else:
+        """ Action vraiment jouée dans la ligne observée --> +1 si victoire, -1 si défaite """
+        reward = self.data_reward.loc[obs].values[0]
     else:
-      reward = self.data_reward.loc[obs].values[0]
+      """ On punit sévèrement une action illégale """
+      reward = -5
+
 
     """ On regarde si on a terminé """
     if self.nb_steps <= 0:
@@ -50,9 +65,10 @@ class FrenchstoneEnvironment(gym.Env):
     info = {}
 
     # print(f"Ligne observée : {obs}")
+    # print(f"Actions possibles : {legal_actions}")
     # print(f"Action choisie : {dict_actions[action]}")
     # print(f"Action BDD : {self.data_action.loc[obs].values[0]}")
-    # print(f"Vecteur d'état : {self.state}")
+    # print(f"Vecteur d'état : {real_state}")
     # print(f"Récompense attendue : {self.data_reward.loc[obs].values[0]}")
     # print(f"Récompense : {reward}")
     # print('---------------------------------------------------------------------')

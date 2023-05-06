@@ -1,6 +1,8 @@
 from Entities import *
 from random import shuffle
 from init_variables import *
+import pickle
+import os
 from copy import deepcopy
 
 
@@ -22,7 +24,7 @@ class Plateau:
         for player in self.players:
             player.set_deck(class_files[player.classe])
 
-        shuffle(self.players)
+        # shuffle(self.players)  ## Il ne faut probablement pas shuffle les joueurs, mais plutôtles faire alterner dans le main
 
         """ Mélange des decks et tirage de la main de départ """
         for player in self.players:
@@ -112,15 +114,18 @@ class Plateau:
         player_servants = {i: carte.id for i, carte in enumerate(player.servants)}
         player_servants_atk = {i: carte.attack for i, carte in enumerate(player.servants)}
         player_servants_pv = {i: carte.health for i, carte in enumerate(player.servants)}
+        player_servants_atk_remain = {i: carte.remaining_atk for i, carte in enumerate(player.servants)}
         for i in range(7):
             if i in player_servants.keys():
                 action_line[f"serv{i + 1}_j"] = player_servants[i]
                 action_line[f"atq_serv{i + 1}_j"] = player_servants_atk[i]
                 action_line[f"pv_serv{i + 1}_j"] = player_servants_pv[i]
+                action_line[f"atq_remain_serv{i + 1}_j"] = player_servants_atk_remain[i]
             else:
                 action_line[f"serv{i + 1}_j"] = -99
                 action_line[f"atq_serv{i + 1}_j"] = -99
                 action_line[f"pv_serv{i + 1}_j"] = -99
+                action_line[f"atq_remain_serv{i + 1}_j"] = -99
 
         adv_servants = {i: carte.id for i, carte in enumerate(adv.servants)}
         adv_servants_atk = {i: carte.attack for i, carte in enumerate(adv.servants)}
@@ -199,14 +204,14 @@ class RandomOrchestrator:
         action = choice(action_possible)
         if action == "Passer_tour":
             action_line["action"] = "passer_tour"
-            logs.loc[len(logs)] = action_line
+            logs.append(action_line)
             tour_en_cours.fin_du_tour()
 
         elif action in player.hand:
             """ La carte est jouée depuis la main """
             action_line["action"] = "jouer_carte"
             action_line["carte_jouee"] = action.id  # name ou id ?
-            logs.loc[len(logs)] = action_line
+            logs.append(action_line)
             # player.hand.remove(action)
             # player.servants.add(action)
             tour_en_cours.jouer_carte(action)
@@ -243,7 +248,7 @@ class RandomOrchestrator:
             action_line["cible_atq"] = target.attack
             action_line["cible_pv"] = target.health
 
-            logs.loc[len(logs)] = action_line
+            logs.append(action_line)
 
             tour_en_cours.attaquer(action, target)
         plateau.update()
@@ -255,17 +260,20 @@ class RandomOrchestrator:
         logs_hs = []
         i = 0
         scores = {}
+        with open('plateau_init.pickle', 'wb') as f:
+            pickle.dump(Plateau(players), f)
         """ On simule nb_games parties """
-        while i < nb_games:
-            logs_inter = pd.DataFrame(columns=columns_logs)
-            mon_plateau = Plateau(deepcopy(players))
+        for i in range(0, nb_games):
+            logs_inter = []
+            with open('plateau_init.pickle', 'rb') as f:
+                mon_plateau = pickle.load(f)
             while mon_plateau.game_on:
                 mon_plateau = RandomOrchestrator().tour_au_hasard(mon_plateau, logs_inter)
 
-            # Actions de fin de partie
+            """Actions de fin de partie"""
             winner = mon_plateau.winner
+            logs_inter = pd.DataFrame(logs_inter)
             logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
-            # logs_hs = pd.concat([logs_hs, logs_inter]).reset_index().drop('index', axis=1)
             logs_hs.append(logs_inter)
             if winner.name in scores.keys():
                 scores[winner.name] += 1
@@ -274,7 +282,8 @@ class RandomOrchestrator:
             i += 1
             print(i)
         logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis = 1)
-        return logs_hs, list(scores.values())
+        os.remove('plateau_init.pickle')
+        return logs_hs, scores
 
 
 if __name__ == '__main__':

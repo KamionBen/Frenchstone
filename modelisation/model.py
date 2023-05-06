@@ -2,7 +2,7 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Flatten
 from rl.agents import DQNAgent
-from rl.policy import BoltzmannQPolicy
+from rl.policy import BoltzmannQPolicy, LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from keras.optimizers import Adam
 from environment import *
@@ -21,13 +21,19 @@ def build_model(states, actions):
     return model
 
 def build_agent(model, actions):
-    policy = BoltzmannQPolicy()
-    memory = SequentialMemory(limit=50000, window_length=1)
-    dqn = DQNAgent(model=model, memory=memory, policy=policy, nb_actions=actions, nb_steps_warmup=150, target_model_update=1e-2)
+    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(),
+                                  attr='eps',
+                                  value_max=1.,
+                                  value_min=0.05,
+                                  value_test=.05,
+                                  nb_steps=100000)
+    # policy = BoltzmannQPolicy()
+    memory = SequentialMemory(limit=100000, window_length=1)
+    dqn = DQNAgent(model=model, memory=memory, policy=policy, nb_actions=actions, nb_steps_warmup=50, target_model_update=1e-2, batch_size=512)
     return dqn
 
 model = build_model(states, actions)
 
 dqn = build_agent(model, actions)
-dqn.compile(Adam(lr=5e-4), metrics=['mae'])
-dqn.fit(env, nb_steps=150000, visualize=False, verbose=1)
+dqn.compile(Adam(lr=2.5e-4), metrics=['mae'])
+dqn.fit(env, nb_steps=200000, visualize=False, verbose=1)

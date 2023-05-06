@@ -13,14 +13,17 @@ with open('logs_games.pickle', 'rb') as f:
 """ Colonnes d'état """
 columns_actual_state = ["mana_dispo_j", "mana_max_j",
                 "mana_max_adv", "surcharge_j", "surcharge_adv", "pv_j", "pv_adv", "pv_max_j", "pv_max_adv", "nbre_cartes_j",
-                "nbre_cartes_adv", "dispo_ph_j", "cout_ph_j", "atq_serv1_j", "pv_serv1_j", "atq_serv2_j", "pv_serv2_j",
-                "atq_serv3_j", "pv_serv3_j", "atq_serv4_j", "pv_serv4_j", "atq_serv5_j", "pv_serv5_j",
-                "atq_serv6_j", "pv_serv6_j", "atq_serv7_j", "pv_serv7_j",
-                "atq_serv1_adv", "pv_serv1_adv", "atq_serv2_adv", "pv_serv2_adv",
-                "atq_serv3_adv", "pv_serv3_adv", "atq_serv4_adv", "pv_serv4_adv", "atq_serv5_adv", "pv_serv5_adv",
-                "atq_serv6_adv", "pv_serv6_adv", "atq_serv7_adv", "pv_serv7_adv",
-                "arme_j", "arme_adv", "attaque_j", "attaque_adv", "durabilite_arme_j", "durabilite_arme_adv"
-                ]
+                "nbre_cartes_adv"]
+
+for i in range(7):
+    columns_actual_state.append(f"atq_serv{i + 1}_j")
+    columns_actual_state.append(f"pv_serv{i + 1}_j")
+    columns_actual_state.append(f"atq_remain_serv{i + 1}_j")
+
+for i in range(7):
+    columns_actual_state.append(f"atq_serv{i + 1}_adv")
+    columns_actual_state.append(f"pv_serv{i + 1}_adv")
+
 
 """ Colonne de récompense """
 column_reward = ["victoire"]

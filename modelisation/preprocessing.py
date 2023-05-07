@@ -38,6 +38,9 @@ df_state = raw_logs[columns_actual_state]
 df_action = raw_logs[columns_action]
 df_reward = raw_logs[column_reward]
 
+with open('logs_refined.pickle', 'wb') as f:
+    pickle.dump(df_state, f)
+
 print(df_reward.sum().values[0])
 print(df_state.shape[0])
 print(df_reward.sum().values[0]/df_state.shape[0])

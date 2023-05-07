@@ -6,3 +6,6 @@ gym
 tensorflow
 keras
 keras-rl2
+tf-agents
+sklearn
+matplotlib

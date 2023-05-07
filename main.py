@@ -5,9 +5,10 @@ from engine import *
 import pickle
 import os
 
+
 """ Générateur de parties aléatoires """
 players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
-# logs_hs, score = Orchestrator().generate_random_game(4, players)
+logs_hs, score = Orchestrator().generate_random_game(25000, players)
 
 """ Générateur de parties avec le modèle """
 # players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
@@ -15,10 +16,10 @@ players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
 
 """ Affichage des résultats """
 # print(logs_hs.to_string())
-# print(score_ia)
-print(players[1])
+print(score)
+
 
 """ Sauvegarde des logs """
-# os.remove('modelisation/logs_games.pickle')
-# with open('modelisation/logs_games.pickle', 'wb') as f:
-#     pickle.dump(logs_hs, f)
+os.remove('modelisation/logs_games.pickle')
+with open('modelisation/logs_games.pickle', 'wb') as f:
+    pickle.dump(logs_hs, f)

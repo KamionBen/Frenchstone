@@ -10,6 +10,7 @@ from rl.agents import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from keras.optimizers import Adam
+from copy import deepcopy
 
 
 """ TO DO """
@@ -366,12 +367,14 @@ class Orchestrator:
         logs_hs = []
         i = 0
         scores = {}
+        players1 = players
+        players2 = deepcopy([players[1], players[0]])
 
         """ Sauvegarde temporaire des plateaux initiaux"""
         with open('plateau_init1.pickle', 'wb') as f:
-            pickle.dump(Plateau((players[0], players[1])), f)
+            pickle.dump(Plateau(players1), f)
         with open('plateau_init2.pickle', 'wb') as f:
-            pickle.dump(Plateau((players[1], players[0])), f)
+            pickle.dump(Plateau(players2), f)
 
         """ On simule nb_games parties """
         """ La moitié où le joueur 1 commence """

@@ -26,6 +26,8 @@ for i in range(7):
 for i in range(7):
     columns_actual_state.append(f"atq_serv{i + 1}_adv")
     columns_actual_state.append(f"pv_serv{i + 1}_adv")
+columns_actual_state.append(f"action")
+columns_actual_state.append(f"victoire")
 
 
 """ Colonne de récompense """
@@ -35,11 +37,12 @@ column_reward = ["victoire"]
 columns_action = ["action"]
 
 df_state = raw_logs[columns_actual_state]
-df_action = raw_logs[columns_action]
-df_reward = raw_logs[column_reward]
+
 
 with open('logs_refined.pickle', 'wb') as f:
     pickle.dump(df_state, f)
+
+
 
 print(df_reward.sum().values[0])
 print(df_state.shape[0])

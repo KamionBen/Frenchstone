@@ -2,7 +2,7 @@ import numpy as np
 import random
 import gym
 from gym import spaces
-import pickle
+from preprocessing import *
 
 dict_actions = {
   0: "passer_tour",
@@ -11,10 +11,12 @@ dict_actions = {
 }
 class FrenchstoneEnvironment(gym.Env):
   """ Notre environnement pour le projet d'AI Hearthstone : Frenchstone """
-  def __init__(self, data):
+  def __init__(self, data, data_action, data_reward):
 
     """ Chargement de nos bases de données """
     self.data = data
+    self.data_action = data_action
+    self.data_reward = data_reward
     """ Actions possibles : passer_tour, jouer_carte, attaquer """
     self.action_space = spaces.Discrete(3)
 
@@ -48,12 +50,17 @@ class FrenchstoneEnvironment(gym.Env):
         legal_actions.append(2)
         break
 
-    if action == 0:
-      reward = 0
-    else:
-      reward = 1
 
-    # print(action, reward)
+    if action in legal_actions:
+      if dict_actions[action] != self.data_action.loc[obs].values[0]:
+        """ Action légale mais non-jouée dans la ligne observée --> récompense nulle """
+        reward = 0
+      else:
+        """ Action vraiment jouée dans la ligne observée --> +1 si victoire, -1 si défaite """
+        reward = self.data_reward.loc[obs].values[0]
+    else:
+      """ On punit sévèrement une action illégale """
+      reward = -5
 
 
     """ On regarde si on a terminé """
@@ -83,6 +90,7 @@ class FrenchstoneEnvironment(gym.Env):
     self.nb_steps = 1000
     return self.state
 
+env = FrenchstoneEnvironment(df_state, df_action, df_reward)
 
 
 """ Test maison """

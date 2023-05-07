@@ -1,4 +1,5 @@
-from environment import *
+import numpy as np
+import random
 import pickle
 import matplotlib.pyplot as plt
 from tf_agents.trajectories import time_step as ts
@@ -8,25 +9,33 @@ from tf_agents.specs import array_spec
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.environments import py_environment, utils, tf_py_environment
 from tf_agents.networks import sequential
-from tf_agents.policies import random_tf_policy, q_policy
+from tf_agents.policies import random_tf_policy, q_policy, PolicySaver
 from tf_agents.trajectories import trajectory
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
+from keras.optimizers import schedules
 from sklearn.model_selection import train_test_split
 
-""" Chargement des données d'entraînement """
+""" Chargement des données d'entraînement et de données d'init """
 with open('logs_refined.pickle', 'rb') as f:
     df_state = pickle.load(f)
 
+dict_actions = {
+  0: "passer_tour",
+  1: "jouer_carte",
+  2: "attaquer"
+}
 
 class Frenchstone(py_environment.PyEnvironment):
-    def __init__(self, data, steps_by_ep=100):
-        self.data = data
+    def __init__(self, data, steps_by_ep=50):
+        self.data_train = data.drop(['victoire', 'action'], axis=1)
+        self.data_action = data[['action']]
+        self.data_reward = data[['victoire']]
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(1, self.data.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation')
-        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)].values
+            shape=(1, self.data_train.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation')
+        self._state = self.data_train.loc[random.randint(0, self.data_train.shape[0] - 1)].values
         self._episode_ended = False
         self.steps_by_ep = steps_by_ep
         self.actual_step = 0
@@ -38,7 +47,7 @@ class Frenchstone(py_environment.PyEnvironment):
         return self._observation_spec
 
     def _reset(self):
-        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)].values
+        self._state = self.data_train.loc[random.randint(0, self.data_train.shape[0] - 1)].values
         self.actual_step = 0
         self._episode_ended = False
         return ts.restart(np.array([self._state], dtype=np.int32))
@@ -50,27 +59,52 @@ class Frenchstone(py_environment.PyEnvironment):
             # a new episode.
             return self.reset()
 
-        if action == 0:
-            reward = 0
-            self.actual_step += 1
-            if self.actual_step == self.steps_by_ep:
-                self._episode_ended = True
-                return ts.termination(np.array([self._state], dtype=np.int32), reward)
-            return ts.transition(np.array([self._state], dtype=np.int32), reward)
-        elif action == 1:
-            reward = 1
+        obs = random.randint(0, self.data_train.shape[0] - 1)
+        real_state = self.data_train.loc[obs]
+        legal_actions = [0]
+        """ Calcul de la récompense """
+        """ Ici, on doit déterminer les actions légales en fonction de l'état tiré au hasard """
+        """ Peut-on jouer une carte ? """
+        for i in range(int(real_state["nbre_cartes_j"])):
+            if real_state[f"carte_en_main{i + 1}_cost"] <= real_state["mana_dispo_j"]:
+                legal_actions.append(1)
+                break
+        """ Peut-on attaquer ? """
+        for i in range(7):
+            if real_state[f"atq_remain_serv{i + 1}_j"] > 0:
+                legal_actions.append(2)
+                break
+
+        if action not in legal_actions:
+            reward = -5
             self.actual_step += 1
             if self.actual_step == self.steps_by_ep:
                 self._episode_ended = True
                 return ts.termination(np.array([self._state], dtype=np.int32), reward)
             return ts.transition(np.array([self._state], dtype=np.int32), reward)
         else:
-            reward = -2
-            self.actual_step += 1
-            if self.actual_step == self.steps_by_ep:
-                self._episode_ended = True
-                return ts.termination(np.array([self._state], dtype=np.int32), reward)
-            return ts.transition(np.array([self._state], dtype=np.int32), reward)
+            if len(legal_actions) == 1:
+                reward = 0
+                self.actual_step += 1
+                if self.actual_step == self.steps_by_ep:
+                    self._episode_ended = True
+                    return ts.termination(np.array([self._state], dtype=np.int32), reward)
+                return ts.transition(np.array([self._state], dtype=np.int32), reward)
+            else:
+                if dict_actions[int(action)] == self.data_action.loc[obs].values[0]:
+                    reward = self.data_reward.loc[obs].values[0]
+                    self.actual_step += 1
+                    if self.actual_step == self.steps_by_ep:
+                        self._episode_ended = True
+                        return ts.termination(np.array([self._state], dtype=np.int32), reward)
+                    return ts.transition(np.array([self._state], dtype=np.int32), reward)
+                else:
+                    reward = 0
+                    self.actual_step += 1
+                    if self.actual_step == self.steps_by_ep:
+                        self._episode_ended = True
+                        return ts.termination(np.array([self._state], dtype=np.int32), reward)
+                    return ts.transition(np.array([self._state], dtype=np.int32), reward)
 
 
 X_train, X_test = train_test_split(df_state, test_size=0.2)
@@ -85,16 +119,20 @@ initial_collect_steps = 10  # @param {type:"integer"}
 collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_max_length = 100000  # @param {type:"integer"}
 
-batch_size = 32  # @param {type:"integer"}
+batch_size = 512  # @param {type:"integer"}
 learning_rate = 1e-3  # @param {type:"number"}
+lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+    initial_learning_rate=1e-3,
+    decay_steps=5000,
+    decay_rate=0.95)
 log_interval = 500  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
-eval_interval = 5000  # @param {type:"integer"}
+eval_interval = 2000  # @param {type:"integer"}
 
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-fc_layer_params = (200, 100, 32)
+fc_layer_params = (200, 100, 32, 16)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -123,7 +161,7 @@ q_values_layer = tf.keras.layers.Dense(
 flatten_layer = tf.keras.layers.Flatten()
 q_net = sequential.Sequential(dense_layers + [q_values_layer] + [flatten_layer])
 
-optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
 train_step_counter = tf.Variable(0)
 
@@ -223,6 +261,12 @@ for _ in range(num_iterations):
         avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
         print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
         returns.append(avg_return)
+
+""" Sauvegarde """
+my_policy = agent.collect_policy
+saver = PolicySaver(my_policy, batch_size=None)
+saver.save('frenchstone_agent')
+
 
 steps = range(0, num_iterations + 1, eval_interval)
 plt.plot(steps, returns)

@@ -11,17 +11,17 @@ from engine import *
 #
 """ Générateur de partie random vs ia """
 players = [Player("Random", "Mage"), Player("IA", "Chasseur")]
-logs_hs_randomia, score_randomia = Orchestrator().generate_randomvsia_game(1000, players)
+logs_hs_randomia, score_randomia = Orchestrator().generate_randomvsia_game(15000, players)
 
 """ Générateur de parties avec le modèle """
 # players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
-# logs_hs_ia, score_ia = Orchestrator().generate_ia_game(1, players)
+# logs_hs_ia, score_ia = Orchestrator().generate_ia_game(15000, players)
 
 # """ Concaténation des différentes sources """
 # logs_hs = pd.concat([logs_hs, logs_hs_randomia, logs_hs_ia]).reset_index().drop('index', axis=1)
 
 """ Affichage des résultats """
-# print(logs_hs_ia.to_string())
+# print(logs_hs_randomia.to_string())
 print(score_randomia)
 
 """ Sauvegarde des logs """

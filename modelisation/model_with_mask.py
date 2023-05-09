@@ -14,7 +14,8 @@ from tf_agents.trajectories import trajectory
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
 from sklearn.model_selection import train_test_split
-from tf_agents.utils.nest_utils import unbatch_nested_tensors
+from tf_agents.utils.nest_utils import batch_nested_tensors, is_batched_nested_tensors
+
 
 
 
@@ -29,8 +30,8 @@ class Frenchstone(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
         # self._observation_spec = array_spec.BoundedArraySpec(shape=(1, self.data.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation')
         self._observation_spec = {
-            'observations': array_spec.BoundedArraySpec(shape=(1, self.data.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observations'),
-            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(1, 3), dtype=np.bool_)
+            'observation': array_spec.BoundedArraySpec(shape=(self.data.shape[1],), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
+            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(3,), dtype=np.bool_)
         }
         self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
         self._episode_ended = False
@@ -46,11 +47,13 @@ class Frenchstone(py_environment.PyEnvironment):
         self._episode_ended = False
         obs = self.observation_spec()
         legal_actions = [True, True, True]
-        obs['observations'] = np.array(self._state, dtype=np.int32)
+        obs['observation'] = np.array(self._state, dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
         return ts.restart(obs)
 
     def _step(self, action):
+
+        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
 
         if self._episode_ended:
             # The last action ended the episode. Ignore the current action and start
@@ -75,7 +78,7 @@ class Frenchstone(py_environment.PyEnvironment):
             reward = 0
             self._episode_ended = True
             obs = self.observation_spec()
-            obs['observations'] = np.array(self._state, dtype=np.int32)
+            obs['observation'] = np.array(self._state, dtype=np.int32)
             obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
             return ts.termination(obs, reward)
         else:
@@ -84,34 +87,43 @@ class Frenchstone(py_environment.PyEnvironment):
                     reward = 1
                 else:
                     reward = -1
-                self._episode_ended = True
                 obs = self.observation_spec()
-                obs['observations'] = np.array(self._state, dtype=np.int32)
+                obs['observation'] = np.array(self._state, dtype=np.int32)
                 obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-                return ts.termination(obs, reward)
+                if int(action) == 0:
+                    self._episode_ended = True
+                    return ts.termination(obs, reward)
+                else:
+                    return ts.transition(obs, reward)
             else:
-                reward = 0
-                self._episode_ended = True
+                if self._state['victoire'] == 1:
+                    reward = -0.05
+                else:
+                    reward = 0.05
                 obs = self.observation_spec()
-                obs['observations'] = np.array(self._state, dtype=np.int32)
+                obs['observation'] = np.array(self._state, dtype=np.int32)
                 obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-                return ts.termination(obs, reward)
+                if int(action) == 0:
+                    self._episode_ended = True
+                    return ts.termination(obs, reward)
+                else:
+                    return ts.transition(obs, reward)
 
 
 
 X_train, X_test = train_test_split(df_state, test_size=0.2)
 train_env = Frenchstone(X_train.reset_index().drop('index', axis=1))
 eval_env = Frenchstone(X_test.reset_index().drop('index', axis=1))
-train_env = tf_py_environment.TFPyEnvironment(train_env)
-eval_env = tf_py_environment.TFPyEnvironment(eval_env)
+train_env = tf_py_environment.TFPyEnvironment(train_env, check_dims=True)
+eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
-num_iterations = 15000  # @param {type:"integer"}
+num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
 collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_max_length = 100000  # @param {type:"integer"}
 
-batch_size = 32  # @param {type:"integer"}
+batch_size = 512  # @param {type:"integer"}
 learning_rate = 1e-4  # @param {type:"number"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate=1e-5,
@@ -120,11 +132,11 @@ lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
 log_interval = 100  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
-eval_interval = 100  # @param {type:"integer"}
+eval_interval = 500  # @param {type:"integer"}
 
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-fc_layer_params = (100, )
+fc_layer_params = (250, 100, 32, 16)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -159,7 +171,7 @@ train_step_counter = tf.Variable(0)
 
 
 def observation_action_splitter(obs):
-    return obs['observations'], obs['valid_actions']
+    return obs['observation'], obs['valid_actions']
 
 
 agent = dqn_agent.DqnAgent(
@@ -207,12 +219,33 @@ replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
     batch_size=train_env.batch_size,
     max_length=replay_buffer_capacity)
 
+time_step = train_env.current_time_step()
+action_step = q_policy.action(time_step)
+next_time_step = train_env.step(action_step.action)
+traj = trajectory.from_transition(time_step, action_step, next_time_step)
+# print(train_env.batched)
+# print(train_env.batch_size)
+# #
+# # print(agent.collect_data_spec)
+# # print(replay_buffer.data_spec)
+# # print(time_step)
+# # print(action_step)
+# # print(next_time_step)
+# print('----------------------------------------------------------------------')
+# print(is_batched_nested_tensors(traj.action, agent.collect_data_spec.action))
+# print(is_batched_nested_tensors(traj.discount, agent.collect_data_spec.discount))
+# print(is_batched_nested_tensors(traj.next_step_type, agent.collect_data_spec.next_step_type))
+# print(is_batched_nested_tensors(traj.observation['observation'], agent.collect_data_spec.observation['observation']))
+# print(is_batched_nested_tensors(traj.observation['valid_actions'], agent.collect_data_spec.observation['valid_actions']))
+# print(is_batched_nested_tensors(traj.reward, agent.collect_data_spec.reward))
+# print(is_batched_nested_tensors(traj.step_type, agent.collect_data_spec.step_type))
+
+
 def collect_step(environment, policy):
     time_step = environment.current_time_step()
     action_step = policy.action(time_step)
     next_time_step = environment.step(action_step.action)
     traj = trajectory.from_transition(time_step, action_step, next_time_step)
-    traj = unbatch_nested_tensors(traj)
 
     # Add trajectory to the replay buffer
     replay_buffer.add_batch(traj)
@@ -252,7 +285,6 @@ for _ in range(num_iterations):
     # Sample a batch of data from the buffer and update the agent's network.
     experience, unused_info = next(iterator)
     train_loss = agent.train(experience)
-    print(agent._q_network.call(time_step.observation))
     step = agent.train_step_counter.numpy()
 
     if step % log_interval == 0:
@@ -273,6 +305,6 @@ steps = range(0, num_iterations + 1, eval_interval)
 plt.plot(steps, returns)
 plt.ylabel('Average Return')
 plt.xlabel('Step')
-plt.ylim(bottom=-1)
-plt.ylim(top=1)
+plt.ylim(bottom=0)
+plt.ylim(top=3)
 plt.show()

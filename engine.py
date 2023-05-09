@@ -11,6 +11,7 @@ from tf_agents.trajectories import time_step as ts
 import tensorflow as tf
 from tf_agents.specs import array_spec
 from tf_agents.environments import py_environment, tf_py_environment
+from tf_agents.policies import greedy_policy
 
 """ Chargement des données d'entraînement et de données d'init """
 with open('modelisation/logs_refined.pickle', 'rb') as f:
@@ -26,11 +27,11 @@ class Frenchstone(py_environment.PyEnvironment):
     def __init__(self, data):
         self.data = data
         self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
-        self._observation_spec = array_spec.BoundedArraySpec(shape=(1, self.data.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation')
-        # self._observation_spec = {
-        #     'observations': array_spec.BoundedArraySpec(shape=(1, self.data_train.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
-        #     'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(3,), dtype=np.bool_)
-        # }
+        # self._observation_spec = array_spec.BoundedArraySpec(shape=(1, self.data.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation')
+        self._observation_spec = {
+            'observation': array_spec.BoundedArraySpec(shape=(self.data.shape[1],), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
+            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(3,), dtype=np.bool_)
+        }
         self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
         self._episode_ended = False
 
@@ -42,53 +43,70 @@ class Frenchstone(py_environment.PyEnvironment):
 
     def _reset(self):
         self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
-        self.actual_step = 0
         self._episode_ended = False
-        return ts.restart(np.array([self._state], dtype=np.int32))
+        obs = self.observation_spec()
+        legal_actions = [True, True, True]
+        obs['observation'] = np.array(self._state, dtype=np.int32)
+        obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+        return ts.restart(obs)
 
     def _step(self, action):
+
+        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
 
         if self._episode_ended:
             # The last action ended the episode. Ignore the current action and start
             # a new episode.
             return self.reset()
 
-        legal_actions = [0]
+        legal_actions = [True, False, False]
         """ Calcul de la récompense """
         """ Ici, on doit déterminer les actions légales en fonction de l'état tiré au hasard """
         """ Peut-on jouer une carte ? """
         for i in range(int(self._state["nbre_cartes_j"])):
             if self._state[f"carte_en_main{i + 1}_cost"] <= self._state["mana_dispo_j"] and self._state[f"carte_en_main{i + 1}_cost"] != 99:
-                legal_actions.append(1)
+                legal_actions[1] = True
                 break
         """ Peut-on attaquer ? """
         for i in range(7):
             if self._state[f"atq_remain_serv{i + 1}_j"] > 0:
-                legal_actions.append(2)
+                legal_actions[2] = True
                 break
 
-
-        if action not in legal_actions:
-            reward = -100
+        if not(legal_actions[1] or legal_actions[2]):
+            reward = 0
             self._episode_ended = True
-            return ts.termination(np.array([self._state], dtype=np.int32), reward)
+            obs = self.observation_spec()
+            obs['observation'] = np.array(self._state, dtype=np.int32)
+            obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+            return ts.termination(obs, reward)
         else:
-            if len(legal_actions) == 1:
-                reward = 0
-                self._episode_ended = True
-                return ts.termination(np.array([self._state], dtype=np.int32), reward)
-            else:
-                if int(action) == self._state['action']:
-                    if self._state['victoire'] == 1:
-                        reward = 1
-                    else:
-                        reward = -1
-                    self._episode_ended = True
-                    return ts.termination(np.array([self._state], dtype=np.int32), reward)
+            if int(action) == self._state['action']:
+                if self._state['victoire'] == 1:
+                    reward = 1
                 else:
-                    reward = 0
+                    reward = -1
+                obs = self.observation_spec()
+                obs['observation'] = np.array(self._state, dtype=np.int32)
+                obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+                if int(action) == 0:
                     self._episode_ended = True
-                    return ts.termination(np.array([self._state], dtype=np.int32), reward)
+                    return ts.termination(obs, reward)
+                else:
+                    return ts.transition(obs, reward)
+            else:
+                if self._state['victoire'] == 1:
+                    reward = -0.05
+                else:
+                    reward = 0.05
+                obs = self.observation_spec()
+                obs['observation'] = np.array(self._state, dtype=np.int32)
+                obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+                if int(action) == 0:
+                    self._episode_ended = True
+                    return ts.termination(obs, reward)
+                else:
+                    return ts.transition(obs, reward)
 
 
 
@@ -377,9 +395,25 @@ class Orchestrator:
         columns_actual_state.append("action")
         columns_actual_state.append("victoire")
 
-        """ Le modèle choisit l'action à effectuer """
+        """ Le modèle choisit l'action à effectuer parmi les actions légales """
+        legal_actions = [True, False, False]
+
         input_state = np.array(itemgetter(*columns_actual_state)(action_line))
-        observations = tf.convert_to_tensor(input_state.reshape(1, 1, -1), dtype=tf.int32, name='observations')
+
+        for i in range(int(action_line["nbre_cartes_j"])):
+            if action_line[f"carte_en_main{i + 1}_cost"] <= action_line["mana_dispo_j"] and action_line[f"carte_en_main{i + 1}_cost"] != 99:
+                legal_actions[1] = True
+                break
+        """ Peut-on attaquer ? """
+        for i in range(7):
+            if action_line[f"atq_remain_serv{i + 1}_j"] > 0:
+                legal_actions[2] = True
+                break
+
+
+        observations = env.observation_spec()
+        observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32, name='observation')
+        observations['valid_actions'] = tf.convert_to_tensor(np.array(legal_actions).reshape(1, -1), dtype=tf.bool, name='valid_actions')
         timestep = ts.TimeStep(step_type, reward, discount, observations)
         result = saved_policy.action(timestep, policy_state)
         action = dict_actions[int(result.action)]

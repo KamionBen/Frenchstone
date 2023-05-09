@@ -71,6 +71,10 @@ class Frenchstone(py_environment.PyEnvironment):
                 legal_actions.append(2)
                 break
 
+        if int(action) not in legal_actions:
+            reward = -100
+            self._episode_ended = True
+            return ts.termination(np.array([self._state], dtype=np.int32), reward)
         if len(legal_actions) == 1:
             reward = 0
             self._episode_ended = True
@@ -106,7 +110,7 @@ train_env = tf_py_environment.TFPyEnvironment(train_env)
 eval_env = tf_py_environment.TFPyEnvironment(eval_env)
 time_step = train_env.reset()
 
-num_iterations = 100000  # @param {type:"integer"}
+num_iterations = 500000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
 collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_max_length = 100000  # @param {type:"integer"}
@@ -114,17 +118,17 @@ replay_buffer_max_length = 100000  # @param {type:"integer"}
 batch_size = 512  # @param {type:"integer"}
 learning_rate = 1e-4  # @param {type:"number"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=1e-5,
+    initial_learning_rate=1e-4,
     decay_steps=10000,
     decay_rate=0.95)
-log_interval = 100  # @param {type:"integer"}
+log_interval = 500  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
-eval_interval = 500  # @param {type:"integer"}
+eval_interval = 1000  # @param {type:"integer"}
 
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-fc_layer_params = (150, 100, 32)
+fc_layer_params = (300, 150, 100, 32, 16)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -169,7 +173,7 @@ agent = dqn_agent.DqnAgent(
     optimizer=optimizer,
     td_errors_loss_fn=common.element_wise_squared_loss,
     train_step_counter=train_step_counter,
-    epsilon_greedy=0.05)
+    epsilon_greedy=0.33)
 
 agent.initialize()
 
@@ -206,11 +210,13 @@ replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
     batch_size=train_env.batch_size,
     max_length=replay_buffer_capacity)
 
+print(replay_buffer.data_spec)
 def collect_step(environment, policy):
     time_step = environment.current_time_step()
     action_step = policy.action(time_step)
     next_time_step = environment.step(action_step.action)
     traj = trajectory.from_transition(time_step, action_step, next_time_step)
+    print(traj)
 
     # Add trajectory to the replay buffer
     replay_buffer.add_batch(traj)
@@ -261,7 +267,8 @@ for _ in range(num_iterations):
         returns.append(avg_return)
 
 """ Sauvegarde """
-my_policy = agent.collect_policy
+my_policy = agent.policy
+print(my_policy)
 saver = PolicySaver(my_policy, batch_size=None)
 saver.save('frenchstone_agent')
 

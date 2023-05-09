@@ -352,7 +352,7 @@ def print_fancy_battlelog(battlelog: str, nb: int):
 
 
 if __name__ == '__main__':
-    logs_hs = RandomOrchestrator().generate_game(1)[0]
+    logs_hs = Orchestrator().generate_ia_game(1)[0]
     for line in logs_hs.values:
         print(basic_logline(line))
 

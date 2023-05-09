@@ -29,16 +29,14 @@ for i in range(7):
 columns_actual_state.append(f"action")
 columns_actual_state.append(f"victoire")
 
-
-""" Colonne de récompense """
-column_reward = ["victoire"]
-
-""" Colonnes d'action """
-columns_action = ["action"]
+dict_actions = {
+  "passer_tour": 0,
+  "jouer_carte": 1,
+  "attaquer": 2
+}
 
 df_state = raw_logs[columns_actual_state]
-
+df_state = df_state.replace({"action": dict_actions})
 
 with open('logs_refined.pickle', 'wb') as f:
     pickle.dump(df_state, f)
-

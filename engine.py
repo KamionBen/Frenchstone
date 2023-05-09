@@ -23,19 +23,16 @@ dict_actions = {
         }
 
 class Frenchstone(py_environment.PyEnvironment):
-    """ Classe définissant l'environnement à partir duquel va jouer l'IA """
-    def __init__(self, data, steps_by_ep=1):
-        self.data_train = data.drop(['victoire', 'action'], axis=1)
-        self.data_action = data[['action']]
-        self.data_reward = data[['victoire']]
-        self._action_spec = array_spec.BoundedArraySpec(
-            shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
-        self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(1, self.data_train.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation')
-        self._state = self.data_train.loc[random.randint(0, self.data_train.shape[0] - 1)].values
+    def __init__(self, data):
+        self.data = data
+        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
+        self._observation_spec = array_spec.BoundedArraySpec(shape=(1, self.data.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation')
+        # self._observation_spec = {
+        #     'observations': array_spec.BoundedArraySpec(shape=(1, self.data_train.shape[1]), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
+        #     'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(3,), dtype=np.bool_)
+        # }
+        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
         self._episode_ended = False
-        self.steps_by_ep = steps_by_ep
-        self.actual_step = 0
 
     def action_spec(self):
         return self._action_spec
@@ -44,7 +41,7 @@ class Frenchstone(py_environment.PyEnvironment):
         return self._observation_spec
 
     def _reset(self):
-        self._state = self.data_train.loc[random.randint(0, self.data_train.shape[0] - 1)].values
+        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
         self.actual_step = 0
         self._episode_ended = False
         return ts.restart(np.array([self._state], dtype=np.int32))
@@ -56,52 +53,43 @@ class Frenchstone(py_environment.PyEnvironment):
             # a new episode.
             return self.reset()
 
-        obs = random.randint(0, self.data_train.shape[0] - 1)
-        real_state = self.data_train.loc[obs]
         legal_actions = [0]
         """ Calcul de la récompense """
         """ Ici, on doit déterminer les actions légales en fonction de l'état tiré au hasard """
         """ Peut-on jouer une carte ? """
-        for i in range(int(real_state["nbre_cartes_j"])):
-            if real_state[f"carte_en_main{i + 1}_cost"] <= real_state["mana_dispo_j"]:
+        for i in range(int(self._state["nbre_cartes_j"])):
+            if self._state[f"carte_en_main{i + 1}_cost"] <= self._state["mana_dispo_j"] and self._state[f"carte_en_main{i + 1}_cost"] != 99:
                 legal_actions.append(1)
                 break
         """ Peut-on attaquer ? """
         for i in range(7):
-            if real_state[f"atq_remain_serv{i + 1}_j"] > 0:
+            if self._state[f"atq_remain_serv{i + 1}_j"] > 0:
                 legal_actions.append(2)
                 break
 
+
         if action not in legal_actions:
-            reward = -5
-            self.actual_step += 1
-            if self.actual_step == self.steps_by_ep:
-                self._episode_ended = True
-                return ts.termination(np.array([self._state], dtype=np.int32), reward)
-            return ts.transition(np.array([self._state], dtype=np.int32), reward)
+            reward = -100
+            self._episode_ended = True
+            return ts.termination(np.array([self._state], dtype=np.int32), reward)
         else:
             if len(legal_actions) == 1:
                 reward = 0
-                self.actual_step += 1
-                if self.actual_step == self.steps_by_ep:
+                self._episode_ended = True
+                return ts.termination(np.array([self._state], dtype=np.int32), reward)
+            else:
+                if int(action) == self._state['action']:
+                    if self._state['victoire'] == 1:
+                        reward = 1
+                    else:
+                        reward = -1
                     self._episode_ended = True
                     return ts.termination(np.array([self._state], dtype=np.int32), reward)
-                return ts.transition(np.array([self._state], dtype=np.int32), reward)
-            else:
-                if dict_actions[int(action)] == self.data_action.loc[obs].values[0]:
-                    reward = self.data_reward.loc[obs].values[0]
-                    self.actual_step += 1
-                    if self.actual_step == self.steps_by_ep:
-                        self._episode_ended = True
-                        return ts.termination(np.array([self._state], dtype=np.int32), reward)
-                    return ts.transition(np.array([self._state], dtype=np.int32), reward)
                 else:
                     reward = 0
-                    self.actual_step += 1
-                    if self.actual_step == self.steps_by_ep:
-                        self._episode_ended = True
-                        return ts.termination(np.array([self._state], dtype=np.int32), reward)
-                    return ts.transition(np.array([self._state], dtype=np.int32), reward)
+                    self._episode_ended = True
+                    return ts.termination(np.array([self._state], dtype=np.int32), reward)
+
 
 
 """ Initialisation de l'environnement et chagrement du modèle """
@@ -180,7 +168,7 @@ class Plateau:
 
         # On assigne les actions de base avant les actions spécifiques au choix
         """ BOARD """
-        action_line = {"action": "",
+        action_line = {"action": 0,
                        "carte_jouee": "",
                        "attaquant": "", "attaquant_atq": "", "attaquant_pv": "",
                        "cible": "", "cible_atq": "", "cible_pv": "",
@@ -386,6 +374,8 @@ class Orchestrator:
         for i in range(7):
             columns_actual_state.append(f"atq_serv{i + 1}_adv")
             columns_actual_state.append(f"pv_serv{i + 1}_adv")
+        columns_actual_state.append("action")
+        columns_actual_state.append("victoire")
 
         """ Le modèle choisit l'action à effectuer """
         input_state = np.array(itemgetter(*columns_actual_state)(action_line))

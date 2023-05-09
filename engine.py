@@ -14,7 +14,7 @@ from tf_agents.environments import py_environment, tf_py_environment
 from tf_agents.policies import greedy_policy
 
 """ Chargement des données d'entraînement et de données d'init """
-with open('modelisation/logs_refined.pickle', 'rb') as f:
+with open('modelisation/logs_refined_light.pickle', 'rb') as f:
     df_state = pickle.load(f)
 
 dict_actions = {

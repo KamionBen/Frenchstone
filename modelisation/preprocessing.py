@@ -40,3 +40,6 @@ df_state = df_state.replace({"action": dict_actions})
 
 with open('logs_refined.pickle', 'wb') as f:
     pickle.dump(df_state, f)
+
+with open('logs_refined_light.pickle', 'wb') as f:
+    pickle.dump(df_state.loc[0:100], f)

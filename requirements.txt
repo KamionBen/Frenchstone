@@ -1,11 +1,11 @@
 requests
 bs4
-pandas
-numpy
 gym
-tensorflow
 keras
 keras-rl2
 tf-agents
 sklearn
 matplotlib
+pandas = 2.0.1
+numpy = 1.24.3
+tensorflow = 2.12.0

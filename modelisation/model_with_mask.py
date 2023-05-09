@@ -129,10 +129,10 @@ lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate=1e-5,
     decay_steps=10000,
     decay_rate=0.95)
-log_interval = 100  # @param {type:"integer"}
+log_interval = 500  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
-eval_interval = 500  # @param {type:"integer"}
+eval_interval = 2000  # @param {type:"integer"}
 
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 

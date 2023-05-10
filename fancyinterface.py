@@ -1,10 +1,9 @@
-import pandas.core.frame
+from pandas.core.frame import DataFrame
 
 from Entities import *
 from time import sleep
 import pickle
 from init_variables import *
-from engine import *
 
 CARD_POOL = get_cards_data("cards.json")
 ICON = "______                   _         _ \n" \
@@ -152,7 +151,7 @@ class FancyLog:
         return self.log[index] + " " * (whitespace - len(self.log[index]))
 
 
-def import_log(file: str) -> pandas.core.frame.DataFrame:
+def import_log(file: str) -> DataFrame:
     with open(file, 'rb') as f:
         return pickle.load(f)
 
@@ -348,15 +347,7 @@ def print_fancy_battlelog(battlelog: str, nb: int):
         print(" " * log_width + fancy_mana(players[0].mana, players[0].mana_max))
         sleep(2)
 
-
-
-
 if __name__ == '__main__':
-    logs_hs = Orchestrator().generate_randomvsia_game(1)[0]
-    for line in logs_hs.values:
-        print(basic_logline(line))
-
-
-
-
-
+    data = import_log('modelisation/logs_games.pickle')
+    for k, v in data.to_dict().items():
+        print(k, v)

@@ -442,8 +442,6 @@ class Orchestrator:
                 for carte in adv.servants:
                     targets.append(carte)
 
-
-
             target = choice(targets)
 
             action_line["action"] = "attaquer"
@@ -469,7 +467,6 @@ class Orchestrator:
         step_type = tf.convert_to_tensor([0], dtype=tf.int32, name='step_type')
         reward = tf.convert_to_tensor([0], dtype=tf.float32, name='reward')
         discount = tf.convert_to_tensor([1], dtype=tf.float32, name='discount')
-
 
         """ Initialisation du vecteur d'état représentant le plateau"""
         action_line = plateau.get_gamestate()
@@ -919,7 +916,7 @@ class Orchestrator:
         os.remove('plateau_init2.pickle')
         return logs_hs, scores
 
-    def generate_ia_game(selfself, nb_games, players=()):
+    def generate_ia_game(self, nb_games, players=()):
         logs_hs = []
         i = 0
         scores = {}

@@ -23,7 +23,7 @@ dict_actions = {
             2: "attaquer"
         }
 
-class Frenchstone(py_environment.PyEnvironment):
+class Frenchstone_old(py_environment.PyEnvironment):
     def __init__(self, data):
         self.data = data
         self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
@@ -107,14 +107,113 @@ class Frenchstone(py_environment.PyEnvironment):
                     return ts.termination(obs, reward)
                 else:
                     return ts.transition(obs, reward)
+class Frenchstone(py_environment.PyEnvironment):
+    def __init__(self, data):
+        self.data = data
+        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=9, name='action')
+        self._observation_spec = {
+            'observation': array_spec.BoundedArraySpec(shape=(self.data.shape[1],), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
+            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(10,), dtype=np.bool_)
+        }
+        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
+        self._episode_ended = False
 
+    def action_spec(self):
+        return self._action_spec
+
+    def observation_spec(self):
+        return self._observation_spec
+
+    def _reset(self):
+        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
+        self._episode_ended = False
+        obs = self.observation_spec()
+        legal_actions = [True]
+        for i in range(9):
+            legal_actions.append(False)
+        obs['observation'] = np.array(self._state, dtype=np.int32)
+        obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+        return ts.restart(obs)
+
+    def _step(self, action):
+
+        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
+
+        if self._episode_ended:
+            # The last action ended the episode. Ignore the current action and start
+            # a new episode.
+            return self.reset()
+
+        legal_actions = [True, False, False]
+        """ Calcul de la récompense """
+        """ Ici, on doit déterminer les actions légales en fonction de l'état tiré au hasard """
+        """ Peut-on jouer une carte ? """
+        for i in range(int(self._state["nbre_cartes_j"])):
+            if self._state[f"carte_en_main{i + 1}_cost"] <= self._state["mana_dispo_j"] and self._state[f"carte_en_main{i + 1}_cost"] != 99:
+                legal_actions[1] = True
+                break
+
+        """ Peut-on attaquer ? """
+        for i in range(7):
+            if self._state[f"atq_remain_serv{i + 1}_j"] > 0:
+                legal_actions[2] = True
+                break
+        """ Quelles cibles peut-on attaquer ?"""
+        if legal_actions[2]:
+            for i in range(1, 8):
+                if self._state[f"atq_serv{i}_adv"] != -99:
+                    legal_actions.append(True)
+                else:
+                    legal_actions.append(False)
+        else:
+            for i in range(1, 8):
+                legal_actions.append(False)
+
+        if not(legal_actions[1] or legal_actions[2]):
+            reward = 0
+            self._episode_ended = True
+            obs = self.observation_spec()
+            obs['observation'] = np.array(self._state, dtype=np.int32)
+            obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+            return ts.termination(obs, reward)
+        else:
+            if int(action) == self._state['action']:
+                if self._state['victoire'] == 1:
+                    reward = 1
+                else:
+                    reward = -1
+                obs = self.observation_spec()
+                obs['observation'] = np.array(self._state, dtype=np.int32)
+                obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+                if int(action) == 0:
+                    self._episode_ended = True
+                    return ts.termination(obs, reward)
+                else:
+                    return ts.transition(obs, reward)
+            else:
+                if self._state['victoire'] == 1:
+                    reward = -0.05
+                else:
+                    reward = 0.02
+                obs = self.observation_spec()
+                obs['observation'] = np.array(self._state, dtype=np.int32)
+                obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+                if int(action) == 0:
+                    self._episode_ended = True
+                    return ts.termination(obs, reward)
+                else:
+                    return ts.transition(obs, reward)
 
 
 """ Initialisation de l'environnement et chagrement du modèle """
+old_env = Frenchstone_old(df_state.reset_index().drop('index', axis=1))
+old_env = tf_py_environment.TFPyEnvironment(old_env)
 env = Frenchstone(df_state.reset_index().drop('index', axis=1))
 env = tf_py_environment.TFPyEnvironment(env)
 
-saved_policy = tf.compat.v2.saved_model.load('modelisation/frenchstone_agent')
+old_policy = tf.compat.v2.saved_model.load('modelisation/frenchstone_agent')
+oldpolicy_state = old_policy.get_initial_state(batch_size=512)
+saved_policy = tf.compat.v2.saved_model.load('modelisation/frenchstone_agent_v0.01')
 policy_state = saved_policy.get_initial_state(batch_size=512)
 
 class Plateau:
@@ -361,7 +460,7 @@ class Orchestrator:
         plateau.update()
         return plateau
 
-    def tour_ia(self, plateau, logs, policy, state):
+    def tour_oldia(self, plateau, logs, policy, state):
         """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
         player = plateau.players[0]
         adv = plateau.players[1]
@@ -415,7 +514,7 @@ class Orchestrator:
         observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32, name='observation')
         observations['valid_actions'] = tf.convert_to_tensor(np.array(legal_actions).reshape(1, -1), dtype=tf.bool, name='valid_actions')
         timestep = ts.TimeStep(step_type, reward, discount, observations)
-        result = saved_policy.action(timestep, policy_state)
+        result = old_policy.action(timestep, oldpolicy_state)
         action = dict_actions[int(result.action)]
 
         if action == "passer_tour":
@@ -469,6 +568,144 @@ class Orchestrator:
                         targets.append(carte)
 
                 target = choice(targets)
+
+                action_line["action"] = "attaquer"
+                action_line["attaquant"] = attacker.id if type(attacker) is Card else "heros"
+                action_line["attaquant_atq"] = attacker.attack
+                action_line["attaquant_pv"] = attacker.health
+                action_line["cible"] = target.id if type(target) is Card else "heros"
+                action_line["cible_atq"] = target.attack
+                action_line["cible_pv"] = target.health
+                logs.append(action_line)
+                tour_en_cours.attaquer(attacker, target)
+            except:
+                action_line["action"] = "passer_tour"
+                logs.append(action_line)
+                tour_en_cours.fin_du_tour()
+
+        plateau.update()
+        return plateau
+
+    def tour_ia(self, plateau, logs, policy, state):
+        """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
+        player = plateau.players[0]
+        adv = plateau.players[1]
+
+        tour_en_cours = TourEnCours(plateau)
+        step_type = tf.convert_to_tensor([0], dtype=tf.int32, name='step_type')
+        reward = tf.convert_to_tensor([0], dtype=tf.float32, name='reward')
+        discount = tf.convert_to_tensor([1], dtype=tf.float32, name='discount')
+
+
+        """ Initialisation du vecteur d'état représentant le plateau"""
+        action_line = plateau.get_gamestate()
+
+        """ Sélection des colonnes nécessaires à la prédiction """
+        columns_actual_state = ["mana_dispo_j", "mana_max_j",
+                                "mana_max_adv", "surcharge_j", "surcharge_adv", "pv_j", "pv_adv", "pv_max_j",
+                                "pv_max_adv", "nbre_cartes_j",
+                                "nbre_cartes_adv", "action", "victoire"]
+
+        for i in range(10):
+            columns_actual_state.append(f"carte_en_main{i + 1}_cost")
+
+        for i in range(7):
+            columns_actual_state.append(f"atq_serv{i + 1}_j")
+            columns_actual_state.append(f"pv_serv{i + 1}_j")
+            columns_actual_state.append(f"atq_remain_serv{i + 1}_j")
+
+        for i in range(7):
+            columns_actual_state.append(f"atq_serv{i + 1}_adv")
+            columns_actual_state.append(f"pv_serv{i + 1}_adv")
+
+        """ Le modèle choisit l'action à effectuer parmi les actions légales """
+        legal_actions = [True]
+        for i in range(9):
+            legal_actions.append(False)
+
+        input_state = np.array(itemgetter(*columns_actual_state)(action_line))
+
+        for i in range(int(action_line["nbre_cartes_j"])):
+            if action_line[f"carte_en_main{i + 1}_cost"] <= action_line["mana_dispo_j"] and action_line[f"carte_en_main{i + 1}_cost"] != 99:
+                legal_actions[1] = True
+                break
+        """ Peut-on attaquer ? """
+        for i in range(7):
+            if action_line[f"atq_remain_serv{i + 1}_j"] > 0:
+                legal_actions[2] = True
+                break
+        if legal_actions[2]:
+            for i in range(1, 8):
+                if action_line[f"atq_serv{i}_adv"] != -99:
+                    legal_actions[2 + i] = True
+                else:
+                    legal_actions[2 + i] = False
+        else:
+            for i in range(1, 8):
+                legal_actions[2 + i] = False
+
+
+        observations = env.observation_spec()
+        observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32, name='observation')
+        observations['valid_actions'] = tf.convert_to_tensor(np.array(legal_actions).reshape(1, -1), dtype=tf.bool, name='valid_actions')
+        timestep = ts.TimeStep(step_type, reward, discount, observations)
+        result = saved_policy.action(timestep, policy_state)
+        action = int(result.action)
+
+        if action == 0:
+            action_line["action"] = "passer_tour"
+            logs.append(action_line)
+            tour_en_cours.fin_du_tour()
+
+        elif action == 1:
+            try:
+                """ La carte est jouée depuis la main """
+                action_line["action"] = "jouer_carte"
+                playable_cards = [x for x in player.hand if x.cost <= player.mana]
+                played_card = choice(playable_cards)
+                action_line["carte_jouee"] = played_card.id  # name ou id ?
+                logs.append(action_line)
+                tour_en_cours.jouer_carte(played_card)
+            except:
+                action_line["action"] = "passer_tour"
+                logs.append(action_line)
+                tour_en_cours.fin_du_tour()
+
+        elif action >= 2:
+            try:
+                potential_attackers = []
+                for carte in player.servants:
+                    if carte.attack > 0 and carte.remaining_atk > 0:
+                        if len(tour_en_cours.plt.get_targets(carte)) > 0:
+                            potential_attackers.append(carte)
+                if player.hero.attack > 0:
+                    potential_attackers.append(player.hero)
+
+                attacker = choice(potential_attackers)
+
+                # provocation = False
+                # for carte in adv.servants:
+                #     if "provocation" in carte.get_effects():
+                #         provocation = True
+
+                # targets = []
+                # if provocation:
+                #     for carte in adv.servants:
+                #         if "provocation" in carte.get_effects():
+                #             targets.append(carte)
+                # else:
+                #     if "Ruée" in attacker.get_effects():
+                #         if attacker.effects["Ruée"].active is False:
+                #             targets.append(adv.hero)
+                #     else:
+                #         targets.append(adv.hero)
+                #     for carte in adv.servants:
+                #         targets.append(carte)
+
+                if action == 2:
+                    target = adv.hero
+                else:
+                    target = adv.servants[action-3]
 
                 action_line["action"] = "attaquer"
                 action_line["attaquant"] = attacker.id if type(attacker) is Card else "heros"
@@ -610,6 +847,74 @@ class Orchestrator:
 
         """ Concaténation des logs + suppression des plateaux temporaires """
         logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis = 1)
+        os.remove('plateau_init1.pickle')
+        os.remove('plateau_init2.pickle')
+        return logs_hs, scores
+
+    def generate_oldia_game(selfself, nb_games, players=()):
+        logs_hs = []
+        i = 0
+        scores = {}
+
+        players1 = players
+        players2 = deepcopy([players[1], players[0]])
+
+        """ Sauvegarde temporaire des plateaux initiaux"""
+        with open('plateau_init1.pickle', 'wb') as f:
+            pickle.dump(Plateau(players1), f)
+        with open('plateau_init2.pickle', 'wb') as f:
+            pickle.dump(Plateau(players2), f)
+
+
+
+        """ On simule nb_games parties """
+        """ La moitié où le joueur 1 commence """
+        for i in range(0, round(nb_games/2)):
+            logs_inter = []
+            with open('plateau_init1.pickle', 'rb') as f:
+                mon_plateau = pickle.load(f)
+            while mon_plateau.game_on:
+                if mon_plateau.game_turn % 2 == 0:
+                    mon_plateau = Orchestrator().tour_oldia(mon_plateau, logs_inter, old_policy, oldpolicy_state)
+                else:
+                    mon_plateau = Orchestrator().tour_ia(mon_plateau, logs_inter, saved_policy, policy_state)
+
+            """Actions de fin de partie"""
+            winner = mon_plateau.winner
+            logs_inter = pd.DataFrame(logs_inter)
+            logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
+            logs_hs.append(logs_inter)
+            if winner.name in scores.keys():
+                scores[winner.name] += 1
+            else:
+                scores[winner.name] = 1
+            i += 1
+            print(i)
+
+        for i in range(round(nb_games/2), nb_games):
+            logs_inter = []
+            with open('plateau_init2.pickle', 'rb') as f:
+                mon_plateau = pickle.load(f)
+            while mon_plateau.game_on:
+                if mon_plateau.game_turn % 2 == 0:
+                    mon_plateau = Orchestrator().tour_ia(mon_plateau, logs_inter, saved_policy, policy_state)
+                else:
+                    mon_plateau = Orchestrator().tour_oldia(mon_plateau, logs_inter, old_policy, oldpolicy_state)
+
+            """Actions de fin de partie"""
+            winner = mon_plateau.winner
+            logs_inter = pd.DataFrame(logs_inter)
+            logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
+            logs_hs.append(logs_inter)
+            if winner.name in scores.keys():
+                scores[winner.name] += 1
+            else:
+                scores[winner.name] = 1
+            i += 1
+            print(i)
+
+        """ Concaténation des logs + suppression des plateaux temporaires """
+        logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis=1)
         os.remove('plateau_init1.pickle')
         os.remove('plateau_init2.pickle')
         return logs_hs, scores

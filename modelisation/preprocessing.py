@@ -15,6 +15,16 @@ dict_actions = {
   "attaquer": 2
 }
 
+""" Modification de la colonne 'attaquant' qui retourne un entier en fonction de l'attaquant : """
+# 0 --> héros          1-7 --> serviteur correspondant
+conditions = [
+              raw_logs.attaquant == "heros", raw_logs.attaquant == raw_logs.serv1_j, raw_logs.attaquant == raw_logs.serv2_j,
+              raw_logs.attaquant == raw_logs.serv3_j, raw_logs.attaquant == raw_logs.serv4_j, raw_logs.attaquant == raw_logs.serv5_j,
+              raw_logs.attaquant == raw_logs.serv6_j, raw_logs.attaquant == raw_logs.serv7_j
+              ]
+choices = [0, 1, 2, 3, 4, 5, 6, 7]
+raw_logs['attaquant'] = np.select(conditions, choices, default=-99)
+
 """ Modification de la colonne 'cible' qui retourne un entier en fonction de la cible : """
 # 0 --> héros          1-7 --> serviteur correspondant
 conditions = [
@@ -28,7 +38,7 @@ raw_logs['cible'] = np.select(conditions, choices, default=-99)
 """Modification de la colonne 'actions' pour être un entier """
 raw_logs = raw_logs.replace({"action": dict_actions})
 ## Si l'action est une attaque, on incrémente l'action de la cible visée
-raw_logs['action'] = np.where(raw_logs['action'] == 2, raw_logs['action'] + raw_logs['cible'], raw_logs['action'])
+raw_logs['action'] = np.where(raw_logs['action'] == 2, raw_logs['action'] + (8 * raw_logs['attaquant'] + (raw_logs['cible'] % 8)), raw_logs['action'])
 
 
 """ Sélection des colonnes nécessaires à l'entraînement """

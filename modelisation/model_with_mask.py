@@ -18,19 +18,40 @@ from tf_agents.utils.nest_utils import batch_nested_tensors, is_batched_nested_t
 
 
 
-
-
 """ Chargement des données d'entraînement et de données d'init """
 with open('logs_refined.pickle', 'rb') as f:
     df_state = pickle.load(f)
 
+
+def generate_legal_vector(state):
+    """ Gestion des actions légales """
+    legal_actions = [True]
+    for i in range(65):
+        legal_actions.append(False)
+
+    """ Peut-on jouer une carte ? """
+    for i in range(int(state["nbre_cartes_j"])):
+        if state[f"carte_en_main{i + 1}_cost"] <= state["mana_dispo_j"] and state[
+            f"carte_en_main{i + 1}_cost"] != 99:
+            legal_actions[1] = True
+            break
+
+    """ Quelles cibles peut-on attaquer et avec quels attaquants"""
+    for i in range(1, 8):
+        if state[f"atq_remain_serv{i}_j"] > 0:
+            legal_actions[2 + 8 * i] = True
+            for j in range(1, 8):
+                if state[f"atq_serv{j}_adv"] != -99:
+                    legal_actions[2 + 8 * i + j] = True
+    return legal_actions
+
 class Frenchstone(py_environment.PyEnvironment):
     def __init__(self, data):
         self.data = data
-        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=9, name='action')
+        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=65, name='action')
         self._observation_spec = {
             'observation': array_spec.BoundedArraySpec(shape=(self.data.shape[1],), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
-            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(10,), dtype=np.bool_)
+            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(66,), dtype=np.bool_)
         }
         self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
         self._episode_ended = False
@@ -47,33 +68,8 @@ class Frenchstone(py_environment.PyEnvironment):
         obs = self.observation_spec()
 
         """ Gestion des actions légales """
-        legal_actions = [True]
-        for i in range(9):
-            legal_actions.append(False)
-        """ Calcul de la récompense """
-        """ Ici, on doit déterminer les actions légales en fonction de l'état tiré au hasard """
-        """ Peut-on jouer une carte ? """
-        for i in range(int(self._state["nbre_cartes_j"])):
-            if self._state[f"carte_en_main{i + 1}_cost"] <= self._state["mana_dispo_j"] and self._state[
-                           f"carte_en_main{i + 1}_cost"] != 99:
-                legal_actions[1] = True
-                break
+        legal_actions = generate_legal_vector(self._state)
 
-        """ Peut-on attaquer ? """
-        for i in range(7):
-            if self._state[f"atq_remain_serv{i + 1}_j"] > 0:
-                legal_actions[2] = True
-                break
-        """ Quelles cibles peut-on attaquer ?"""
-        if legal_actions[2]:
-            for i in range(1, 8):
-                if self._state[f"atq_serv{i}_adv"] != -99:
-                    legal_actions[2 + i] = True
-                else:
-                    legal_actions[2 + i] = False
-        else:
-            for i in range(1, 8):
-                legal_actions[2 + i] = False
         obs['observation'] = np.array(self._state, dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
         return ts.restart(obs)
@@ -87,32 +83,8 @@ class Frenchstone(py_environment.PyEnvironment):
             # a new episode.
             return self.reset()
 
-        legal_actions = [True]
-        for i in range(9):
-            legal_actions.append(False)
-        """ Calcul de la récompense """
-        """ Ici, on doit déterminer les actions légales en fonction de l'état tiré au hasard """
-        """ Peut-on jouer une carte ? """
-        for i in range(int(self._state["nbre_cartes_j"])):
-            if self._state[f"carte_en_main{i + 1}_cost"] <= self._state["mana_dispo_j"] and self._state[f"carte_en_main{i + 1}_cost"] != 99:
-                legal_actions[1] = True
-                break
-
-        """ Peut-on attaquer ? """
-        for i in range(7):
-            if self._state[f"atq_remain_serv{i + 1}_j"] > 0:
-                legal_actions[2] = True
-                break
-        """ Quelles cibles peut-on attaquer ?"""
-        if legal_actions[2]:
-            for i in range(1, 8):
-                if self._state[f"atq_serv{i}_adv"] != -99:
-                    legal_actions[2+i] = True
-                else:
-                    legal_actions[2+i] = False
-        else:
-            for i in range(1, 8):
-                legal_actions[2+i] = False
+        """ Gestion des actions légales """
+        legal_actions = generate_legal_vector(self._state)
 
         if not(legal_actions[1] or legal_actions[2]):
             reward = 0
@@ -158,7 +130,7 @@ train_env = tf_py_environment.TFPyEnvironment(train_env, check_dims=True)
 eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
-num_iterations = 150000  # @param {type:"integer"}
+num_iterations = 10000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
 collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_max_length = 150000  # @param {type:"integer"}
@@ -338,7 +310,7 @@ for _ in range(num_iterations):
 """ Sauvegarde """
 my_policy = agent.collect_policy
 saver = PolicySaver(my_policy, batch_size=None)
-saver.save('frenchstone_agent_v0.01')
+saver.save('frenchstone_agent_v0.02')
 
 
 steps = range(0, num_iterations + 1, eval_interval)
@@ -346,5 +318,5 @@ plt.plot(steps, returns)
 plt.ylabel('Average Return')
 plt.xlabel('Step')
 plt.ylim(bottom=-1)
-plt.ylim(top=1)
+plt.ylim(top=3)
 plt.show()

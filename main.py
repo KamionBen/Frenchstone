@@ -1,7 +1,7 @@
 ## Lanceur de la simulation Hearthstone
 
 # Import & Utils
-from engine import *
+from modelisation.engine import *
 
 """ Générateur de parties aléatoires """
 # players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]

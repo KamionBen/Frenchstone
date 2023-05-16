@@ -1,4 +1,4 @@
-from Entities import *
+from modelisation.Entities import *
 
 
 CLASS_BY_TYPE = {

@@ -3,8 +3,7 @@
 """ Imports """
 import random
 from init_variables import *
-from random import shuffle
-from Entities import *
+from modelisation.Entities import *
 from copy import deepcopy
 
 """ Décrit exhaustivement le plateau de jeu """

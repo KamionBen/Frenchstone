@@ -335,7 +335,7 @@ def import_deck(file: str, data='cards.json') -> CardGroup:
     """
     jsoncards = get_cards_data(data)
     deck = CardGroup()
-    with open(path.join('decks', file), 'r') as csvdeck:
+    with open(path.join('../decks', file), 'r') as csvdeck:
         reader = csv.reader(csvdeck, delimiter=";")
         for line in reader:
             name = line[0]

@@ -1,6 +1,4 @@
-import json
-
-from Entities import *
+from modelisation.Entities import *
 
 
 def get_card_data_by_id(file, cid):

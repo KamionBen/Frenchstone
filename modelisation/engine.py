@@ -14,7 +14,7 @@ from tf_agents.environments import py_environment, tf_py_environment
 from tf_agents.policies import greedy_policy
 
 """ Chargement des données d'entraînement et de données d'init """
-with open('modelisation/logs_refined_light.pickle', 'rb') as f:
+with open('logs_refined_light.pickle', 'rb') as f:
     df_state = pickle.load(f)
 
 dict_actions = {
@@ -224,9 +224,9 @@ old_env = tf_py_environment.TFPyEnvironment(old_env)
 env = Frenchstone(df_state.reset_index().drop('index', axis=1))
 env = tf_py_environment.TFPyEnvironment(env)
 
-old_policy = tf.compat.v2.saved_model.load('modelisation/frenchstone_agent_v0.01')
+old_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.01')
 oldpolicy_state = old_policy.get_initial_state(batch_size=512)
-saved_policy = tf.compat.v2.saved_model.load('modelisation/frenchstone_agent_v0.02')
+saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
 policy_state = saved_policy.get_initial_state(batch_size=512)
 
 class Plateau:
@@ -239,6 +239,7 @@ class Plateau:
 
         else:
             self.players = list(players)
+        Card.created = []
 
         for player in self.players:
             player.set_deck(class_files[player.classe])

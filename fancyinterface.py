@@ -1,6 +1,6 @@
 from pandas.core.frame import DataFrame
 
-from Entities import *
+from modelisation.Entities import *
 from time import sleep
 import pickle
 from init_variables import *

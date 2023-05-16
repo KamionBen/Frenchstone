@@ -740,17 +740,14 @@ class Orchestrator:
 
         if action == 0:
             TourEnCours(plateau).fin_du_tour()
-        elif action == 1:
-            cartes_jouables = [x for x in plateau.players[0].hand if
-                               x.cost <= plateau.get_gamestate()['mana_dispo_j']]
-            carte_au_hasard = random.choice(cartes_jouables)
-            TourEnCours(plateau).jouer_carte(carte_au_hasard)
-        elif action >= 2:
-            attacker = plateau.players[0].servants[int((action - 2) // 8 - 1)]
-            if (action - 2) % 8 == 0:
+        elif action < 11:
+            TourEnCours(plateau).jouer_carte(plateau.players[0].hand[action - 1])
+        elif action >= 11:
+            attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
+            if (action - 11) % 8 == 0:
                 target = plateau.players[1].hero
             else:
-                target = plateau.players[1].servants[int((action - 2) % 8 - 1)]
+                target = plateau.players[1].servants[int((action - 11) % 8 - 1)]
             TourEnCours(plateau).attaquer(attacker, target)
 
         plateau.update()

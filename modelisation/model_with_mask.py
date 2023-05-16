@@ -19,23 +19,23 @@ from modelisation.engine import *
 def generate_legal_vector(state):
     """ Gestion des actions légales """
     legal_actions = [True]
-    for i in range(65):
+    for i in range(74):
         legal_actions.append(False)
 
     """ Peut-on jouer une carte ? """
     for i in range(int(state["nbre_cartes_j"])):
         if state[f"carte_en_main{i + 1}_cost"] <= state["mana_dispo_j"] and state[f"carte_en_main{i + 1}_cost"] != -99\
                 and state[f"pv_serv7_j"] == -99:
-            legal_actions[1] = True
+            legal_actions[i+1] = True
             break
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     for i in range(1, 8):
         if state[f"atq_remain_serv{i}_j"] > 0:
-            legal_actions[2 + 8 * i] = True
+            legal_actions[11 + 8 * i] = True
             for j in range(1, 8):
                 if state[f"atq_serv{j}_adv"] != -99:
-                    legal_actions[2 + 8 * i + j] = True
+                    legal_actions[11 + 8 * i + j] = True
     return legal_actions
 
 
@@ -103,11 +103,11 @@ for i in range(7):
 
 class Frenchstone(py_environment.PyEnvironment):
     def __init__(self):
-        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=65, name='action')
+        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=74, name='action')
         self._state = plateau_depart
         self._observation_spec = {
             'observation': array_spec.BoundedArraySpec(shape=(len(itemgetter(*columns_actual_state)(self._state.get_gamestate())),), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
-            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(66,), dtype=np.bool_)
+            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(75,), dtype=np.bool_)
         }
         self._episode_ended = False
 
@@ -176,22 +176,16 @@ train_env = tf_py_environment.TFPyEnvironment(train_env, check_dims=True)
 eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
-num_iterations = 100000  # @param {type:"integer"}
+num_iterations = 150000  # @param {type:"integer"}
 initial_collect_steps = 1  # @param {type:"integer"}
-collect_steps_per_iteration = 5  # @param {type:"integer"}
+collect_steps_per_iteration = 25  # @param {type:"integer"}
 replay_buffer_max_length = 100000  # @param {type:"integer"}
 
-batch_size = 32  # @param {type:"integer"}
-learning_rate = 1e-4  # @param {type:"number"}
+batch_size = 64  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=5e-5,
+    initial_learning_rate=2e-5,
     decay_steps=5000,
     decay_rate=0.9)
-epsilon = tf.compat.v1.train.polynomial_decay(
-            0.5,
-            tf.Variable(0, trainable=False),
-            150000,
-            0.05)
 log_interval = 100  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
@@ -199,7 +193,7 @@ eval_interval = 500  # @param {type:"integer"}
 
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-fc_layer_params = (128, 64, 32, 16)
+fc_layer_params = (250, 120, 50, 50)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -245,7 +239,8 @@ agent = dqn_agent.DdqnAgent(
     td_errors_loss_fn=common.element_wise_squared_loss,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
-    epsilon_greedy=epsilon)
+    boltzmann_temperature=0.2,
+    epsilon_greedy=None)
 
 agent.initialize()
 
@@ -372,6 +367,6 @@ steps = range(0, num_iterations + 1, eval_interval)
 plt.plot(steps, returns)
 plt.ylabel('Average Return')
 plt.xlabel('Step')
-plt.ylim(bottom=-1000)
-plt.ylim(top=1000)
+plt.ylim(bottom=-1)
+plt.ylim(top=1)
 plt.show()

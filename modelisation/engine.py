@@ -1,8 +1,7 @@
 import pandas as pd
-
+import numpy as np
 from Entities import *
 import random
-from init_variables import *
 import pickle
 import os
 from operator import itemgetter
@@ -614,7 +613,7 @@ class Orchestrator:
         plateau.update()
         return plateau
 
-    def tour_ia(self, plateau, logs, policy, state):
+    def tour_ia_model(self, plateau, logs, policy, state):
         """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
         player = plateau.players[0]
         adv = plateau.players[1]
@@ -636,6 +635,8 @@ class Orchestrator:
 
         for i in range(10):
             columns_actual_state.append(f"carte_en_main{i + 1}_cost")
+            columns_actual_state.append(f"carte_en_main{i + 1}_atk")
+            columns_actual_state.append(f"carte_en_main{i + 1}_pv")
 
         for i in range(7):
             columns_actual_state.append(f"atq_serv{i + 1}_j")

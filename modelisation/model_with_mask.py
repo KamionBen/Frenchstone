@@ -60,7 +60,7 @@ def estimated_advantage(action, state):
         attacker = state[f"atq_serv{(action - 2) // 8}_j"], state[f"pv_serv{(action - 2) // 8}_j"]
         if (action - 2) % 8 == 0:
             if state["pv_adv"] - attacker[0] <= 0:
-                return 200
+                return -1
             else:
                 health_advantage += attacker[0]
         else:
@@ -76,7 +76,7 @@ def estimated_advantage(action, state):
                 else:
                     board_advantage += attacker[0] - defender[0]
     coef_cards, coef_board, coef_health = 0.5, 2, 1
-    return coef_cards * card_advantage + coef_board * board_advantage + coef_health * health_advantage
+    return 0
 
 
 players = [Player("IA1", "Mage"), Player("IA2", "Chasseur")]
@@ -123,7 +123,7 @@ class Frenchstone(py_environment.PyEnvironment):
         else:
             self._state = Plateau([Player("IA2", "Chasseur"), Player("IA1", "Mage")])
             while self._state.get_gamestate()['pseudo_j'] != 'IA1':
-                self._state = Orchestrator().tour_au_hasard(self._state, [])
+                self._state = Orchestrator().tour_ia_model(self._state, [], saved_policy, policy_state)
         self._episode_ended = False
         obs = self.observation_spec()
 
@@ -141,9 +141,6 @@ class Frenchstone(py_environment.PyEnvironment):
             # a new episode.
             return self.reset()
 
-        reward = estimated_advantage(action, self._state.get_gamestate())
-
-
         """ Gestion des actions légales """
         self._state = Orchestrator().tour_ia_training(self._state, action)
 
@@ -153,17 +150,19 @@ class Frenchstone(py_environment.PyEnvironment):
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
 
         if not self._state.game_on:
+            reward = 1
             self._episode_ended = True
             return ts.termination(obs, reward)
 
         while self._state.get_gamestate()['pseudo_j'] != 'IA1':
-            self._state = Orchestrator().tour_au_hasard(self._state, [])
+            self._state = Orchestrator().tour_ia_model(self._state, [], saved_policy, policy_state)
             if not self._state.game_on:
-                reward = -1000
+                reward = -1
                 self._episode_ended = True
                 return ts.termination(obs, reward)
 
         legal_actions = generate_legal_vector(self._state.get_gamestate())
+        reward = 0
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()))
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)

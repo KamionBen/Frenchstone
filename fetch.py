@@ -61,7 +61,7 @@ def get_cardstat_from_page(url: str) -> dict:
 
 def fetch_all():
     """ Va chercher les cartes de base et les enregistre dans un json """
-    cards_file = "cards.json"
+    cards_file = "modelisation/cards.json"
 
     card_list = []
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     url = "https://www.hearthstone-decks.com/carte/voir/malefice-classic"
     card = get_cardstat_from_page(url)
     #add_card(card, "cards.json")
-    add_card(card, "cards.json")
+    add_card(card, "modelisation/cards.json")
 
 
 

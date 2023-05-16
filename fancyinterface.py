@@ -5,7 +5,7 @@ from time import sleep
 import pickle
 from init_variables import *
 
-CARD_POOL = get_cards_data("cards.json")
+CARD_POOL = get_cards_data("modelisation/cards.json")
 ICON = "______                   _         _ \n" \
        "|  ___|                 | |       | |\n" \
        "| |_ _ __ ___ _ __   ___| |__  ___| |_ ___  _ __   ___ \n" \

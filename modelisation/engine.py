@@ -328,9 +328,13 @@ class Plateau:
             if i in cartes_en_main.keys():
                 action_line[f"carte_en_main{i + 1}"] = cartes_en_main[i].id
                 action_line[f"carte_en_main{i + 1}_cost"] = cartes_en_main[i].cost
+                action_line[f"carte_en_main{i + 1}_atk"] = cartes_en_main[i].attack
+                action_line[f"carte_en_main{i + 1}_pv"] = cartes_en_main[i].health
             else:
                 action_line[f"carte_en_main{i + 1}"] = -99
                 action_line[f"carte_en_main{i + 1}_cost"] = -99
+                action_line[f"carte_en_main{i + 1}_atk"] = -99
+                action_line[f"carte_en_main{i + 1}_pv"] = -99
 
         """ SERVANTS """
         player_servants = {i: carte.id for i, carte in enumerate(player.servants)}
@@ -726,6 +730,31 @@ class Orchestrator:
         plateau.update()
         return plateau
 
+    def tour_ia_training(self, plateau, action):
+        """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
+
+        """ Le modèle choisit l'action à effectuer parmi les actions légales """
+
+        action = int(action)
+
+        if action == 0:
+            TourEnCours(plateau).fin_du_tour()
+        elif action == 1:
+            cartes_jouables = [x for x in plateau.players[0].hand if
+                               x.cost <= plateau.get_gamestate()['mana_dispo_j']]
+            carte_au_hasard = random.choice(cartes_jouables)
+            TourEnCours(plateau).jouer_carte(carte_au_hasard)
+        elif action >= 2:
+            attacker = plateau.players[0].servants[int((action - 2) // 8 - 1)]
+            if (action - 2) % 8 == 0:
+                target = plateau.players[1].hero
+            else:
+                target = plateau.players[1].servants[int((action - 2) % 8 - 1)]
+            TourEnCours(plateau).attaquer(attacker, target)
+
+        plateau.update()
+        return plateau
+
 
     """ Génère un nombre donné de parties et créé les logs associés"""
     def generate_random_game(self, nb_games, players=()):
@@ -988,4 +1017,3 @@ class Orchestrator:
 if __name__ == '__main__':
     logs_hs, scores = Orchestrator().generate_random_game(10)
     print(scores)
-

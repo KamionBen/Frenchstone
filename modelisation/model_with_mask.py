@@ -24,7 +24,8 @@ def generate_legal_vector(state):
 
     """ Peut-on jouer une carte ? """
     for i in range(int(state["nbre_cartes_j"])):
-        if state[f"carte_en_main{i + 1}_cost"] <= state["mana_dispo_j"] and state[f"carte_en_main{i + 1}_cost"] != -99:
+        if state[f"carte_en_main{i + 1}_cost"] <= state["mana_dispo_j"] and state[f"carte_en_main{i + 1}_cost"] != -99\
+                and state[f"pv_serv7_j"] == -99:
             legal_actions[1] = True
             break
 
@@ -59,7 +60,7 @@ def estimated_advantage(action, state):
         attacker = state[f"atq_serv{(action - 2) // 8}_j"], state[f"pv_serv{(action - 2) // 8}_j"]
         if (action - 2) % 8 == 0:
             if state["pv_adv"] - attacker[0] <= 0:
-                return 1
+                return 200
             else:
                 health_advantage += attacker[0]
         else:
@@ -74,8 +75,8 @@ def estimated_advantage(action, state):
                     board_advantage += attacker[0] - attacker[1]
                 else:
                     board_advantage += attacker[0] - defender[0]
-    coef_cards, coef_board, coef_health = 0.5, 1, 1
-    return 0
+    coef_cards, coef_board, coef_health = 0.5, 2, 1
+    return coef_cards * card_advantage + coef_board * board_advantage + coef_health * health_advantage
 
 
 players = [Player("IA1", "Mage"), Player("IA2", "Chasseur")]
@@ -122,7 +123,7 @@ class Frenchstone(py_environment.PyEnvironment):
         else:
             self._state = Plateau([Player("IA2", "Chasseur"), Player("IA1", "Mage")])
             while self._state.get_gamestate()['pseudo_j'] != 'IA1':
-                self._state = Orchestrator().tour_oldia_from_training(self._state, old_policy, oldpolicy_state)
+                self._state = Orchestrator().tour_au_hasard(self._state, [])
         self._episode_ended = False
         obs = self.observation_spec()
 
@@ -141,30 +142,33 @@ class Frenchstone(py_environment.PyEnvironment):
             return self.reset()
 
         reward = estimated_advantage(action, self._state.get_gamestate())
-        self._state = Orchestrator().tour_ia_from_training(self._state, action)
+
+
+        """ Gestion des actions légales """
+        self._state = Orchestrator().tour_ia_training(self._state, action)
+
         legal_actions = generate_legal_vector(self._state.get_gamestate())
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()))
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
 
+        if not self._state.game_on:
+            self._episode_ended = True
+            return ts.termination(obs, reward)
+
         while self._state.get_gamestate()['pseudo_j'] != 'IA1':
-            self._state = Orchestrator().tour_oldia_from_training(self._state, old_policy, oldpolicy_state)
-            if self._state.get_gamestate()['pv_adv'] <= 0:
-                reward = -1
+            self._state = Orchestrator().tour_au_hasard(self._state, [])
+            if not self._state.game_on:
+                reward = -1000
                 self._episode_ended = True
                 return ts.termination(obs, reward)
 
-        """ Gestion des actions légales """
         legal_actions = generate_legal_vector(self._state.get_gamestate())
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()))
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+        return ts.transition(obs, reward)
 
-        if self._state.get_gamestate()['pv_adv'] <= 0:
-            self._episode_ended = True
-            return ts.termination(obs, reward)
-        else:
-            return ts.transition(obs, reward)
 
 
 train_env = Frenchstone()
@@ -173,12 +177,12 @@ train_env = tf_py_environment.TFPyEnvironment(train_env, check_dims=True)
 eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
-num_iterations = 150000  # @param {type:"integer"}
+num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 1  # @param {type:"integer"}
-collect_steps_per_iteration = 30  # @param {type:"integer"}
+collect_steps_per_iteration = 5  # @param {type:"integer"}
 replay_buffer_max_length = 100000  # @param {type:"integer"}
 
-batch_size = 512  # @param {type:"integer"}
+batch_size = 32  # @param {type:"integer"}
 learning_rate = 1e-4  # @param {type:"number"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate=5e-5,
@@ -187,8 +191,8 @@ lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
 epsilon = tf.compat.v1.train.polynomial_decay(
             0.5,
             tf.Variable(0, trainable=False),
-            150000 / ATARI_FRAME_SKIP / self._update_period,
-            end_learning_rate=epsilon_greedy)
+            150000,
+            0.05)
 log_interval = 100  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
@@ -196,7 +200,7 @@ eval_interval = 500  # @param {type:"integer"}
 
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-fc_layer_params = (512, 256, 128, 64, 32, 16)
+fc_layer_params = (128, 64, 32, 16)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -212,7 +216,7 @@ def dense_layer(num_units):
 
 
 # QNetwork consists of a sequence of Dense layers followed by a dense layer
-# with `num_actions` units to generate one q_value per available action as
+# with num_actions units to generate one q_value per available action as
 # its output.
 mask_layer = tf.keras.layers.Masking(mask_value=-99)
 dense_layers = [dense_layer(num_units) for num_units in fc_layer_params]
@@ -242,7 +246,7 @@ agent = dqn_agent.DdqnAgent(
     td_errors_loss_fn=common.element_wise_squared_loss,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
-    epsilon_greedy=0.2)
+    epsilon_greedy=epsilon)
 
 agent.initialize()
 
@@ -257,8 +261,8 @@ def compute_avg_return(environment, policy, num_episodes=10):
             # print('-----------------------------------------')
             # print('-----------------------------------------')
             # print('-----------------------------------------')
-            # print(timestep)
             # print('-----------------------------------------')
+            # print(timestep)
             action_step = policy.action(timestep)
             # print(action_step)
             timestep = environment.step(action_step.action)
@@ -288,7 +292,7 @@ q_policy = q_policy.QPolicy(train_env.time_step_spec(),
 """-------------------------------------------------"""
 
 
-compute_avg_return(eval_env, q_policy, num_eval_episodes)
+compute_avg_return(eval_env, q_policy, 10)
 
 # @test {"skip": true}
 replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
@@ -337,7 +341,7 @@ agent.train = common.function(agent.train)
 agent.train_step_counter.assign(0)
 
 # Evaluate the agent's policy once before training.
-avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
+avg_return = compute_avg_return(eval_env, agent.policy, 10)
 
 returns = [avg_return]
 
@@ -369,6 +373,6 @@ steps = range(0, num_iterations + 1, eval_interval)
 plt.plot(steps, returns)
 plt.ylabel('Average Return')
 plt.xlabel('Step')
-plt.ylim(bottom=-1.1)
-plt.ylim(top=1.1)
+plt.ylim(bottom=-1000)
+plt.ylim(top=1000)
 plt.show()

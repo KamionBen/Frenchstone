@@ -22,7 +22,7 @@ def generate_legal_vector(state):
     for i in range(74):
         legal_actions.append(False)
 
-    """ Peut-on jouer une carte ? """
+    """ Quelles cartes peut-on jouer ? """
     for i in range(int(state["nbre_cartes_j"])):
         if state[f"carte_en_main{i + 1}_cost"] <= state["mana_dispo_j"] and state[f"carte_en_main{i + 1}_cost"] != -99\
                 and state[f"pv_serv7_j"] == -99:
@@ -82,9 +82,7 @@ def estimated_advantage(action, state):
 players = [Player("IA1", "Mage"), Player("IA2", "Chasseur")]
 plateau_depart = Plateau(players)
 
-columns_actual_state = ["mana_dispo_j", "mana_max_j",
-                "mana_max_adv", "surcharge_j", "surcharge_adv", "pv_j", "pv_adv", "pv_max_j", "pv_max_adv", "nbre_cartes_j",
-                "nbre_cartes_adv", "action", "victoire"]
+columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j", "nbre_cartes_adv"]
 
 for i in range(10):
     columns_actual_state.append(f"carte_en_main{i + 1}_cost")
@@ -119,11 +117,11 @@ class Frenchstone(py_environment.PyEnvironment):
 
     def _reset(self):
         if bool(random.getrandbits(1)):
-            self._state = Plateau([Player("IA1", "Mage"), Player("IA2", "Chasseur")])
+            self._state = Plateau([Player("NewIA", "Mage"), Player("OldIA", "Chasseur")])
         else:
-            self._state = Plateau([Player("IA2", "Chasseur"), Player("IA1", "Mage")])
-            while self._state.get_gamestate()['pseudo_j'] != 'IA1':
-                self._state = Orchestrator().tour_ia_model(self._state, [], saved_policy, policy_state)
+            self._state = Plateau([Player("OldIA", "Chasseur"), Player("NewIA", "Mage")])
+            while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
+                self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
         self._episode_ended = False
         obs = self.observation_spec()
 
@@ -146,7 +144,7 @@ class Frenchstone(py_environment.PyEnvironment):
 
         legal_actions = generate_legal_vector(self._state.get_gamestate())
         obs = self.observation_spec()
-        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()))
+        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
 
         if not self._state.game_on:
@@ -154,8 +152,8 @@ class Frenchstone(py_environment.PyEnvironment):
             self._episode_ended = True
             return ts.termination(obs, reward)
 
-        while self._state.get_gamestate()['pseudo_j'] != 'IA1':
-            self._state = Orchestrator().tour_ia_model(self._state, [], saved_policy, policy_state)
+        while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
+            self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
             if not self._state.game_on:
                 reward = -1
                 self._episode_ended = True
@@ -164,7 +162,7 @@ class Frenchstone(py_environment.PyEnvironment):
         legal_actions = generate_legal_vector(self._state.get_gamestate())
         reward = 0
         obs = self.observation_spec()
-        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()))
+        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
         return ts.transition(obs, reward)
 
@@ -176,24 +174,24 @@ train_env = tf_py_environment.TFPyEnvironment(train_env, check_dims=True)
 eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
-num_iterations = 150000  # @param {type:"integer"}
+num_iterations = 1000000  # @param {type:"integer"}
 initial_collect_steps = 1  # @param {type:"integer"}
-collect_steps_per_iteration = 25  # @param {type:"integer"}
+collect_steps_per_iteration = 45  # @param {type:"integer"}
 replay_buffer_max_length = 100000  # @param {type:"integer"}
 
-batch_size = 64  # @param {type:"integer"}
+batch_size = 128  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=2e-5,
-    decay_steps=5000,
-    decay_rate=0.9)
+    initial_learning_rate=3e-5,
+    decay_steps=10000,
+    decay_rate=0.95)
 log_interval = 100  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
-eval_interval = 500  # @param {type:"integer"}
+eval_interval = 1000  # @param {type:"integer"}
 
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-fc_layer_params = (250, 120, 50, 50)
+fc_layer_params = (100, 250, 128, 100, 50, 25)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -239,7 +237,7 @@ agent = dqn_agent.DdqnAgent(
     td_errors_loss_fn=common.element_wise_squared_loss,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
-    boltzmann_temperature=0.2,
+    boltzmann_temperature=0.65,
     epsilon_greedy=None)
 
 agent.initialize()
@@ -322,7 +320,7 @@ for _ in range(initial_collect_steps):
 # Dataset generates trajectories with shape [BxTx...] where
 # T = n_step_update + 1.
 dataset = replay_buffer.as_dataset(
-    num_parallel_calls=3, sample_batch_size=batch_size,
+    num_parallel_calls=5, sample_batch_size=batch_size,
     num_steps=2).prefetch(3)
 
 
@@ -358,7 +356,7 @@ for _ in range(num_iterations):
         returns.append(avg_return)
 
 """ Sauvegarde """
-my_policy = agent.collect_policy
+my_policy = agent.policy
 saver = PolicySaver(my_policy, batch_size=None)
 saver.save('frenchstone_agent_v0.02')
 

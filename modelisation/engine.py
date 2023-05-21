@@ -223,7 +223,7 @@ old_env = tf_py_environment.TFPyEnvironment(old_env)
 env = Frenchstone(df_state.reset_index().drop('index', axis=1))
 env = tf_py_environment.TFPyEnvironment(env)
 
-old_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.01')
+old_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
 oldpolicy_state = old_policy.get_initial_state(batch_size=512)
 saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
 policy_state = saved_policy.get_initial_state(batch_size=128)
@@ -276,6 +276,18 @@ class Plateau:
             for servant in player.servants:
                 if servant.is_dead():
                     player.servants.remove(servant)
+
+    def targets_hp(self):
+        """ Retourne les cibles possibles du pouvoir héroïque """
+        player = self.players[0]
+        adv = self.players[1]
+        targets = []
+        if player.classe == "Mage":
+            targets = [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards
+        elif player.classe == "Chasseur":
+            targets.append(adv.hero)
+        return targets
+
 
     def get_targets(self, serviteur):
         if serviteur not in self.players[0].servants:
@@ -402,6 +414,19 @@ class TourEnCours:
         else:
             raise TypeError
 
+    def pouvoir_heroique(self, classe, cible):
+        player = self.plt.players[0]
+        if type(cible) in (Hero, Card):
+            if classe == "Mage":
+                cible.damage(1)
+            elif classe == "Chasseur":
+                cible.damage(2)
+            player.mana_spend(player.hero.cout_pouvoir)
+            player.hero.dispo_pouvoir = False
+            self.plt.update()
+        else:
+            raise TypeError
+
     def fin_du_tour(self):
         self.plt.tour_suivant()
 
@@ -426,12 +451,24 @@ class Orchestrator:
                 action_possible.append(carte)
         if player.hero.attack > 0:
             action_possible.append(player.hero)
+        if player.hero.cout_pouvoir <= player.mana and player.hero.dispo_pouvoir:
+            action_possible.append("Pouvoir_heroique")
 
         action = choice(action_possible)
         if action == "Passer_tour":
             action_line["action"] = "passer_tour"
             logs.append(action_line)
             tour_en_cours.fin_du_tour()
+
+        elif action == "Pouvoir_heroique":
+            target = random.choice(plateau.targets_hp())
+            action_line["action"] = "pouvoir_heroique"
+            action_line["cible"] = target.id if type(target) is Card else "heros"
+            action_line["cible_atq"] = target.attack
+            action_line["cible_pv"] = target.health
+            logs.append(action_line)
+
+            tour_en_cours.pouvoir_heroique(player.classe, target)
 
         elif (action in player.hand) and (action.cost <= player.mana):
             """ La carte est jouée depuis la main """
@@ -476,12 +513,8 @@ class Orchestrator:
         plateau.update()
         return plateau
 
-    def tour_oldia(self, plateau, logs, policy, state):
+    def tour_oldia_model(self, plateau, logs, policy, state):
         """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
-        player = plateau.players[0]
-        adv = plateau.players[1]
-
-        tour_en_cours = TourEnCours(plateau)
         step_type = tf.convert_to_tensor([0], dtype=tf.int32, name='step_type')
         reward = tf.convert_to_tensor([0], dtype=tf.float32, name='reward')
         discount = tf.convert_to_tensor([1], dtype=tf.float32, name='discount')
@@ -490,13 +523,13 @@ class Orchestrator:
         action_line = plateau.get_gamestate()
 
         """ Sélection des colonnes nécessaires à la prédiction """
-        columns_actual_state = ["mana_dispo_j", "mana_max_j",
-                                "mana_max_adv", "surcharge_j", "surcharge_adv", "pv_j", "pv_adv", "pv_max_j",
-                                "pv_max_adv", "nbre_cartes_j",
-                                "nbre_cartes_adv", "action", "victoire"]
+        columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j",
+                                "nbre_cartes_adv"]
 
         for i in range(10):
             columns_actual_state.append(f"carte_en_main{i + 1}_cost")
+            columns_actual_state.append(f"carte_en_main{i + 1}_atk")
+            columns_actual_state.append(f"carte_en_main{i + 1}_pv")
 
         for i in range(7):
             columns_actual_state.append(f"atq_serv{i + 1}_j")
@@ -508,35 +541,16 @@ class Orchestrator:
             columns_actual_state.append(f"pv_serv{i + 1}_adv")
 
         """ Le modèle choisit l'action à effectuer parmi les actions légales """
-        legal_actions = [True]
-        for i in range(9):
-            legal_actions.append(False)
 
         input_state = np.array(itemgetter(*columns_actual_state)(action_line))
 
-        for i in range(int(action_line["nbre_cartes_j"])):
-            if action_line[f"carte_en_main{i + 1}_cost"] <= action_line["mana_dispo_j"] and action_line[f"carte_en_main{i + 1}_cost"] != 99:
-                legal_actions[1] = True
-                break
-        """ Peut-on attaquer ? """
-        for i in range(7):
-            if action_line[f"atq_remain_serv{i + 1}_j"] > 0:
-                legal_actions[2] = True
-                break
-        if legal_actions[2]:
-            for i in range(1, 8):
-                if action_line[f"atq_serv{i}_adv"] != -99:
-                    legal_actions[2 + i] = True
-                else:
-                    legal_actions[2 + i] = False
-        else:
-            for i in range(1, 8):
-                legal_actions[2 + i] = False
-
+        legal_actions = generate_legal_vector(action_line)
 
         observations = env.observation_spec()
-        observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32, name='observation')
-        observations['valid_actions'] = tf.convert_to_tensor(np.array(legal_actions).reshape(1, -1), dtype=tf.bool, name='valid_actions')
+        observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32,
+                                                           name='observation')
+        observations['valid_actions'] = tf.convert_to_tensor(np.array(legal_actions).reshape(1, -1), dtype=tf.bool,
+                                                             name='valid_actions')
         timestep = ts.TimeStep(step_type, reward, discount, observations)
         result = policy.action(timestep, state)
         action = int(result.action)
@@ -544,81 +558,34 @@ class Orchestrator:
         if action == 0:
             action_line["action"] = "passer_tour"
             logs.append(action_line)
-            tour_en_cours.fin_du_tour()
-
-        elif action == 1:
-            try:
-                """ La carte est jouée depuis la main """
-                action_line["action"] = "jouer_carte"
-                playable_cards = [x for x in player.hand if x.cost <= player.mana]
-                played_card = choice(playable_cards)
-                action_line["carte_jouee"] = played_card.id  # name ou id ?
-                logs.append(action_line)
-                tour_en_cours.jouer_carte(played_card)
-            except:
-                action_line["action"] = "passer_tour"
-                logs.append(action_line)
-                tour_en_cours.fin_du_tour()
-
-        elif action >= 2:
-            try:
-                potential_attackers = []
-                for carte in player.servants:
-                    if carte.attack > 0 and carte.remaining_atk > 0:
-                        if len(tour_en_cours.plt.get_targets(carte)) > 0:
-                            potential_attackers.append(carte)
-                if player.hero.attack > 0:
-                    potential_attackers.append(player.hero)
-
-                attacker = choice(potential_attackers)
-
-                # provocation = False
-                # for carte in adv.servants:
-                #     if "provocation" in carte.get_effects():
-                #         provocation = True
-
-                # targets = []
-                # if provocation:
-                #     for carte in adv.servants:
-                #         if "provocation" in carte.get_effects():
-                #             targets.append(carte)
-                # else:
-                #     if "Ruée" in attacker.get_effects():
-                #         if attacker.effects["Ruée"].active is False:
-                #             targets.append(adv.hero)
-                #     else:
-                #         targets.append(adv.hero)
-                #     for carte in adv.servants:
-                #         targets.append(carte)
-
-                if action == 2:
-                    target = adv.hero
-                else:
-                    target = adv.servants[action-3]
-
-                action_line["action"] = "attaquer"
-                action_line["attaquant"] = attacker.id if type(attacker) is Card else "heros"
-                action_line["attaquant_atq"] = attacker.attack
-                action_line["attaquant_pv"] = attacker.health
-                action_line["cible"] = target.id if type(target) is Card else "heros"
-                action_line["cible_atq"] = target.attack
-                action_line["cible_pv"] = target.health
-                logs.append(action_line)
-                tour_en_cours.attaquer(attacker, target)
-            except:
-                action_line["action"] = "passer_tour"
-                logs.append(action_line)
-                tour_en_cours.fin_du_tour()
+            TourEnCours(plateau).fin_du_tour()
+        elif action < 11:
+            action_line["action"] = "jouer_carte"
+            played_card = plateau.players[0].hand[action - 1]
+            action_line["carte_jouee"] = played_card.id  # name ou id ?
+            logs.append(action_line)
+            TourEnCours(plateau).jouer_carte(played_card)
+        elif action >= 11:
+            attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
+            if (action - 11) % 8 == 0:
+                target = plateau.players[1].hero
+            else:
+                target = plateau.players[1].servants[int((action - 11) % 8 - 1)]
+            action_line["action"] = "attaquer"
+            action_line["attaquant"] = attacker.id if type(attacker) is Card else "heros"
+            action_line["attaquant_atq"] = attacker.attack
+            action_line["attaquant_pv"] = attacker.health
+            action_line["cible"] = target.id if type(target) is Card else "heros"
+            action_line["cible_atq"] = target.attack
+            action_line["cible_pv"] = target.health
+            logs.append(action_line)
+            TourEnCours(plateau).attaquer(attacker, target)
 
         plateau.update()
         return plateau
 
     def tour_oldia_training(self, plateau, policy, state):
         """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
-        player = plateau.players[0]
-        adv = plateau.players[1]
-
-        tour_en_cours = TourEnCours(plateau)
         step_type = tf.convert_to_tensor([0], dtype=tf.int32, name='step_type')
         reward = tf.convert_to_tensor([0], dtype=tf.float32, name='reward')
         discount = tf.convert_to_tensor([1], dtype=tf.float32, name='discount')
@@ -627,13 +594,13 @@ class Orchestrator:
         action_line = plateau.get_gamestate()
 
         """ Sélection des colonnes nécessaires à la prédiction """
-        columns_actual_state = ["mana_dispo_j", "mana_max_j",
-                                "mana_max_adv", "surcharge_j", "surcharge_adv", "pv_j", "pv_adv", "pv_max_j",
-                                "pv_max_adv", "nbre_cartes_j",
-                                "nbre_cartes_adv", "action", "victoire"]
+        columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j",
+                                "nbre_cartes_adv"]
 
         for i in range(10):
             columns_actual_state.append(f"carte_en_main{i + 1}_cost")
+            columns_actual_state.append(f"carte_en_main{i + 1}_atk")
+            columns_actual_state.append(f"carte_en_main{i + 1}_pv")
 
         for i in range(7):
             columns_actual_state.append(f"atq_serv{i + 1}_j")
@@ -645,99 +612,38 @@ class Orchestrator:
             columns_actual_state.append(f"pv_serv{i + 1}_adv")
 
         """ Le modèle choisit l'action à effectuer parmi les actions légales """
-        legal_actions = [True]
-        for i in range(9):
-            legal_actions.append(False)
 
         input_state = np.array(itemgetter(*columns_actual_state)(action_line))
 
-        for i in range(int(action_line["nbre_cartes_j"])):
-            if action_line[f"carte_en_main{i + 1}_cost"] <= action_line["mana_dispo_j"] and action_line[f"carte_en_main{i + 1}_cost"] != 99:
-                legal_actions[1] = True
-                break
-        """ Peut-on attaquer ? """
-        for i in range(7):
-            if action_line[f"atq_remain_serv{i + 1}_j"] > 0:
-                legal_actions[2] = True
-                break
-        if legal_actions[2]:
-            for i in range(1, 8):
-                if action_line[f"atq_serv{i}_adv"] != -99:
-                    legal_actions[2 + i] = True
-                else:
-                    legal_actions[2 + i] = False
-        else:
-            for i in range(1, 8):
-                legal_actions[2 + i] = False
-
+        legal_actions = generate_legal_vector(action_line)
 
         observations = env.observation_spec()
-        observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32, name='observation')
-        observations['valid_actions'] = tf.convert_to_tensor(np.array(legal_actions).reshape(1, -1), dtype=tf.bool, name='valid_actions')
+        observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32,
+                                                           name='observation')
+        observations['valid_actions'] = tf.convert_to_tensor(np.array(legal_actions).reshape(1, -1), dtype=tf.bool,
+                                                             name='valid_actions')
         timestep = ts.TimeStep(step_type, reward, discount, observations)
         result = policy.action(timestep, state)
         action = int(result.action)
 
         if action == 0:
-            tour_en_cours.fin_du_tour()
-
-        elif action == 1:
-            try:
-                """ La carte est jouée depuis la main """
-                playable_cards = [x for x in player.hand if x.cost <= player.mana]
-                played_card = choice(playable_cards)
-                tour_en_cours.jouer_carte(played_card)
-            except:
-                tour_en_cours.fin_du_tour()
-
-        elif action >= 2:
-            try:
-                potential_attackers = []
-                for carte in player.servants:
-                    if carte.attack > 0 and carte.remaining_atk > 0:
-                        if len(tour_en_cours.plt.get_targets(carte)) > 0:
-                            potential_attackers.append(carte)
-                if player.hero.attack > 0:
-                    potential_attackers.append(player.hero)
-
-                attacker = choice(potential_attackers)
-
-                # provocation = False
-                # for carte in adv.servants:
-                #     if "provocation" in carte.get_effects():
-                #         provocation = True
-
-                # targets = []
-                # if provocation:
-                #     for carte in adv.servants:
-                #         if "provocation" in carte.get_effects():
-                #             targets.append(carte)
-                # else:
-                #     if "Ruée" in attacker.get_effects():
-                #         if attacker.effects["Ruée"].active is False:
-                #             targets.append(adv.hero)
-                #     else:
-                #         targets.append(adv.hero)
-                #     for carte in adv.servants:
-                #         targets.append(carte)
-
-                if action == 2:
-                    target = adv.hero
-                else:
-                    target = adv.servants[action-3]
-                tour_en_cours.attaquer(attacker, target)
-            except:
-                tour_en_cours.fin_du_tour()
+            TourEnCours(plateau).fin_du_tour()
+        elif action < 11:
+            played_card = plateau.players[0].hand[action - 1]
+            TourEnCours(plateau).jouer_carte(played_card)
+        elif action >= 11:
+            attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
+            if (action - 11) % 8 == 0:
+                target = plateau.players[1].hero
+            else:
+                target = plateau.players[1].servants[int((action - 11) % 8 - 1)]
+            TourEnCours(plateau).attaquer(attacker, target)
 
         plateau.update()
         return plateau
 
     def tour_ia_model(self, plateau, logs, policy, state):
         """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
-        player = plateau.players[0]
-        adv = plateau.players[1]
-
-        tour_en_cours = TourEnCours(plateau)
         step_type = tf.convert_to_tensor([0], dtype=tf.int32, name='step_type')
         reward = tf.convert_to_tensor([0], dtype=tf.float32, name='reward')
         discount = tf.convert_to_tensor([1], dtype=tf.float32, name='discount')
@@ -817,13 +723,23 @@ class Orchestrator:
             TourEnCours(plateau).fin_du_tour()
         elif action < 11:
             TourEnCours(plateau).jouer_carte(plateau.players[0].hand[action - 1])
-        elif action >= 11:
+        elif 11 <= action < 75:
             attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
             if (action - 11) % 8 == 0:
                 target = plateau.players[1].hero
             else:
                 target = plateau.players[1].servants[int((action - 11) % 8 - 1)]
             TourEnCours(plateau).attaquer(attacker, target)
+        elif action >= 75:
+            if action == 75:
+                target = plateau.players[0].hero
+            elif action == 83:
+                target = plateau.players[1].hero
+            elif action < 83:
+                target = plateau.players[0].servants[action - 76]
+            else:
+                target = plateau.players[1].servants[action - 84]
+            TourEnCours(plateau).pouvoir_heroique(plateau.players[0].classe, target)
 
         plateau.update()
         return plateau

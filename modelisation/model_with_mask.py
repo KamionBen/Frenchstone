@@ -13,23 +13,39 @@ from modelisation.engine import *
 def generate_legal_vector(state):
     """ Gestion des actions légales """
     legal_actions = [True]
-    for i in range(74):
+    gamestate = state.get_gamestate()
+    for i in range(90):
         legal_actions.append(False)
 
     """ Quelles cartes peut-on jouer ? """
-    for i in range(int(state["nbre_cartes_j"])):
-        if state[f"carte_en_main{i + 1}_cost"] <= state["mana_dispo_j"] and state[f"carte_en_main{i + 1}_cost"] != -99\
-                and state[f"pv_serv7_j"] == -99:
+    for i in range(int(gamestate["nbre_cartes_j"])):
+        if gamestate[f"carte_en_main{i + 1}_cost"] <= gamestate["mana_dispo_j"] and gamestate[f"carte_en_main{i + 1}_cost"] != -99\
+                and gamestate[f"pv_serv7_j"] == -99:
             legal_actions[i+1] = True
             break
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     for i in range(1, 8):
-        if state[f"atq_remain_serv{i}_j"] > 0:
+        if gamestate[f"atq_remain_serv{i}_j"] > 0:
             legal_actions[11 + 8 * i] = True
             for j in range(1, 8):
-                if state[f"atq_serv{j}_adv"] != -99:
+                if gamestate[f"atq_serv{j}_adv"] != -99:
                     legal_actions[11 + 8 * i + j] = True
+
+    if gamestate["dispo_ph_j"] and gamestate["cout_ph_j"] <= gamestate["mana_dispo_j"]:
+        targets = state.targets_hp()
+        if state.players[0].hero in targets:
+            legal_actions[75] = True
+        if state.players[1].hero in targets:
+            legal_actions[83] = True
+        for i in range(1, 8):
+            if gamestate[f"atq_serv{i}_j"] != -99:
+                if gamestate[f"serv{i}_j"] in targets:
+                    legal_actions[75 + i] = True
+            if gamestate[f"atq_serv{i}_adv"] != -99:
+                if gamestate[f"serv{i}_adv"] in targets:
+                    legal_actions[83 + i] = True
+
     return legal_actions
 
 
@@ -90,11 +106,11 @@ for i in range(7):
 
 class Frenchstone(py_environment.PyEnvironment):
     def __init__(self):
-        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=74, name='action')
+        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=90, name='action')
         self._state = plateau_depart
         self._observation_spec = {
             'observation': array_spec.BoundedArraySpec(shape=(len(itemgetter(*columns_actual_state)(self._state.get_gamestate())),), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
-            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(75,), dtype=np.bool_)
+            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(91,), dtype=np.bool_)
         }
         self._episode_ended = False
 
@@ -115,7 +131,7 @@ class Frenchstone(py_environment.PyEnvironment):
         obs = self.observation_spec()
 
         """ Gestion des actions légales """
-        legal_actions = generate_legal_vector(self._state.get_gamestate())
+        legal_actions = generate_legal_vector(self._state)
 
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()))
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
@@ -129,17 +145,18 @@ class Frenchstone(py_environment.PyEnvironment):
             return self.reset()
 
         """ Estimation de la récompense """
-        reward = estimated_advantage(action, self._state.get_gamestate())
+        # reward = estimated_advantage(action, self._state.get_gamestate())
 
         """ Gestion des actions légales """
         self._state = Orchestrator().tour_ia_training(self._state, action)
 
-        legal_actions = generate_legal_vector(self._state.get_gamestate())
+        legal_actions = generate_legal_vector(self._state)
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
 
         if not self._state.game_on:
+            reward = 100
             self._episode_ended = True
             return ts.termination(obs, reward)
 
@@ -150,10 +167,11 @@ class Frenchstone(py_environment.PyEnvironment):
                 self._episode_ended = True
                 return ts.termination(obs, reward)
 
-        legal_actions = generate_legal_vector(self._state.get_gamestate())
+        legal_actions = generate_legal_vector(self._state)
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+        reward = 0
         return ts.transition(obs, reward)
 
 
@@ -166,12 +184,12 @@ time_step = train_env.reset()
 
 num_iterations = 70000  # @param {type:"integer"}
 initial_collect_steps = 1  # @param {type:"integer"}
-collect_steps_per_iteration = 30  # @param {type:"integer"}
+collect_steps_per_iteration = 40  # @param {type:"integer"}
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-batch_size = 1024  # @param {type:"integer"}
+batch_size = 2048  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=1e-5,
+    initial_learning_rate=1.5e-5,
     decay_steps=5000,
     decay_rate=0.9)
 log_interval = 100  # @param {type:"integer"}
@@ -225,8 +243,8 @@ agent = dqn_agent.DdqnAgent(
     td_errors_loss_fn=common.element_wise_squared_loss,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
-    boltzmann_temperature=None,
-    epsilon_greedy=0.1)
+    boltzmann_temperature=0.25,
+    epsilon_greedy=None)
 
 agent.initialize()
 
@@ -340,7 +358,9 @@ for _ in range(num_iterations):
 
     if step % eval_interval == 0:
         avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
+        avg_return2 = compute_avg_return(eval_env, agent.collect_policy, num_eval_episodes)
         print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
+        print('step = {0}: Average Return Collect = {1:.2f}'.format(step, avg_return2))
         returns.append(avg_return)
 
 """ Sauvegarde """

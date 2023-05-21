@@ -15,7 +15,7 @@ from Entities import *
 
 # """ Générateur de parties avec le modèle contre son prédecesseur """
 players = [Player("OldIA", "Mage"), Player("NewIA", "Chasseur")]
-logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(1000, players)
+logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(5, players)
 
 
 # """ Générateur de parties avec le modèle contre lui-même """
@@ -23,9 +23,9 @@ logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(1000, players)
 # logs_hs_ia, score_ia = Orchestrator().generate_ia_game(10000, players, random_toll=0.2)
 
 # """ Affichage des résultats """
-# print(logs_hs_oldia.to_string())
+print(logs_hs_oldia.to_string())
 # print(score_randomia)
-print(score_oldia)
+# print(score_oldia)
 
 
 

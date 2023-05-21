@@ -10,12 +10,6 @@ from tf_agents.utils import common
 from modelisation.engine import *
 
 
-
-""" Chargement des données d'entraînement et de données d'init """
-# with open('logs_refined.pickle', 'rb') as f:
-#     df_state = pickle.load(f)
-
-
 def generate_legal_vector(state):
     """ Gestion des actions légales """
     legal_actions = [True]
@@ -47,24 +41,19 @@ def estimated_advantage(action, state):
 
     if action == 0:
         card_advantage -= 1
-    elif action == 1:
+    elif action <= 10:
         card_advantage -= 1
-        j = 0
-        for i in range(7):
-            if state[f"carte_en_main{i+1}_cost"] <= state["mana_dispo_j"] and state[f"carte_en_main{i+1}_cost"] != -99:
-                board_advantage += state[f"carte_en_main{i+1}_atk"]
-                board_advantage += state[f"carte_en_main{i+1}_pv"]
-                j += 1
-        board_advantage = board_advantage / max(j, 1)
+        board_advantage += 0.3 * state[f"carte_en_main{action}_atk"]
+        board_advantage += 0.3 * state[f"carte_en_main{action}_pv"]
     else:
-        attacker = state[f"atq_serv{(action - 2) // 8}_j"], state[f"pv_serv{(action - 2) // 8}_j"]
-        if (action - 2) % 8 == 0:
+        attacker = state[f"atq_serv{(action - 11) // 8}_j"], state[f"pv_serv{(action - 11) // 8}_j"]
+        if (action - 11) % 8 == 0:
             if state["pv_adv"] - attacker[0] <= 0:
-                return -1
+                return 100
             else:
                 health_advantage += attacker[0]
         else:
-            defender = state[f"atq_serv{(action - 2) % 8}_adv"], state[f"pv_serv{(action - 2) % 8}_adv"]
+            defender = state[f"atq_serv{(action - 11) % 8}_adv"], state[f"pv_serv{(action - 11) % 8}_adv"]
             if attacker[0] >= defender[1]:
                 if defender[0] >= attacker[1]:
                     board_advantage += defender[0] + defender[1] - attacker[0] - attacker[1]
@@ -75,11 +64,11 @@ def estimated_advantage(action, state):
                     board_advantage += attacker[0] - attacker[1]
                 else:
                     board_advantage += attacker[0] - defender[0]
-    coef_cards, coef_board, coef_health = 0.5, 2, 1
-    return 0
+    coef_cards, coef_board, coef_health = 0.5, 2.5, 1
+    return round(coef_cards * card_advantage + coef_board * board_advantage + coef_health * health_advantage, 2)
 
 
-players = [Player("IA1", "Mage"), Player("IA2", "Chasseur")]
+players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
 plateau_depart = Plateau(players)
 
 columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j", "nbre_cartes_adv"]
@@ -139,6 +128,9 @@ class Frenchstone(py_environment.PyEnvironment):
             # a new episode.
             return self.reset()
 
+        """ Estimation de la récompense """
+        reward = estimated_advantage(action, self._state.get_gamestate())
+
         """ Gestion des actions légales """
         self._state = Orchestrator().tour_ia_training(self._state, action)
 
@@ -148,19 +140,17 @@ class Frenchstone(py_environment.PyEnvironment):
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
 
         if not self._state.game_on:
-            reward = 1
             self._episode_ended = True
             return ts.termination(obs, reward)
 
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
             self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
             if not self._state.game_on:
-                reward = -1
+                reward = -100
                 self._episode_ended = True
                 return ts.termination(obs, reward)
 
         legal_actions = generate_legal_vector(self._state.get_gamestate())
-        reward = 0
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
@@ -174,24 +164,22 @@ train_env = tf_py_environment.TFPyEnvironment(train_env, check_dims=True)
 eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
-num_iterations = 1000000  # @param {type:"integer"}
+num_iterations = 70000  # @param {type:"integer"}
 initial_collect_steps = 1  # @param {type:"integer"}
-collect_steps_per_iteration = 45  # @param {type:"integer"}
-replay_buffer_max_length = 100000  # @param {type:"integer"}
+collect_steps_per_iteration = 30  # @param {type:"integer"}
+replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-batch_size = 128  # @param {type:"integer"}
+batch_size = 1024  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=3e-5,
-    decay_steps=10000,
-    decay_rate=0.95)
+    initial_learning_rate=1e-5,
+    decay_steps=5000,
+    decay_rate=0.9)
 log_interval = 100  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
 eval_interval = 1000  # @param {type:"integer"}
 
-replay_buffer_capacity = 100000  # @param {type:"integer"}
-
-fc_layer_params = (100, 250, 128, 100, 50, 25)
+fc_layer_params = (250, 128, 100, 50, 25)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -237,8 +225,8 @@ agent = dqn_agent.DdqnAgent(
     td_errors_loss_fn=common.element_wise_squared_loss,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
-    boltzmann_temperature=0.65,
-    epsilon_greedy=None)
+    boltzmann_temperature=None,
+    epsilon_greedy=0.1)
 
 agent.initialize()
 
@@ -358,13 +346,17 @@ for _ in range(num_iterations):
 """ Sauvegarde """
 my_policy = agent.policy
 saver = PolicySaver(my_policy, batch_size=None)
-saver.save('frenchstone_agent_v0.02')
+saver.save('frenchstone_agent_v0.02-a')
+
+my_policy2 = agent.collect_policy
+saver = PolicySaver(my_policy2, batch_size=None)
+saver.save('frenchstone_agent_v0.02-b')
 
 
 steps = range(0, num_iterations + 1, eval_interval)
 plt.plot(steps, returns)
 plt.ylabel('Average Return')
 plt.xlabel('Step')
-plt.ylim(bottom=-1)
-plt.ylim(top=1)
+plt.ylim(bottom=-100)
+plt.ylim(top=200)
 plt.show()

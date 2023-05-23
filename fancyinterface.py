@@ -3,16 +3,12 @@ import pygame
 from pygame.locals import *
 
 from modelisation.Entities import *
-from time import sleep
 import pickle
-from random import randrange
+from random import shuffle
 
 CARD_POOL = get_cards_data("modelisation/cards.json")
 
 
-def import_log(file: str) -> DataFrame:
-    with open(file, 'rb') as f:
-        return pickle.load(f)
 
 
 class CardSprite(pygame.sprite.Sprite):
@@ -24,6 +20,7 @@ class CardSprite(pygame.sprite.Sprite):
             self.name = obj.name
             self.pv_max = obj.health
             self.attaque_max = obj.base_attack
+            self.description = obj.description
 
         self.attaque = None
         self.pv = None
@@ -59,8 +56,6 @@ class CardSprite(pygame.sprite.Sprite):
             if logline['attaquant'] == self.cid:
                 self.image.fill('red')
 
-
-
         pygame.draw.rect(self.image, (40, 40, 40), (border, border, self.width - border * 2, self.height - border * 2))
         if self.cid is not None:
             cid = default_font[16].render(f"{self.cid} | {on_board_id}", True, 'white')
@@ -73,6 +68,9 @@ class CardSprite(pygame.sprite.Sprite):
             self.image.blit(name, (5,15))
             atq = default_font[32].render(str(self.attaque), True, 'white')
             self.image.blit(atq, (10, 120))
+            descr = default_font[16].render(self.description, True, 'white')
+            self.image.blit(descr, (10, 60))
+
             if self.pv < self.pv_max:
                 color = 'red'
             else:
@@ -81,10 +79,8 @@ class CardSprite(pygame.sprite.Sprite):
             self.image.blit(pv, (80, 120))
 
 
-
-
 class PlayerSprite(pygame.sprite.Sprite):
-    def __init__(self, pseudo: str, color=(128, 128, 128)):
+    def __init__(self, pseudo: str, color=None):
         pygame.sprite.Sprite.__init__(self)
         """ Player name """
         self.pseudo = pseudo
@@ -150,11 +146,11 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.attaque = logline['attaque_'+role]
 
         """ Cards """
-        self.hand = pygame.sprite.Group([CardSprite() for x in range(logline['nbre_cartes_'+role])])
+        self.hand = pygame.sprite.Group(*[CardSprite() for x in range(logline['nbre_cartes_'+role])])
         self.hand.update()
 
         servant = [logline[f"serv{i+1}_{role}"] for i in range(7)]
-        self.servant = pygame.sprite.Group([CardSprite(e) for e in servant if e != -99])
+        self.servant = pygame.sprite.Group(*[CardSprite(e) for e in servant if e != -99])
         self.servant.update(logline)
 
         """ Update sprite """
@@ -194,73 +190,110 @@ class PlayerSprite(pygame.sprite.Sprite):
             self.image.blit(card.image, (pos_x + (card.width + gap) * x, height[self.position]))
 
 
+class FancyInterface:
+    def __init__(self, log_filename, debug=False, resolution=(1280, 720)):
+        """ Show the gamelog with a graphic interface """
+        """ PYGAME INIT """
+        pygame.init()
+        self.screen = pygame.display.set_mode(resolution)
+        pygame.display.set_caption('FrenchStone')
+        pygame.display.set_icon(pygame.image.load('images/icon.png'))
+        self.clock = pygame.time.Clock()
 
-def MainScreen(logfile: str, debug=False):
-    game_log = import_log(logfile).to_dict(orient='index')
+        global default_font
+        default_font = {i: pygame.font.Font(None, i) for i in range(16, 72, 2)}  # Default font
 
-    """ Init players """
-    p1 = PlayerSprite(game_log[0]['pseudo_j'], 'green')
-    p2 = PlayerSprite(game_log[0]['pseudo_adv'], 'yellow')
-    p1.set_position('bottom')
-    p2.set_position('top')
-    p_group = pygame.sprite.Group((p1, p2))
-    p_group.update(game_log[0])
-    total_turn = len(game_log)
+        """ GAMELOG INIT """
+        self.gamelog = None
+        self.debug = debug
+        with open(log_filename, 'rb') as f:
+            self.gamelog = pickle.load(f).to_dict(orient='index')
 
-    colors = {p1.pseudo: 'green', p2.pseudo: 'yellow'}
 
-    default_font = {i: pygame.font.Font(None, i) for i in range(16, 72, 2)}
 
-    current_turn = 0
-    current_line = game_log[current_turn]
-    p_group.update(current_line)
+        colors = ['green', 'blue', 'yellow', 'red', 'orange', 'purple']
+        shuffle(colors)
+        p1 = PlayerSprite(self.gamelog[0]['pseudo_j'], colors[0])
+        p2 = PlayerSprite(self.gamelog[0]['pseudo_adv'], colors[1])
+        p1.set_position('bottom')
+        p2.set_position('top')
+        self.players = pygame.sprite.Group(*[p1, p2])
 
-    game_on = True
-    while game_on:
-        """ EVENT LOOP """
+        self.current_turn = 0
+        self.update()
+
+        self.running = True
+
+    def run(self):
+        while self.running:
+            self.event_loop()
+            self.clock.tick(30)
+            self.screen.fill('black')
+            self.players.draw(self.screen)
+
+            # TURNS
+            turns = pygame.Surface((120, 6800))
+            margin, span, size = 10, 14, 18
+
+            if self.current_turn < 30:
+                t_range = 0
+            else:
+                t_range = self.current_turn - 30
+            for t in range(t_range, t_range+50):
+                current = self.gamelog[t]
+                if current['action'] == "passer_tour":
+                    color = 'yellow'
+                elif current['cible'] == 'heros' and current['cible_pv'] - current['attaquant_atq'] <= 0:
+                    color = 'red'
+                else:
+                    color = 'white'
+
+                if t == self.current_turn:
+                    txt = f"{t} : {self.get_currentline()['action'].capitalize().replace('_', ' ')}"
+                    turns.blit(default_font[size].render(txt, True, color),
+                                (10, 10 + margin + t * span))
+                else:
+                    turns.blit(default_font[size].render(str(t), True, color), (10,10 + margin + t * span))
+                for player in self.players:
+                    if player.pseudo == current['pseudo_j']:
+                        pygame.draw.rect(turns, player.color, (2, 10 + margin + t * span, 2, 14))
+
+            self.screen.blit(turns, (0, -t_range*14))
+            pygame.display.flip()
+
+    def event_loop(self):
         for event in pygame.event.get():
             if event.type == QUIT:
-                game_on = False
+                self.running = False
             if event.type == MOUSEWHEEL:
-                current_turn -= event.y
-                if current_turn < 0:
-                    current_turn = 0
-                if current_turn > total_turn:
-                    current_turn = total_turn
-                current_line = game_log[current_turn]
-                p_group.update(current_line)
-                if debug:
-                    debug_str = {k: v for k, v in current_line.items() if v not in (-99, "")}
-                    print(debug_str)
+                self.change_current_turn(event.y)
 
-        """ DISPLAY LOOP """
-        clock.tick(30)
-        screen.fill('black')
+    def update(self):
+        self.players.update(self.get_currentline())
 
-        p_group.draw(screen)
+    def get_currentline(self):
+        return self.gamelog[self.current_turn]
 
-        # TURNS
-        margin, span, size = 10, 12, 16
-        for t in range(total_turn):
-            if t == current_turn:
-                txt = f"{t} : {current_line['action'].capitalize().replace('_', ' ')}"
-                screen.blit(default_font[size].render(txt, True, colors[current_line['pseudo_j']]), (10, margin + t * span))
-            else:
-                screen.blit(default_font[size].render(str(t), True, 'white'), (10, margin + t * span))
+    def change_current_turn(self, nb):
+        self.current_turn -= nb
+        if self.current_turn < 0:
+            self.current_turn = 0
+        elif self.current_turn > len(self.gamelog):
+            self.current_turn = len(self.gamelog)
+        else:
+            self.update()
+            if self.debug:
+                debug_str = {k: v for k, v in self.get_currentline().items() if v not in (-99, "")}
+                print(debug_str)
 
-        pygame.display.flip()
+
+
 
 
 
 
 if __name__ == '__main__':
-    pygame.init()
-    RES = 1280, 720
-    screen = pygame.display.set_mode(RES)
-    clock = pygame.time.Clock()
-    default_font = {i: pygame.font.Font(None, i) for i in range(16, 72, 2)}
-
-    MainScreen('modelisation/logs_games.pickle', debug=True)
-
+    fi = FancyInterface('modelisation/logs_games.pickle', debug=False)
+    fi.run()
 
 

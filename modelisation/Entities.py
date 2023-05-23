@@ -59,7 +59,7 @@ class Player:
         self.surcharge = 0
 
     def power_reset(self):
-        pass
+        self.hero.dispo_pouvoir = True
 
     def pick(self):
         """ Prendre la première carte du deck et l'ajouter à sa main """

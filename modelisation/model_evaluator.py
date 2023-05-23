@@ -1,12 +1,12 @@
 ## Lanceur de la simulation Hearthstone
 
 # Import & Utils
-from modelisation.engine import *
-from modelisation.Entities import *
+from engine import *
+from Entities import *
 
 """ Générateur de parties aléatoires """
-# players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
-# logs_hs, score = Orchestrator().generate_random_game(50000, players)
+players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
+logs_hs, score = Orchestrator().generate_random_game(1, players)
 #
 """ Générateur de partie random vs ia """
 # players = [Player("Random", "Mage"), Player("IA", "Chasseur")]
@@ -14,8 +14,8 @@ from modelisation.Entities import *
 # logs_hs_randomia['id_partie'] = logs_hs_randomia['id_partie'] + 10000
 
 # """ Générateur de parties avec le modèle contre son prédecesseur """
-players = [Player("OldIA", "Mage"), Player("NewIA", "Chasseur")]
-logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(10, players)
+# players = [Player("OldIA", "Mage"), Player("NewIA", "Chasseur")]
+# logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(5, players)
 
 
 # """ Générateur de parties avec le modèle contre lui-même """
@@ -23,9 +23,9 @@ logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(10, players)
 # logs_hs_ia, score_ia = Orchestrator().generate_ia_game(10000, players, random_toll=0.2)
 
 # """ Affichage des résultats """
-print(logs_hs_oldia.to_string())
+print(logs_hs.to_string())
 # print(score_randomia)
-print(score_oldia)
+# print(score_oldia)
 
 
 

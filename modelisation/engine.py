@@ -22,104 +22,8 @@ dict_actions = {
             2: "attaquer"
         }
 
-class Frenchstone_old(py_environment.PyEnvironment):
-    def __init__(self, data):
-        self.data = data
-        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=9, name='action')
-        self._observation_spec = {
-            'observation': array_spec.BoundedArraySpec(shape=(self.data.shape[1],), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
-            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(10,), dtype=np.bool_)
-        }
-        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
-        self._episode_ended = False
 
-    def action_spec(self):
-        return self._action_spec
-
-    def observation_spec(self):
-        return self._observation_spec
-
-    def _reset(self):
-        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
-        self._episode_ended = False
-        obs = self.observation_spec()
-        legal_actions = [True]
-        for i in range(9):
-            legal_actions.append(False)
-        obs['observation'] = np.array(self._state, dtype=np.int32)
-        obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-        return ts.restart(obs)
-
-    def _step(self, action):
-
-        self._state = self.data.loc[random.randint(0, self.data.shape[0] - 1)]
-
-        if self._episode_ended:
-            # The last action ended the episode. Ignore the current action and start
-            # a new episode.
-            return self.reset()
-
-        legal_actions = [True, False, False]
-        """ Calcul de la récompense """
-        """ Ici, on doit déterminer les actions légales en fonction de l'état tiré au hasard """
-        """ Peut-on jouer une carte ? """
-        for i in range(int(self._state["nbre_cartes_j"])):
-            if self._state[f"carte_en_main{i + 1}_cost"] <= self._state["mana_dispo_j"] and self._state[f"carte_en_main{i + 1}_cost"] != 99:
-                legal_actions[1] = True
-                break
-
-        """ Peut-on attaquer ? """
-        for i in range(7):
-            if self._state[f"atq_remain_serv{i + 1}_j"] > 0:
-                legal_actions[2] = True
-                break
-        """ Quelles cibles peut-on attaquer ?"""
-        if legal_actions[2]:
-            for i in range(1, 8):
-                if self._state[f"atq_serv{i}_adv"] != -99:
-                    legal_actions.append(True)
-                else:
-                    legal_actions.append(False)
-        else:
-            for i in range(1, 8):
-                legal_actions.append(False)
-
-        if not(legal_actions[1] or legal_actions[2]):
-            reward = 0
-            self._episode_ended = True
-            obs = self.observation_spec()
-            obs['observation'] = np.array(self._state, dtype=np.int32)
-            obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-            return ts.termination(obs, reward)
-        else:
-            if int(action) == self._state['action']:
-                if self._state['victoire'] == 1:
-                    reward = 1
-                else:
-                    reward = -1
-                obs = self.observation_spec()
-                obs['observation'] = np.array(self._state, dtype=np.int32)
-                obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-                if int(action) == 0:
-                    self._episode_ended = True
-                    return ts.termination(obs, reward)
-                else:
-                    return ts.transition(obs, reward)
-            else:
-                if self._state['victoire'] == 1:
-                    reward = -0.05
-                else:
-                    reward = 0.02
-                obs = self.observation_spec()
-                obs['observation'] = np.array(self._state, dtype=np.int32)
-                obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-                if int(action) == 0:
-                    self._episode_ended = True
-                    return ts.termination(obs, reward)
-                else:
-                    return ts.transition(obs, reward)
-
-def generate_legal_vector(state):
+def generate_legal_vector_old(state):
     """ Gestion des actions légales """
     legal_actions = [True]
     for i in range(74):
@@ -141,7 +45,47 @@ def generate_legal_vector(state):
                     legal_actions[11 + 8 * i + j] = True
     return legal_actions
 
-class Frenchstone(py_environment.PyEnvironment):
+
+def generate_legal_vector(state):
+    """ Gestion des actions légales """
+    legal_actions = [True]
+    gamestate = state.get_gamestate()
+    for i in range(90):
+        legal_actions.append(False)
+
+    """ Quelles cartes peut-on jouer ? """
+    for i in range(int(gamestate["nbre_cartes_j"])):
+        if gamestate[f"carte_en_main{i + 1}_cost"] <= gamestate["mana_dispo_j"] and gamestate[f"carte_en_main{i + 1}_cost"] != -99\
+                and gamestate[f"pv_serv7_j"] == -99:
+            legal_actions[i+1] = True
+            break
+
+    """ Quelles cibles peut-on attaquer et avec quels attaquants"""
+    for i in range(1, 8):
+        if gamestate[f"atq_remain_serv{i}_j"] > 0:
+            legal_actions[11 + 8 * i] = True
+            for j in range(1, 8):
+                if gamestate[f"atq_serv{j}_adv"] != -99:
+                    legal_actions[11 + 8 * i + j] = True
+
+    if gamestate["dispo_ph_j"] and gamestate["cout_ph_j"] <= gamestate["mana_dispo_j"]:
+        targets = state.targets_hp()
+        if state.players[0].hero in targets:
+            legal_actions[75] = True
+        if state.players[1].hero in targets:
+            legal_actions[83] = True
+        for i in range(1, 8):
+            if gamestate[f"atq_serv{i}_j"] != -99:
+                if gamestate[f"serv{i}_j"] in targets:
+                    legal_actions[75 + i] = True
+            if gamestate[f"atq_serv{i}_adv"] != -99:
+                if gamestate[f"serv{i}_adv"] in targets:
+                    legal_actions[83 + i] = True
+
+    return legal_actions
+
+
+class Frenchstone_old(py_environment.PyEnvironment):
     def __init__(self, data):
         self.data = data
         self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=65, name='action')
@@ -217,167 +161,107 @@ class Frenchstone(py_environment.PyEnvironment):
                 else:
                     return ts.transition(obs, reward)
 
+
+columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j", "nbre_cartes_adv"]
+
+for i in range(10):
+    columns_actual_state.append(f"carte_en_main{i + 1}_cost")
+    columns_actual_state.append(f"carte_en_main{i + 1}_atk")
+    columns_actual_state.append(f"carte_en_main{i + 1}_pv")
+
+for i in range(7):
+    columns_actual_state.append(f"atq_serv{i + 1}_j")
+    columns_actual_state.append(f"pv_serv{i + 1}_j")
+    columns_actual_state.append(f"atq_remain_serv{i + 1}_j")
+
+for i in range(7):
+    columns_actual_state.append(f"atq_serv{i + 1}_adv")
+    columns_actual_state.append(f"pv_serv{i + 1}_adv")
+
+
+class Frenchstone(py_environment.PyEnvironment):
+    def __init__(self):
+        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=90, name='action')
+        self._state = Plateau([Player("NewIA", "Mage"), Player("OldIA", "Chasseur")])
+        self._observation_spec = {
+            'observation': array_spec.BoundedArraySpec(shape=(len(itemgetter(*columns_actual_state)(self._state.get_gamestate())),), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
+            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(91,), dtype=np.bool_)
+        }
+        self._episode_ended = False
+
+    def action_spec(self):
+        return self._action_spec
+
+    def observation_spec(self):
+        return self._observation_spec
+
+    def _reset(self):
+        if bool(random.getrandbits(1)):
+            self._state = Plateau([Player("NewIA", "Mage"), Player("OldIA", "Chasseur")])
+        else:
+            self._state = Plateau([Player("OldIA", "Chasseur"), Player("NewIA", "Mage")])
+            while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
+                self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
+        self._episode_ended = False
+        obs = self.observation_spec()
+
+        """ Gestion des actions légales """
+        legal_actions = generate_legal_vector(self._state)
+
+        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()))
+        obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+        return ts.restart(obs)
+
+    def _step(self, action):
+
+        if self._episode_ended:
+            # The last action ended the episode. Ignore the current action and start
+            # a new episode.
+            return self.reset()
+
+        """ Estimation de la récompense """
+        # reward = estimated_advantage(action, self._state.get_gamestate())
+
+        """ Gestion des actions légales """
+        self._state = Orchestrator().tour_ia_training(self._state, action)
+
+        legal_actions = generate_legal_vector(self._state)
+        obs = self.observation_spec()
+        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
+        obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+
+        if not self._state.game_on:
+            reward = 100
+            self._episode_ended = True
+            return ts.termination(obs, reward)
+
+        while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
+            self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
+            if not self._state.game_on:
+                reward = -100
+                self._episode_ended = True
+                return ts.termination(obs, reward)
+
+        legal_actions = generate_legal_vector(self._state)
+        obs = self.observation_spec()
+        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
+        obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+        reward = 0
+        return ts.transition(obs, reward)
+
+
 """ Initialisation de l'environnement et chagrement du modèle """
 old_env = Frenchstone_old(df_state.reset_index().drop('index', axis=1))
 old_env = tf_py_environment.TFPyEnvironment(old_env)
-env = Frenchstone(df_state.reset_index().drop('index', axis=1))
+env = Frenchstone()
 env = tf_py_environment.TFPyEnvironment(env)
 
 old_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
 oldpolicy_state = old_policy.get_initial_state(batch_size=512)
-saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
+saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02-a')
 policy_state = saved_policy.get_initial_state(batch_size=128)
 
-class Plateau:
-    def __init__(self, players=()):
-        """ Décrit exhaustivement le plateau de jeu """
-        class_files = {'Chasseur': 'test_deck.csv',
-                       'Mage': 'test_deck.csv'}
-        if players == ():
-            self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
 
-        else:
-            self.players = list(players)
-        Card.created = []
-
-        for player in self.players:
-            player.set_deck(class_files[player.classe])
-
-        # shuffle(self.players)  ## Il ne faut probablement pas shuffle les joueurs, mais plutôt les faire alterner dans le main
-
-        """ Mélange des decks et tirage de la main de départ """
-        for player in self.players:
-            player.start_game()
-
-        """ Gestion du mana """
-        """ Le premier joueur démarre son tour à l'initialisation """
-        self.players[0].start_turn()
-
-        """ Tour de jeu """
-        self.game_turn = 0  # Décompte des tours
-        self.game_on = True
-        self.winner = None
-
-    def tour_suivant(self):
-        """ Met à jour le plateau à la fin du tour d'un joueur """
-        self.game_turn += 1
-        self.players.reverse()
-
-        self.players[0].start_turn()
-
-    def update(self):
-        """ Vérifie les serviteurs morts et les pdv des joueurs """
-        for player in self.players:
-            if player.hero.is_dead():
-                self.game_on = False
-                for winner in self.players:
-                    if winner != player:
-                        self.winner = winner
-            for servant in player.servants:
-                if servant.is_dead():
-                    player.servants.remove(servant)
-
-    def targets_hp(self):
-        """ Retourne les cibles possibles du pouvoir héroïque """
-        player = self.players[0]
-        adv = self.players[1]
-        targets = []
-        if player.classe == "Mage":
-            targets = [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards
-        elif player.classe == "Chasseur":
-            targets.append(adv.hero)
-        return targets
-
-
-    def get_targets(self, serviteur):
-        if serviteur not in self.players[0].servants:
-            raise KeyError("Le serviteur choisi n'est pas sur le plateau du joueur actif")
-        else:
-            adv = self.players[1]
-            targets = []
-            if "Ruée" in serviteur.get_effects():
-                if serviteur.effects["Ruée"].active is False:
-                    targets.append(adv.hero)
-            else:
-                targets.append(adv.hero)
-            for carte in adv.servants:
-                targets.append(carte)
-        return targets
-
-    def get_gamestate(self) -> dict:
-        player = self.players[0]
-        adv = self.players[1]
-
-        # On assigne les actions de base avant les actions spécifiques au choix
-        """ BOARD """
-        action_line = {"action": 0,
-                       "carte_jouee": "",
-                       "attaquant": "", "attaquant_atq": "", "attaquant_pv": "",
-                       "cible": "", "cible_atq": "", "cible_pv": "",
-                       "classe_j": player.classe, "classe_adv": adv.classe,
-                       "mana_dispo_j": player.mana, "mana_max_j": player.mana_max,
-                       "mana_max_adv": adv.mana_max,
-                       "surcharge_j": player.surcharge, "surcharge_adv": adv.surcharge,
-                       "pv_j": player.hero.health, "pv_adv": adv.hero.health,
-                       "pv_max_j": player.hero.base_health, "pv_max_adv": adv.hero.base_health,
-                       "nbre_cartes_j": len(player.hand),
-                       "nbre_cartes_adv": len(adv.hand),
-                       "dispo_ph_j": player.hero.dispo_pouvoir,
-                       "cout_ph_j": player.hero.cout_pouvoir,
-                       "arme_j": player.hero.weapon,
-                       "arme_adv": adv.hero.weapon,
-                       "attaque_j": player.hero.attack,
-                       "attaque_adv": adv.hero.attack,
-                       "durabilite_arme_j": player.hero.weapon.durability if player.hero.weapon is not None else 0,
-                       "durabilite_arme_adv": adv.hero.weapon.durability if player.hero.weapon is not None else 0,
-                       "pseudo_j": player.name,
-                       "pseudo_adv": adv.name,
-                       "victoire": 0}
-        """ HAND """
-        cartes_en_main = {i: carte for i, carte in enumerate(player.hand)}
-        for i in range(10):
-            if i in cartes_en_main.keys():
-                action_line[f"carte_en_main{i + 1}"] = cartes_en_main[i].id
-                action_line[f"carte_en_main{i + 1}_cost"] = cartes_en_main[i].cost
-                action_line[f"carte_en_main{i + 1}_atk"] = cartes_en_main[i].attack
-                action_line[f"carte_en_main{i + 1}_pv"] = cartes_en_main[i].health
-            else:
-                action_line[f"carte_en_main{i + 1}"] = -99
-                action_line[f"carte_en_main{i + 1}_cost"] = -99
-                action_line[f"carte_en_main{i + 1}_atk"] = -99
-                action_line[f"carte_en_main{i + 1}_pv"] = -99
-
-        """ SERVANTS """
-        player_servants = {i: carte.id for i, carte in enumerate(player.servants)}
-        player_servants_atk = {i: carte.attack for i, carte in enumerate(player.servants)}
-        player_servants_pv = {i: carte.health for i, carte in enumerate(player.servants)}
-        player_servants_atk_remain = {i: carte.remaining_atk for i, carte in enumerate(player.servants)}
-        for i in range(7):
-            if i in player_servants.keys():
-                action_line[f"serv{i + 1}_j"] = player_servants[i]
-                action_line[f"atq_serv{i + 1}_j"] = player_servants_atk[i]
-                action_line[f"pv_serv{i + 1}_j"] = player_servants_pv[i]
-                action_line[f"atq_remain_serv{i + 1}_j"] = player_servants_atk_remain[i]
-            else:
-                action_line[f"serv{i + 1}_j"] = -99
-                action_line[f"atq_serv{i + 1}_j"] = -99
-                action_line[f"pv_serv{i + 1}_j"] = -99
-                action_line[f"atq_remain_serv{i + 1}_j"] = -99
-
-        adv_servants = {i: carte.id for i, carte in enumerate(adv.servants)}
-        adv_servants_atk = {i: carte.attack for i, carte in enumerate(adv.servants)}
-        adv_servants_pv = {i: carte.health for i, carte in enumerate(adv.servants)}
-        for i in range(7):
-            if i in adv_servants.keys():
-                action_line[f"serv{i + 1}_adv"] = adv_servants[i]
-                action_line[f"atq_serv{i + 1}_adv"] = adv_servants_atk[i]
-                action_line[f"pv_serv{i + 1}_adv"] = adv_servants_pv[i]
-            else:
-                action_line[f"serv{i + 1}_adv"] = -99
-                action_line[f"atq_serv{i + 1}_adv"] = -99
-                action_line[f"pv_serv{i + 1}_adv"] = -99
-
-        return action_line
 
 
 class TourEnCours:
@@ -544,7 +428,7 @@ class Orchestrator:
 
         input_state = np.array(itemgetter(*columns_actual_state)(action_line))
 
-        legal_actions = generate_legal_vector(action_line)
+        legal_actions = generate_legal_vector_old(action_line)
 
         observations = env.observation_spec()
         observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32,
@@ -615,7 +499,7 @@ class Orchestrator:
 
         input_state = np.array(itemgetter(*columns_actual_state)(action_line))
 
-        legal_actions = generate_legal_vector(action_line)
+        legal_actions = generate_legal_vector_old(action_line)
 
         observations = env.observation_spec()
         observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32,
@@ -652,28 +536,10 @@ class Orchestrator:
         """ Initialisation du vecteur d'état représentant le plateau"""
         action_line = plateau.get_gamestate()
 
-        """ Sélection des colonnes nécessaires à la prédiction """
-        columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j", "nbre_cartes_adv"]
-
-        for i in range(10):
-            columns_actual_state.append(f"carte_en_main{i + 1}_cost")
-            columns_actual_state.append(f"carte_en_main{i + 1}_atk")
-            columns_actual_state.append(f"carte_en_main{i + 1}_pv")
-
-        for i in range(7):
-            columns_actual_state.append(f"atq_serv{i + 1}_j")
-            columns_actual_state.append(f"pv_serv{i + 1}_j")
-            columns_actual_state.append(f"atq_remain_serv{i + 1}_j")
-
-        for i in range(7):
-            columns_actual_state.append(f"atq_serv{i + 1}_adv")
-            columns_actual_state.append(f"pv_serv{i + 1}_adv")
-
         """ Le modèle choisit l'action à effectuer parmi les actions légales """
 
         input_state = np.array(itemgetter(*columns_actual_state)(action_line))
-
-        legal_actions = generate_legal_vector(action_line)
+        legal_actions = generate_legal_vector(plateau)
 
 
         observations = env.observation_spec()
@@ -693,7 +559,7 @@ class Orchestrator:
             action_line["carte_jouee"] = played_card.id  # name ou id ?
             logs.append(action_line)
             TourEnCours(plateau).jouer_carte(played_card)
-        elif action >= 11:
+        elif 11 <= action < 75:
             attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
             if (action - 11) % 8 == 0:
                 target = plateau.players[1].hero
@@ -708,9 +574,25 @@ class Orchestrator:
             action_line["cible_pv"] = target.health
             logs.append(action_line)
             TourEnCours(plateau).attaquer(attacker, target)
+        else:
+            if action == 75:
+                target = plateau.players[0].hero
+            elif action == 83:
+                target = plateau.players[1].hero
+            elif action < 83:
+                target = plateau.players[0].servants[action - 76]
+            else:
+                target = plateau.players[1].servants[action - 84]
+            action_line["action"] = "pouvoir_heroique"
+            action_line["cible"] = target.id if type(target) is Card else "heros"
+            action_line["cible_atq"] = target.attack
+            action_line["cible_pv"] = target.health
+            logs.append(action_line)
+            TourEnCours(plateau).pouvoir_heroique(plateau.players[0].classe, target)
 
         plateau.update()
         return plateau
+
 
     def tour_ia_training(self, plateau, action):
         """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
@@ -898,7 +780,7 @@ class Orchestrator:
                 mon_plateau = pickle.load(f)
             while mon_plateau.game_on:
                 if mon_plateau.game_turn % 2 == 0:
-                    mon_plateau = Orchestrator().tour_oldia(mon_plateau, logs_inter, old_policy, oldpolicy_state)
+                    mon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy, oldpolicy_state)
                 else:
                     mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, saved_policy, policy_state)
 
@@ -923,7 +805,7 @@ class Orchestrator:
                 if mon_plateau.game_turn % 2 == 0:
                     mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, saved_policy, policy_state)
                 else:
-                    mmon_plateau = Orchestrator().tour_oldia(mon_plateau, logs_inter, old_policy, oldpolicy_state)
+                    mmon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy, oldpolicy_state)
 
             """Actions de fin de partie"""
             winner = mon_plateau.winner

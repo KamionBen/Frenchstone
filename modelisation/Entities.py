@@ -11,6 +11,166 @@ heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "R
 
 
 """ CLASSES """
+class Plateau:
+    def __init__(self, players=()):
+        """ Décrit exhaustivement le plateau de jeu """
+        class_files = {'Chasseur': 'test_deck.csv',
+                       'Mage': 'test_deck.csv'}
+        if players == ():
+            self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
+
+        else:
+            self.players = list(players)
+        Card.created = []
+
+        for player in self.players:
+            player.set_deck(class_files[player.classe])
+
+        # shuffle(self.players)  ## Il ne faut probablement pas shuffle les joueurs, mais plutôt les faire alterner dans le main
+
+        """ Mélange des decks et tirage de la main de départ """
+        for player in self.players:
+            player.start_game()
+
+        """ Gestion du mana """
+        """ Le premier joueur démarre son tour à l'initialisation """
+        self.players[0].start_turn()
+
+        """ Tour de jeu """
+        self.game_turn = 0  # Décompte des tours
+        self.game_on = True
+        self.winner = None
+
+    def tour_suivant(self):
+        """ Met à jour le plateau à la fin du tour d'un joueur """
+        self.game_turn += 1
+        self.players.reverse()
+
+        self.players[0].start_turn()
+
+    def update(self):
+        """ Vérifie les serviteurs morts et les pdv des joueurs """
+        for player in self.players:
+            if player.hero.is_dead():
+                self.game_on = False
+                for winner in self.players:
+                    if winner != player:
+                        self.winner = winner
+            for servant in player.servants:
+                if servant.is_dead():
+                    player.servants.remove(servant)
+
+    def targets_hp(self):
+        """ Retourne les cibles possibles du pouvoir héroïque """
+        player = self.players[0]
+        adv = self.players[1]
+        targets = []
+        if player.classe in ["Mage", "Prêtre"]:
+            targets = [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards
+        elif player.classe == "Chasseur":
+            targets.append(adv.hero)
+        elif player.classe in ["Chevalier de la mort", "Chasseur de démons", "Druide", "Paladin",
+                               "Voleur", "Chaman", "Démoniste", "Guerrier"]:
+            targets.append(player.hero)
+        return targets
+
+
+    def get_targets(self, serviteur):
+        if serviteur not in self.players[0].servants:
+            raise KeyError("Le serviteur choisi n'est pas sur le plateau du joueur actif")
+        else:
+            adv = self.players[1]
+            targets = []
+            if "Ruée" in serviteur.get_effects():
+                if serviteur.effects["Ruée"].active is False:
+                    targets.append(adv.hero)
+            else:
+                targets.append(adv.hero)
+            for carte in adv.servants:
+                targets.append(carte)
+        return targets
+
+    def get_gamestate(self) -> dict:
+        player = self.players[0]
+        adv = self.players[1]
+
+        # On assigne les actions de base avant les actions spécifiques au choix
+        """ BOARD """
+        action_line = {"action": 0,
+                       "carte_jouee": "",
+                       "attaquant": "", "attaquant_atq": "", "attaquant_pv": "",
+                       "cible": "", "cible_atq": "", "cible_pv": "",
+                       "classe_j": player.classe, "classe_adv": adv.classe,
+                       "mana_dispo_j": player.mana, "mana_max_j": player.mana_max,
+                       "mana_max_adv": adv.mana_max,
+                       "surcharge_j": player.surcharge, "surcharge_adv": adv.surcharge,
+                       "pv_j": player.hero.health, "pv_adv": adv.hero.health,
+                       "pv_max_j": player.hero.base_health, "pv_max_adv": adv.hero.base_health,
+                       "nbre_cartes_j": len(player.hand),
+                       "nbre_cartes_adv": len(adv.hand),
+                       "dispo_ph_j": player.hero.dispo_pouvoir,
+                       "cout_ph_j": player.hero.cout_pouvoir,
+                       "arme_j": player.hero.weapon,
+                       "arme_adv": adv.hero.weapon,
+                       "attaque_j": player.hero.attack,
+                       "attaque_adv": adv.hero.attack,
+                       "durabilite_arme_j": player.hero.weapon.durability if player.hero.weapon is not None else 0,
+                       "durabilite_arme_adv": adv.hero.weapon.durability if player.hero.weapon is not None else 0,
+                       "pseudo_j": player.name,
+                       "pseudo_adv": adv.name,
+                       "victoire": 0}
+        """ HERO """
+        for classe_heros in ["Mage", "Chasseur"]:
+            if player.classe == classe_heros:
+                action_line[f"is_{classe_heros}"] = 1
+            else:
+                action_line[f"is_{classe_heros}"] = 0
+
+        """ HAND """
+        cartes_en_main = {i: carte for i, carte in enumerate(player.hand)}
+        for i in range(10):
+            if i in cartes_en_main.keys():
+                action_line[f"carte_en_main{i + 1}"] = cartes_en_main[i].id
+                action_line[f"carte_en_main{i + 1}_cost"] = cartes_en_main[i].cost
+                action_line[f"carte_en_main{i + 1}_atk"] = cartes_en_main[i].attack
+                action_line[f"carte_en_main{i + 1}_pv"] = cartes_en_main[i].health
+            else:
+                action_line[f"carte_en_main{i + 1}"] = -99
+                action_line[f"carte_en_main{i + 1}_cost"] = -99
+                action_line[f"carte_en_main{i + 1}_atk"] = -99
+                action_line[f"carte_en_main{i + 1}_pv"] = -99
+
+        """ SERVANTS """
+        player_servants = {i: carte.id for i, carte in enumerate(player.servants)}
+        player_servants_atk = {i: carte.attack for i, carte in enumerate(player.servants)}
+        player_servants_pv = {i: carte.health for i, carte in enumerate(player.servants)}
+        player_servants_atk_remain = {i: carte.remaining_atk for i, carte in enumerate(player.servants)}
+        for i in range(7):
+            if i in player_servants.keys():
+                action_line[f"serv{i + 1}_j"] = player_servants[i]
+                action_line[f"atq_serv{i + 1}_j"] = player_servants_atk[i]
+                action_line[f"pv_serv{i + 1}_j"] = player_servants_pv[i]
+                action_line[f"atq_remain_serv{i + 1}_j"] = player_servants_atk_remain[i]
+            else:
+                action_line[f"serv{i + 1}_j"] = -99
+                action_line[f"atq_serv{i + 1}_j"] = -99
+                action_line[f"pv_serv{i + 1}_j"] = -99
+                action_line[f"atq_remain_serv{i + 1}_j"] = -99
+
+        adv_servants = {i: carte.id for i, carte in enumerate(adv.servants)}
+        adv_servants_atk = {i: carte.attack for i, carte in enumerate(adv.servants)}
+        adv_servants_pv = {i: carte.health for i, carte in enumerate(adv.servants)}
+        for i in range(7):
+            if i in adv_servants.keys():
+                action_line[f"serv{i + 1}_adv"] = adv_servants[i]
+                action_line[f"atq_serv{i + 1}_adv"] = adv_servants_atk[i]
+                action_line[f"pv_serv{i + 1}_adv"] = adv_servants_pv[i]
+            else:
+                action_line[f"serv{i + 1}_adv"] = -99
+                action_line[f"atq_serv{i + 1}_adv"] = -99
+                action_line[f"pv_serv{i + 1}_adv"] = -99
+
+        return action_line
 
 
 class Player:
@@ -296,8 +456,6 @@ class Card:
     def data(self) -> str:
         return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \
                f"Coût = {self.cost} - Attaque = {self.attack} - Santé = {self.health}"
-
-
 
 
 class Weapon:

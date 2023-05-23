@@ -7,7 +7,7 @@ from tf_agents.policies import random_tf_policy, q_policy, PolicySaver
 from tf_agents.trajectories import trajectory
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
-from modelisation.engine import *
+from engine import *
 
 
 def generate_legal_vector(state):
@@ -51,49 +51,80 @@ def generate_legal_vector(state):
 
 def estimated_advantage(action, state):
     """ Simule le plateau qu'aurait donné une certaine action pour en tirer une notion d'avantage gagné ou perdu """
-    card_advantage = 0
-    board_advantage = 0
-    health_advantage = 0
+    actual_state = deepcopy(state)
+    next_state = deepcopy(state)
+    action = int(action)
 
     if action == 0:
-        card_advantage -= 1
-    elif action <= 10:
-        card_advantage -= 1
-        board_advantage += 0.3 * state[f"carte_en_main{action}_atk"]
-        board_advantage += 0.3 * state[f"carte_en_main{action}_pv"]
-    else:
-        attacker = state[f"atq_serv{(action - 11) // 8}_j"], state[f"pv_serv{(action - 11) // 8}_j"]
+        TourEnCours(next_state).fin_du_tour()
+    elif action < 11:
+        TourEnCours(next_state).jouer_carte(next_state.players[0].hand[action - 1])
+    elif 11 <= action < 75:
+        attacker = next_state.players[0].servants[int((action - 11) // 8 - 1)]
         if (action - 11) % 8 == 0:
-            if state["pv_adv"] - attacker[0] <= 0:
-                return 100
-            else:
-                health_advantage += attacker[0]
+            target = next_state.players[1].hero
         else:
-            defender = state[f"atq_serv{(action - 11) % 8}_adv"], state[f"pv_serv{(action - 11) % 8}_adv"]
-            if attacker[0] >= defender[1]:
-                if defender[0] >= attacker[1]:
-                    board_advantage += defender[0] + defender[1] - attacker[0] - attacker[1]
-                else:
-                    board_advantage += defender[1]
-            else:
-                if defender[0] >= attacker[1]:
-                    board_advantage += attacker[0] - attacker[1]
-                else:
-                    board_advantage += attacker[0] - defender[0]
-    coef_cards, coef_board, coef_health = 0.5, 2.5, 1
-    return round(coef_cards * card_advantage + coef_board * board_advantage + coef_health * health_advantage, 2)
+            target = next_state.players[1].servants[int((action - 11) % 8 - 1)]
+        TourEnCours(next_state).attaquer(attacker, target)
+    elif action >= 75:
+        if action == 75:
+            target = next_state.players[0].hero
+        elif action == 83:
+            target = next_state.players[1].hero
+        elif action < 83:
+            target = next_state.players[0].servants[action - 76]
+        else:
+            target = next_state.players[1].servants[action - 84]
+        TourEnCours(next_state).pouvoir_heroique(next_state.players[0].classe, target)
+
+    next_state.update()
+
+    def calc_advantage(state):
+        advantage = state["nbre_cartes_j"] - state["nbre_cartes_adv"]
+        for i in range(1, 8):
+            if state[f"serv{i}_j"] != -99:
+                advantage += state[f"atq_serv{i}_j"] + state[f"pv_serv{i}_j"]
+            if state[f"serv{i}_adv"] != -99:
+                advantage -= state[f"atq_serv{i}_adv"] + state[f"pv_serv{i}_adv"]
+        advantage += state["pv_j"] - state["pv_adv"]
+        if state["pv_adv"] <= 0:
+            return advantage + 100
+        return advantage
+
+    actual_advantage = calc_advantage(actual_state.get_gamestate())
+    if action == 0:
+        predicted_advantage = actual_advantage - 1
+    else:
+        predicted_advantage = calc_advantage(next_state.get_gamestate())
+
+
+    # print(actual_state.get_gamestate())
+    # print(f"Avantage en cours : {actual_advantage}")
+    # print(action)
+    # print(next_state.get_gamestate())
+    # print(f"Avantage prévu : {predicted_advantage}")
+    # print('-------------------------------------------')
+
+    return predicted_advantage - actual_advantage
 
 
 players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
 plateau_depart = Plateau(players)
+classes_heros = ["Mage", "Chasseur"]
 
 columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j", "nbre_cartes_adv"]
 
+""" HERO """
+for classe_heros in classes_heros:
+    columns_actual_state.append(f"is_{classe_heros}")
+
+""" HAND """
 for i in range(10):
     columns_actual_state.append(f"carte_en_main{i + 1}_cost")
     columns_actual_state.append(f"carte_en_main{i + 1}_atk")
     columns_actual_state.append(f"carte_en_main{i + 1}_pv")
 
+""" SERVANTS """
 for i in range(7):
     columns_actual_state.append(f"atq_serv{i + 1}_j")
     columns_actual_state.append(f"pv_serv{i + 1}_j")
@@ -122,9 +153,9 @@ class Frenchstone(py_environment.PyEnvironment):
 
     def _reset(self):
         if bool(random.getrandbits(1)):
-            self._state = Plateau([Player("NewIA", "Mage"), Player("OldIA", "Chasseur")])
+            self._state = Plateau([Player("NewIA", random.choice(classes_heros)), Player("OldIA", random.choice(classes_heros))])
         else:
-            self._state = Plateau([Player("OldIA", "Chasseur"), Player("NewIA", "Mage")])
+            self._state = Plateau([Player("OldIA", random.choice(classes_heros)), Player("NewIA", random.choice(classes_heros))])
             while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
                 self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
         self._episode_ended = False
@@ -145,7 +176,7 @@ class Frenchstone(py_environment.PyEnvironment):
             return self.reset()
 
         """ Estimation de la récompense """
-        # reward = estimated_advantage(action, self._state.get_gamestate())
+        reward = estimated_advantage(action, self._state)
 
         """ Gestion des actions légales """
         self._state = Orchestrator().tour_ia_training(self._state, action)
@@ -156,7 +187,6 @@ class Frenchstone(py_environment.PyEnvironment):
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
 
         if not self._state.game_on:
-            reward = 100
             self._episode_ended = True
             return ts.termination(obs, reward)
 
@@ -171,9 +201,7 @@ class Frenchstone(py_environment.PyEnvironment):
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-        reward = 0
         return ts.transition(obs, reward)
-
 
 
 train_env = Frenchstone()
@@ -182,22 +210,22 @@ train_env = tf_py_environment.TFPyEnvironment(train_env, check_dims=True)
 eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
-num_iterations = 70000  # @param {type:"integer"}
+num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 1  # @param {type:"integer"}
 collect_steps_per_iteration = 40  # @param {type:"integer"}
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-batch_size = 2048  # @param {type:"integer"}
+batch_size = 512  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=1.5e-5,
-    decay_steps=5000,
+    initial_learning_rate=2e-5,
+    decay_steps=10000,
     decay_rate=0.9)
-log_interval = 100  # @param {type:"integer"}
+log_interval = 200  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
 eval_interval = 1000  # @param {type:"integer"}
 
-fc_layer_params = (250, 128, 100, 50, 25)
+fc_layer_params = (500, 300, 250, 200, 100, 50, 30)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -243,7 +271,7 @@ agent = dqn_agent.DdqnAgent(
     td_errors_loss_fn=common.element_wise_squared_loss,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
-    boltzmann_temperature=0.25,
+    boltzmann_temperature=0.4,
     epsilon_greedy=None)
 
 agent.initialize()
@@ -341,7 +369,8 @@ agent.train_step_counter.assign(0)
 # Evaluate the agent's policy once before training.
 avg_return = compute_avg_return(eval_env, agent.policy, 10)
 
-returns = [avg_return]
+returns = []
+returns2 = []
 
 for _ in range(num_iterations):
     # Collect a few steps using collect_policy and save to the replay buffer.
@@ -362,6 +391,7 @@ for _ in range(num_iterations):
         print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))
         print('step = {0}: Average Return Collect = {1:.2f}'.format(step, avg_return2))
         returns.append(avg_return)
+        returns2.append(avg_return2)
 
 """ Sauvegarde """
 my_policy = agent.policy
@@ -373,8 +403,9 @@ saver = PolicySaver(my_policy2, batch_size=None)
 saver.save('frenchstone_agent_v0.02-b')
 
 
-steps = range(0, num_iterations + 1, eval_interval)
+steps = range(0, num_iterations, eval_interval)
 plt.plot(steps, returns)
+plt.plot(steps, returns2)
 plt.ylabel('Average Return')
 plt.xlabel('Step')
 plt.ylim(bottom=-100)

@@ -1,154 +1,13 @@
 from pandas.core.frame import DataFrame
+import pygame
+from pygame.locals import *
 
 from modelisation.Entities import *
 from time import sleep
 import pickle
-from init_variables import *
+
 
 CARD_POOL = get_cards_data("modelisation/cards.json")
-ICON = "______                   _         _ \n" \
-       "|  ___|                 | |       | |\n" \
-       "| |_ _ __ ___ _ __   ___| |__  ___| |_ ___  _ __   ___ \n" \
-       "|  _| '__/ _ \ '_ \ / __| '_ \/ __| __/ _ \| '_ \ / _ \\\n" \
-       "| | | | |  __/ | | | (__| | | \__ \ || (_) | | | |  __/\n" \
-       "\_| |_|  \___|_| |_|\___|_| |_|___/\__\___/|_| |_|\___|"
-
-def center_text(text: str, length: int, filler=' ', bold=False, color=None) -> str:
-    left = (length - len(text)) // 2
-    right = length - left - len(text)
-    if bold:
-        text = f"\033[1m{text}\033[0m"
-    if color is not None:
-        text = f"{color}{text}\033[0m"
-    centered_text = filler * left + text + filler * right
-    return centered_text
-
-
-def fancy_card(fancy_card: Card, active=False) -> str:
-    """ Return a str representing a single card """
-    if active:
-        a, e = '\033[92m', '\033[0m'  # GREEN, ENDC
-    else:
-        a, e = '', ''
-
-    length = 25
-    """ COUT + Carte haut """
-    f_card = f"{a}┌─{e}"+f"C={fancy_card.cost}{a}"+"─"*(length-6)+f"┐{e}\n"
-
-    """ NOM """
-    if len(fancy_card.name) <= length - 2:
-        # Nom sur une ligne
-
-        centered_name = center_text(fancy_card.name, length - 2, bold=True)
-        f_card += f"{a}│{e}" + centered_name + f"{a}│{e}\n"
-        f_card += f"{a}│" + " " * (length - 2) + f"│{e}\n"
-    else:
-        decomposed = fancy_card.name.split(' ')
-        name_ls = []
-        for word in decomposed:
-            if not name_ls:
-                name_ls = [word]
-            else:
-                if len(name_ls[-1] + " " + word) <= length - 2:
-                    name_ls[-1] += " " + word
-                else:
-                    name_ls.append(word)
-
-        centered_name1 = center_text(name_ls[0], length-2, bold=True)
-        f_card += f"{a}│{e}" + centered_name1 + f"{a}│{e}\n"
-        centered_name2 = center_text(name_ls[1], length - 2, bold=True)
-        f_card += f"{a}│{e}" + centered_name2 + f"{a}│{e}\n"
-
-    f_card += f"{a}│" + " " * (length - 2) + f"│{e}\n"
-
-    """ STATS """
-    if fancy_card.attack is None and fancy_card.health is None:
-        f_card += f"{a}│" + " " * (length - 2) + f"│{e}\n"
-    else:
-        f_card += f"{a}│{e} A={fancy_card.attack}" + " " * (length - 10) + f"H={fancy_card.health} {a}│{e}\n"
-
-    """ TYPE + Carte bas """
-    centered_type = center_text(f" {fancy_card.type} ", length-2, f'{a}─{e}')
-
-    f_card += f"{a}└{e}"+centered_type+f"{a}┘{e}"
-    return f_card
-
-
-def fancy_cardlist(cartes: list[Card], selection=False, mana=0) -> str:
-    """ Return a str representing a card hand """
-    card_ls = []
-    for card in cartes:
-        card_ls.append(fancy_card(card, card.cost <= mana))
-    cards_l = [c.split('\n') for c in card_ls]
-    cards_dict = {}
-    for card in cards_l:
-        for i, line in enumerate(card):
-            if i in cards_dict.keys():
-                cards_dict[i] += line
-            else:
-                cards_dict[i] = line
-    cards_str = ""
-    if selection:
-        sel = [f"{x+1}:" for x in range(len(cards_l))]
-        cards_str += "                       ".join(sel)
-        cards_str += '\n'
-    for line in cards_dict.values():
-        cards_str += line + "\n"
-
-    return cards_str
-
-
-def fancy_hero(hero: Hero, active=False, playing=False) -> str:
-    """ Besoin d'une classe "Joueur" ou Héros """
-    if active:
-        a, e = "", ""
-    else:
-        a, e = "", ""
-
-    length = 25
-    yellow = '\033[93m'
-    if playing:
-        j_str = f"┌{center_text(f' {hero.name} ', length-2, bold=True, filler='─', color=yellow)}┐\n"
-    else:
-        j_str = f"┌{center_text(f' {hero.name} ', length - 2, bold=True, filler='─')}┐\n"
-
-    j_str += f"{a}│" + " " * (length - 2) + f"│{e}\n"
-    if hero.attack > 0:
-        pass
-    else:
-        if hero.health < 10:
-            health = f" {hero.health}"
-        else:
-            health = str(hero.health)
-        j_str += "└" + "─" * (length - 9) + f" H={health} ─┘"
-
-    return j_str
-
-
-def fancy_mana(mana, mana_max) -> str:
-    symbol_a = "♦︎"
-    symbol_i = "♢"
-    empty = mana_max - mana
-    active = [symbol_a for _ in range(mana)]
-    incative = [symbol_i for _ in range(empty)]
-    return f"[{mana}/{mana_max}] "+" ".join(active) +" "+ " ".join(incative)
-
-
-class FancyLog:
-    def __init__(self):
-        self.log = ["" for _ in range(30)]
-
-    def add(self, action: str):
-        self.log.insert(0, action)
-
-    def __iter__(self):
-        return iter(self.log)
-
-    def get(self, nb=10):
-        return self.log[:nb]
-
-    def print(self, index, whitespace=60):
-        return self.log[index] + " " * (whitespace - len(self.log[index]))
 
 
 def import_log(file: str) -> DataFrame:
@@ -156,198 +15,95 @@ def import_log(file: str) -> DataFrame:
         return pickle.load(f)
 
 
-RED = '\033[91m'
-GREEN = '\033[92m'
-ENDC = '\033[0m'
+def get_players_fromlog(log: DataFrame, index: int) -> dict:
+    """ Return (current_player, other_player) from a log line """
+    logline = log.to_dict(orient="index")[index]
+    cleaned = {k: v for k, v in logline.items() if v not in ('',-99)}  # Just for visibility
+    print(cleaned)
 
-def fancier(text: str) -> str:
-    """ Rajoute des couleurs """
-    fancy = text.split("[")
-    if len(fancy) == 1:
-        return text
-    elif "est mort." in text:
-        text = text.split("est mort.")
-        return RED+text[0] + "est mort."+ENDC+text[1]
-    else:
-        try:
-            fancy = [fancy[0], fancy[1].split("]")[0], fancy[1].split("]")[1]]
-            nb = int(fancy[1])
-            if nb < 0:
-                nb = RED+f"[{nb}]"+ENDC
-            elif nb > 0:
-                nb = GREEN+f"[{nb}]"+ENDC
-            return fancy[0]+nb+fancy[2]
-        except ValueError:
-            return text
-        except IndexError:
-            return text
+    """ CREATE THE INSTANCES """
+    current_player = Player(logline['pseudo_j'], logline['classe_j'])
+    other_player = Player(logline['pseudo_adv'], logline['classe_adv'])
 
-def basic_logline(logline):
-    event = {columns_logs[i]: elt for i, elt in enumerate(logline)}
-    player, adv = players_from_logline(logline)
-    basic = ""
-    basic += f"{event}\n\n"
-    basic += f"___{player} : {player.hero}, santé = {player.hero.health}\n"
-    basic += f"___Main : {player.hand}\n"
-    basic += f"___Mana : ({event['mana_dispo_j']}/{event['mana_max_j']})\n"
-    basic += f"___Serviteurs : "
-    for i, s in enumerate(player.servants):
-        text = f"{s} ({s.attack}/{s.health})"
-        for effect in s.get_effects():
-            text += f"[{effect.name[:1]}]"
-        if i == 0:
-            basic += text
-        else:
-            basic += f", {text}"
+    """ SET THE MANA """
+    other_player.mana_max = logline['mana_max_adv']
+    other_player.mana_reset()
+    current_player.mana_max = logline['mana_max_j']
+    current_player.mana = logline['mana_dispo_j']
 
-    basic += "\n\n"
-    if event['action'] == "passer_tour":
-        basic += f"{player} passe son tour."
-    if event['action'] == "jouer_carte":
-        carte = get_card(event['carte_jouee'], CARD_POOL)
-        basic += f"{player} joue {carte}"
-    if event['action'] == "attaquer":
-        attaquant = player.hero if event['attaquant'] == 'heros' else get_card(event['attaquant'], CARD_POOL)
-        cible = adv.hero if event['cible'] == 'heros' else get_card(event['cible'], CARD_POOL)
-        basic += f"{attaquant} attaque {cible}"
-    basic += "\n\n"
-    basic += f"___Serviteurs : "
-    for i, s in enumerate(adv.servants):
-        text = f"{s} ({s.attack}/{s.health})"
-        for effect in s.get_effects():
-            text += f"[{effect.name[:1]}]"
-        if i == 0:
-            basic += text
-        else:
-            basic += f", {text}"
-    basic += "\n"
-
-    basic += f"___{adv} : {adv.hero}, santé = {adv.hero.health}\n\n"
-
-    if event['action'] == "passer_tour":
-        basic += "\n\n+++ TOUR SUIVANT +++\n"
+    return {current_player.name: current_player, other_player.name: other_player}
 
 
-    return basic
+def MainScreen(logfile: str):
+    game_log = import_log(logfile)
 
+    total_turn = len(game_log)
 
-def players_from_logline(logline):
-    event = {columns_logs[i]: elt for i, elt in enumerate(logline)}
-    """ JOUEUR """
-    player = Player(event['pseudo_j'], event['classe_j'])
-    hand = [event[f"carte_en_main{i+1}"] for i in range(10)]
-    player.hand = [get_card(c, CARD_POOL) for c in hand if c != -99]
-    servants = [event[f"serv{i+1}_j"] for i in range(7)]
-    player.servants = [get_card(c, CARD_POOL) for c in servants if c != -99]
-    for i, servant in enumerate(player.servants):
-        servant.attack = event[f"atq_serv{i+1}_j"]
-        servant.health = event[f"pv_serv{i+1}_j"]
-    player.hero.health = event['pv_j']
+    first_pass = game_log.to_dict(orient='index')[0]
+    p1, p2 = first_pass['pseudo_j'], first_pass['pseudo_adv']
 
-    """ ADVERSAIRE """
-    adv = Player(event['pseudo_adv'], event['classe_adv'])
-    servants = [event[f"serv{i + 1}_adv"] for i in range(7)]
-    adv.servants = [get_card(c, CARD_POOL) for c in servants if c != -99]
-    for i, servant in enumerate(adv.servants):
-        servant.attack = event[f"atq_serv{i+1}_adv"]
-        servant.health = event[f"pv_serv{i+1}_adv"]
-    adv.hero.health = event['pv_adv']
+    pygame.init()
+    RES = 1280, 720
+    screen = pygame.display.set_mode(RES)
+    clock = pygame.time.Clock()
 
-    return player, adv
+    default_font = {i: pygame.font.Font(None, i) for i in range(16, 72, 2)}
 
+    current_turn = 0
+    players_inst = get_players_fromlog(game_log, current_turn)
+    debug = game_log.to_dict(orient='index')[current_turn]
+    debug = {k: v for k, v in debug.items() if v not in ('', -99)}
 
-def print_fancy_battlelog(battlelog: str, nb: int):
-    fancylog = FancyLog()
-    log = import_log(path.join("modelisation", battlelog))
-    sample = {columns_logs[i]: elt for i, elt in enumerate(log.values[0])}
+    game_on = True
+    while game_on:
+        """ EVENT LOOP """
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                game_on = False
+            if event.type == MOUSEWHEEL:
+                current_turn -= event.y
+                if current_turn < 0:
+                    current_turn = 0
+                if current_turn > total_turn:
+                    current_turn = total_turn
+                players_inst = get_players_fromlog(game_log, current_turn)
+                debug = game_log.to_dict(orient='index')[current_turn]
+                debug = {k: v for k, v in debug.items() if v not in ('', -99)}
 
-    players = [Player(sample["pseudo_j"], sample["classe_j"]), Player(sample["pseudo_adv"], sample["classe_adv"])]
-    players[0].set_deck("test_deck.csv")
-    players[1].set_deck("test_deck.csv")
-    players[0].mana_grow()
-    turn = 1
-    side = 0
+        """ DISPLAY LOOP """
+        clock.tick(60)
+        screen.fill('black')
 
-    for line in log.values[:nb]:
-        event = {columns_logs[i]: elt for i, elt in enumerate(line)}
-        player = players[side]
-        adverse = players[1 - side]
-        if event["action"] == "passer_tour":
-            fancylog.add(f"{players[side].name} passe son tour.")
-            player.mana_grow()
-            player.mana_reset()
-            if side == 0:
-                side = 1
+        p1_inst = players_inst[p1]
+        p2_inst = players_inst[p2]
+
+        p1_name = default_font[24].render(p1_inst.name, True, 'white')
+        screen.blit(p1_name, (600, 700))
+
+        p2_name = default_font[24].render(p2_inst.name, True, 'white')
+        screen.blit(p2_name, (600, 60))
+
+        # TURNS
+        margin, span, size = 70, 12, 16
+        for t in range(total_turn):
+            if t == current_turn:
+                screen.blit(default_font[size].render(str(t), True, 'green'), (5, margin + t * span))
             else:
-                side = 0
-                turn += 1
-        elif event["action"] == "jouer_carte":
-            carte = get_card(event['carte_jouee'])
-            player.mana_spend(carte.cost)
-            fancylog.add(f"{players[side].name} joue {carte.name}")
-            players[side].servants.add(carte)
+                screen.blit(default_font[size].render(str(t), True, 'white'), (5, margin + t * span))
 
-        elif event["action"] == "attaquer":
-            attaquant = get_card(event['attaquant'])
-            if event['cible'] == "heros":
-                fancylog.add(f"{attaquant.name} attaque le héros adverse [-{attaquant.attack}]")
-                adverse.hero.damage(attaquant.attack)
-            else:
-                cible = get_card(event['cible'])
-                fancylog.add(f"{attaquant.name} attaque {cible.name} [-{attaquant.attack}]")
-                for card in players[1 - side].servants:
-                    if cible.name == card.name:
-                        card.damage(attaquant.attack)
-                        if card.is_dead():
-                            fancylog.add(f"{card.name} est mort.")
-                            players[1 - side].servants.remove(card)
-                for card in players[side].servants:
-                    if attaquant.name == card.name:
-                        card.damage(cible.attack)
-                        if card.is_dead():
-                            fancylog.add(f"{card.name} est mort.")
-                            players[side].servants.remove(card)
-        else:
-            fancylog.add(event['action'])
+        # DEBUG
+        debug_str = [str(debug)]
+        while len(debug_str[-1]) > 230:
+            temp = debug_str[-1][230:]
+            debug_str[-1] = debug_str[-1][:230]
+            debug_str.append(temp)
 
-        print("\n" * 50)
-        print(event)
-        log_width = 60
-        for elt in ICON.split('\n'):
-            print(" " * 50 + elt)
-        print("\n" * 2)
-        print(fancier(">>> " + fancylog.print(0) + f"Tour {turn}"))
-        print(fancier(fancylog.print(1) + fancy_mana(players[1].mana, players[1].mana_max)))
-        adv = fancy_hero(players[1].hero, playing=side == 1).split('\n')
-        print(fancier(fancylog.print(2) + adv[0]))
-        print(fancier(fancylog.print(3) + adv[1]))
-        print(fancier(fancylog.print(4) + adv[2]))
-        if len(players[1].servants) > 0:
-            adv_fighters = fancy_cardlist(players[1].servants).split('\n')
-        else:
-            adv_fighters = ["" for _ in range(6)]
-        print(fancier(fancylog.print(5) + adv_fighters[0]))
-        print(fancier(fancylog.print(6) + adv_fighters[1]))
-        print(fancier(fancylog.print(7) + adv_fighters[2]))
-        print(fancier(fancylog.print(8) + adv_fighters[3]))
-        print(fancier(fancylog.print(9) + adv_fighters[4]))
-        print(fancier(fancylog.print(10) + adv_fighters[5]))
+        for y, elt in enumerate(debug_str):
+            debug_txt = default_font[16].render(elt, True, 'white')
+            screen.blit(debug_txt, (10, 5+y*15))
 
-        if len(players[0].servants) > 0:
-            jr_fighters = fancy_cardlist(players[0].servants).split('\n')
-        else:
-            jr_fighters = ["" for _ in range(6)]
-        for i, elt in enumerate(jr_fighters):
-            print(fancier(fancylog.print(11 + i) + elt))
+        pygame.display.flip()
 
-        jr = fancy_hero(players[0].hero, playing=side == 0).split("\n")
-        print(" " * log_width + jr[0])
-        print(" " * log_width + jr[1])
-        print(" " * log_width + jr[2])
-        print(" " * log_width + fancy_mana(players[0].mana, players[0].mana_max))
-        sleep(2)
 
 if __name__ == '__main__':
-    data = import_log('modelisation/logs_games.pickle')
-    for k, v in data.to_dict().items():
-        print(k, v)
+    MainScreen('modelisation/logs_games.pickle')

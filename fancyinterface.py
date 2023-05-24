@@ -9,6 +9,38 @@ from random import shuffle
 CARD_POOL = get_cards_data("modelisation/cards.json")
 
 
+class ScrollLog(pygame.sprite.Sprite):
+    def __init__(self, gamelog: dict, player_colors: dict):
+        pygame.sprite.Sprite.__init__(self)
+        self.gamelog = gamelog
+        self.player_colors = player_colors
+        self.length = len(gamelog)
+
+        self.image = pygame.Surface((160, 720))
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+
+    def update(self, current_turn):
+        # Fill the background
+        self.image.fill('grey')
+        pygame.draw.rect(self.image, (20, 20, 20), (1, 1, self.rect.width - 2, self.rect.height - 2))
+
+        pos_y = current_turn * 16 - 256
+
+        for i, logline in self.gamelog.items():
+            if i == current_turn:
+                str_line = f"{i} : {logline['action']}"
+            else:
+                str_line = str(i)
+
+            if i in range(current_turn-40, current_turn+40):
+                txt = default_font[18].render(str_line, True, 'white')
+                self.image.blit(txt, (10, i * 16 + 2 - pos_y))
+                pygame.draw.line(self.image, self.player_colors[logline['pseudo_j']], (2, i*16 - pos_y), (2, (i+1)*16 - pos_y), 2)
+            if logline['cible'] == 'heros' and logline['cible_pv'] - logline['attaquant_atq'] <= 0:
+                pygame.draw.line(self.image, 'red', (0, (i+1)*16 - pos_y), (120, (i+1)*16 - pos_y), 1)
+
+        self.rect.y = -current_turn*16
 
 
 class CardSprite(pygame.sprite.Sprite):
@@ -155,6 +187,18 @@ class PlayerSprite(pygame.sprite.Sprite):
 
         """ Update sprite """
         self.image.fill(self.color)
+        border = 1
+        pygame.draw.rect(self.image, (20, 20, 20), (border, border, 900 - border * 2, 330 - border * 2))
+
+        """ Hand """
+        height = {'top': -70, 'bottom': 250}
+        hand = pygame.Surface((100*len(self.hand), 150))
+        for x, card in enumerate(self.hand):
+            hand.blit(card.image, (100 * x, 0))
+        self.image.blit(hand, (450-hand.get_width()/2, height[self.position]))
+
+        """ Player """
+
         if logline['cible'] == 'heros' and not self.is_playing:
             color = 'red'
         elif logline['attaquant'] == 'heros' and self.is_playing:
@@ -164,23 +208,22 @@ class PlayerSprite(pygame.sprite.Sprite):
 
         pseudo = default_font[32].render(f"{self.pseudo} ({self.classe})", True, color)
         mana = default_font[24].render(f"Mana : {self.mana}/{self.mana_max}", True, 'white')
-        pv = default_font[32].render(f"{self.attaque}      {self.pv}", True, 'white')
-
-        border = 1
-        pygame.draw.rect(self.image, (20, 20, 20), (border, border, 900-border*2, 330-border*2))
-        if self.position == 'top':
-            self.image.blit(pseudo, (450 - pseudo.get_width()/2, 10))
-            self.image.blit(mana, (450 - mana.get_width() / 2, 40))
-            self.image.blit(pv, (450 - pv.get_width() / 2, 70))
+        atq = default_font[32].render(str(self.attaque), True, 'white')
+        if self.pv < self.pv_max:
+            color = 'red'
         else:
-            self.image.blit(pseudo, (450 - pseudo.get_width() / 2, 300))
-            self.image.blit(mana, (450 - mana.get_width() / 2, 270))
-            self.image.blit(pv, (450 - pv.get_width() / 2, 240))
+            color = 'white'
+        pv = default_font[32].render(str(self.pv), True, color)
 
-        """ Hand """
-        height = {'top': 5, 'bottom': 250}
-        for x, card in enumerate(self.hand):
-            self.image.blit(card.image, (55 * x + 5, height[self.position]))
+        height = {'top': (10, 40, 70), 'bottom': (300, 270, 240)}
+
+        self.image.blit(pseudo, (450 - pseudo.get_width()/2, height[self.position][0]))
+        self.image.blit(mana, (450 - mana.get_width() / 2, height[self.position][1]))
+        self.image.blit(atq, (400 - atq.get_width() / 2, height[self.position][2]))
+        self.image.blit(pv, (500 - pv.get_width() / 2, height[self.position][2]))
+
+
+
 
         """ Servants """
         gap = 5
@@ -218,6 +261,8 @@ class FancyInterface:
         p1.set_position('bottom')
         p2.set_position('top')
         self.players = pygame.sprite.Group(*[p1, p2])
+
+        self.scrolllog = ScrollLog(self.gamelog, {p1.pseudo: colors[0], p2.pseudo: colors[1]})
 
         self.current_turn = 0
         self.update()
@@ -258,7 +303,9 @@ class FancyInterface:
                     if player.pseudo == current['pseudo_j']:
                         pygame.draw.rect(turns, player.color, (2, 10 + margin + t * span, 2, 14))
 
-            self.screen.blit(turns, (0, -t_range*14))
+            #self.screen.blit(turns, (0, -t_range*14))
+            #self.screen.blit(self.scrolllog.image, (0, 128-self.current_turn*16))
+            self.screen.blit(self.scrolllog.image, (0, 0))
             pygame.display.flip()
 
     def event_loop(self):
@@ -270,6 +317,7 @@ class FancyInterface:
 
     def update(self):
         self.players.update(self.get_currentline())
+        self.scrolllog.update(self.current_turn)
 
     def get_currentline(self):
         return self.gamelog[self.current_turn]

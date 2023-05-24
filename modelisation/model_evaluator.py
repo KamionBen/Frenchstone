@@ -28,8 +28,8 @@ logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(1000, players)
 print(score_oldia)
 
 """ Sauvegarde des logs"""
-# os.remove('logs_games.pickle')
-# with open('logs_games.pickle', 'wb') as f:
-#     pickle.dump(logs_hs_oldia, f)
+os.remove('logs_games.pickle')
+with open('logs_games.pickle', 'wb') as f:
+    pickle.dump(logs_hs_oldia, f)
 
 

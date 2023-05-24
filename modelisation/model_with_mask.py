@@ -8,7 +8,9 @@ from tf_agents.trajectories import trajectory
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
 from engine import *
+import warnings
 
+warnings.filterwarnings("ignore")
 
 def generate_legal_vector(state):
     """ Gestion des actions légales """
@@ -83,10 +85,10 @@ def estimated_advantage(action, state):
         advantage = state["nbre_cartes_j"] - state["nbre_cartes_adv"]
         for i in range(1, 8):
             if state[f"serv{i}_j"] != -99:
-                advantage += state[f"atq_serv{i}_j"] + state[f"pv_serv{i}_j"]
+                advantage += 2 * state[f"atq_serv{i}_j"] + 2 * state[f"pv_serv{i}_j"]
             if state[f"serv{i}_adv"] != -99:
-                advantage -= state[f"atq_serv{i}_adv"] + state[f"pv_serv{i}_adv"]
-        advantage += state["pv_j"] - state["pv_adv"]
+                advantage -= 2 * state[f"atq_serv{i}_adv"] + 2 * state[f"pv_serv{i}_adv"]
+        advantage += 0.8 * state["pv_j"] - 0.8 *state["pv_adv"]
         if state["pv_adv"] <= 0:
             return advantage + 100
         return advantage
@@ -212,14 +214,15 @@ time_step = train_env.reset()
 
 num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 1  # @param {type:"integer"}
-collect_steps_per_iteration = 40  # @param {type:"integer"}
+collect_steps_per_iteration = 50  # @param {type:"integer"}
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 
-batch_size = 512  # @param {type:"integer"}
+batch_size = 1024  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=2e-5,
+    initial_learning_rate=2e-6,
     decay_steps=10000,
     decay_rate=0.9)
+
 log_interval = 200  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
@@ -257,7 +260,12 @@ q_net = sequential.Sequential(dense_layers + [q_values_layer] + [flatten_layer])
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
 train_step_counter = tf.Variable(0)
-
+# Epsilon decay
+epsilon = tf.keras.optimizers.schedules.PolynomialDecay(
+    1.0,
+    num_iterations,
+    0.0001,
+    power=1)
 
 def observation_action_splitter(obs):
     return obs['observation'], obs['valid_actions']
@@ -271,8 +279,8 @@ agent = dqn_agent.DdqnAgent(
     td_errors_loss_fn=common.element_wise_squared_loss,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
-    boltzmann_temperature=0.4,
-    epsilon_greedy=None)
+    boltzmann_temperature=None,
+    epsilon_greedy=epsilon(train_step_counter))
 
 agent.initialize()
 
@@ -386,6 +394,12 @@ for _ in range(num_iterations):
         print('step = {0}: loss = {1}'.format(step, train_loss.loss))
 
     if step % eval_interval == 0:
+        my_policy = agent.policy
+        my_policy2 = agent.collect_policy
+        saver = PolicySaver(my_policy, batch_size=None)
+        saver2 = PolicySaver(my_policy2, batch_size=None)
+        saver.save(f"frenchstone_agent_v0.02-a-{step}")
+        saver2.save(f"frenchstone_agent_v0.02-b-{step}")
         avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
         avg_return2 = compute_avg_return(eval_env, agent.collect_policy, num_eval_episodes)
         print('step = {0}: Average Return = {1:.2f}'.format(step, avg_return))

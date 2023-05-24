@@ -258,8 +258,8 @@ env = tf_py_environment.TFPyEnvironment(env)
 
 old_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
 oldpolicy_state = old_policy.get_initial_state(batch_size=512)
-saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02-a')
-policy_state = saved_policy.get_initial_state(batch_size=128)
+saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02-a-9000')
+policy_state = saved_policy.get_initial_state(batch_size=512)
 
 
 
@@ -537,8 +537,10 @@ class Orchestrator:
         action_line = plateau.get_gamestate()
 
         """ Le modèle choisit l'action à effectuer parmi les actions légales """
-
-        input_state = np.array(itemgetter(*columns_actual_state)(action_line))
+        columns_actual_state_new = columns_actual_state.copy()
+        columns_actual_state_new.append("is_Mage")
+        columns_actual_state_new.append("is_Chasseur")
+        input_state = np.array(itemgetter(*columns_actual_state_new)(action_line))
         legal_actions = generate_legal_vector(plateau)
 
 

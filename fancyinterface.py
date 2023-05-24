@@ -37,8 +37,12 @@ class ScrollLog(pygame.sprite.Sprite):
                 txt = default_font[18].render(str_line, True, 'white')
                 self.image.blit(txt, (10, i * 16 + 2 - pos_y))
                 pygame.draw.line(self.image, self.player_colors[logline['pseudo_j']], (2, i*16 - pos_y), (2, (i+1)*16 - pos_y), 2)
-            if logline['cible'] == 'heros' and logline['cible_pv'] - logline['attaquant_atq'] <= 0:
-                pygame.draw.line(self.image, 'red', (0, (i+1)*16 - pos_y), (120, (i+1)*16 - pos_y), 1)
+            try:
+                if logline['cible'] == 'heros' and logline['cible_pv'] - logline['attaquant_atq'] <= 0:
+                    pygame.draw.line(self.image, 'red', (0, (i + 1) * 16 - pos_y), (120, (i + 1) * 16 - pos_y), 1)
+            except TypeError:
+                pass
+
 
         self.rect.y = -current_turn*16
 
@@ -252,8 +256,6 @@ class FancyInterface:
         with open(log_filename, 'rb') as f:
             self.gamelog = pickle.load(f).to_dict(orient='index')
 
-
-
         colors = ['green', 'blue', 'yellow', 'red', 'orange', 'purple']
         shuffle(colors)
         p1 = PlayerSprite(self.gamelog[0]['pseudo_j'], colors[0])
@@ -288,10 +290,14 @@ class FancyInterface:
                 current = self.gamelog[t]
                 if current['action'] == "passer_tour":
                     color = 'yellow'
-                elif current['cible'] == 'heros' and current['cible_pv'] - current['attaquant_atq'] <= 0:
-                    color = 'red'
                 else:
-                    color = 'white'
+                    try:
+                        if current['cible'] == 'heros' and current['cible_pv'] - current['attaquant_atq'] <= 0:
+                            color = 'red'
+                        else:
+                            color = 'white'
+                    except TypeError:
+                        color = 'white'
 
                 if t == self.current_turn:
                     txt = f"{t} : {self.get_currentline()['action'].capitalize().replace('_', ' ')}"
@@ -343,5 +349,6 @@ class FancyInterface:
 if __name__ == '__main__':
     fi = FancyInterface('modelisation/logs_games.pickle', debug=False)
     fi.run()
+
 
 

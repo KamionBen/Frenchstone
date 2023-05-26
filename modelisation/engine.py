@@ -293,8 +293,11 @@ class TourEnCours:
             cible.damage(attaquant.attack)
             attaquant.damage(cible.attack)
             self.plt.update()
-            if type(attaquant) == Card:
-                attaquant.remaining_atk -= 1
+            attaquant.remaining_atk -= 1
+            if type(attaquant) == Hero and attaquant.weapon is not None:
+                attaquant.weapon.durability -= 1
+                if attaquant.weapon.durability == 0:
+                    attaquant.weapon = None
         else:
             raise TypeError
 
@@ -305,6 +308,22 @@ class TourEnCours:
                 cible.damage(1)
             elif classe == "Chasseur":
                 cible.damage(2)
+            elif classe == "Paladin":
+                carte = get_card("Recrue de la main d'argent", get_cards_data("cards.json"))
+                player.servants.add(carte)
+            elif classe == "Démoniste":
+                cible.damage(2)
+                player.pick()
+            elif classe == "Chasseur de démons":
+                cible.attack += 1
+            elif classe == "Druide":
+                cible.attack += 1
+                cible.armor += 1
+            elif classe == "Voleur":
+                cible.weapon = Weapon("Lame pernicieuse")
+                cible.weapon.attack = 1
+                cible.weapon.durability = 2
+                cible.attack += cible.weapon.attack
             player.mana_spend(player.hero.cout_pouvoir)
             player.hero.dispo_pouvoir = False
             self.plt.update()
@@ -333,12 +352,14 @@ class Orchestrator:
         for carte in player.hand:
             if carte.cost <= player.mana and not (carte.type.lower() == "serviteur" and len(player.servants) == 7):
                 action_possible.append(carte)
-        if player.hero.attack > 0:
+        if player.hero.attack > 0 and player.hero.remaining_atk > 0:
             action_possible.append(player.hero)
         if player.hero.cout_pouvoir <= player.mana and player.hero.dispo_pouvoir:
-            action_possible.append("Pouvoir_heroique")
+            if not (player.classe == "Paladin" and len(player.servants) == 7):
+                action_possible.append("Pouvoir_heroique")
 
-        action = choice(action_possible)
+        action = choice(action_possible) # Choix aléatoire de l'action à effectuer
+
         if action == "Passer_tour":
             action_line["action"] = "passer_tour"
             logs.append(action_line)
@@ -373,8 +394,11 @@ class Orchestrator:
                     if "provocation" in carte.get_effects():
                         targets.append(carte)
             else:
-                if "Ruée" in action.get_effects():
-                    if action.effects["Ruée"].active is False:
+                if type(action) == Card:
+                    if "Ruée" in action.get_effects():
+                        if action.effects["Ruée"].active is False:
+                            targets.append(adv.hero)
+                    else:
                         targets.append(adv.hero)
                 else:
                     targets.append(adv.hero)
@@ -662,7 +686,8 @@ class Orchestrator:
             else:
                 scores[winner.name] = 1
             i += 1
-            print(i)
+            if i % 100 == 0:
+                print(i)
 
         """ L'autre moitié où le joueur 2 commence """
         for i in range(round(nb_games/2), nb_games):
@@ -682,7 +707,8 @@ class Orchestrator:
             else:
                 scores[winner.name] = 1
             i += 1
-            print(i)
+            if i % 100 == 0:
+                print(i)
 
         """ Concaténation des logs + suppression des plateaux temporaires """
         logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis = 1)
@@ -758,7 +784,7 @@ class Orchestrator:
         os.remove('plateau_init2.pickle')
         return logs_hs, scores
 
-    def generate_oldia_game(selfself, nb_games, players=()):
+    def generate_oldia_game(selfself, nb_games, new_policy=saved_policy, players=()):
         logs_hs = []
         i = 0
         scores = {}
@@ -784,7 +810,7 @@ class Orchestrator:
                 if mon_plateau.game_turn % 2 == 0:
                     mon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy, oldpolicy_state)
                 else:
-                    mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, saved_policy, policy_state)
+                    mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, new_policy, policy_state)
 
             """Actions de fin de partie"""
             winner = mon_plateau.winner
@@ -805,7 +831,7 @@ class Orchestrator:
                 mon_plateau = pickle.load(f)
             while mon_plateau.game_on:
                 if mon_plateau.game_turn % 2 == 0:
-                    mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, saved_policy, policy_state)
+                    mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, new_policy, policy_state)
                 else:
                     mmon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy, oldpolicy_state)
 

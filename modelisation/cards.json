@@ -1450,5 +1450,16 @@
         "attack": null,
         "health": null,
         "description": "Transforme un serviteur en grenouille 0/1 avec Provocation."
+    },
+    {
+        "id": 133,
+        "name": "Recrue de la main d'argent",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "description": null
     }
 ]

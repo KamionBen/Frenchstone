@@ -7,15 +7,29 @@ from typing import Union
 """ CONSTANTS """
 cardsfile = "cards.json"
 heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
-          "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"]}  # Devra être dans un fichier à part
+          "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"],
+          "Paladin": ["Uther"],
+          "Démoniste": ["Gul'dan"],
+          "Chasseur de démons": ["Ilidan"],
+          "Druide" : ["Malfurion"],
+          "Voleur" : ["Valeera"]
+          }  # Devra être dans un fichier à part
 
 
 """ CLASSES """
+
+
 class Plateau:
     def __init__(self, players=()):
         """ Décrit exhaustivement le plateau de jeu """
         class_files = {'Chasseur': 'test_deck.csv',
-                       'Mage': 'test_deck.csv'}
+                       'Mage': 'test_deck.csv',
+                       'Paladin': 'test_deck.csv',
+                       'Démoniste': 'test_deck.csv',
+                       'Chasseur de démons': 'test_deck.csv',
+                       'Druide': 'test_deck.csv',
+                       'Voleur': 'test_deck.csv'
+                       }
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
 
@@ -46,6 +60,7 @@ class Plateau:
         self.game_turn += 1
         self.players.reverse()
 
+        self.players[1].end_turn()
         self.players[0].start_turn()
 
     def update(self):
@@ -69,7 +84,10 @@ class Plateau:
             targets = [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards
         elif player.classe == "Chasseur":
             targets.append(adv.hero)
-        elif player.classe in ["Chevalier de la mort", "Chasseur de démons", "Druide", "Paladin",
+        elif player.classe == "Paladin":
+            if len(player.servants) < 7:
+                targets.append(player.hero)
+        elif player.classe in ["Chevalier de la mort", "Chasseur de démons", "Druide",
                                "Voleur", "Chaman", "Démoniste", "Guerrier"]:
             targets.append(player.hero)
         return targets
@@ -103,8 +121,9 @@ class Plateau:
                        "classe_j": player.classe, "classe_adv": adv.classe,
                        "mana_dispo_j": player.mana, "mana_max_j": player.mana_max,
                        "mana_max_adv": adv.mana_max,
-                       "surcharge_j": player.surcharge, "surcharge_adv": adv.surcharge,
                        "pv_j": player.hero.health, "pv_adv": adv.hero.health,
+                       "armor_j": player.hero.armor, "armor_adv": adv.hero.armor,
+                       "surcharge_j": player.surcharge, "surcharge_adv": adv.surcharge,
                        "pv_max_j": player.hero.base_health, "pv_max_adv": adv.hero.base_health,
                        "nbre_cartes_j": len(player.hand),
                        "nbre_cartes_adv": len(adv.hand),
@@ -113,14 +132,17 @@ class Plateau:
                        "arme_j": player.hero.weapon,
                        "arme_adv": adv.hero.weapon,
                        "attaque_j": player.hero.attack,
+                       "remaining_atk_j": player.hero.remaining_atk,
                        "attaque_adv": adv.hero.attack,
+                       "attack_arme_j": player.hero.weapon.attack if player.hero.weapon is not None else 0,
+                       "attack_arme_adv": adv.hero.weapon.attack if adv.hero.weapon is not None else 0,
                        "durabilite_arme_j": player.hero.weapon.durability if player.hero.weapon is not None else 0,
-                       "durabilite_arme_adv": adv.hero.weapon.durability if player.hero.weapon is not None else 0,
+                       "durabilite_arme_adv": adv.hero.weapon.durability if adv.hero.weapon is not None else 0,
                        "pseudo_j": player.name,
                        "pseudo_adv": adv.name,
                        "victoire": 0}
         """ HERO """
-        for classe_heros in ["Mage", "Chasseur"]:
+        for classe_heros in ["Mage", "Chasseur", "Paladin", "Démoniste", "Chasseur de démons", "Druide", "Voleur"]:
             if player.classe == classe_heros:
                 action_line[f"is_{classe_heros}"] = 1
             else:
@@ -179,7 +201,6 @@ class Player:
         self.name = name
         self.classe = classe
         self.ia = ia
-
         self.hero = Hero(heroes[self.classe][0])  # Premier héros par défaut
 
         # Cartes
@@ -194,6 +215,8 @@ class Player:
         self.deck.shuffle()
         self.pick_multi(3)
         self.hero.reset_complete()
+        if self.classe == "Chasseur de démons":
+            self.hero.cout_pouvoir = 1
 
     def start_turn(self):
         """ Remise à zéro de début de tour """
@@ -207,6 +230,10 @@ class Player:
         self.mana_reset()
         self.power_reset()
         self.servants.reset()
+
+    def end_turn(self):
+        """ Mise à jour de fin de tour """
+        self.hero.attack = 0
 
     def mana_spend(self, nb):
         self.mana -= nb
@@ -254,7 +281,8 @@ class Hero:
         self.effet_pouvoir = None
 
         self.attack = 0
-        self.defense = 0
+        self.remaining_atk = 1
+        self.armor = 0
         self.health, self.base_health = 30, 30
         self.weapon = None
 
@@ -264,11 +292,15 @@ class Hero:
         return self.name
 
     def damage(self, nb):
-        self.health -= nb
+        nb_armor = nb * (self.armor >= nb) + self.armor * (self.armor < nb)
+        self.armor -= nb_armor
+        self.health -= (nb - nb_armor)
 
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
+        self.remaining_atk = 1
+        self.attack = self.weapon.attack if self.weapon is not None else 0
 
     def reset_complete(self):
         """ Le reset de début de partie """
@@ -277,7 +309,7 @@ class Hero:
         self.effet_pouvoir = None
 
         self.attack = 0
-        self.defense = 0
+        self.armor = 0
         self.health, self.base_health = 30, 30
         self.weapon = None
 
@@ -451,7 +483,7 @@ class Card:
         elif type(other) == str:
             return other == self.id or other.lower() == self.name.lower()
         else:
-            raise TypeError
+            return False
 
     def data(self) -> str:
         return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \

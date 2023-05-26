@@ -1,16 +1,14 @@
+import keras.optimizers.schedules.learning_rate_schedule
 import matplotlib.pyplot as plt
 from tf_agents.agents.dqn import dqn_agent
-from tf_agents.agents.categorical_dqn import categorical_dqn_agent
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.networks import sequential
-from tf_agents.policies import random_tf_policy, q_policy, PolicySaver
+from tf_agents.policies import q_policy, PolicySaver
 from tf_agents.trajectories import trajectory
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
 from engine import *
-import warnings
 
-warnings.filterwarnings("ignore")
 
 def generate_legal_vector(state):
     """ Gestion des actions légales """
@@ -27,6 +25,14 @@ def generate_legal_vector(state):
             break
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
+    """ Notre héros peut attaquer """
+    if gamestate["remaining_atk_j"] > 0:
+        legal_actions[11] = True
+        for j in range(1, 8):
+            if gamestate[f"atq_serv{j}_adv"] != -99:
+                legal_actions[11 + j] = True
+
+    """ Nos serviteurs peuvent attaquer """
     for i in range(1, 8):
         if gamestate[f"atq_remain_serv{i}_j"] > 0:
             legal_actions[11 + 8 * i] = True
@@ -88,7 +94,7 @@ def estimated_advantage(action, state):
                 advantage += 2 * state[f"atq_serv{i}_j"] + 2 * state[f"pv_serv{i}_j"]
             if state[f"serv{i}_adv"] != -99:
                 advantage -= 2 * state[f"atq_serv{i}_adv"] + 2 * state[f"pv_serv{i}_adv"]
-        advantage += 0.8 * state["pv_j"] - 0.8 *state["pv_adv"]
+        advantage += state["pv_j"] - state["pv_adv"]
         if state["pv_adv"] <= 0:
             return advantage + 100
         return advantage
@@ -112,9 +118,10 @@ def estimated_advantage(action, state):
 
 players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
 plateau_depart = Plateau(players)
-classes_heros = ["Mage", "Chasseur"]
+classes_heros = ["Mage", "Chasseur", "Paladin", "Démoniste", "Chasseur de démons", "Druide"]
 
-columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j", "nbre_cartes_adv"]
+columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j",
+                        "pv_adv", "nbre_cartes_j", "nbre_cartes_adv"]
 
 """ HERO """
 for classe_heros in classes_heros:
@@ -155,9 +162,11 @@ class Frenchstone(py_environment.PyEnvironment):
 
     def _reset(self):
         if bool(random.getrandbits(1)):
-            self._state = Plateau([Player("NewIA", random.choice(classes_heros)), Player("OldIA", random.choice(classes_heros))])
+            self._state = Plateau([Player("NewIA", random.choice(classes_heros)),
+                                   Player("OldIA", random.choice(classes_heros))])
         else:
-            self._state = Plateau([Player("OldIA", random.choice(classes_heros)), Player("NewIA", random.choice(classes_heros))])
+            self._state = Plateau([Player("OldIA", random.choice(classes_heros)),
+                                   Player("NewIA", random.choice(classes_heros))])
             while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
                 self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
         self._episode_ended = False
@@ -195,7 +204,7 @@ class Frenchstone(py_environment.PyEnvironment):
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
             self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
             if not self._state.game_on:
-                reward = -100
+                reward = -150
                 self._episode_ended = True
                 return ts.termination(obs, reward)
 
@@ -213,13 +222,13 @@ eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
 num_iterations = 100000  # @param {type:"integer"}
-initial_collect_steps = 1  # @param {type:"integer"}
-collect_steps_per_iteration = 50  # @param {type:"integer"}
-replay_buffer_capacity = 100000  # @param {type:"integer"}
+initial_collect_steps = 10  # @param {type:"integer"}
+collect_steps_per_iteration = 40  # @param {type:"integer"}
+replay_buffer_capacity = 70000  # @param {type:"integer"}
 
-batch_size = 1024  # @param {type:"integer"}
+batch_size = 512  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=2e-6,
+    initial_learning_rate=1e-6,
     decay_steps=10000,
     decay_rate=0.9)
 
@@ -228,7 +237,7 @@ log_interval = 200  # @param {type:"integer"}
 num_eval_episodes = 100  # @param {type:"integer"}
 eval_interval = 1000  # @param {type:"integer"}
 
-fc_layer_params = (500, 300, 250, 200, 100, 50, 30)
+fc_layer_params = (300, 250, 200, 100, 50, 30)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -261,11 +270,13 @@ optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
 train_step_counter = tf.Variable(0)
 # Epsilon decay
-epsilon = tf.keras.optimizers.schedules.PolynomialDecay(
+epsilon = keras.optimizers.schedules.learning_rate_schedule.PolynomialDecay(
     1.0,
-    num_iterations,
-    0.0001,
-    power=1)
+    80000,
+    0.001,
+    power=0.8
+)
+
 
 def observation_action_splitter(obs):
     return obs['observation'], obs['valid_actions']
@@ -281,6 +292,7 @@ agent = dqn_agent.DdqnAgent(
     observation_and_action_constraint_splitter=observation_action_splitter,
     boltzmann_temperature=None,
     epsilon_greedy=epsilon(train_step_counter))
+
 
 agent.initialize()
 
@@ -305,12 +317,12 @@ def compute_avg_return(environment, policy, num_episodes=10):
             episode_return += timestep.reward
         total_return += episode_return
 
-    avg_return = total_return / num_episodes
-    return avg_return.numpy()[0]
+    average_return = total_return / num_episodes
+    return average_return.numpy()[0]
 
 
-random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),
-                                                train_env.action_spec())
+# random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),
+#                                                 train_env.action_spec())
 
 
 """ Relance du dernier modèle """
@@ -323,6 +335,7 @@ q_policy = q_policy.QPolicy(train_env.time_step_spec(),
                             train_env.action_spec(),
                             q_net,
                             observation_and_action_constraint_splitter=observation_action_splitter)
+
 """-------------------------------------------------"""
 
 
@@ -362,8 +375,8 @@ for _ in range(initial_collect_steps):
 # Dataset generates trajectories with shape [BxTx...] where
 # T = n_step_update + 1.
 dataset = replay_buffer.as_dataset(
-    num_parallel_calls=5, sample_batch_size=batch_size,
-    num_steps=2).prefetch(3)
+    num_parallel_calls=10, sample_batch_size=batch_size,
+    num_steps=2).prefetch(10)
 
 
 iterator = iter(dataset)
@@ -389,6 +402,8 @@ for _ in range(num_iterations):
     experience, unused_info = next(iterator)
     train_loss = agent.train(experience)
     step = agent.train_step_counter.numpy()
+    agent._epsilon_greedy_policy = epsilon(train_step_counter)
+    agent.collect_policy._epsilon = epsilon(train_step_counter)
 
     if step % log_interval == 0:
         print('step = {0}: loss = {1}'.format(step, train_loss.loss))

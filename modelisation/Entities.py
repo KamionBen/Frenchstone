@@ -12,7 +12,8 @@ heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "R
           "Démoniste": ["Gul'dan"],
           "Chasseur de démons": ["Ilidan"],
           "Druide" : ["Malfurion"],
-          "Voleur" : ["Valeera"]
+          "Voleur" : ["Valeera"],
+          "Guerrier": ["Garrosh"]
           }  # Devra être dans un fichier à part
 
 
@@ -28,7 +29,8 @@ class Plateau:
                        'Démoniste': 'test_deck.csv',
                        'Chasseur de démons': 'test_deck.csv',
                        'Druide': 'test_deck.csv',
-                       'Voleur': 'test_deck.csv'
+                       'Voleur': 'test_deck.csv',
+                       'Guerrier': 'test_deck.csv'
                        }
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
@@ -142,7 +144,8 @@ class Plateau:
                        "pseudo_adv": adv.name,
                        "victoire": 0}
         """ HERO """
-        for classe_heros in ["Mage", "Chasseur", "Paladin", "Démoniste", "Chasseur de démons", "Druide", "Voleur"]:
+        for classe_heros in ["Mage", "Chasseur", "Paladin", "Démoniste", "Chasseur de démons", "Druide", "Voleur",
+                             "Guerrier"]:
             if player.classe == classe_heros:
                 action_line[f"is_{classe_heros}"] = 1
             else:

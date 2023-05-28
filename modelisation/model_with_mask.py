@@ -26,7 +26,7 @@ def generate_legal_vector(state):
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     """ Notre héros peut attaquer """
-    if gamestate["remaining_atk_j"] > 0:
+    if gamestate["remaining_atk_j"] > 0 and gamestate["attaque_j"] > 0:
         legal_actions[11] = True
         for j in range(1, 8):
             if gamestate[f"atq_serv{j}_adv"] != -99:
@@ -68,7 +68,10 @@ def estimated_advantage(action, state):
     elif action < 11:
         TourEnCours(next_state).jouer_carte(next_state.players[0].hand[action - 1])
     elif 11 <= action < 75:
-        attacker = next_state.players[0].servants[int((action - 11) // 8 - 1)]
+        if (action - 11) // 8 == 0:
+            attacker = next_state.players[0].hero
+        else:
+            attacker = next_state.players[0].servants[int((action - 11) // 8 - 1)]
         if (action - 11) % 8 == 0:
             target = next_state.players[1].hero
         else:
@@ -88,20 +91,22 @@ def estimated_advantage(action, state):
     next_state.update()
 
     def calc_advantage(state):
-        advantage = state["nbre_cartes_j"] - state["nbre_cartes_adv"]
+        advantage = (state["nbre_cartes_j"] - state["nbre_cartes_adv"]) + 0.75 * (state["nbre_cartes_j"] / max(1, state["nbre_cartes_adv"]))
         for i in range(1, 8):
             if state[f"serv{i}_j"] != -99:
-                advantage += 2 * state[f"atq_serv{i}_j"] + 2 * state[f"pv_serv{i}_j"]
+                advantage += 1.5 * state[f"atq_serv{i}_j"] + 1.5 * state[f"pv_serv{i}_j"]
             if state[f"serv{i}_adv"] != -99:
-                advantage -= 2 * state[f"atq_serv{i}_adv"] + 2 * state[f"pv_serv{i}_adv"]
-        advantage += state["pv_j"] - state["pv_adv"]
+                advantage -= 1.5 * state[f"atq_serv{i}_adv"] + 1.5 * state[f"pv_serv{i}_adv"]
+        advantage += 0.75 * (pow(30 - state["pv_adv"], 1.5) - pow(30 - state["pv_j"], 1.5))
         if state["pv_adv"] <= 0:
-            return advantage + 100
+            return 500
+        elif state["pv_j"] <= 0:
+            return -500
         return advantage
 
     actual_advantage = calc_advantage(actual_state.get_gamestate())
     if action == 0:
-        predicted_advantage = actual_advantage - 1
+        return actual_advantage - 1
     else:
         predicted_advantage = calc_advantage(next_state.get_gamestate())
 
@@ -113,15 +118,15 @@ def estimated_advantage(action, state):
     # print(f"Avantage prévu : {predicted_advantage}")
     # print('-------------------------------------------')
 
-    return predicted_advantage - actual_advantage
+    return predicted_advantage
 
 
 players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
 plateau_depart = Plateau(players)
-classes_heros = ["Mage", "Chasseur", "Paladin", "Démoniste", "Chasseur de démons", "Druide"]
+classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier"]
 
-columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j",
-                        "pv_adv", "nbre_cartes_j", "nbre_cartes_adv"]
+columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j",
+                        "nbre_cartes_adv", "armor_j", "armor_adv", "attaque_j", "remaining_atk_j"]
 
 """ HERO """
 for classe_heros in classes_heros:
@@ -196,15 +201,18 @@ class Frenchstone(py_environment.PyEnvironment):
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-
         if not self._state.game_on:
+            # print(action, reward)
+            # print('----------------------------------------------')
             self._episode_ended = True
             return ts.termination(obs, reward)
 
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
             self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
             if not self._state.game_on:
-                reward = -150
+                reward = -500
+                # print(action, reward)
+                # print('----------------------------------------------')
                 self._episode_ended = True
                 return ts.termination(obs, reward)
 
@@ -212,6 +220,7 @@ class Frenchstone(py_environment.PyEnvironment):
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
+        # print(action, reward)
         return ts.transition(obs, reward)
 
 
@@ -223,8 +232,8 @@ time_step = train_env.reset()
 
 num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
-collect_steps_per_iteration = 40  # @param {type:"integer"}
-replay_buffer_capacity = 70000  # @param {type:"integer"}
+collect_steps_per_iteration = 50  # @param {type:"integer"}
+replay_buffer_capacity = 60000  # @param {type:"integer"}
 
 batch_size = 512  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
@@ -273,7 +282,7 @@ train_step_counter = tf.Variable(0)
 epsilon = keras.optimizers.schedules.learning_rate_schedule.PolynomialDecay(
     1.0,
     80000,
-    0.001,
+    0.05,
     power=0.8
 )
 
@@ -315,6 +324,9 @@ def compute_avg_return(environment, policy, num_episodes=10):
             # print('-----------------------------------------')
             # print(timestep)
             episode_return += timestep.reward
+        # print(timestep)
+        # print(episode_return)
+        # print('----------------------------------------------------------')
         total_return += episode_return
 
     average_return = total_return / num_episodes
@@ -350,20 +362,23 @@ replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
 
 def collect_step(environment, policy):
     timestep = environment.current_time_step()
-    action_step = policy.action(timestep)
-    next_time_step = environment.step(action_step.action)
     # print(timestep)
     # print('-------------------------------------------------')
+    action_step = policy.action(timestep)
+    # print(policy._action_spec)
+    # print(policy.policy_state_spec)
+    # print(policy.policy_step_spec)
     # print(action_step)
     # print('-------------------------------------------------')
+    next_time_step = environment.step(action_step.action)
     # print(next_time_step)
     # print('-------------------------------------------------')
-    # print('-------------------------------------------------')
-    # print('-------------------------------------------------')
     traj = trajectory.from_transition(timestep, action_step, next_time_step)
-
     # Add trajectory to the replay buffer
     replay_buffer.add_batch(traj)
+    # print('-------------------------------------------------')
+    # print('-------------------------------------------------')
+    # print('-------------------------------------------------')
 
 
 for _ in range(initial_collect_steps):
@@ -402,8 +417,12 @@ for _ in range(num_iterations):
     experience, unused_info = next(iterator)
     train_loss = agent.train(experience)
     step = agent.train_step_counter.numpy()
-    agent._epsilon_greedy_policy = epsilon(train_step_counter)
-    agent.collect_policy._epsilon = epsilon(train_step_counter)
+    if step % 1000 < 500:
+        agent._epsilon_greedy = epsilon(train_step_counter)
+        agent.collect_policy._epsilon = epsilon(train_step_counter)
+    else:
+        agent._epsilon_greedy = 0.0
+        agent.collect_policy._epsilon = 0.0
 
     if step % log_interval == 0:
         print('step = {0}: loss = {1}'.format(step, train_loss.loss))
@@ -437,6 +456,6 @@ plt.plot(steps, returns)
 plt.plot(steps, returns2)
 plt.ylabel('Average Return')
 plt.xlabel('Step')
-plt.ylim(bottom=-100)
-plt.ylim(top=200)
+plt.ylim(bottom=-600)
+plt.ylim(top=600)
 plt.show()

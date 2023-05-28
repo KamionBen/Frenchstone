@@ -313,7 +313,10 @@ class TourEnCours:
                 player.servants.add(carte)
             elif classe == "Démoniste":
                 cible.damage(2)
-                player.pick()
+                if len(player.deck) > 0:
+                    player.pick()
+                else:
+                    cible.fatigue += 1
             elif classe == "Chasseur de démons":
                 cible.attack += 1
             elif classe == "Druide":
@@ -324,6 +327,8 @@ class TourEnCours:
                 cible.weapon.attack = 1
                 cible.weapon.durability = 2
                 cible.attack += cible.weapon.attack
+            elif classe == "Guerrier":
+                cible.armor += 2
             player.mana_spend(player.hero.cout_pouvoir)
             player.hero.dispo_pouvoir = False
             self.plt.update()
@@ -562,8 +567,11 @@ class Orchestrator:
 
         """ Le modèle choisit l'action à effectuer parmi les actions légales """
         columns_actual_state_new = columns_actual_state.copy()
-        columns_actual_state_new.append("is_Mage")
-        columns_actual_state_new.append("is_Chasseur")
+        columns_actual_state_new.extend(["armor_j", "armor_adv", "attaque_j", "remaining_atk_j"])
+        """ HERO """
+        classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier"]
+        for classe_heros in classes_heros:
+            columns_actual_state_new.append(f"is_{classe_heros}")
         input_state = np.array(itemgetter(*columns_actual_state_new)(action_line))
         legal_actions = generate_legal_vector(plateau)
 
@@ -619,7 +627,6 @@ class Orchestrator:
         plateau.update()
         return plateau
 
-
     def tour_ia_training(self, plateau, action):
         """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
 
@@ -632,7 +639,10 @@ class Orchestrator:
         elif action < 11:
             TourEnCours(plateau).jouer_carte(plateau.players[0].hand[action - 1])
         elif 11 <= action < 75:
-            attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
+            if (action - 11) // 8 == 0:
+                attacker = plateau.players[0].hero
+            else:
+                attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
             if (action - 11) % 8 == 0:
                 target = plateau.players[1].hero
             else:
@@ -789,23 +799,12 @@ class Orchestrator:
         i = 0
         scores = {}
 
-        players1 = players
-        players2 = deepcopy([players[1], players[0]])
-
-        """ Sauvegarde temporaire des plateaux initiaux"""
-        with open('plateau_init1.pickle', 'wb') as f:
-            pickle.dump(Plateau(players1), f)
-        with open('plateau_init2.pickle', 'wb') as f:
-            pickle.dump(Plateau(players2), f)
-
-
-
         """ On simule nb_games parties """
         """ La moitié où le joueur 1 commence """
         for i in range(0, round(nb_games/2)):
             logs_inter = []
-            with open('plateau_init1.pickle', 'rb') as f:
-                mon_plateau = pickle.load(f)
+            players1 = deepcopy(players)
+            mon_plateau = Plateau(players1)
             while mon_plateau.game_on:
                 if mon_plateau.game_turn % 2 == 0:
                     mon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy, oldpolicy_state)
@@ -827,13 +826,13 @@ class Orchestrator:
 
         for i in range(round(nb_games/2), nb_games):
             logs_inter = []
-            with open('plateau_init2.pickle', 'rb') as f:
-                mon_plateau = pickle.load(f)
+            players2 = deepcopy([players[1], players[0]])
+            mon_plateau = Plateau(players2)
             while mon_plateau.game_on:
                 if mon_plateau.game_turn % 2 == 0:
                     mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, new_policy, policy_state)
                 else:
-                    mmon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy, oldpolicy_state)
+                    mon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy, oldpolicy_state)
 
             """Actions de fin de partie"""
             winner = mon_plateau.winner
@@ -850,8 +849,6 @@ class Orchestrator:
 
         """ Concaténation des logs + suppression des plateaux temporaires """
         logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis=1)
-        os.remove('plateau_init1.pickle')
-        os.remove('plateau_init2.pickle')
         return logs_hs, scores
 
     def generate_ia_game(self, nb_games, players=()):

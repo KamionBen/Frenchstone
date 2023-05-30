@@ -311,6 +311,9 @@ class TourEnCours:
             elif classe == "Paladin":
                 carte = get_card("Recrue de la main d'argent", get_cards_data("cards.json"))
                 player.servants.add(carte)
+            elif classe == "Chevalier de la mort":
+                carte = get_card("Goule fragile", get_cards_data("cards.json"))
+                player.servants.add(carte)
             elif classe == "Démoniste":
                 cible.damage(2)
                 if len(player.deck) > 0:
@@ -329,6 +332,12 @@ class TourEnCours:
                 cible.attack += cible.weapon.attack
             elif classe == "Guerrier":
                 cible.armor += 2
+            elif classe == "Chaman":
+                cartes = [get_card("Totem de soin", get_cards_data("cards.json")),
+                          get_card("Totem incendiaire", get_cards_data("cards.json")),
+                          get_card("Totem de puissance", get_cards_data("cards.json")),
+                          get_card("Totem de griffes de pierre", get_cards_data("cards.json"))]
+                player.servants.add(random.choice(cartes))
             player.mana_spend(player.hero.cout_pouvoir)
             player.hero.dispo_pouvoir = False
             self.plt.update()
@@ -360,7 +369,7 @@ class Orchestrator:
         if player.hero.attack > 0 and player.hero.remaining_atk > 0:
             action_possible.append(player.hero)
         if player.hero.cout_pouvoir <= player.mana and player.hero.dispo_pouvoir:
-            if not (player.classe == "Paladin" and len(player.servants) == 7):
+            if not (player.classe in ["Paladin", "Chevalier de la mort"] and len(player.servants) == 7):
                 action_possible.append("Pouvoir_heroique")
 
         action = choice(action_possible) # Choix aléatoire de l'action à effectuer
@@ -569,7 +578,8 @@ class Orchestrator:
         columns_actual_state_new = columns_actual_state.copy()
         columns_actual_state_new.extend(["armor_j", "armor_adv", "attaque_j", "remaining_atk_j"])
         """ HERO """
-        classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier"]
+        classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste",
+                         "Guerrier", "Chevalier de la mort"]
         for classe_heros in classes_heros:
             columns_actual_state_new.append(f"is_{classe_heros}")
         input_state = np.array(itemgetter(*columns_actual_state_new)(action_line))

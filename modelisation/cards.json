@@ -1461,5 +1461,60 @@
         "attack": 1,
         "health": 1,
         "description": null
+    },
+        {
+        "id": 134,
+        "name": "Goule fragile",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "description": "Charge"
+    },
+    {
+        "id": 135,
+        "name": "Totem de soins",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 0,
+        "health": 2,
+        "description": "à la fin de votre tour, rends 2Pv à chaque serviteur allié"
+    },
+    {
+        "id": 136,
+        "name": "Totem incendiaire",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "description": null
+    },
+    {
+        "id": 136,
+        "name": "Totem de puissance",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 0,
+        "health": 2,
+        "description": "à la fin du tour, donne +1 atq à un serviteur allié"
+    },
+    {
+        "id": 137,
+        "name": "Totem de griffes de pierre",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 0,
+        "health": 2,
+        "description": "Provocation"
     }
 ]

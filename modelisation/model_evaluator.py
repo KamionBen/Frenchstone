@@ -6,18 +6,25 @@ from Entities import *
 import matplotlib.pyplot as plt
 
 def generate_perf_plot(nb_games, nb_models):
-    score_new_ia = []
+    score_new_ia = {}
+    classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
+                     "Chevalier de la mort"]
+    for classe in classes_heros:
+        score_new_ia[classe] = []
     for i in range(1, nb_models + 1):
-        players = [Player("OldIA", "Mage"), Player("NewIA", "Chasseur")]
-        logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(nb_games, tf.compat.v2.saved_model.load(
-            f"frenchstone_agent_v0.02-a-{i * 1000}"), players)
-        try:
-            score_new_ia.append(score_oldia['NewIA'])
-        except:
-            score_new_ia.append(0)
+        for classe in classes_heros:
+            players = [Player("OldIA", "Mage"), Player("NewIA", classe)]
+            logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(nb_games, tf.compat.v2.saved_model.load(
+                f"frenchstone_agent_v0.02-a-{i * 1000}"), players)
+            try:
+                score_new_ia[classe].append(score_oldia['NewIA'])
+            except:
+                score_new_ia[classe].append(0)
         print(i)
     steps = range(1, nb_models + 1, 1)
-    plt.plot(steps, score_new_ia)
+    for classe in classes_heros:
+        plt.plot(steps, score_new_ia[classe], label=classe)
+    plt.legend(loc='upper left')
     plt.ylabel('Games won')
     plt.xlabel('Iteration of model')
     plt.ylim(bottom=0)
@@ -35,9 +42,9 @@ def generate_perf_plot(nb_games, nb_models):
 # logs_hs_randomia['id_partie'] = logs_hs_randomia['id_partie'] + 10000
 
 """ Générateur de parties avec le modèle contre son prédecesseur """
-players = [Player("OldIA", "Mage"), Player("NewIA", "Chasseur")]
-logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.02-a-32000"), players)
-# generate_perf_plot(1000, 100)
+players = [Player("OldIA", "Mage"), Player("NewIA", "Paladin")]
+logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_cat_agent_v0.02-a-33000"), players)
+# generate_perf_plot(100, 5)
 
 
 # """ Générateur de parties avec le modèle contre lui-même """

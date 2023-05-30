@@ -13,7 +13,8 @@ heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "R
           "Chasseur de démons": ["Ilidan"],
           "Druide" : ["Malfurion"],
           "Voleur" : ["Valeera"],
-          "Guerrier": ["Garrosh"]
+          "Guerrier": ["Garrosh"],
+          "Chevalier de la mort": ["Le Roi-Liche"]
           }  # Devra être dans un fichier à part
 
 
@@ -30,7 +31,8 @@ class Plateau:
                        'Chasseur de démons': 'test_deck.csv',
                        'Druide': 'test_deck.csv',
                        'Voleur': 'test_deck.csv',
-                       'Guerrier': 'test_deck.csv'
+                       'Guerrier': 'test_deck.csv',
+                       'Chevalier de la mort': 'test_deck.csv'
                        }
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
@@ -47,6 +49,7 @@ class Plateau:
         """ Mélange des decks et tirage de la main de départ """
         for player in self.players:
             player.start_game()
+        self.players[1].pick()
 
         """ Gestion du mana """
         """ Le premier joueur démarre son tour à l'initialisation """
@@ -86,10 +89,10 @@ class Plateau:
             targets = [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards
         elif player.classe == "Chasseur":
             targets.append(adv.hero)
-        elif player.classe == "Paladin":
+        elif player.classe in ["Paladin", "Chevalier de la mort"]:
             if len(player.servants) < 7:
                 targets.append(player.hero)
-        elif player.classe in ["Chevalier de la mort", "Chasseur de démons", "Druide",
+        elif player.classe in ["Chasseur de démons", "Druide",
                                "Voleur", "Chaman", "Démoniste", "Guerrier"]:
             targets.append(player.hero)
         return targets
@@ -145,7 +148,7 @@ class Plateau:
                        "victoire": 0}
         """ HERO """
         for classe_heros in ["Mage", "Chasseur", "Paladin", "Démoniste", "Chasseur de démons", "Druide", "Voleur",
-                             "Guerrier"]:
+                             "Guerrier", "Chevalier de la mort"]:
             if player.classe == classe_heros:
                 action_line[f"is_{classe_heros}"] = 1
             else:
@@ -237,6 +240,10 @@ class Player:
     def end_turn(self):
         """ Mise à jour de fin de tour """
         self.hero.attack = 0
+        if self.classe == "Chevalier de la mort":
+            for servant in self.servants:
+                if servant.name == "Goule fragile":
+                    self.servants.remove(servant)
 
     def mana_spend(self, nb):
         self.mana -= nb

@@ -91,17 +91,15 @@ def estimated_advantage(action, state):
     next_state.update()
 
     def calc_advantage(state):
-        advantage = (state["nbre_cartes_j"] - state["nbre_cartes_adv"]) + 0.75 * (state["nbre_cartes_j"] / max(1, state["nbre_cartes_adv"]))
+        advantage = (state["nbre_cartes_j"] - state["nbre_cartes_adv"]) + 0.8 * (
+                    state["nbre_cartes_j"] / max(1, state["nbre_cartes_adv"]))
         for i in range(1, 8):
             if state[f"serv{i}_j"] != -99:
                 advantage += 1.5 * state[f"atq_serv{i}_j"] + 1.5 * state[f"pv_serv{i}_j"]
             if state[f"serv{i}_adv"] != -99:
                 advantage -= 1.5 * state[f"atq_serv{i}_adv"] + 1.5 * state[f"pv_serv{i}_adv"]
-        advantage += 0.75 * (pow(30 - state["pv_adv"], 1.5) - pow(30 - state["pv_j"], 1.5))
-        if state["pv_adv"] <= 0:
-            return 500
-        elif state["pv_j"] <= 0:
-            return -500
+        advantage += 0.25 * (pow(30 - state["pv_adv"], 1.3) - pow(30 - state["pv_j"], 1.3))
+        advantage += state["attaque_j"]
         return advantage
 
     actual_advantage = calc_advantage(actual_state.get_gamestate())
@@ -123,7 +121,8 @@ def estimated_advantage(action, state):
 
 players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
 plateau_depart = Plateau(players)
-classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier"]
+classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
+                 "Chevalier de la mort"]
 
 columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j",
                         "nbre_cartes_adv", "armor_j", "armor_adv", "attaque_j", "remaining_atk_j"]
@@ -192,7 +191,8 @@ class Frenchstone(py_environment.PyEnvironment):
             return self.reset()
 
         """ Estimation de la récompense """
-        reward = estimated_advantage(action, self._state)
+        # reward = estimated_advantage(action, self._state)
+        reward = 0
 
         """ Gestion des actions légales """
         self._state = Orchestrator().tour_ia_training(self._state, action)
@@ -204,13 +204,20 @@ class Frenchstone(py_environment.PyEnvironment):
         if not self._state.game_on:
             # print(action, reward)
             # print('----------------------------------------------')
+            if self._state.winner.name == "NewIA":
+                reward = 500
+            else:
+                reward = -500
             self._episode_ended = True
             return ts.termination(obs, reward)
 
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
             self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
             if not self._state.game_on:
-                reward = -500
+                if self._state.winner.name == "NewIA":
+                    reward = 500
+                else:
+                    reward = -500
                 # print(action, reward)
                 # print('----------------------------------------------')
                 self._episode_ended = True
@@ -235,9 +242,9 @@ initial_collect_steps = 10  # @param {type:"integer"}
 collect_steps_per_iteration = 50  # @param {type:"integer"}
 replay_buffer_capacity = 60000  # @param {type:"integer"}
 
-batch_size = 512  # @param {type:"integer"}
+batch_size = 1024  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=1e-6,
+    initial_learning_rate=2e-7,
     decay_steps=10000,
     decay_rate=0.9)
 
@@ -273,7 +280,7 @@ q_values_layer = tf.keras.layers.Dense(
         minval=-0.03, maxval=0.03),
     bias_initializer=tf.keras.initializers.Constant(-0.2))
 flatten_layer = tf.keras.layers.Flatten()
-q_net = sequential.Sequential(dense_layers + [q_values_layer] + [flatten_layer])
+q_net = sequential.Sequential([mask_layer] + dense_layers + [q_values_layer] + [flatten_layer])
 
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
@@ -417,7 +424,7 @@ for _ in range(num_iterations):
     experience, unused_info = next(iterator)
     train_loss = agent.train(experience)
     step = agent.train_step_counter.numpy()
-    if step % 1000 < 500:
+    if step % 1000 < 750:
         agent._epsilon_greedy = epsilon(train_step_counter)
         agent.collect_policy._epsilon = epsilon(train_step_counter)
     else:

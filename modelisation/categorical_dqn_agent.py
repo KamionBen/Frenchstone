@@ -66,6 +66,13 @@ def estimated_advantage(action, state):
 
     if action == 0:
         TourEnCours(next_state).fin_du_tour()
+        while next_state.get_gamestate()['pseudo_j'] == 'OldIA':
+            next_state = Orchestrator().tour_oldia_training(next_state, old_policy, oldpolicy_state)
+            if not next_state.game_on:
+                if next_state.winner.name == "NewIA":
+                    return 500
+                else:
+                    return -500
     elif action < 11:
         TourEnCours(next_state).jouer_carte(next_state.players[0].hand[action - 1])
     elif 11 <= action < 75:
@@ -91,6 +98,12 @@ def estimated_advantage(action, state):
 
     next_state.update()
 
+    if not next_state.game_on:
+        if next_state.winner.name == "NewIA":
+            return 500
+        else:
+            return -500
+
     def calc_advantage(state):
         advantage = (state["nbre_cartes_j"] - state["nbre_cartes_adv"]) + 0.8 * (state["nbre_cartes_j"] / max(1, state["nbre_cartes_adv"]))
         for i in range(1, 8):
@@ -103,10 +116,7 @@ def estimated_advantage(action, state):
         return advantage
 
     actual_advantage = calc_advantage(actual_state.get_gamestate())
-    if action == 0:
-        return actual_advantage - 1
-    else:
-        predicted_advantage = calc_advantage(next_state.get_gamestate())
+    predicted_advantage = calc_advantage(next_state.get_gamestate())
 
 
     # print(actual_state.get_gamestate())
@@ -116,7 +126,7 @@ def estimated_advantage(action, state):
     # print(f"Avantage prévu : {predicted_advantage}")
     # print('-------------------------------------------')
 
-    return predicted_advantage
+    return round(predicted_advantage - actual_advantage, 2)
 
 
 players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
@@ -186,48 +196,25 @@ class Frenchstone(py_environment.PyEnvironment):
     def _step(self, action):
 
         if self._episode_ended:
-            # The last action ended the episode. Ignore the current action and start
-            # a new episode.
             return self.reset()
 
         """ Estimation de la récompense """
-        # reward = estimated_advantage(action, self._state)
-        reward = 0
+        reward = estimated_advantage(action, self._state)
+        # reward = 0
 
         """ Gestion des actions légales """
         self._state = Orchestrator().tour_ia_training(self._state, action)
 
-        legal_actions = generate_legal_vector(self._state)
-        obs = self.observation_spec()
-        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
-        obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-        if not self._state.game_on:
-            # print(action, reward)
-            # print('----------------------------------------------')
-            if self._state.winner.name == "NewIA":
-                reward = 500
-            else:
-                reward = -500
-            self._episode_ended = True
-            return ts.termination(obs, reward)
-
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
             self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
-            if not self._state.game_on:
-                if self._state.winner.name == "NewIA":
-                    reward = 500
-                else:
-                    reward = -500
-                # print(action, reward)
-                # print('----------------------------------------------')
-                self._episode_ended = True
-                return ts.termination(obs, reward)
 
         legal_actions = generate_legal_vector(self._state)
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-        # print(action, reward)
+        if reward in [-500, 500]:
+            self._episode_ended = True
+            return ts.termination(obs, reward)
         return ts.transition(obs, reward)
 
 
@@ -239,17 +226,17 @@ time_step = train_env.reset()
 
 num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
-collect_steps_per_iteration = 40  # @param {type:"integer"}
+collect_steps_per_iteration = 2  # @param {type:"integer"}
 replay_buffer_capacity = 60000  # @param {type:"integer"}
 
 
 num_atoms = 91  # @param {type:"integer"}
-min_q_value = -500  # @param {type:"integer"}
-max_q_value = 500  # @param {type:"integer"}
-n_step_update = 40  # @param {type:"integer"}
+min_q_value = -700  # @param {type:"integer"}
+max_q_value = 700  # @param {type:"integer"}
+n_step_update = 10  # @param {type:"integer"}
 
 
-batch_size = 512  # @param {type:"integer"}
+batch_size = 1024  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate=1e-7,
     decay_steps=10000,

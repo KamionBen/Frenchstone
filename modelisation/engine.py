@@ -258,7 +258,7 @@ env = tf_py_environment.TFPyEnvironment(env)
 
 old_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
 oldpolicy_state = old_policy.get_initial_state(batch_size=512)
-saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02-a-9000')
+saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
 policy_state = saved_policy.get_initial_state(batch_size=512)
 
 
@@ -277,6 +277,8 @@ class TourEnCours:
             if carte.type.lower() == "sort":
                 player.hand.remove(carte)
                 player.mana_spend(carte.cost)
+                if "add_mana" in carte.effects:
+                    player.mana += carte.effects["add_mana"]
             elif carte.type.lower() == "serviteur":
                 if len(player.servants) < 7:
                     player.hand.remove(carte)

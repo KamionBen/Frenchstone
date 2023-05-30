@@ -49,7 +49,9 @@ class Plateau:
         """ Mélange des decks et tirage de la main de départ """
         for player in self.players:
             player.start_game()
+        """ Le joueur 2 reçoit une carte en plus et la pièce """
         self.players[1].pick()
+        # self.players[1].hand.add(get_card(0, get_cards_data("cards.json")))
 
         """ Gestion du mana """
         """ Le premier joueur démarre son tour à l'initialisation """
@@ -427,7 +429,7 @@ class Card:
 
         """ Description """
         self.name = kw["name"]
-        self.description = kw["description"]
+        self.effects = kw["effects"]
         self.genre = kw["genre"]
 
         """ Category """
@@ -440,10 +442,7 @@ class Card:
         self.health, self.base_health = kw["health"], kw["health"]
         
         """ Combat """
-        self.effects = {}
         self.remaining_atk = 0
-
-        self.parse_description()
 
     def generate_id(self, base_id):
         x = 0
@@ -454,21 +453,11 @@ class Card:
     def get_effects(self):
         return list(self.effects.values())
 
-    def parse_description(self):
-        if self.description == "Provocation":
-            self.effects["Provocation"] = Effect("Provocation")
-        if self.description == "Ruée":
-            self.effects["Ruée"] = Effect("Ruée", active=True)
-            self.remaining_atk = 1
-        if self.description == "Charge":
-            self.effects["Charge"] = Effect("Charge")
-            self.remaining_atk = 1
-
     def reset(self):
         """ Reset de début de tour """
         self.remaining_atk = 1
-        if "Ruée" in self.effects:
-            self.effects["Ruée"].active = False
+        # if "Ruée" in self.effects:
+        #     self.effects["Ruée"].active = False
 
     def reset_complete(self):
         self.cost = self.base_cost
@@ -506,19 +495,6 @@ class Weapon:
 
         self.attack = 0
         self.durability = 0
-
-
-class Effect:
-    def __init__(self, name, active=None):
-        self.name = name
-        self.active = active
-
-    def __eq__(self, other):
-        return other.lower() == self.name.lower()
-
-    def __repr__(self):
-        return self.name
-
 
 """ FUNCTIONS """
 

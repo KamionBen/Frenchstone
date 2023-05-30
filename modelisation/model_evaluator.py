@@ -21,9 +21,16 @@ def generate_perf_plot(nb_games, nb_models):
             except:
                 score_new_ia[classe].append(0)
         print(i)
+    moyenne_model = []
+    for i in range(nb_models):
+        moyenne_model.append(0)
+        for classe in classes_heros:
+            moyenne_model[i] += score_new_ia[classe][i]/len(classes_heros)
+
     steps = range(1, nb_models + 1, 1)
     for classe in classes_heros:
         plt.plot(steps, score_new_ia[classe], label=classe)
+    plt.plot(steps, moyenne_model, label = 'moyenne')
     plt.legend(loc='upper left')
     plt.ylabel('Games won')
     plt.xlabel('Iteration of model')
@@ -42,9 +49,9 @@ def generate_perf_plot(nb_games, nb_models):
 # logs_hs_randomia['id_partie'] = logs_hs_randomia['id_partie'] + 10000
 
 """ Générateur de parties avec le modèle contre son prédecesseur """
-players = [Player("OldIA", "Mage"), Player("NewIA", "Paladin")]
-logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_cat_agent_v0.02-a-33000"), players)
-# generate_perf_plot(100, 5)
+# players = [Player("OldIA", "Mage"), Player("NewIA", "Paladin")]
+# logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.02-a-15000"), players)
+generate_perf_plot(100, 16)
 
 
 # """ Générateur de parties avec le modèle contre lui-même """
@@ -54,11 +61,11 @@ logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v
 # """ Affichage des résultats """
 # print(logs_hs_oldia.to_string())
 # print(score_randomia)
-print(score_oldia)
+# print(score_oldia)
 
 """ Sauvegarde des logs"""
-os.remove('logs_games.pickle')
-with open('logs_games.pickle', 'wb') as f:
-    pickle.dump(logs_hs_oldia, f)
+# os.remove('logs_games.pickle')
+# with open('logs_games.pickle', 'wb') as f:
+#     pickle.dump(logs_hs_oldia, f)
 
 

@@ -108,10 +108,10 @@ def estimated_advantage(action, state):
         advantage = (state["nbre_cartes_j"] - state["nbre_cartes_adv"]) + 0.8 * (state["nbre_cartes_j"] / max(1, state["nbre_cartes_adv"]))
         for i in range(1, 8):
             if state[f"serv{i}_j"] != -99:
-                advantage += 1.5 * state[f"atq_serv{i}_j"] + 1.5 * state[f"pv_serv{i}_j"]
+                advantage += 1.75 * state[f"atq_serv{i}_j"] + 1.75 * state[f"pv_serv{i}_j"]
             if state[f"serv{i}_adv"] != -99:
-                advantage -= 1.5 * state[f"atq_serv{i}_adv"] + 1.5 * state[f"pv_serv{i}_adv"]
-        advantage += 0.25 * (pow(30 - state["pv_adv"], 1.3) - pow(30 - state["pv_j"], 1.3))
+                advantage -= 1.75 * state[f"atq_serv{i}_adv"] + 1.75 * state[f"pv_serv{i}_adv"]
+        advantage += 0.22 * (pow(30 - state["pv_adv"], 1.3) - pow(30 - state["pv_j"], 1.3))
         advantage += state["attaque_j"]
         return advantage
 
@@ -226,19 +226,19 @@ time_step = train_env.reset()
 
 num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
-collect_steps_per_iteration = 2  # @param {type:"integer"}
+collect_steps_per_iteration = 40  # @param {type:"integer"}
 replay_buffer_capacity = 60000  # @param {type:"integer"}
 
 
-num_atoms = 91  # @param {type:"integer"}
-min_q_value = -700  # @param {type:"integer"}
-max_q_value = 700  # @param {type:"integer"}
-n_step_update = 10  # @param {type:"integer"}
+num_atoms = 51  # @param {type:"integer"}
+min_q_value = -600  # @param {type:"integer"}
+max_q_value = 600  # @param {type:"integer"}
+n_step_update = 30  # @param {type:"integer"}
 
 
-batch_size = 1024  # @param {type:"integer"}
+batch_size = 512  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=1e-7,
+    initial_learning_rate=1e-4,
     decay_steps=10000,
     decay_rate=0.9)
 
@@ -289,8 +289,7 @@ epsilon = keras.optimizers.schedules.learning_rate_schedule.PolynomialDecay(
 )
 
 preprocessing_layers = {
-    'observation': tf.keras.Sequential([tf.keras.layers.Masking(mask_value=-99),
-                                        tf.keras.layers.Dense(num_actions, activation=None)]),
+    'observation': tf.keras.layers.Dense(num_actions, activation=None),
     'valid_actions': tf.keras.layers.Dense(num_actions, activation=None)
     }
 
@@ -320,10 +319,11 @@ agent = categorical_dqn_agent.CategoricalDqnAgent(
     max_q_value=max_q_value,
     n_step_update=n_step_update,
     td_errors_loss_fn=common_utils.element_wise_squared_loss,
-    gamma=0.99,
+    gamma=1,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
     epsilon_greedy=epsilon(train_step_counter))
+
 agent.initialize()
 
 
@@ -439,9 +439,7 @@ for _ in range(num_iterations):
     experience, unused_info = next(iterator)
     train_loss = agent.train(experience)
     step = agent.train_step_counter.numpy()
-    if step % 1000 < 500:
-        # agent._epsilon_greedy = 0.1
-        # agent.collect_policy._epsilon = 0.1
+    if step % 1000 < 800:
         agent._epsilon_greedy = epsilon(train_step_counter)
         agent.collect_policy._epsilon = epsilon(train_step_counter)
     else:
@@ -456,8 +454,8 @@ for _ in range(num_iterations):
         my_policy2 = agent.collect_policy
         saver = PolicySaver(my_policy, batch_size=None)
         saver2 = PolicySaver(my_policy2, batch_size=None)
-        saver.save(f"frenchstone_cat_agent_v0.02-a-{step}")
-        saver2.save(f"frenchstone_cat_agent_v0.02-b-{step}")
+        saver.save(f"frenchstone_agent_v0.02-a-{step}")
+        saver2.save(f"frenchstone_agent_v0.02-b-{step}")
         avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
         avg_return2 = compute_avg_return(eval_env, agent.collect_policy, num_eval_episodes)
         print(f"step = {step}: Average Return = {avg_return}")
@@ -468,11 +466,11 @@ for _ in range(num_iterations):
 """ Sauvegarde """
 my_policy = agent.policy
 saver = PolicySaver(my_policy, batch_size=None)
-saver.save('frenchstone_cat_agent_v0.02-a')
+saver.save('frenchstone_agent_v0.02-a')
 
 my_policy2 = agent.collect_policy
 saver = PolicySaver(my_policy2, batch_size=None)
-saver.save('frenchstone_cat_agent_v0.02-b')
+saver.save('frenchstone_agent_v0.02-b')
 
 
 steps = range(0, num_iterations, eval_interval)

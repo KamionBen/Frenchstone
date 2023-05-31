@@ -10,7 +10,6 @@ from tf_agents.trajectories import time_step as ts
 import tensorflow as tf
 from tf_agents.specs import array_spec
 from tf_agents.environments import py_environment, tf_py_environment
-from tf_agents.policies import greedy_policy
 
 """ Chargement des données d'entraînement et de données d'init """
 with open('logs_refined_light.pickle', 'rb') as f:
@@ -22,6 +21,8 @@ dict_actions = {
             2: "attaquer"
         }
 
+classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
+                 "Chevalier de la mort"]
 
 def generate_legal_vector_old(state):
     """ Gestion des actions légales """
@@ -61,6 +62,14 @@ def generate_legal_vector(state):
             break
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
+    """ Notre héros peut attaquer """
+    if gamestate["remaining_atk_j"] > 0 and gamestate["attaque_j"] > 0:
+        legal_actions[11] = True
+        for j in range(1, 8):
+            if gamestate[f"atq_serv{j}_adv"] != -99:
+                legal_actions[11 + j] = True
+
+    """ Nos serviteurs peuvent attaquer """
     for i in range(1, 8):
         if gamestate[f"atq_remain_serv{i}_j"] > 0:
             legal_actions[11 + 8 * i] = True
@@ -196,13 +205,6 @@ class Frenchstone(py_environment.PyEnvironment):
         return self._observation_spec
 
     def _reset(self):
-        if bool(random.getrandbits(1)):
-            self._state = Plateau([Player("NewIA", "Mage"), Player("OldIA", "Chasseur")])
-        else:
-            self._state = Plateau([Player("OldIA", "Chasseur"), Player("NewIA", "Mage")])
-            while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
-                self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
-        self._episode_ended = False
         obs = self.observation_spec()
 
         """ Gestion des actions légales """
@@ -215,39 +217,27 @@ class Frenchstone(py_environment.PyEnvironment):
     def _step(self, action):
 
         if self._episode_ended:
-            # The last action ended the episode. Ignore the current action and start
-            # a new episode.
             return self.reset()
 
         """ Estimation de la récompense """
-        # reward = estimated_advantage(action, self._state.get_gamestate())
+        reward = 0
 
         """ Gestion des actions légales """
         self._state = Orchestrator().tour_ia_training(self._state, action)
 
-        legal_actions = generate_legal_vector(self._state)
-        obs = self.observation_spec()
-        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
-        obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-
-        if not self._state.game_on:
-            reward = 100
-            self._episode_ended = True
-            return ts.termination(obs, reward)
-
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
             self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
-            if not self._state.game_on:
-                reward = -100
-                self._episode_ended = True
-                return ts.termination(obs, reward)
 
         legal_actions = generate_legal_vector(self._state)
         obs = self.observation_spec()
         obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-        reward = 0
+        if reward in [-500, 500]:
+            self._episode_ended = True
+            return ts.termination(obs, reward)
         return ts.transition(obs, reward)
+
+
 
 
 """ Initialisation de l'environnement et chagrement du modèle """
@@ -258,7 +248,7 @@ env = tf_py_environment.TFPyEnvironment(env)
 
 old_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
 oldpolicy_state = old_policy.get_initial_state(batch_size=512)
-saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02')
+saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.02-a-36000')
 policy_state = saved_policy.get_initial_state(batch_size=512)
 
 
@@ -446,24 +436,6 @@ class Orchestrator:
         """ Initialisation du vecteur d'état représentant le plateau"""
         action_line = plateau.get_gamestate()
 
-        """ Sélection des colonnes nécessaires à la prédiction """
-        columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j",
-                                "nbre_cartes_adv"]
-
-        for i in range(10):
-            columns_actual_state.append(f"carte_en_main{i + 1}_cost")
-            columns_actual_state.append(f"carte_en_main{i + 1}_atk")
-            columns_actual_state.append(f"carte_en_main{i + 1}_pv")
-
-        for i in range(7):
-            columns_actual_state.append(f"atq_serv{i + 1}_j")
-            columns_actual_state.append(f"pv_serv{i + 1}_j")
-            columns_actual_state.append(f"atq_remain_serv{i + 1}_j")
-
-        for i in range(7):
-            columns_actual_state.append(f"atq_serv{i + 1}_adv")
-            columns_actual_state.append(f"pv_serv{i + 1}_adv")
-
         """ Le modèle choisit l'action à effectuer parmi les actions légales """
 
         input_state = np.array(itemgetter(*columns_actual_state)(action_line))
@@ -577,22 +549,37 @@ class Orchestrator:
         action_line = plateau.get_gamestate()
 
         """ Le modèle choisit l'action à effectuer parmi les actions légales """
-        columns_actual_state_new = columns_actual_state.copy()
-        columns_actual_state_new.extend(["armor_j", "armor_adv", "attaque_j", "remaining_atk_j"])
+        columns_actual_state_new = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j",
+                                "nbre_cartes_adv", "armor_j", "armor_adv", "attaque_j", "remaining_atk_j"]
+
         """ HERO """
-        classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste",
-                         "Guerrier", "Chevalier de la mort"]
         for classe_heros in classes_heros:
             columns_actual_state_new.append(f"is_{classe_heros}")
+
+        """ HAND """
+        for i in range(10):
+            columns_actual_state_new.append(f"carte_en_main{i + 1}_cost")
+            columns_actual_state_new.append(f"carte_en_main{i + 1}_atk")
+            columns_actual_state_new.append(f"carte_en_main{i + 1}_pv")
+
+        """ SERVANTS """
+        for i in range(7):
+            columns_actual_state_new.append(f"atq_serv{i + 1}_j")
+            columns_actual_state_new.append(f"pv_serv{i + 1}_j")
+            columns_actual_state_new.append(f"atq_remain_serv{i + 1}_j")
+
+        for i in range(7):
+            columns_actual_state_new.append(f"atq_serv{i + 1}_adv")
+            columns_actual_state_new.append(f"pv_serv{i + 1}_adv")
+
         input_state = np.array(itemgetter(*columns_actual_state_new)(action_line))
         legal_actions = generate_legal_vector(plateau)
-
 
         observations = env.observation_spec()
         observations['observation'] = tf.convert_to_tensor(input_state.reshape(1, -1), dtype=tf.int32, name='observation')
         observations['valid_actions'] = tf.convert_to_tensor(np.array(legal_actions).reshape(1, -1), dtype=tf.bool, name='valid_actions')
         timestep = ts.TimeStep(step_type, reward, discount, observations)
-        result = policy.action(timestep, state)
+        result = policy.action(timestep)
         action = int(result.action)
 
         if action == 0:
@@ -606,7 +593,10 @@ class Orchestrator:
             logs.append(action_line)
             TourEnCours(plateau).jouer_carte(played_card)
         elif 11 <= action < 75:
-            attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
+            if (action - 11) // 8 == 0:
+                attacker = plateau.players[0].hero
+            else:
+                attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
             if (action - 11) % 8 == 0:
                 target = plateau.players[1].hero
             else:
@@ -806,9 +796,8 @@ class Orchestrator:
         os.remove('plateau_init2.pickle')
         return logs_hs, scores
 
-    def generate_oldia_game(selfself, nb_games, new_policy=saved_policy, players=()):
+    def generate_oldia_game(self, nb_games, new_policy=saved_policy, players=()):
         logs_hs = []
-        i = 0
         scores = {}
 
         """ On simule nb_games parties """
@@ -863,69 +852,69 @@ class Orchestrator:
         logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis=1)
         return logs_hs, scores
 
-    def generate_ia_game(self, nb_games, players=()):
-        logs_hs = []
-        i = 0
-        scores = {}
-
-        players1 = players
-        players2 = deepcopy([players[1], players[0]])
-
-        """ Sauvegarde temporaire des plateaux initiaux"""
-        with open('plateau_init1.pickle', 'wb') as f:
-            pickle.dump(Plateau(players1), f)
-        with open('plateau_init2.pickle', 'wb') as f:
-            pickle.dump(Plateau(players2), f)
-
-
-
-        """ On simule nb_games parties """
-        """ La moitié où le joueur 1 commence """
-        for i in range(0, round(nb_games/2)):
-            logs_inter = []
-            with open('plateau_init1.pickle', 'rb') as f:
-                mon_plateau = pickle.load(f)
-            while mon_plateau.game_on:
-                mon_plateau = Orchestrator().tour_ia(mon_plateau, logs_inter, saved_policy, policy_state)
-
-            """Actions de fin de partie"""
-            winner = mon_plateau.winner
-            logs_inter = pd.DataFrame(logs_inter)
-            logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
-            logs_hs.append(logs_inter)
-            if winner.name in scores.keys():
-                scores[winner.name] += 1
-            else:
-                scores[winner.name] = 1
-            i += 1
-            if i % 100 == 0:
-                print(i)
-
-        for i in range(round(nb_games/2), nb_games):
-            logs_inter = []
-            with open('plateau_init2.pickle', 'rb') as f:
-                mon_plateau = pickle.load(f)
-            while mon_plateau.game_on:
-                mon_plateau = Orchestrator().tour_ia(mon_plateau, logs_inter, saved_policy, policy_state)
-
-            """Actions de fin de partie"""
-            winner = mon_plateau.winner
-            logs_inter = pd.DataFrame(logs_inter)
-            logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
-            logs_hs.append(logs_inter)
-            if winner.name in scores.keys():
-                scores[winner.name] += 1
-            else:
-                scores[winner.name] = 1
-            i += 1
-            if i % 100 == 0:
-                print(i)
-
-        """ Concaténation des logs + suppression des plateaux temporaires """
-        logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis=1)
-        os.remove('plateau_init1.pickle')
-        os.remove('plateau_init2.pickle')
-        return logs_hs, scores
+    # def generate_ia_game(self, nb_games, players=()):
+    #     logs_hs = []
+    #     i = 0
+    #     scores = {}
+    #
+    #     players1 = players
+    #     players2 = deepcopy([players[1], players[0]])
+    #
+    #     """ Sauvegarde temporaire des plateaux initiaux"""
+    #     with open('plateau_init1.pickle', 'wb') as f:
+    #         pickle.dump(Plateau(players1), f)
+    #     with open('plateau_init2.pickle', 'wb') as f:
+    #         pickle.dump(Plateau(players2), f)
+    #
+    #
+    #
+    #     """ On simule nb_games parties """
+    #     """ La moitié où le joueur 1 commence """
+    #     for i in range(0, round(nb_games/2)):
+    #         logs_inter = []
+    #         with open('plateau_init1.pickle', 'rb') as f:
+    #             mon_plateau = pickle.load(f)
+    #         while mon_plateau.game_on:
+    #             mon_plateau = Orchestrator().tour_ia(mon_plateau, logs_inter, saved_policy, policy_state)
+    #
+    #         """Actions de fin de partie"""
+    #         winner = mon_plateau.winner
+    #         logs_inter = pd.DataFrame(logs_inter)
+    #         logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
+    #         logs_hs.append(logs_inter)
+    #         if winner.name in scores.keys():
+    #             scores[winner.name] += 1
+    #         else:
+    #             scores[winner.name] = 1
+    #         i += 1
+    #         if i % 100 == 0:
+    #             print(i)
+    #
+    #     for i in range(round(nb_games/2), nb_games):
+    #         logs_inter = []
+    #         with open('plateau_init2.pickle', 'rb') as f:
+    #             mon_plateau = pickle.load(f)
+    #         while mon_plateau.game_on:
+    #             mon_plateau = Orchestrator().tour_ia(mon_plateau, logs_inter, saved_policy, policy_state)
+    #
+    #         """Actions de fin de partie"""
+    #         winner = mon_plateau.winner
+    #         logs_inter = pd.DataFrame(logs_inter)
+    #         logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
+    #         logs_hs.append(logs_inter)
+    #         if winner.name in scores.keys():
+    #             scores[winner.name] += 1
+    #         else:
+    #             scores[winner.name] = 1
+    #         i += 1
+    #         if i % 100 == 0:
+    #             print(i)
+    #
+    #     """ Concaténation des logs + suppression des plateaux temporaires """
+    #     logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis=1)
+    #     os.remove('plateau_init1.pickle')
+    #     os.remove('plateau_init2.pickle')
+    #     return logs_hs, scores
 
 
 if __name__ == '__main__':

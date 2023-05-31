@@ -228,7 +228,7 @@ replay_buffer_capacity = 60000  # @param {type:"integer"}
 
 batch_size = 512  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=2e-7,
+    initial_learning_rate=1e-6,
     decay_steps=10000,
     decay_rate=0.9)
 

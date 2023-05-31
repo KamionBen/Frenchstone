@@ -56,7 +56,7 @@ class CardSprite(pygame.sprite.Sprite):
             self.name = obj.name
             self.pv_max = obj.health
             self.attaque_max = obj.base_attack
-            self.description = obj.description
+            self.description = ""
 
         self.attaque = None
         self.pv = None

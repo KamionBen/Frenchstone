@@ -30,7 +30,7 @@ def generate_perf_plot(nb_games, nb_models):
     steps = range(1, nb_models + 1, 1)
     for classe in classes_heros:
         plt.plot(steps, score_new_ia[classe], label=classe)
-    plt.plot(steps, moyenne_model, label = 'moyenne')
+    plt.plot(steps, moyenne_model, label='moyenne')
     plt.legend(loc='upper left')
     plt.ylabel('Games won')
     plt.xlabel('Iteration of model')
@@ -49,9 +49,9 @@ def generate_perf_plot(nb_games, nb_models):
 # logs_hs_randomia['id_partie'] = logs_hs_randomia['id_partie'] + 10000
 
 """ Générateur de parties avec le modèle contre son prédecesseur """
-# players = [Player("OldIA", "Mage"), Player("NewIA", "Paladin")]
-# logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.02-a-15000"), players)
-generate_perf_plot(100, 16)
+# players = [Player("OldIA", "Mage"), Player("NewIA", "Mage")]
+# logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.02-a-32000"), players)
+generate_perf_plot(100, 36)
 
 
 # """ Générateur de parties avec le modèle contre lui-même """

@@ -49,23 +49,25 @@ def generate_perf_plot(nb_games, nb_models):
 # logs_hs_randomia['id_partie'] = logs_hs_randomia['id_partie'] + 10000
 
 """ Générateur de parties avec le modèle contre son prédecesseur """
-# players = [Player("OldIA", "Mage"), Player("NewIA", "Mage")]
-# logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.02-a-32000"), players)
-generate_perf_plot(100, 36)
+players = [Player("OldIA", "Mage"), Player("NewIA", "Paladin")]
+logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(10, tf.compat.v2.saved_model.load("frenchstone_agent_v0.03"), players)
+""" Affichage des résultats """
+# print(logs_hs_oldia.to_string())
+print(score_oldia)
+""" Sauvegarde des logs"""
+os.remove('logs_games.pickle')
+with open('logs_games.pickle', 'wb') as f:
+    pickle.dump(logs_hs_oldia, f)
+# generate_perf_plot(200, 100)
 
 
 # """ Générateur de parties avec le modèle contre lui-même """
 # players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
 # logs_hs_ia, score_ia = Orchestrator().generate_ia_game(10000, players, random_toll=0.2)
 
-# """ Affichage des résultats """
-# print(logs_hs_oldia.to_string())
-# print(score_randomia)
-# print(score_oldia)
 
-""" Sauvegarde des logs"""
-# os.remove('logs_games.pickle')
-# with open('logs_games.pickle', 'wb') as f:
-#     pickle.dump(logs_hs_oldia, f)
+
+
+
 
 

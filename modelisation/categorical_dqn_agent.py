@@ -67,7 +67,7 @@ def estimated_advantage(action, state):
     if action == 0:
         TourEnCours(next_state).fin_du_tour()
         while next_state.get_gamestate()['pseudo_j'] == 'OldIA':
-            next_state = Orchestrator().tour_oldia_training(next_state, old_policy, oldpolicy_state)
+            next_state = Orchestrator().tour_oldia_training(next_state, old_policy)
             if not next_state.game_on:
                 if next_state.winner.name == "NewIA":
                     return 500
@@ -131,31 +131,8 @@ def estimated_advantage(action, state):
 
 players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
 plateau_depart = Plateau(players)
-classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
-                 "Chevalier de la mort"]
 
-columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j",
-                        "nbre_cartes_adv", "armor_j", "armor_adv", "attaque_j", "remaining_atk_j"]
-
-""" HERO """
-for classe_heros in classes_heros:
-    columns_actual_state.append(f"is_{classe_heros}")
-
-""" HAND """
-for i in range(10):
-    columns_actual_state.append(f"carte_en_main{i + 1}_cost")
-    columns_actual_state.append(f"carte_en_main{i + 1}_atk")
-    columns_actual_state.append(f"carte_en_main{i + 1}_pv")
-
-""" SERVANTS """
-for i in range(7):
-    columns_actual_state.append(f"atq_serv{i + 1}_j")
-    columns_actual_state.append(f"pv_serv{i + 1}_j")
-    columns_actual_state.append(f"atq_remain_serv{i + 1}_j")
-
-for i in range(7):
-    columns_actual_state.append(f"atq_serv{i + 1}_adv")
-    columns_actual_state.append(f"pv_serv{i + 1}_adv")
+columns_actual_state = generate_column_state(classes_heros)
 
 
 class Frenchstone(py_environment.PyEnvironment):
@@ -177,12 +154,12 @@ class Frenchstone(py_environment.PyEnvironment):
     def _reset(self):
         if bool(random.getrandbits(1)):
             self._state = Plateau([Player("NewIA", random.choice(classes_heros)),
-                                   Player("OldIA", random.choice(classes_heros))])
+                                   Player("OldIA", random.choice(classes_heros_old))])
         else:
             self._state = Plateau([Player("OldIA", random.choice(classes_heros)),
-                                   Player("NewIA", random.choice(classes_heros))])
+                                   Player("NewIA", random.choice(classes_heros_old))])
             while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
-                self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
+                self._state = Orchestrator().tour_oldia_training(self._state, old_policy)
         self._episode_ended = False
         obs = self.observation_spec()
 
@@ -206,7 +183,7 @@ class Frenchstone(py_environment.PyEnvironment):
         self._state = Orchestrator().tour_ia_training(self._state, action)
 
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
-            self._state = Orchestrator().tour_oldia_training(self._state, old_policy, oldpolicy_state)
+            self._state = Orchestrator().tour_oldia_training(self._state, old_policy)
 
         legal_actions = generate_legal_vector(self._state)
         obs = self.observation_spec()
@@ -226,19 +203,19 @@ time_step = train_env.reset()
 
 num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
-collect_steps_per_iteration = 40  # @param {type:"integer"}
+collect_steps_per_iteration = 5  # @param {type:"integer"}
 replay_buffer_capacity = 60000  # @param {type:"integer"}
 
 
 num_atoms = 51  # @param {type:"integer"}
 min_q_value = -600  # @param {type:"integer"}
 max_q_value = 600  # @param {type:"integer"}
-n_step_update = 30  # @param {type:"integer"}
+n_step_update = 5  # @param {type:"integer"}
 
 
 batch_size = 512  # @param {type:"integer"}
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=1e-4,
+    initial_learning_rate=2e-4,
     decay_steps=10000,
     decay_rate=0.9)
 
@@ -439,12 +416,14 @@ for _ in range(num_iterations):
     experience, unused_info = next(iterator)
     train_loss = agent.train(experience)
     step = agent.train_step_counter.numpy()
-    if step % 1000 < 800:
-        agent._epsilon_greedy = epsilon(train_step_counter)
-        agent.collect_policy._epsilon = epsilon(train_step_counter)
-    else:
-        agent._epsilon_greedy = 0.0
-        agent.collect_policy._epsilon = 0.0
+    agent._epsilon_greedy = 0.05
+    agent.collect_policy._epsilon = 0.05
+    # if step % 1000 < 800:
+    #     agent._epsilon_greedy = epsilon(train_step_counter)
+    #     agent.collect_policy._epsilon = epsilon(train_step_counter)
+    # else:
+    #     agent._epsilon_greedy = 0.0
+    #     agent.collect_policy._epsilon = 0.0
 
     if step % log_interval == 0:
         print('step = {0}: loss = {1}'.format(step, train_loss.loss))

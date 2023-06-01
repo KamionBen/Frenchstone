@@ -14,7 +14,8 @@ heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "R
           "Druide" : ["Malfurion"],
           "Voleur" : ["Valeera"],
           "Guerrier": ["Garrosh"],
-          "Chevalier de la mort": ["Le Roi-Liche"]
+          "Chevalier de la mort": ["Le Roi-Liche"],
+          "Prêtre": ["Anduin"]
           }  # Devra être dans un fichier à part
 
 
@@ -32,7 +33,8 @@ class Plateau:
                        'Druide': 'test_deck.csv',
                        'Voleur': 'test_deck.csv',
                        'Guerrier': 'test_deck.csv',
-                       'Chevalier de la mort': 'test_deck.csv'
+                       'Chevalier de la mort': 'test_deck.csv',
+                       'Prêtre': 'test_deck.csv'
                        }
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
@@ -150,11 +152,11 @@ class Plateau:
                        "victoire": 0}
         """ HERO """
         for classe_heros in ["Mage", "Chasseur", "Paladin", "Démoniste", "Chasseur de démons", "Druide", "Voleur",
-                             "Guerrier", "Chevalier de la mort"]:
+                             "Guerrier", "Chevalier de la mort", "Prêtre"]:
             if player.classe == classe_heros:
                 action_line[f"is_{classe_heros}"] = 1
             else:
-                action_line[f"is_{classe_heros}"] = 0
+                action_line[f"is_{classe_heros}"] = -99
 
         """ HAND """
         cartes_en_main = {i: carte for i, carte in enumerate(player.hand)}
@@ -468,6 +470,14 @@ class Card:
     def damage(self, nb):
         """ Removes nb from the card health """
         self.health -= nb
+
+    def heal(self, nb):
+        """ Heal nb health to a given creatures """
+        self.health += nb
+        if self.health > self.base_health:
+            self.health = self.base_health
+
+
 
     def is_dead(self):
         """ Return True if the card health <= 0"""

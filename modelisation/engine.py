@@ -23,9 +23,8 @@ dict_actions = {
 
 classes_heros_old = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
                  "Chevalier de la mort"]
-
 classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
-                 "Chevalier de la mort", "Prêtre"]
+                 "Chevalier de la mort"]
 
 def generate_column_state_old(classes_hero):
     columns_actual_state = ["mana_dispo_j", "mana_max_j", "mana_max_adv", "pv_j", "pv_adv", "nbre_cartes_j",
@@ -64,9 +63,8 @@ def generate_column_state(classes_hero):
 
     """ HAND """
     for i in range(10):
-        columns_actual_state.append(f"carte_en_main{i + 1}_cost")
-        columns_actual_state.append(f"carte_en_main{i + 1}_atk")
-        columns_actual_state.append(f"carte_en_main{i + 1}_pv")
+        for j in range(len(all_cards)):
+            columns_actual_state.append(f"is_carte{i + 1}_{all_cards[j]['name']}")
 
     """ SERVANTS """
     for i in range(7):
@@ -137,10 +135,12 @@ def generate_legal_vector(state):
 
     """ Quelles cartes peut-on jouer ? """
     for i in range(int(gamestate["nbre_cartes_j"])):
-        if gamestate[f"carte_en_main{i + 1}_cost"] <= gamestate["mana_dispo_j"] and gamestate[f"carte_en_main{i + 1}_cost"] != -99\
-                and gamestate[f"pv_serv7_j"] == -99:
-            legal_actions[i+1] = True
-            break
+        for j in range(len(all_cards)):
+            if gamestate[f"is_carte{i + 1}_{all_cards[j]['name']}"] != -99 \
+            and get_card(all_cards[j]['name'], all_cards).cost <= gamestate["mana_dispo_j"] \
+            and gamestate[f"pv_serv7_j"] == -99:
+                legal_actions[i + 1] = True
+
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     """ Notre héros peut attaquer """
@@ -305,6 +305,14 @@ class TourEnCours:
     def __init__(self, plateau):
         self.plt = plateau
 
+    def apply_effects(self, carte):
+        player = self.plt.players[0]
+        adv = self.plt.players[1]
+        if "charge" in carte.effects:
+            carte.remaining_atk = 1
+        if "add_mana" in carte.effects:
+            player.mana += carte.effects["add_mana"]
+
     def jouer_carte(self, carte):
         """ Action de poser une carte depuis la main du joueur dont c'est le tour.
         Le plateau est mis à jour en conséquence """
@@ -313,13 +321,13 @@ class TourEnCours:
             if carte.type.lower() == "sort":
                 player.hand.remove(carte)
                 player.mana_spend(carte.cost)
-                if "add_mana" in carte.effects:
-                    player.mana += carte.effects["add_mana"]
+                self.apply_effects(carte)
             elif carte.type.lower() == "serviteur":
                 if len(player.servants) < 7:
                     player.hand.remove(carte)
                     player.servants.add(carte)
                     player.mana_spend(carte.cost)
+                    self.apply_effects(carte)
                 else:
                     raise PermissionError("Nombre maximum de serviteurs atteint")
         else:
@@ -347,10 +355,11 @@ class TourEnCours:
             elif classe == "Chasseur":
                 cible.damage(2)
             elif classe == "Paladin":
-                carte = get_card("Recrue de la main d'argent", get_cards_data("cards.json"))
+                carte = get_card("Recrue de la main d'argent", all_cards)
                 player.servants.add(carte)
             elif classe == "Chevalier de la mort":
-                carte = get_card("Goule fragile", get_cards_data("cards.json"))
+                carte = get_card("Goule fragile", all_cards)
+                self.apply_effects(carte)
                 player.servants.add(carte)
             elif classe == "Démoniste":
                 cible.damage(2)
@@ -373,10 +382,10 @@ class TourEnCours:
             elif classe == "Guerrier":
                 cible.armor += 2
             elif classe == "Chaman":
-                cartes = [get_card("Totem de soin", get_cards_data("cards.json")),
-                          get_card("Totem incendiaire", get_cards_data("cards.json")),
-                          get_card("Totem de puissance", get_cards_data("cards.json")),
-                          get_card("Totem de griffes de pierre", get_cards_data("cards.json"))]
+                cartes = [get_card("Totem de soin", all_cards),
+                          get_card("Totem incendiaire", all_cards),
+                          get_card("Totem de puissance", all_cards),
+                          get_card("Totem de griffes de pierre", all_cards)]
                 player.servants.add(random.choice(cartes))
             player.mana_spend(player.hero.cout_pouvoir)
             player.hero.dispo_pouvoir = False
@@ -613,7 +622,7 @@ class Orchestrator:
 
         """ Initialisation du vecteur d'état représentant le plateau"""
         action_line = plateau.get_gamestate()
-        for classe_heros in classes_heros + ["Prêtre"]:
+        for classe_heros in classes_heros:
             if action_line[f"is_{classe_heros}"] == -99:
                 action_line[f"is_{classe_heros}"] = 0
 

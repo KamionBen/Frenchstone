@@ -5,7 +5,15 @@ from random import shuffle, choice
 from typing import Union
 
 """ CONSTANTS """
+
+
+def get_cards_data(file: str) -> list:
+    with open(file, 'r', encoding='utf-8') as jsonfile:
+        return json.load(jsonfile)
+
+
 cardsfile = "cards.json"
+all_cards = get_cards_data('cards.json')
 heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
           "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"],
           "Paladin": ["Uther"],
@@ -171,6 +179,21 @@ class Plateau:
                 action_line[f"carte_en_main{i + 1}_cost"] = -99
                 action_line[f"carte_en_main{i + 1}_atk"] = -99
                 action_line[f"carte_en_main{i + 1}_pv"] = -99
+
+        for i in range(10):
+            for j in range(len(all_cards)):
+                action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = 0
+
+        for i in range(10):
+            for j in range(len(all_cards)):
+                if i in cartes_en_main.keys():
+                    if cartes_en_main[i].name == all_cards[j]['name']:
+                        action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] += 1
+                    else:
+                        action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = -99
+                else:
+                    action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = -99
+
 
         """ SERVANTS """
         player_servants = {i: carte.id for i, carte in enumerate(player.servants)}
@@ -507,11 +530,6 @@ class Weapon:
         self.durability = 0
 
 """ FUNCTIONS """
-
-def get_cards_data(file: str) -> list:
-    with open(file, 'r', encoding='utf-8') as jsonfile:
-        return json.load(jsonfile)
-
 
 def import_deck(file: str, data='cards.json') -> CardGroup:
     """

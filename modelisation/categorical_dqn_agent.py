@@ -10,52 +10,7 @@ from tf_agents.utils import common as common_utils
 from tf_agents.networks.categorical_q_network import CategoricalQNetwork
 from engine import *
 
-
-def generate_legal_vector(state):
-    """ Gestion des actions légales """
-    legal_actions = [True]
-    gamestate = state.get_gamestate()
-    for i in range(90):
-        legal_actions.append(False)
-
-    """ Quelles cartes peut-on jouer ? """
-    for i in range(int(gamestate["nbre_cartes_j"])):
-        if gamestate[f"carte_en_main{i + 1}_cost"] <= gamestate["mana_dispo_j"] and gamestate[f"carte_en_main{i + 1}_cost"] != -99\
-                and gamestate[f"pv_serv7_j"] == -99:
-            legal_actions[i+1] = True
-            break
-
-    """ Quelles cibles peut-on attaquer et avec quels attaquants"""
-    """ Notre héros peut attaquer """
-    if gamestate["remaining_atk_j"] > 0 and gamestate["attaque_j"] > 0:
-        legal_actions[11] = True
-        for j in range(1, 8):
-            if gamestate[f"atq_serv{j}_adv"] != -99:
-                legal_actions[11 + j] = True
-
-    """ Nos serviteurs peuvent attaquer """
-    for i in range(1, 8):
-        if gamestate[f"atq_remain_serv{i}_j"] > 0:
-            legal_actions[11 + 8 * i] = True
-            for j in range(1, 8):
-                if gamestate[f"atq_serv{j}_adv"] != -99:
-                    legal_actions[11 + 8 * i + j] = True
-
-    if gamestate["dispo_ph_j"] and gamestate["cout_ph_j"] <= gamestate["mana_dispo_j"]:
-        targets = state.targets_hp()
-        if state.players[0].hero in targets:
-            legal_actions[75] = True
-        if state.players[1].hero in targets:
-            legal_actions[83] = True
-        for i in range(1, 8):
-            if gamestate[f"atq_serv{i}_j"] != -99:
-                if gamestate[f"serv{i}_j"] in targets:
-                    legal_actions[75 + i] = True
-            if gamestate[f"atq_serv{i}_adv"] != -99:
-                if gamestate[f"serv{i}_adv"] in targets:
-                    legal_actions[83 + i] = True
-
-    return legal_actions
+print(len(get_cards_data('cards.json')))
 
 
 def estimated_advantage(action, state):

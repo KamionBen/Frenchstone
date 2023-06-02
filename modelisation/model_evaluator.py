@@ -4,18 +4,20 @@
 from engine import *
 from Entities import *
 import matplotlib.pyplot as plt
+from timeit import default_timer as timer
+
 
 def generate_perf_plot(nb_games, nb_models):
     score_new_ia = {}
     classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
-                     "Chevalier de la mort"]
+                     "Chevalier de la mort", "Prêtre"]
     for classe in classes_heros:
         score_new_ia[classe] = []
-    for i in range(1, nb_models + 1):
+    for i in range(60, nb_models + 60):
         for classe in classes_heros:
             players = [Player("OldIA", "Mage"), Player("NewIA", classe)]
-            logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(nb_games, tf.compat.v2.saved_model.load(
-                f"frenchstone_agent_v0.02-a-{i * 1000}"), players)
+            score_oldia = Orchestrator().generate_oldia_game(nb_games, tf.compat.v2.saved_model.load(
+                f"frenchstone_agent_v0.04-a-{i * 1000}"), players, False)
             try:
                 score_new_ia[classe].append(score_oldia['NewIA'])
             except:
@@ -49,16 +51,16 @@ def generate_perf_plot(nb_games, nb_models):
 # logs_hs_randomia['id_partie'] = logs_hs_randomia['id_partie'] + 10000
 
 """ Générateur de parties avec le modèle contre son prédecesseur """
-players = [Player("OldIA", "Mage"), Player("NewIA", "Mage")]
-logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.02-a-25000"), players)
-""" Affichage des résultats """
-# print(logs_hs_oldia.to_string())
-print(score_oldia)
+# players = [Player("OldIA", "Druide"), Player("NewIA", "Chasseur")]
+# score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.04-a-82000"), players, False)
+# """ Affichage des résultats """
+# # print(logs_hs_oldia.to_string())
+# print(score_oldia)
 """ Sauvegarde des logs"""
-os.remove('logs_games.pickle')
-with open('logs_games.pickle', 'wb') as f:
-    pickle.dump(logs_hs_oldia, f)
-# generate_perf_plot(200, 100)
+# os.remove('logs_games.pickle')
+# with open('logs_games.pickle', 'wb') as f:
+#     pickle.dump(logs_hs_oldia, f)
+# generate_perf_plot(10, 5)
 
 
 # """ Générateur de parties avec le modèle contre lui-même """
@@ -68,6 +70,10 @@ with open('logs_games.pickle', 'wb') as f:
 
 
 
+if __name__ == "__main__":
+    start = timer()
+    generate_perf_plot(10, 5)
+    print("with GPU:", timer() - start)
 
 
 

@@ -10,8 +10,6 @@ from tf_agents.utils import common as common_utils
 from tf_agents.networks.categorical_q_network import CategoricalQNetwork
 from engine import *
 
-print(len(get_cards_data('cards.json')))
-
 
 def estimated_advantage(action, state):
     """ Simule le plateau qu'aurait donné une certaine action pour en tirer une notion d'avantage gagné ou perdu """
@@ -63,9 +61,9 @@ def estimated_advantage(action, state):
         advantage = (state["nbre_cartes_j"] - state["nbre_cartes_adv"]) + 0.8 * (state["nbre_cartes_j"] / max(1, state["nbre_cartes_adv"]))
         for i in range(1, 8):
             if state[f"serv{i}_j"] != -99:
-                advantage += 1.75 * state[f"atq_serv{i}_j"] + 1.75 * state[f"pv_serv{i}_j"]
+                advantage += 2 * state[f"atq_serv{i}_j"] + 2 * state[f"pv_serv{i}_j"]
             if state[f"serv{i}_adv"] != -99:
-                advantage -= 1.75 * state[f"atq_serv{i}_adv"] + 1.75 * state[f"pv_serv{i}_adv"]
+                advantage -= 2 * state[f"atq_serv{i}_adv"] + 2 * state[f"pv_serv{i}_adv"]
         advantage += 0.22 * (pow(30 - state["pv_adv"], 1.3) - pow(30 - state["pv_j"], 1.3))
         advantage += state["attaque_j"]
         return advantage
@@ -121,7 +119,7 @@ class Frenchstone(py_environment.PyEnvironment):
         """ Gestion des actions légales """
         legal_actions = generate_legal_vector(self._state)
 
-        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()))
+        obs['observation'] = np.array(itemgetter(*columns_actual_state)(self._state.get_gamestate()), dtype=np.int32)
         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
         return ts.restart(obs)
 
@@ -158,14 +156,14 @@ time_step = train_env.reset()
 
 num_iterations = 100000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
-collect_steps_per_iteration = 5  # @param {type:"integer"}
+collect_steps_per_iteration = 25  # @param {type:"integer"}
 replay_buffer_capacity = 60000  # @param {type:"integer"}
 
 
 num_atoms = 51  # @param {type:"integer"}
 min_q_value = -600  # @param {type:"integer"}
 max_q_value = 600  # @param {type:"integer"}
-n_step_update = 5  # @param {type:"integer"}
+n_step_update = 25  # @param {type:"integer"}
 
 
 batch_size = 512  # @param {type:"integer"}
@@ -185,30 +183,6 @@ num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 num_observations = train_env.observation_spec()['observation'].shape[0]
 
 
-# Define a helper function to create Dense layers configured with the right
-# activation and kernel initializer.
-def dense_layer(num_units):
-    return tf.keras.layers.Dense(
-      num_units,
-      activation=tf.keras.activations.relu,
-      kernel_initializer=tf.keras.initializers.VarianceScaling(
-          scale=2.0, mode='fan_in', distribution='truncated_normal'))
-
-
-# QNetwork consists of a sequence of Dense layers followed by a dense layer
-# with num_actions units to generate one q_value per available action as
-# its output.
-mask_layer = tf.keras.layers.Masking(mask_value=-99)
-dense_layers = [dense_layer(num_units) for num_units in fc_layer_params]
-q_values_layer = tf.keras.layers.Dense(
-    num_actions,
-    activation=None,
-    kernel_initializer=tf.keras.initializers.RandomUniform(
-        minval=-0.03, maxval=0.03),
-    bias_initializer=tf.keras.initializers.Constant(-0.2))
-flatten_layer = tf.keras.layers.Flatten()
-q_net = sequential.Sequential([mask_layer] + dense_layers + [q_values_layer] + [flatten_layer])
-
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
 train_step_counter = tf.Variable(0)
@@ -216,8 +190,8 @@ train_step_counter = tf.Variable(0)
 epsilon = keras.optimizers.schedules.learning_rate_schedule.PolynomialDecay(
     1.0,
     80000,
-    0.05,
-    power=0.8
+    0.01,
+    power=1.2
 )
 
 preprocessing_layers = {
@@ -251,7 +225,7 @@ agent = categorical_dqn_agent.CategoricalDqnAgent(
     max_q_value=max_q_value,
     n_step_update=n_step_update,
     td_errors_loss_fn=common_utils.element_wise_squared_loss,
-    gamma=1,
+    gamma=0.99,
     train_step_counter=train_step_counter,
     observation_and_action_constraint_splitter=observation_action_splitter,
     epsilon_greedy=epsilon(train_step_counter))
@@ -371,14 +345,12 @@ for _ in range(num_iterations):
     experience, unused_info = next(iterator)
     train_loss = agent.train(experience)
     step = agent.train_step_counter.numpy()
-    agent._epsilon_greedy = 0.05
-    agent.collect_policy._epsilon = 0.05
-    # if step % 1000 < 800:
-    #     agent._epsilon_greedy = epsilon(train_step_counter)
-    #     agent.collect_policy._epsilon = epsilon(train_step_counter)
-    # else:
-    #     agent._epsilon_greedy = 0.0
-    #     agent.collect_policy._epsilon = 0.0
+    if step % 1000 < 750:
+        agent._epsilon_greedy = epsilon(train_step_counter)
+        agent.collect_policy._epsilon = epsilon(train_step_counter)
+    else:
+        agent._epsilon_greedy = 0.0
+        agent.collect_policy._epsilon = 0.0
 
     if step % log_interval == 0:
         print('step = {0}: loss = {1}'.format(step, train_loss.loss))
@@ -388,8 +360,8 @@ for _ in range(num_iterations):
         my_policy2 = agent.collect_policy
         saver = PolicySaver(my_policy, batch_size=None)
         saver2 = PolicySaver(my_policy2, batch_size=None)
-        saver.save(f"frenchstone_agent_v0.02-a-{step}")
-        saver2.save(f"frenchstone_agent_v0.02-b-{step}")
+        saver.save(f"frenchstone_agent_v0.04-a-{step}")
+        saver2.save(f"frenchstone_agent_v0.04-b-{step}")
         avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
         avg_return2 = compute_avg_return(eval_env, agent.collect_policy, num_eval_episodes)
         print(f"step = {step}: Average Return = {avg_return}")
@@ -400,11 +372,11 @@ for _ in range(num_iterations):
 """ Sauvegarde """
 my_policy = agent.policy
 saver = PolicySaver(my_policy, batch_size=None)
-saver.save('frenchstone_agent_v0.02-a')
+saver.save('frenchstone_agent_v0.04-a')
 
 my_policy2 = agent.collect_policy
 saver = PolicySaver(my_policy2, batch_size=None)
-saver.save('frenchstone_agent_v0.02-b')
+saver.save('frenchstone_agent_v0.04-b')
 
 
 steps = range(0, num_iterations, eval_interval)

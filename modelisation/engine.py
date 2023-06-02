@@ -71,6 +71,9 @@ def generate_column_state(classes_hero):
         columns_actual_state.append(f"atq_serv{i + 1}_j")
         columns_actual_state.append(f"pv_serv{i + 1}_j")
         columns_actual_state.append(f"atq_remain_serv{i + 1}_j")
+        for j in range(len(all_servants)):
+            columns_actual_state.append(f"is_servant{i + 1}_{all_servants[j]['name']}_j")
+            columns_actual_state.append(f"is_servant{i + 1}_{all_servants[j]['name']}_adv")
 
     for i in range(7):
         columns_actual_state.append(f"atq_serv{i + 1}_adv")
@@ -88,10 +91,12 @@ def generate_legal_vector_old(state):
 
     """ Quelles cartes peut-on jouer ? """
     for i in range(int(gamestate["nbre_cartes_j"])):
-        if gamestate[f"carte_en_main{i + 1}_cost"] <= gamestate["mana_dispo_j"] and gamestate[f"carte_en_main{i + 1}_cost"] != -99\
-                and gamestate[f"pv_serv7_j"] == -99:
-            legal_actions[i+1] = True
-            break
+        for j in range(len(all_cards)):
+            if gamestate[f"is_carte{i + 1}_{all_cards[j]['name']}"] != -99 \
+            and get_card(all_cards[j]['name'], all_cards).cost <= gamestate["mana_dispo_j"] \
+            and gamestate[f"pv_serv7_j"] == -99:
+                legal_actions[i + 1] = True
+
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     """ Notre héros peut attaquer """
@@ -102,12 +107,25 @@ def generate_legal_vector_old(state):
                 legal_actions[11 + j] = True
 
     """ Nos serviteurs peuvent attaquer """
+    is_provoc = False
+    for j in range(1, 8):
+        if gamestate[f"atq_serv{j}_adv"] != -99 and "provocation" in state.players[1].servants[j - 1].effects:
+            is_provoc = True
+            break
     for i in range(1, 8):
         if gamestate[f"atq_remain_serv{i}_j"] > 0:
-            legal_actions[11 + 8 * i] = True
+            if not is_provoc:
+                legal_actions[11 + 8 * i] = True
+            if "ruée" in state.players[0].servants[i-1].effects:
+                if state.players[0].servants[i-1].effects["ruée"] == 1:
+                    legal_actions[11 + 8 * i] = False
             for j in range(1, 8):
-                if gamestate[f"atq_serv{j}_adv"] != -99:
-                    legal_actions[11 + 8 * i + j] = True
+                if not is_provoc:
+                    if gamestate[f"atq_serv{j}_adv"] != -99:
+                        legal_actions[11 + 8 * i + j] = True
+                else:
+                    if "provocation" in state.players[1].servants[j - 1].effects:
+                        legal_actions[11 + 8 * i + j] = True
 
     if gamestate["dispo_ph_j"] and gamestate["cout_ph_j"] <= gamestate["mana_dispo_j"]:
         targets = state.targets_hp()
@@ -143,20 +161,39 @@ def generate_legal_vector(state):
 
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
+    is_provoc = False
+    for j in range(1, 8):
+        if gamestate[f"atq_serv{j}_adv"] != -99 and "provocation" in state.players[1].servants[j - 1].effects:
+            is_provoc = True
+            break
     """ Notre héros peut attaquer """
     if gamestate["remaining_atk_j"] > 0 and gamestate["attaque_j"] > 0:
-        legal_actions[11] = True
+        if not is_provoc:
+            legal_actions[11] = True
         for j in range(1, 8):
             if gamestate[f"atq_serv{j}_adv"] != -99:
-                legal_actions[11 + j] = True
+                if not is_provoc:
+                    legal_actions[11 + j] = True
+                else:
+                    if "provocation" in state.players[1].servants[j - 1].effects:
+                        legal_actions[11 + j] = True
 
     """ Nos serviteurs peuvent attaquer """
+
     for i in range(1, 8):
         if gamestate[f"atq_remain_serv{i}_j"] > 0:
-            legal_actions[11 + 8 * i] = True
+            if not is_provoc:
+                legal_actions[11 + 8 * i] = True
+            if "ruée" in state.players[0].servants[i-1].effects:
+                if state.players[0].servants[i-1].effects["ruée"] == 1:
+                    legal_actions[11 + 8 * i] = False
             for j in range(1, 8):
                 if gamestate[f"atq_serv{j}_adv"] != -99:
-                    legal_actions[11 + 8 * i + j] = True
+                    if not is_provoc:
+                        legal_actions[11 + 8 * i + j] = True
+                    else:
+                        if "provocation" in state.players[1].servants[j - 1].effects:
+                            legal_actions[11 + 8 * i + j] = True
 
     if gamestate["dispo_ph_j"] and gamestate["cout_ph_j"] <= gamestate["mana_dispo_j"]:
         targets = state.targets_hp()
@@ -179,7 +216,7 @@ def generate_legal_vector(state):
 """ Initialisation de l'environnement et chagrement du modèle """
 
 old_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.03')
-saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.03')
+saved_policy = tf.compat.v2.saved_model.load('frenchstone_agent_v0.04-a-64000')
 
 
 class Frenchstone_old(py_environment.PyEnvironment):
@@ -308,7 +345,7 @@ class TourEnCours:
     def apply_effects(self, carte):
         player = self.plt.players[0]
         adv = self.plt.players[1]
-        if "charge" in carte.effects:
+        if "charge" in carte.effects or "ruée" in carte.effects:
             carte.remaining_atk = 1
         if "add_mana" in carte.effects:
             player.mana += carte.effects["add_mana"]
@@ -613,7 +650,7 @@ class Orchestrator:
         plateau.update()
         return plateau
 
-    def tour_ia_model(self, plateau, logs, policy):
+    def tour_ia_model(self, plateau, logs, policy, generate_logs=True):
         """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
         step_type = tf.convert_to_tensor([0], dtype=tf.int32, name='step_type')
         reward = tf.convert_to_tensor([0], dtype=tf.float32, name='reward')
@@ -639,14 +676,16 @@ class Orchestrator:
         action = int(result.action)
 
         if action == 0:
-            action_line["action"] = "passer_tour"
-            logs.append(action_line)
+            if generate_logs:
+                action_line["action"] = "passer_tour"
+                logs.append(action_line)
             TourEnCours(plateau).fin_du_tour()
         elif action < 11:
-            action_line["action"] = "jouer_carte"
             played_card = plateau.players[0].hand[action - 1]
-            action_line["carte_jouee"] = played_card.id  # name ou id ?
-            logs.append(action_line)
+            if generate_logs:
+                action_line["action"] = "jouer_carte"
+                action_line["carte_jouee"] = played_card.id  # name ou id ?
+                logs.append(action_line)
             TourEnCours(plateau).jouer_carte(played_card)
         elif 11 <= action < 75:
             if (action - 11) // 8 == 0:
@@ -657,14 +696,15 @@ class Orchestrator:
                 target = plateau.players[1].hero
             else:
                 target = plateau.players[1].servants[int((action - 11) % 8 - 1)]
-            action_line["action"] = "attaquer"
-            action_line["attaquant"] = attacker.id if type(attacker) is Card else "heros"
-            action_line["attaquant_atq"] = attacker.attack
-            action_line["attaquant_pv"] = attacker.health
-            action_line["cible"] = target.id if type(target) is Card else "heros"
-            action_line["cible_atq"] = target.attack
-            action_line["cible_pv"] = target.health
-            logs.append(action_line)
+            if generate_logs:
+                action_line["action"] = "attaquer"
+                action_line["attaquant"] = attacker.id if type(attacker) is Card else "heros"
+                action_line["attaquant_atq"] = attacker.attack
+                action_line["attaquant_pv"] = attacker.health
+                action_line["cible"] = target.id if type(target) is Card else "heros"
+                action_line["cible_atq"] = target.attack
+                action_line["cible_pv"] = target.health
+                logs.append(action_line)
             TourEnCours(plateau).attaquer(attacker, target)
         else:
             if action == 75:
@@ -675,11 +715,12 @@ class Orchestrator:
                 target = plateau.players[0].servants[action - 76]
             else:
                 target = plateau.players[1].servants[action - 84]
-            action_line["action"] = "pouvoir_heroique"
-            action_line["cible"] = target.id if type(target) is Card else "heros"
-            action_line["cible_atq"] = target.attack
-            action_line["cible_pv"] = target.health
-            logs.append(action_line)
+            if generate_logs:
+                action_line["action"] = "pouvoir_heroique"
+                action_line["cible"] = target.id if type(target) is Card else "heros"
+                action_line["cible_atq"] = target.attack
+                action_line["cible_pv"] = target.health
+                logs.append(action_line)
             TourEnCours(plateau).pouvoir_heroique(plateau.players[0].classe, target)
 
         plateau.update()
@@ -852,27 +893,38 @@ class Orchestrator:
         os.remove('plateau_init2.pickle')
         return logs_hs, scores
 
-    def generate_oldia_game(self, nb_games, new_policy=saved_policy, players=()):
-        logs_hs = []
+    def generate_oldia_game(self, nb_games, new_policy=saved_policy, players=(), generate_logs=True):
+        if generate_logs:
+            logs_hs = []
         scores = {}
 
         """ On simule nb_games parties """
         """ La moitié où le joueur 1 commence """
         for i in range(0, round(nb_games/2)):
-            logs_inter = []
-            players1 = deepcopy(players)
-            mon_plateau = Plateau(players1)
-            while mon_plateau.game_on:
-                if mon_plateau.game_turn % 2 == 0:
-                    mon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy)
-                else:
-                    mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, new_policy)
+            if generate_logs:
+                logs_inter = []
+                players1 = deepcopy(players)
+                mon_plateau = Plateau(players1)
+                while mon_plateau.game_on:
+                    if mon_plateau.game_turn % 2 == 0:
+                        mon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy)
+                    else:
+                        mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, new_policy)
+            else:
+                players1 = deepcopy(players)
+                mon_plateau = Plateau(players1)
+                while mon_plateau.game_on:
+                    if mon_plateau.game_turn % 2 == 0:
+                        mon_plateau = Orchestrator().tour_oldia_training(mon_plateau, old_policy)
+                    else:
+                        mon_plateau = Orchestrator().tour_ia_model(mon_plateau, [], new_policy, False)
 
             """Actions de fin de partie"""
             winner = mon_plateau.winner
-            logs_inter = pd.DataFrame(logs_inter)
-            logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
-            logs_hs.append(logs_inter)
+            if generate_logs:
+                logs_inter = pd.DataFrame(logs_inter)
+                logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
+                logs_hs.append(logs_inter)
             if winner.name in scores.keys():
                 scores[winner.name] += 1
             else:
@@ -882,20 +934,30 @@ class Orchestrator:
                 print(i)
 
         for i in range(round(nb_games/2), nb_games):
-            logs_inter = []
-            players2 = deepcopy([players[1], players[0]])
-            mon_plateau = Plateau(players2)
-            while mon_plateau.game_on:
-                if mon_plateau.game_turn % 2 == 0:
-                    mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, new_policy)
-                else:
-                    mon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy)
+            if generate_logs:
+                logs_inter = []
+                players2 = deepcopy([players[1], players[0]])
+                mon_plateau = Plateau(players2)
+                while mon_plateau.game_on:
+                    if mon_plateau.game_turn % 2 == 0:
+                        mon_plateau = Orchestrator().tour_ia_model(mon_plateau, logs_inter, new_policy)
+                    else:
+                        mon_plateau = Orchestrator().tour_oldia_model(mon_plateau, logs_inter, old_policy)
+            else:
+                players2 = deepcopy([players[1], players[0]])
+                mon_plateau = Plateau(players2)
+                while mon_plateau.game_on:
+                    if mon_plateau.game_turn % 2 == 0:
+                        mon_plateau = Orchestrator().tour_ia_model(mon_plateau, [], new_policy, False)
+                    else:
+                        mon_plateau = Orchestrator().tour_oldia_training(mon_plateau, old_policy)
 
             """Actions de fin de partie"""
             winner = mon_plateau.winner
-            logs_inter = pd.DataFrame(logs_inter)
-            logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
-            logs_hs.append(logs_inter)
+            if generate_logs:
+                logs_inter = pd.DataFrame(logs_inter)
+                logs_inter["victoire"] = np.where(logs_inter['pseudo_j'] == winner.name, 1, -1)
+                logs_hs.append(logs_inter)
             if winner.name in scores.keys():
                 scores[winner.name] += 1
             else:
@@ -905,8 +967,11 @@ class Orchestrator:
                 print(i)
 
         """ Concaténation des logs + suppression des plateaux temporaires """
-        logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis=1)
-        return logs_hs, scores
+        if generate_logs:
+            logs_hs = pd.concat(logs_hs).reset_index().drop("index", axis=1)
+            return logs_hs, scores
+        else:
+            return scores
 
     # def generate_ia_game(self, nb_games, players=()):
     #     logs_hs = []

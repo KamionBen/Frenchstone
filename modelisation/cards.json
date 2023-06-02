@@ -15,7 +15,7 @@
         "name": "Pingouin Glisseneige",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Bête",
+        "genre": ["Bête"],
         "cost": 0,
         "attack": 1,
         "health": 1,
@@ -37,7 +37,7 @@
         "name": "Chien du Magma",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Bête",
+        "genre": ["Bête"],
         "cost": 7,
         "attack": 9,
         "health": 5,
@@ -48,7 +48,7 @@
         "name": "Ecumeur murloc",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Murloc",
+        "genre": ["Murloc"],
         "cost": 1,
         "attack": 2,
         "health": 1,
@@ -59,7 +59,7 @@
         "name": "Enrage du magma",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Élémentaire",
+        "genre": ["Élémentaire"],
         "cost": 3,
         "attack": 5,
         "health": 1,
@@ -81,18 +81,18 @@
         "name": "Grizzly Ferpoil",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Bête",
+        "genre": ["Bête"],
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"Provocation" :  1}
+        "effects": {"provocation" :  1}
     },
     {
         "id": 8,
         "name": "Gueule d'acier des oasis",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Bête",
+        "genre": ["Bête"],
         "cost": 4,
         "attack": 2,
         "health": 7,
@@ -114,7 +114,7 @@
         "name": "Raptor Rougefange",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Bête",
+        "genre": ["Bête"],
         "cost": 2,
         "attack": 3,
         "health": 2,
@@ -125,18 +125,18 @@
         "name": "Sanglier brocheroc",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Bête",
+        "genre": ["Bête"],
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"Ruée" : 1}
+        "effects": {"ruée" : 1}
     },
     {
         "id": 12,
         "name": "Crocilisque des rivieres",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": "Bête",
+        "genre": ["Bête"],
         "cost": 2,
         "attack": 2,
         "health": 3,
@@ -158,13 +158,11 @@
         "name": "Goule fragile",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
-        "genre": null,
+        "genre": ["Mort-vivant"],
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {
-            "charge": 1
-        }
+        "effects": {"charge": 1}
     },
     {
         "id": 15,
@@ -186,7 +184,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": null
+        "effects": " "
     },
     {
         "id": 17,
@@ -208,6 +206,72 @@
         "cost": 1,
         "attack": 0,
         "health": 2,
-        "effects": "Provocation"
+        "effects": {"provocation": 1}
+    },
+    {
+        "id": 19,
+        "name": "Roi Krush",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "cost": 9,
+        "attack": 8,
+        "health": 8,
+        "effects": {"charge": 1}
+    },
+    {
+        "id": 20,
+        "name": "Serre du ciel emeraude",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Élémentaire","Bête"],
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"ruée": 1}
+    },
+    {
+        "id": 21,
+        "name": "Gueule rasoir branchie rouge",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Murloc"],
+        "cost": 2,
+        "attack": 3,
+        "health": 1,
+        "effects": {"ruée": 1}
+    },
+    {
+        "id": 22,
+        "name": "Marcheur du vide",
+        "classe": "Démoniste",
+        "type": "Serviteur",
+        "genre": ["Démon"],
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"provocation": 1}
+    },
+    {
+        "id": 23,
+        "name": "Maitre bouclier de Senjin",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 4,
+        "attack": 3,
+        "health": 5,
+        "effects": {"provocation": 1}
+    },
+    {
+        "id": 24,
+        "name": "Dragon assoupi",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Dragon"],
+        "cost": 9,
+        "attack": 4,
+        "health": 12,
+        "effects": {"provocation": 1}
     }
 ]

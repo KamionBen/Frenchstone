@@ -14,6 +14,7 @@ def get_cards_data(file: str) -> list:
 
 cardsfile = "cards.json"
 all_cards = get_cards_data('cards.json')
+all_servants = [x for x in all_cards if x['type'] == "Serviteur"]
 heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
           "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"],
           "Paladin": ["Uther"],
@@ -212,6 +213,18 @@ class Plateau:
                 action_line[f"pv_serv{i + 1}_j"] = -99
                 action_line[f"atq_remain_serv{i + 1}_j"] = -99
 
+        for i in range(7):
+            for j in range(len(all_servants)):
+                action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
+                action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
+
+        for i in range(7):
+            for j in range(len(all_servants)):
+                if i in player_servants.keys():
+                    if int(player_servants[i].split('-')[0]) == int(all_servants[j]['id']):
+                        action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = 1
+                        break
+
         adv_servants = {i: carte.id for i, carte in enumerate(adv.servants)}
         adv_servants_atk = {i: carte.attack for i, carte in enumerate(adv.servants)}
         adv_servants_pv = {i: carte.health for i, carte in enumerate(adv.servants)}
@@ -224,6 +237,13 @@ class Plateau:
                 action_line[f"serv{i + 1}_adv"] = -99
                 action_line[f"atq_serv{i + 1}_adv"] = -99
                 action_line[f"pv_serv{i + 1}_adv"] = -99
+
+        for i in range(7):
+            for j in range(len(all_servants)):
+                if i in adv_servants.keys():
+                    if int(adv_servants[i].split('-')[0]) == int(all_servants[j]['id']):
+                        action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = 1
+                        break
 
         return action_line
 
@@ -481,8 +501,8 @@ class Card:
     def reset(self):
         """ Reset de début de tour """
         self.remaining_atk = 1
-        # if "Ruée" in self.effects:
-        #     self.effects["Ruée"].active = False
+        if "ruée" in self.effects:
+            self.effects["ruée"] = 0
 
     def reset_complete(self):
         self.cost = self.base_cost

@@ -1,33 +1,18 @@
-## Lanceur de la simulation Hearthstone
-
-# Import & Utils
 from modelisation.engine import *
 
-""" Générateur de parties aléatoires """
-# players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
-# logs_hs, score = Orchestrator().generate_random_game(40000, players)
-#
-""" Générateur de partie random vs ia """
-players = [Player("Random", "Mage"), Player("IA", "Chasseur")]
-logs_hs_randomia, score_randomia = Orchestrator().generate_randomvsia_game(15000, players)
-#
-# """ Générateur de parties avec le modèle contre son prédecesseur """
-players = [Player("OldIA", "Mage"), Player("NewIA", "Chasseur")]
-logs_hs_oldia, score_oldia = Orchestrator().generate_oldia_game(20000, players)
+policy = saved_policy
 
-# """ Générateur de parties avec le modèle contre lui-même """
-players = [Player("Pascal", "Mage"), Player("Joseph", "Chasseur")]
-logs_hs_ia, score_ia = Orchestrator().generate_ia_game(15000, players)
-#
-# # """ Concaténation des différentes sources """
-logs_hs = pd.concat([logs_hs_randomia, logs_hs_oldia, logs_hs_ia]).reset_index().drop('index', axis=1)
-
-""" Affichage des résultats """
-# print(logs_hs_randomia.to_string())
-print(score_randomia)
-print(score_oldia)
-
-""" Sauvegarde des logs """
-os.remove('modelisation/logs_games.pickle')
-with open('modelisation/logs_games.pickle', 'wb') as f:
-    pickle.dump(logs_hs, f)
+plateau = {
+   "classe_j": "Mage",
+   "mana_dispo_j": 1, "mana_max_j": 1, "mana_max_adv": 0,
+   "pv_j": 30, "pv_adv": 30,
+   "armor_j": 0, "armor_adv": 0,
+   "nbre_cartes_j": 4, "nbre_cartes_adv": 4,
+   "attaque_j": 0, "remaining_atk_j": 1,
+   "carte1_j": -99, "carte2_j": -99, "carte3_j": -99, "carte4_j": -99, "carte5_j": -99,
+   "carte6_j": -99, "carte7_j": -99, "carte8_j": -99, "carte9_j": -99, "carte10_j": -99,
+   "serv1_j": [-99, -99, -99], "serv2_j": [-99, -99, -99], "serv3_j": [-99, -99, -99], "serv4_j": [-99, -99, -99],
+   "serv5_j": [-99, -99, -99], "serv6_j": [-99, -99, -99], "serv7_j": [-99, -99, -99],
+   "serv1_adv": [-99, -99, -99], "serv2_adv": [-99, -99, -99], "serv3_adv": [-99, -99, -99], "serv4_adv": [-99, -99, -99],
+   "serv5_adv": [-99, -99, -99], "serv6_adv": [-99, -99, -99], "serv7_adv": [-99, -99, -99],
+}

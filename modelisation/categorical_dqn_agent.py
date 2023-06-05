@@ -2,84 +2,13 @@ import keras.optimizers.schedules.learning_rate_schedule
 import matplotlib.pyplot as plt
 from tf_agents.agents.categorical_dqn import categorical_dqn_agent
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
-from tf_agents.networks import sequential
-from tf_agents.policies import PolicySaver, random_tf_policy, categorical_q_policy
+# from tf_agents.networks import sequential
+from tf_agents.policies import PolicySaver, categorical_q_policy
 from tf_agents.trajectories import trajectory
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common as common_utils
 from tf_agents.networks.categorical_q_network import CategoricalQNetwork
-from engine import *
-
-
-def estimated_advantage(action, state):
-    """ Simule le plateau qu'aurait donné une certaine action pour en tirer une notion d'avantage gagné ou perdu """
-    actual_state = deepcopy(state)
-    next_state = deepcopy(state)
-    action = int(action)
-
-    if action == 0:
-        TourEnCours(next_state).fin_du_tour()
-        while next_state.get_gamestate()['pseudo_j'] == 'OldIA':
-            next_state = Orchestrator().tour_oldia_training(next_state, old_policy)
-            if not next_state.game_on:
-                if next_state.winner.name == "NewIA":
-                    return 500
-                else:
-                    return -500
-    elif action < 11:
-        TourEnCours(next_state).jouer_carte(next_state.players[0].hand[action - 1])
-    elif 11 <= action < 75:
-        if (action - 11) // 8 == 0:
-            attacker = next_state.players[0].hero
-        else:
-            attacker = next_state.players[0].servants[int((action - 11) // 8 - 1)]
-        if (action - 11) % 8 == 0:
-            target = next_state.players[1].hero
-        else:
-            target = next_state.players[1].servants[int((action - 11) % 8 - 1)]
-        TourEnCours(next_state).attaquer(attacker, target)
-    elif action >= 75:
-        if action == 75:
-            target = next_state.players[0].hero
-        elif action == 83:
-            target = next_state.players[1].hero
-        elif action < 83:
-            target = next_state.players[0].servants[action - 76]
-        else:
-            target = next_state.players[1].servants[action - 84]
-        TourEnCours(next_state).pouvoir_heroique(next_state.players[0].classe, target)
-
-    next_state.update()
-
-    if not next_state.game_on:
-        if next_state.winner.name == "NewIA":
-            return 500
-        else:
-            return -500
-
-    def calc_advantage(state):
-        advantage = (state["nbre_cartes_j"] - state["nbre_cartes_adv"]) + 0.8 * (state["nbre_cartes_j"] / max(1, state["nbre_cartes_adv"]))
-        for i in range(1, 8):
-            if state[f"serv{i}_j"] != -99:
-                advantage += 2 * state[f"atq_serv{i}_j"] + 2 * state[f"pv_serv{i}_j"]
-            if state[f"serv{i}_adv"] != -99:
-                advantage -= 2 * state[f"atq_serv{i}_adv"] + 2 * state[f"pv_serv{i}_adv"]
-        advantage += 0.22 * (pow(30 - state["pv_adv"], 1.3) - pow(30 - state["pv_j"], 1.3))
-        advantage += state["attaque_j"]
-        return advantage
-
-    actual_advantage = calc_advantage(actual_state.get_gamestate())
-    predicted_advantage = calc_advantage(next_state.get_gamestate())
-
-
-    # print(actual_state.get_gamestate())
-    # print(f"Avantage en cours : {actual_advantage}")
-    # print(action)
-    # print(next_state.get_gamestate())
-    # print(f"Avantage prévu : {predicted_advantage}")
-    # print('-------------------------------------------')
-
-    return round(predicted_advantage - actual_advantage, 2)
+from alpha_beta_test import *
 
 
 players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
@@ -112,7 +41,7 @@ class Frenchstone(py_environment.PyEnvironment):
             self._state = Plateau([Player("OldIA", random.choice(classes_heros)),
                                    Player("NewIA", random.choice(classes_heros_old))])
             while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
-                self._state = Orchestrator().tour_oldia_training(self._state, old_policy)
+                self._state = Orchestrator().tour_ia_training(self._state, minimax(self._state, max_depth=2)[1])
         self._episode_ended = False
         obs = self.observation_spec()
 
@@ -136,7 +65,7 @@ class Frenchstone(py_environment.PyEnvironment):
         self._state = Orchestrator().tour_ia_training(self._state, action)
 
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
-            self._state = Orchestrator().tour_oldia_training(self._state, old_policy)
+            self._state = Orchestrator().tour_ia_training(self._state, minimax(self._state, max_depth=2)[1])
 
         legal_actions = generate_legal_vector(self._state)
         obs = self.observation_spec()

@@ -3,9 +3,19 @@ import json
 from os import path
 from random import shuffle, choice
 from typing import Union
+import pickle
 
 """ CONSTANTS """
+dict_actions = {
+            0: "passer_tour",
+            1: "jouer_carte",
+            2: "attaquer"
+        }
 
+classes_heros_old = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
+                 "Chevalier de la mort"]
+classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
+                 "Chevalier de la mort"]
 
 def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
@@ -28,9 +38,55 @@ heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "R
           }  # Devra être dans un fichier à part
 
 
+empty_action_line = {"carte_jouee": "",
+   "attaquant": "", "attaquant_atq": "", "attaquant_pv": "",
+   "cible": "", "cible_atq": "", "cible_pv": "",
+   "classe_j": -99, "classe_adv": -99,
+   "mana_dispo_j": -99, "mana_max_j": -99,
+   "mana_max_adv": -99,
+   "pv_j": -99, "pv_adv": -99,
+   "armor_j": -99, "armor_adv": -99,
+   "surcharge_j": -99, "surcharge_adv": -99,
+   "pv_max_j": -99, "pv_max_adv": -99,
+   "nbre_cartes_j": -99,
+   "nbre_cartes_adv": -99,
+   "dispo_ph_j": -99,
+   "cout_ph_j": -99,
+   "arme_j": -99,
+   "arme_adv": -99,
+   "attaque_j": -99,
+   "remaining_atk_j": -99,
+   "attaque_adv": -99,
+   "attack_arme_j": -99,
+   "attack_arme_adv": -99,
+   "durabilite_arme_j": -99,
+   "durabilite_arme_adv": -99,
+   "pseudo_j": -99,
+   "pseudo_adv": -99
+}
+for classe_heros in classes_heros:
+    empty_action_line[f"is_{classe_heros}"] = -99
+for i in range(10):
+    empty_action_line[f"carte_en_main{i + 1}"] = -99
+    empty_action_line[f"carte_en_main{i + 1}_cost"] = -99
+    empty_action_line[f"carte_en_main{i + 1}_atk"] = -99
+    empty_action_line[f"carte_en_main{i + 1}_pv"] = -99
+    for j in range(len(all_cards)):
+        empty_action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = -99
+for i in range(7):
+    empty_action_line[f"serv{i + 1}_j"] = -99
+    empty_action_line[f"atq_serv{i + 1}_j"] = -99
+    empty_action_line[f"pv_serv{i + 1}_j"] = -99
+    empty_action_line[f"atq_remain_serv{i + 1}_j"] = -99
+    empty_action_line[f"serv{i + 1}_adv"] = -99
+    empty_action_line[f"atq_serv{i + 1}_adv"] = -99
+    empty_action_line[f"pv_serv{i + 1}_adv"] = -99
+    for j in range(len(all_servants)):
+        empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
+        empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
+
+
 """ CLASSES """
-
-
 class Plateau:
     def __init__(self, players=()):
         """ Décrit exhaustivement le plateau de jeu """
@@ -105,25 +161,8 @@ class Plateau:
         elif player.classe in ["Paladin", "Chevalier de la mort"]:
             if len(player.servants) < 7:
                 targets.append(player.hero)
-        elif player.classe in ["Chasseur de démons", "Druide",
-                               "Voleur", "Chaman", "Démoniste", "Guerrier"]:
-            targets.append(player.hero)
-        return targets
-
-
-    def get_targets(self, serviteur):
-        if serviteur not in self.players[0].servants:
-            raise KeyError("Le serviteur choisi n'est pas sur le plateau du joueur actif")
         else:
-            adv = self.players[1]
-            targets = []
-            if "Ruée" in serviteur.get_effects():
-                if serviteur.effects["Ruée"].active is False:
-                    targets.append(adv.hero)
-            else:
-                targets.append(adv.hero)
-            for carte in adv.servants:
-                targets.append(carte)
+            targets.append(player.hero)
         return targets
 
     def get_gamestate(self) -> dict:
@@ -132,118 +171,48 @@ class Plateau:
 
         # On assigne les actions de base avant les actions spécifiques au choix
         """ BOARD """
-        action_line = {"action": 0,
-                       "carte_jouee": "",
-                       "attaquant": "", "attaquant_atq": "", "attaquant_pv": "",
-                       "cible": "", "cible_atq": "", "cible_pv": "",
-                       "classe_j": player.classe, "classe_adv": adv.classe,
-                       "mana_dispo_j": player.mana, "mana_max_j": player.mana_max,
-                       "mana_max_adv": adv.mana_max,
-                       "pv_j": player.hero.health, "pv_adv": adv.hero.health,
-                       "armor_j": player.hero.armor, "armor_adv": adv.hero.armor,
-                       "surcharge_j": player.surcharge, "surcharge_adv": adv.surcharge,
-                       "pv_max_j": player.hero.base_health, "pv_max_adv": adv.hero.base_health,
-                       "nbre_cartes_j": len(player.hand),
-                       "nbre_cartes_adv": len(adv.hand),
-                       "dispo_ph_j": player.hero.dispo_pouvoir,
-                       "cout_ph_j": player.hero.cout_pouvoir,
-                       "arme_j": player.hero.weapon,
-                       "arme_adv": adv.hero.weapon,
-                       "attaque_j": player.hero.attack,
-                       "remaining_atk_j": player.hero.remaining_atk,
-                       "attaque_adv": adv.hero.attack,
-                       "attack_arme_j": player.hero.weapon.attack if player.hero.weapon is not None else 0,
-                       "attack_arme_adv": adv.hero.weapon.attack if adv.hero.weapon is not None else 0,
-                       "durabilite_arme_j": player.hero.weapon.durability if player.hero.weapon is not None else 0,
-                       "durabilite_arme_adv": adv.hero.weapon.durability if adv.hero.weapon is not None else 0,
-                       "pseudo_j": player.name,
-                       "pseudo_adv": adv.name,
-                       "victoire": 0}
+        action_line = empty_action_line.copy()
+        action_line["classe_j"], action_line["classe_adv"] = player.classe, adv.classe
+        action_line["mana_dispo_j"], action_line["mana_max_j"] = player.mana, player.mana_max
+        action_line["mana_max_adv"] = adv.mana_max
+        action_line["pv_j"], action_line["pv_adv"] = player.hero.health, adv.hero.health
+        action_line["armor_j"], action_line["armor_adv"] = player.hero.armor, adv.hero.armor
+        action_line["surcharge_j"], action_line["surcharge_adv"] = player.surcharge, adv.surcharge
+        action_line["pv_max_j"], action_line["pv_max_adv"] = player.hero.base_health, adv.hero.base_health
+        action_line["nbre_cartes_j"], action_line["nbre_cartes_adv"] = len(player.hand), len(adv.hand)
+        action_line["dispo_ph_j"], action_line["cout_ph_j"] = player.hero.dispo_pouvoir, player.hero.cout_pouvoir
+        action_line["arme_j"], action_line["arme_adv"] = player.hero.weapon, adv.hero.weapon
+        action_line["attaque_j"], action_line["attaque_adv"] = player.hero.attack, adv.hero.attack
+        action_line["remaining_atk_j"] = player.hero.remaining_atk
+        action_line["attack_arme_j"] = player.hero.weapon.attack if player.hero.weapon is not None else 0
+        action_line["attack_arme_adv"] = adv.hero.weapon.attack if adv.hero.weapon is not None else 0
+        action_line["durabilite_arme_j"] = player.hero.weapon.durability if player.hero.weapon is not None else 0
+        action_line["durabilite_arme_adv"] = adv.hero.weapon.durability if adv.hero.weapon is not None else 0
+        action_line["pseudo_j"], action_line["pseudo_adv"] = player.name, adv.name
+
         """ HERO """
-        for classe_heros in ["Mage", "Chasseur", "Paladin", "Démoniste", "Chasseur de démons", "Druide", "Voleur",
-                             "Guerrier", "Chevalier de la mort", "Prêtre"]:
-            if player.classe == classe_heros:
-                action_line[f"is_{classe_heros}"] = 1
-            else:
-                action_line[f"is_{classe_heros}"] = -99
+        action_line[f"is_{player.classe}"] = 1
 
         """ HAND """
-        cartes_en_main = {i: carte for i, carte in enumerate(player.hand)}
-        for i in range(10):
-            if i in cartes_en_main.keys():
-                action_line[f"carte_en_main{i + 1}"] = cartes_en_main[i].id
-                action_line[f"carte_en_main{i + 1}_cost"] = cartes_en_main[i].cost
-                action_line[f"carte_en_main{i + 1}_atk"] = cartes_en_main[i].attack
-                action_line[f"carte_en_main{i + 1}_pv"] = cartes_en_main[i].health
-            else:
-                action_line[f"carte_en_main{i + 1}"] = -99
-                action_line[f"carte_en_main{i + 1}_cost"] = -99
-                action_line[f"carte_en_main{i + 1}_atk"] = -99
-                action_line[f"carte_en_main{i + 1}_pv"] = -99
-
-        for i in range(10):
-            for j in range(len(all_cards)):
-                action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = 0
-
-        for i in range(10):
-            for j in range(len(all_cards)):
-                if i in cartes_en_main.keys():
-                    if cartes_en_main[i].name == all_cards[j]['name']:
-                        action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] += 1
-                    else:
-                        action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = -99
-                else:
-                    action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = -99
-
+        for i in range(len(player.hand)):
+            action_line[f"carte_en_main{i + 1}"] = player.hand[i].id
+            action_line[f"carte_en_main{i + 1}_cost"] = player.hand[i].cost
+            action_line[f"carte_en_main{i + 1}_atk"] = player.hand[i].attack
+            action_line[f"carte_en_main{i + 1}_pv"] = player.hand[i].health
+            action_line[f"is_carte{i + 1}_{player.hand[i].name}"] = 1
 
         """ SERVANTS """
-        player_servants = {i: carte.id for i, carte in enumerate(player.servants)}
-        player_servants_atk = {i: carte.attack for i, carte in enumerate(player.servants)}
-        player_servants_pv = {i: carte.health for i, carte in enumerate(player.servants)}
-        player_servants_atk_remain = {i: carte.remaining_atk for i, carte in enumerate(player.servants)}
-        for i in range(7):
-            if i in player_servants.keys():
-                action_line[f"serv{i + 1}_j"] = player_servants[i]
-                action_line[f"atq_serv{i + 1}_j"] = player_servants_atk[i]
-                action_line[f"pv_serv{i + 1}_j"] = player_servants_pv[i]
-                action_line[f"atq_remain_serv{i + 1}_j"] = player_servants_atk_remain[i]
-            else:
-                action_line[f"serv{i + 1}_j"] = -99
-                action_line[f"atq_serv{i + 1}_j"] = -99
-                action_line[f"pv_serv{i + 1}_j"] = -99
-                action_line[f"atq_remain_serv{i + 1}_j"] = -99
-
-        for i in range(7):
-            for j in range(len(all_servants)):
-                action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
-                action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
-
-        for i in range(7):
-            for j in range(len(all_servants)):
-                if i in player_servants.keys():
-                    if int(player_servants[i].split('-')[0]) == int(all_servants[j]['id']):
-                        action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = 1
-                        break
-
-        adv_servants = {i: carte.id for i, carte in enumerate(adv.servants)}
-        adv_servants_atk = {i: carte.attack for i, carte in enumerate(adv.servants)}
-        adv_servants_pv = {i: carte.health for i, carte in enumerate(adv.servants)}
-        for i in range(7):
-            if i in adv_servants.keys():
-                action_line[f"serv{i + 1}_adv"] = adv_servants[i]
-                action_line[f"atq_serv{i + 1}_adv"] = adv_servants_atk[i]
-                action_line[f"pv_serv{i + 1}_adv"] = adv_servants_pv[i]
-            else:
-                action_line[f"serv{i + 1}_adv"] = -99
-                action_line[f"atq_serv{i + 1}_adv"] = -99
-                action_line[f"pv_serv{i + 1}_adv"] = -99
-
-        for i in range(7):
-            for j in range(len(all_servants)):
-                if i in adv_servants.keys():
-                    if int(adv_servants[i].split('-')[0]) == int(all_servants[j]['id']):
-                        action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = 1
-                        break
+        for i in range(len(player.servants)):
+            action_line[f"serv{i + 1}_j"] = player.servants[i].id
+            action_line[f"atq_serv{i + 1}_j"] = player.servants[i].attack
+            action_line[f"pv_serv{i + 1}_j"] = player.servants[i].health
+            action_line[f"atq_remain_serv{i + 1}_j"] = player.servants[i].remaining_atk
+            action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
+        for i in range(len(adv.servants)):
+            action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
+            action_line[f"atq_serv{i + 1}_adv"] = adv.servants[i].attack
+            action_line[f"pv_serv{i + 1}_adv"] = adv.servants[i].health
+            action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
 

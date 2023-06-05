@@ -78,9 +78,11 @@ for i in range(7):
     empty_action_line[f"atq_serv{i + 1}_j"] = -99
     empty_action_line[f"pv_serv{i + 1}_j"] = -99
     empty_action_line[f"atq_remain_serv{i + 1}_j"] = -99
+    empty_action_line[f"divineshield_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
+    empty_action_line[f"divineshield_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -207,11 +209,15 @@ class Plateau:
             action_line[f"atq_serv{i + 1}_j"] = player.servants[i].attack
             action_line[f"pv_serv{i + 1}_j"] = player.servants[i].health
             action_line[f"atq_remain_serv{i + 1}_j"] = player.servants[i].remaining_atk
+            if "bouclier divin" in player.servants[i].effects:
+                action_line[f"divineshield_serv{i + 1}_j"] = player.servants[i].effects["bouclier divin"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
             action_line[f"atq_serv{i + 1}_adv"] = adv.servants[i].attack
             action_line[f"pv_serv{i + 1}_adv"] = adv.servants[i].health
+            if "bouclier divin" in adv.servants[i].effects:
+                action_line[f"divineshield_serv{i + 1}_adv"] = adv.servants[i].effects["bouclier divin"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -481,7 +487,10 @@ class Card:
 
     def damage(self, nb):
         """ Removes nb from the card health """
-        self.health -= nb
+        if "bouclier divin" in self.effects and self.effects["bouclier divin"] == 1:
+            self.effects["bouclier divin"] = 0
+        else:
+            self.health -= nb
 
     def heal(self, nb):
         """ Heal nb health to a given creatures """

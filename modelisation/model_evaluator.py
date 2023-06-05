@@ -51,11 +51,11 @@ def generate_perf_plot(nb_games, nb_models):
 # logs_hs_randomia['id_partie'] = logs_hs_randomia['id_partie'] + 10000
 
 """ Générateur de parties avec le modèle contre son prédecesseur """
-# players = [Player("OldIA", "Druide"), Player("NewIA", "Chasseur")]
-# score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.04-a-82000"), players, False)
-# """ Affichage des résultats """
-# # print(logs_hs_oldia.to_string())
-# print(score_oldia)
+players = [Player("OldIA", "Druide"), Player("NewIA", "Chasseur")]
+score_oldia = Orchestrator().generate_oldia_game(100, tf.compat.v2.saved_model.load("frenchstone_agent_v0.04-a-14000"), players, False)
+""" Affichage des résultats """
+# print(logs_hs_oldia.to_string())
+print(score_oldia)
 """ Sauvegarde des logs"""
 # os.remove('logs_games.pickle')
 # with open('logs_games.pickle', 'wb') as f:

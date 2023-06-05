@@ -273,5 +273,29 @@
         "attack": 4,
         "health": 12,
         "effects": {"provocation": 1}
+    },
+    {
+        "id": 25,
+        "name": "Protectrice vertueuse",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"provocation": 1,
+        "bouclier divin":  1}
+    },
+    {
+        "id": 26,
+        "name": "Ennuy o tron",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "cost": 2,
+        "attack": 1,
+        "health": 2,
+        "effects": {"provocation": 1,
+        "bouclier divin":  1}
     }
 ]

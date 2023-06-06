@@ -297,5 +297,38 @@
         "health": 2,
         "effects": {"provocation": 1,
         "bouclier divin":  1}
+    },
+    {
+        "id": 27,
+        "name": "Acolyte radieuse",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi"], [0, 2]]}
+    },
+    {
+        "id": 28,
+        "name": "Air guitariste",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"cri de guerre": ["add_durability", ["", "", ""], 1]}
+    },
+    {
+        "id": 29,
+        "name": "Archere elfe",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi"], 1]}
     }
 ]

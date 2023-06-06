@@ -396,15 +396,25 @@ class TourEnCours:
     def __init__(self, plateau):
         self.plt = plateau
 
-    def apply_effects(self, carte):
+    def apply_effects(self, carte, target=None):
         player = self.plt.players[0]
         adv = self.plt.players[1]
         if "charge" in carte.effects or "ruée" in carte.effects:
             carte.remaining_atk = 1
         if "add_mana" in carte.effects:
             player.mana += carte.effects["add_mana"]
+        if "cri de guerre" in carte.effects:
+            if "boost" in carte.effects["cri de guerre"]  and target is not None:
+                target.attack += carte.effects["cri de guerre"][2][0]
+                target.base_attack += carte.effects["cri de guerre"][2][0]
+                target.health += carte.effects["cri de guerre"][2][1]
+                target.base_health += carte.effects["cri de guerre"][2][1]
+            if "add_durability" in carte.effects["cri de guerre"] and player.hero.weapon is not None:
+                player.hero.weapon.durability += carte.effects["cri de guerre"]
+            if "damage" in carte.effects["cri de guerre"] and target is not None:
+                target.damage(1)
 
-    def jouer_carte(self, carte):
+    def jouer_carte(self, carte, target=None):
         """ Action de poser une carte depuis la main du joueur dont c'est le tour.
         Le plateau est mis à jour en conséquence """
         player = self.plt.players[0]
@@ -418,7 +428,7 @@ class TourEnCours:
                     player.hand.remove(carte)
                     player.servants.add(carte)
                     player.mana_spend(carte.cost)
-                    self.apply_effects(carte)
+                    self.apply_effects(carte, target)
                 else:
                     raise PermissionError("Nombre maximum de serviteurs atteint")
         else:
@@ -818,31 +828,38 @@ class Orchestrator:
     def tour_ia_minmax(self, plateau, logs, action, generate_logs=True):
         """ Initialisation du vecteur d'état représentant le plateau"""
         action_line = plateau.get_gamestate()
-        for classe_heros in classes_heros:
-            if action_line[f"is_{classe_heros}"] == -99:
-                action_line[f"is_{classe_heros}"] = 0
 
         if action == 0:
             if generate_logs:
                 action_line["action"] = "passer_tour"
                 logs.append(action_line)
             TourEnCours(plateau).fin_du_tour()
-        elif action < 11:
-            played_card = plateau.players[0].hand[action - 1]
+        elif action < 161:
+            played_card = plateau.players[0].hand[(action - 1) // 16]
             if generate_logs:
                 action_line["action"] = "jouer_carte"
                 action_line["carte_jouee"] = played_card.id  # name ou id ?
                 logs.append(action_line)
-            TourEnCours(plateau).jouer_carte(played_card)
-        elif 11 <= action < 75:
-            if (action - 11) // 8 == 0:
+            if (action - 1) % 16 == 0:
+                target = None
+            elif (action - 1) % 16 == 1:
+                target = plateau.players[0].hero
+            elif (action - 1) % 16 == 8:
+                target = plateau.players[1].hero
+            elif (action - 1) % 16 < 8:
+                target = plateau.players[0].servants[(action - 1) % 16 - 2]
+            else:
+                target = plateau.players[1].servants[(action - 1) % 16 - 9]
+            TourEnCours(plateau).jouer_carte(played_card, target)
+        elif 161 <= action < 225:
+            if (action - 161) // 8 == 0:
                 attacker = plateau.players[0].hero
             else:
-                attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
-            if (action - 11) % 8 == 0:
+                attacker = plateau.players[0].servants[int((action - 161) // 8 - 1)]
+            if (action - 161) % 8 == 0:
                 target = plateau.players[1].hero
             else:
-                target = plateau.players[1].servants[int((action - 11) % 8 - 1)]
+                target = plateau.players[1].servants[int((action - 161) % 8 - 1)]
             if generate_logs:
                 action_line["action"] = "attaquer"
                 action_line["attaquant"] = attacker.id if type(attacker) is Card else "heros"
@@ -854,14 +871,14 @@ class Orchestrator:
                 logs.append(action_line)
             TourEnCours(plateau).attaquer(attacker, target)
         else:
-            if action == 75:
+            if action == 225:
                 target = plateau.players[0].hero
-            elif action == 83:
+            elif action == 233:
                 target = plateau.players[1].hero
-            elif action < 83:
-                target = plateau.players[0].servants[action - 76]
+            elif action < 233:
+                target = plateau.players[0].servants[action - 226]
             else:
-                target = plateau.players[1].servants[action - 84]
+                target = plateau.players[1].servants[action - 234]
             if generate_logs:
                 action_line["action"] = "pouvoir_heroique"
                 action_line["cible"] = target.id if type(target) is Card else "heros"

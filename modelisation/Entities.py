@@ -120,7 +120,7 @@ class Plateau:
             player.start_game()
         """ Le joueur 2 reçoit une carte en plus et la pièce """
         self.players[1].pick()
-        # self.players[1].hand.add(get_card(0, get_cards_data("cards.json")))
+        self.players[1].hand.add(get_card("La piece", get_cards_data("cards.json")))
 
         """ Gestion du mana """
         """ Le premier joueur démarre son tour à l'initialisation """

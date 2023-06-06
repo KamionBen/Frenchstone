@@ -330,5 +330,73 @@
         "attack": 1,
         "health": 1,
         "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi"], 1]}
+    },
+    {
+        "id": 30,
+        "name": "Banshee",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-Vivant"],
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"rale d'agonie": ["boost", ["serviteur", "allié", "aléatoire", "Mort-vivant"], [2, 1]]}
+    },
+    {
+        "id": 31,
+        "name": "Bulleur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Elementaire"],
+        "cost": 1,
+        "attack": 2,
+        "health": 4,
+        "effects": " "
+    },
+    {
+        "id": 32,
+        "name": "Casquard l'hermite",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "cost": 1,
+        "attack": 4,
+        "health": 3,
+        "effects": {"ne peut pas attaquer":  1}
+    },
+    {
+        "id": 33,
+        "name": "Docteur vaudou",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"cri de guerre": ["heal", ["tous", "tous", "choisi"], 2]}
+    },
+    {
+        "id": 34,
+        "name": "Employe purotin",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": null,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["boost", ["main", "allié", "tous"], [0, 1]]}
+    },
+    {
+        "id": 35,
+        "name": "Fan insupportable",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["ne peut pas attaquer", ["serviteur", "tous", "choisi"], 1],
+        "liberation": 0
+        }
     }
 ]

@@ -3,6 +3,7 @@ import json
 from os import path
 from random import shuffle, choice
 from typing import Union
+import random
 import pickle
 
 """ CONSTANTS """
@@ -142,6 +143,7 @@ class Plateau:
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
         for player in self.players:
+            dead_servants = []
             if player.hero.is_dead():
                 self.game_on = False
                 for winner in self.players:
@@ -150,6 +152,9 @@ class Plateau:
             for servant in player.servants:
                 if servant.is_dead():
                     player.servants.remove(servant)
+                    dead_servants.append(servant)
+        return dead_servants
+
 
     def targets_hp(self):
         """ Retourne les cibles possibles du pouvoir héroïque """
@@ -475,7 +480,10 @@ class Card:
 
     def reset(self):
         """ Reset de début de tour """
-        self.remaining_atk = 1
+        if "ne peut pas attaquer" in self.effects:
+            self.remaining_atk = 0
+        else:
+            self.remaining_atk = 1
         if "ruée" in self.effects:
             self.effects["ruée"] = 0
 
@@ -489,6 +497,8 @@ class Card:
         """ Removes nb from the card health """
         if "bouclier divin" in self.effects and self.effects["bouclier divin"] == 1:
             self.effects["bouclier divin"] = 0
+        if self.name == "Bulleur" and nb == 1:
+            self.health = 0
         else:
             self.health -= nb
 

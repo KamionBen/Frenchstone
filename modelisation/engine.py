@@ -876,7 +876,7 @@ class Orchestrator:
                     if played_card.effects["cri de guerre"][1][0] == "main":
                         if played_card.effects["cri de guerre"][1][1] == "allié":
                             if played_card.effects["cri de guerre"][1][2] == "tous":
-                                target = CardGroup((x for x in plateau.players[0].hand if x.type.lower() == "serviteur"))
+                                target = CardGroup((x for x in plateau.players[0].hand if x.type.lower() == "serviteur")).remove(played_card)
             elif (action - 1) % 16 == 1:
                 target = plateau.players[0].hero
             elif (action - 1) % 16 == 8:

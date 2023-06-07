@@ -495,10 +495,10 @@ class Card:
 
     def damage(self, nb):
         """ Removes nb from the card health """
-        if "bouclier divin" in self.effects and self.effects["bouclier divin"] == 1:
-            self.effects["bouclier divin"] = 0
         if self.name == "Bulleur" and nb == 1:
             self.health = 0
+        if "bouclier divin" in self.effects and self.effects["bouclier divin"] == 1:
+            self.effects["bouclier divin"] = 0
         else:
             self.health -= nb
 

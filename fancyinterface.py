@@ -1,8 +1,5 @@
-from pandas.core.frame import DataFrame
 import pygame
 from pygame.locals import *
-import pickle
-from random import shuffle
 from modelisation.Entities import *
 
 CARD_POOL = get_cards_data("modelisation/cards.json")

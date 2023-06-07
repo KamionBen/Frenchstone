@@ -4,10 +4,10 @@
         "name": "La piece",
         "classe": "Neutre",
         "type": "Sort",
-        "genre": null,
+        "genre": [],
         "cost": 0,
-        "attack": null,
-        "health": null,
+        "attack": [],
+        "health": [],
         "effects": {"add_mana" :  1}
     },
     {
@@ -19,18 +19,18 @@
         "cost": 0,
         "attack": 1,
         "health": 1,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 2,
         "name": "Yeti Noroit",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 4,
         "attack": 4,
         "health": 5,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 3,
@@ -41,7 +41,7 @@
         "cost": 7,
         "attack": 9,
         "health": 5,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 4,
@@ -52,7 +52,7 @@
         "cost": 1,
         "attack": 2,
         "health": 1,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 5,
@@ -63,18 +63,18 @@
         "cost": 3,
         "attack": 5,
         "health": 1,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 6,
         "name": "Golem de guerre",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 7,
         "attack": 7,
         "health": 7,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 7,
@@ -96,18 +96,18 @@
         "cost": 4,
         "attack": 2,
         "health": 7,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 9,
         "name": "Ogre rochepoing",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 6,
         "attack": 6,
         "health": 7,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 10,
@@ -118,7 +118,7 @@
         "cost": 2,
         "attack": 3,
         "health": 2,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 11,
@@ -140,18 +140,18 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 13,
         "name": "Recrue de la main d'argent",
         "classe": "Paladin",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 14,
@@ -169,40 +169,40 @@
         "name": "Totem de soins",
         "classe": "Chaman",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 0,
         "health": 2,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 16,
         "name": "Totem incendiaire",
         "classe": "Chaman",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 17,
         "name": "Totem de puissance",
         "classe": "Chaman",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 0,
         "health": 2,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 18,
         "name": "Totem de griffes de pierre",
         "classe": "Chaman",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 0,
         "health": 2,
@@ -257,7 +257,7 @@
         "name": "Maitre bouclier de Senjin",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 4,
         "attack": 3,
         "health": 5,
@@ -279,7 +279,7 @@
         "name": "Protectrice vertueuse",
         "classe": "Paladin",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 1,
         "health": 1,
@@ -303,7 +303,7 @@
         "name": "Acolyte radieuse",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 1,
         "health": 2,
@@ -314,7 +314,7 @@
         "name": "Air guitariste",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 1,
         "health": 1,
@@ -325,7 +325,7 @@
         "name": "Archere elfe",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 1,
         "health": 1,
@@ -336,7 +336,7 @@
         "name": "Banshee",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": ["Mort-Vivant"],
+        "genre": ["Mort-vivant"],
         "cost": 1,
         "attack": 2,
         "health": 1,
@@ -351,7 +351,7 @@
         "cost": 1,
         "attack": 2,
         "health": 4,
-        "effects": " "
+        "effects": {}
     },
     {
         "id": 32,
@@ -369,7 +369,7 @@
         "name": "Docteur vaudou",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 2,
         "health": 1,
@@ -380,7 +380,7 @@
         "name": "Employe purotin",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": null,
+        "genre": [],
         "cost": 1,
         "attack": 1,
         "health": 2,
@@ -398,5 +398,27 @@
         "effects": {"cri de guerre": ["ne peut pas attaquer", ["serviteur", "tous", "choisi"], 1],
         "liberation": 0
         }
+    },
+    {
+        "id": 36,
+        "name": "Guide",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"cri de guerre": ["cout_hp", ["prochain", "permanent", ""], 0]}
+    },
+    {
+        "id": 37,
+        "name": "Homme de mains",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "", "Mort-vivant"], [1, 0]]}
     }
 ]

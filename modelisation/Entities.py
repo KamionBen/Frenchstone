@@ -80,10 +80,14 @@ for i in range(7):
     empty_action_line[f"pv_serv{i + 1}_j"] = -99
     empty_action_line[f"atq_remain_serv{i + 1}_j"] = -99
     empty_action_line[f"divineshield_serv{i + 1}_j"] = -99
+    empty_action_line[f"provocation_serv{i + 1}_j"] = -99
+    empty_action_line[f"cant_attack_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
     empty_action_line[f"divineshield_serv{i + 1}_adv"] = -99
+    empty_action_line[f"provocation_serv{i + 1}_adv"] = -99
+    empty_action_line[f"cant_attack_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -142,8 +146,8 @@ class Plateau:
 
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
+        dead_servants = []
         for player in self.players:
-            dead_servants = []
             if player.hero.is_dead():
                 self.game_on = False
                 for winner in self.players:
@@ -152,6 +156,8 @@ class Plateau:
             for servant in player.servants:
                 if servant.is_dead():
                     player.servants.remove(servant)
+                    if "rale d'agonie" in servant.effects and servant.effects["rale d'agonie"][1][1] == "allié" and player == self.players[1]:
+                        servant.effects["rale d'agonie"][1][1] = "ennemi"
                     dead_servants.append(servant)
         return dead_servants
 
@@ -216,6 +222,10 @@ class Plateau:
             action_line[f"atq_remain_serv{i + 1}_j"] = player.servants[i].remaining_atk
             if "bouclier divin" in player.servants[i].effects:
                 action_line[f"divineshield_serv{i + 1}_j"] = player.servants[i].effects["bouclier divin"]
+            if "provocation" in player.servants[i].effects:
+                action_line[f"provocation_serv{i + 1}_j"] = player.servants[i].effects["provocation"]
+            if "ne peut pas attaquer" in player.servants[i].effects:
+                action_line[f"cant_attack_serv{i + 1}_j"] = player.servants[i].effects["ne peut pas attaquer"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -223,6 +233,10 @@ class Plateau:
             action_line[f"pv_serv{i + 1}_adv"] = adv.servants[i].health
             if "bouclier divin" in adv.servants[i].effects:
                 action_line[f"divineshield_serv{i + 1}_adv"] = adv.servants[i].effects["bouclier divin"]
+            if "provocation" in adv.servants[i].effects:
+                action_line[f"provocation_serv{i + 1}_adv"] = adv.servants[i].effects["provocation"]
+            if "ne peut pas attaquer" in adv.servants[i].effects:
+                action_line[f"cant_attack_serv{i + 1}_adv"] = adv.servants[i].effects["ne peut pas attaquer"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -250,6 +264,7 @@ class Player:
         self.hero.reset_complete()
         if self.classe == "Chasseur de démons":
             self.hero.cout_pouvoir = 1
+            self.hero.cout_pouvoir_temp = 1
 
     def start_turn(self):
         """ Remise à zéro de début de tour """
@@ -315,6 +330,7 @@ class Hero:
 
         self.dispo_pouvoir = True
         self.cout_pouvoir = 2
+        self.cout_pouvoir_temp = 2
         self.effet_pouvoir = None
 
         self.attack = 0
@@ -454,7 +470,7 @@ class Card:
 
         """ Description """
         self.name = kw["name"]
-        self.effects = kw["effects"]
+        self.effects = kw["effects"].copy()
         self.genre = kw["genre"]
 
         """ Category """
@@ -497,8 +513,8 @@ class Card:
         """ Removes nb from the card health """
         if self.name == "Bulleur" and nb == 1:
             self.health = 0
-        if "bouclier divin" in self.effects and self.effects["bouclier divin"] == 1:
-            self.effects["bouclier divin"] = 0
+        if "bouclier divin" in self.effects:
+            self.effects.pop("bouclier divin")
         else:
             self.health -= nb
 

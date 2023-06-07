@@ -50,9 +50,9 @@ class CardSprite(pygame.sprite.Sprite):
         if cid is not None:
             obj = get_card(cid, CARD_POOL)
             self.name = obj.name
-            self.pv_max = obj.health
+            self.pv_max = obj.base_health
             self.attaque_max = obj.base_attack
-            self.description = ""
+            self.description = " "
 
         self.attaque = None
         self.pv = None
@@ -79,6 +79,12 @@ class CardSprite(pygame.sprite.Sprite):
             self.pv = logline['pv_'+on_board_id]
             if on_board_id.split('_')[-1] == 'j':
                 self.atq_remain = logline['atq_remain_'+on_board_id]
+            if logline['divineshield_'+on_board_id] == 1:
+                self.description = " Bouclier divin"
+            if logline['provocation_'+on_board_id] == 1:
+                self.description += " Provocation"
+            if logline['cant_attack_'+on_board_id] == 1:
+                self.description += " Ne peut pas attaquer"
 
         border = 1
         self.image.fill(self.color)

@@ -418,15 +418,15 @@ class TourEnCours:
                         card.base_health += carte.effects["cri de guerre"][2][1]
             if "add_durability" in carte.effects["cri de guerre"] and player.hero.weapon is not None:
                 player.hero.weapon.durability += carte.effects["cri de guerre"]
+            if "cout_hp" in carte.effects["cri de guerre"]:
+                player.hero.cout_pouvoir_temp = 0
             if "damage" in carte.effects["cri de guerre"] and target is not None:
                 target.damage(carte.effects["cri de guerre"][2])
             if "heal" in carte.effects["cri de guerre"] and target is not None:
                 target.heal(carte.effects["cri de guerre"][2])
             if "ne peut pas attaquer" in carte.effects["cri de guerre"] and target is not None:
-                if target.effects == " ":
-                    target.effects = {"ne peut pas attaquer": 1}
-                else:
-                    target.effects["ne peut pas attaquer"] = 1
+                target.effects["ne peut pas attaquer"] = 1
+                target.remaining_atk = 0
                 carte.effects["liberation"] = target.id
         if "liberation" in carte.effects and carte.is_dead():
             if carte.effects["liberation"] in [x.id for x in player.servants]:
@@ -434,17 +434,30 @@ class TourEnCours:
             elif carte.effects["liberation"] in [x.id for x in adv.servants]:
                 [x for x in adv.servants if x.id == carte.effects["liberation"]][0].effects.pop("ne peut pas attaquer", None)
         if "rale d'agonie" in carte.effects and carte.is_dead():
-            if type(carte) == Card:
-                if carte.effects["rale d'agonie"][1][0] == "serviteur":
-                    if carte.effects["rale d'agonie"][1][1] == "allié":
-                        if carte.effects["rale d'agonie"][1][3] == "Mort-vivant":
-                            target = random.choice([x for x in self.plt.players[0].servants if x.type == "Mort-Vivant"]) \
-                                if len([x for x in self.plt.players[0].servants if x.type == "Mort-Vivant"]) != 0 else None
+            if carte.effects["rale d'agonie"][1][0] == "serviteur":
+                if carte.effects["rale d'agonie"][1][1] == "allié":
+                    if carte.effects["rale d'agonie"][1][3] == "Mort-vivant":
+                        target = random.choice([x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre]) \
+                            if len([x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre]) != 0 else None
+                elif carte.effects["rale d'agonie"][1][1] == "ennemi":
+                    if carte.effects["rale d'agonie"][1][3] == "Mort-vivant":
+                        target = random.choice([x for x in self.plt.players[1].servants if "Mort-vivant" in x.genre]) \
+                            if len([x for x in self.plt.players[1].servants if "Mort-vivant" in x.genre]) != 0 else None
             if "boost" in carte.effects["rale d'agonie"] and target is not None:
                 target.attack += carte.effects["rale d'agonie"][2][0]
                 target.base_attack += carte.effects["rale d'agonie"][2][0]
                 target.health += carte.effects["rale d'agonie"][2][1]
                 target.base_health += carte.effects["rale d'agonie"][2][1]
+        aura_servants = [x for x in player.servants if "aura" in x.effects]
+        for servant in aura_servants:
+            if servant.effects["aura"][0] == "boost":
+                if servant.effects["aura"][1][0] == "serviteur":
+                    if servant.effects["aura"][1][1] == "allié":
+                        if servant.effects["aura"][1][3] == "Mort-vivant" and "Mort-vivant" in carte.genre and servant != carte:
+                            carte.attack += servant.effects["aura"][2][0]
+                            carte.base_attack += servant.effects["aura"][2][0]
+                            carte.health += servant.effects["aura"][2][1]
+                            carte.base_health += servant.effects["aura"][2][1]
 
     def jouer_carte(self, carte, target=None):
         """ Action de poser une carte depuis la main du joueur dont c'est le tour.
@@ -487,10 +500,10 @@ class TourEnCours:
             elif classe == "Chasseur":
                 cible.damage(2)
             elif classe == "Paladin":
-                carte = get_card("Recrue de la main d'argent", all_cards)
+                carte = get_card("Recrue de la main d'argent", all_servants)
                 player.servants.add(carte)
             elif classe == "Chevalier de la mort":
-                carte = get_card("Goule fragile", all_cards)
+                carte = get_card("Goule fragile", all_servants)
                 self.apply_effects(carte)
                 player.servants.add(carte)
             elif classe == "Démoniste":
@@ -514,12 +527,16 @@ class TourEnCours:
             elif classe == "Guerrier":
                 cible.armor += 2
             elif classe == "Chaman":
-                cartes = [get_card("Totem de soin", all_cards),
-                          get_card("Totem incendiaire", all_cards),
-                          get_card("Totem de puissance", all_cards),
-                          get_card("Totem de griffes de pierre", all_cards)]
+                cartes = [get_card("Totem de soin", all_servants),
+                          get_card("Totem incendiaire", all_servants),
+                          get_card("Totem de puissance", all_servants),
+                          get_card("Totem de griffes de pierre", all_servants)]
                 player.servants.add(random.choice(cartes))
-            player.mana_spend(player.hero.cout_pouvoir)
+            if player.hero.cout_pouvoir_temp != player.hero.cout_pouvoir:
+                player.mana_spend(player.hero.cout_pouvoir_temp)
+                player.hero.cout_pouvoir_temp = player.hero.cout_pouvoir
+            else:
+                player.mana_spend(player.hero.cout_pouvoir)
             player.hero.dispo_pouvoir = False
         else:
             raise TypeError
@@ -876,7 +893,8 @@ class Orchestrator:
                     if played_card.effects["cri de guerre"][1][0] == "main":
                         if played_card.effects["cri de guerre"][1][1] == "allié":
                             if played_card.effects["cri de guerre"][1][2] == "tous":
-                                target = CardGroup((x for x in plateau.players[0].hand if x.type.lower() == "serviteur")).remove(played_card)
+                                target = CardGroup((x for x in plateau.players[0].hand if x.type.lower() == "serviteur"))
+                                target.remove(played_card)
             elif (action - 1) % 16 == 1:
                 target = plateau.players[0].hero
             elif (action - 1) % 16 == 8:

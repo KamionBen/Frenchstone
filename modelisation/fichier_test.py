@@ -2,7 +2,7 @@ import time
 from engine import *
 from statistics import mean
 
-players = [Player("NewIA", "Mage"), Player("OldIA", "Mage")]
+players = [Player("NewIA", "Druide"), Player("OldIA", "Druide")]
 plateau_depart = Plateau(deepcopy(players))
 
 
@@ -83,10 +83,13 @@ def generate_legal_vector_test(state):
             legal_actions[225] = True
         if state.players[1].hero in targets:
             legal_actions[233] = True
-        for i in range(len(state.players[0].servants)):
-            legal_actions[225 + i] = True
-        for i in range(len(state.players[1].servants)):
-            legal_actions[233 + i] = True
+        if len(targets) >= 2:
+            for i in range(len(state.players[0].servants)):
+                if state.players[0].servants[i] in targets:
+                    legal_actions[226 + i] = True
+            for i in range(len(state.players[1].servants)):
+                if state.players[1].servants[i] in targets:
+                    legal_actions[234 + i] = True
 
     return legal_actions
 
@@ -113,7 +116,7 @@ def calc_advantage_minmax(state):
     return round(advantage, 2)
 
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=3):
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=4, exploration_toll=2):
 
     base_advantage = calc_advantage_minmax(state)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
@@ -147,24 +150,24 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 
 
-logs = []
-beginning = time.perf_counter()
-for i in range(10):
-    print(i)
-    while plateau_depart.game_on:
-        max_reward, best_action = minimax(plateau_depart)
-        plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
-        print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
-        print(plateau_depart.get_gamestate())
-        print('----------------------------------------------')
-        logs.append(pd.DataFrame(logs_inter))
-    plateau_depart = Plateau(deepcopy(players))
-end = time.perf_counter()
-logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)
-print(end - beginning)
-
-""" Sauvegarde des logs"""
-os.remove('logs_games.pickle')
-with open('logs_games.pickle', 'wb') as f:
-    pickle.dump(logs_hs, f)
+# logs = []
+# beginning = time.perf_counter()
+# for i in range(10):
+#     print(i)
+#     while plateau_depart.game_on:
+#         max_reward, best_action = minimax(plateau_depart)
+#         plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+#         print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
+#         print(plateau_depart.get_gamestate())
+#         print('----------------------------------------------')
+#         logs.append(pd.DataFrame(logs_inter))
+#     plateau_depart = Plateau(deepcopy(players))
+# end = time.perf_counter()
+# logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)
+# print(end - beginning)
+#
+# """ Sauvegarde des logs"""
+# os.remove('logs_games.pickle')
+# with open('logs_games.pickle', 'wb') as f:
+#     pickle.dump(logs_hs, f)
 

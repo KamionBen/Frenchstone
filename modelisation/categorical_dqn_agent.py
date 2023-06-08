@@ -8,7 +8,7 @@ from tf_agents.trajectories import trajectory
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common as common_utils
 from tf_agents.networks.categorical_q_network import CategoricalQNetwork
-from alpha_beta_test import *
+from fichier_test import *
 
 
 players = [Player("NewIA", "Mage"), Player("OldIA", "Chasseur")]
@@ -19,11 +19,11 @@ columns_actual_state = generate_column_state(classes_heros)
 
 class Frenchstone(py_environment.PyEnvironment):
     def __init__(self):
-        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=90, name='action')
+        self._action_spec = array_spec.BoundedArraySpec(shape=(), dtype=np.int32, minimum=0, maximum=240, name='action')
         self._state = plateau_depart
         self._observation_spec = {
             'observation': array_spec.BoundedArraySpec(shape=(len(itemgetter(*columns_actual_state)(self._state.get_gamestate())),), dtype=np.int32, minimum=-100, maximum=100, name='observation'),
-            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(91,), dtype=np.bool_)
+            'valid_actions': array_spec.ArraySpec(name="valid_actions", shape=(241,), dtype=np.bool_)
         }
         self._episode_ended = False
 
@@ -36,12 +36,12 @@ class Frenchstone(py_environment.PyEnvironment):
     def _reset(self):
         if bool(random.getrandbits(1)):
             self._state = Plateau([Player("NewIA", random.choice(classes_heros)),
-                                   Player("OldIA", random.choice(classes_heros_old))])
+                                   Player("OldIA", random.choice(classes_heros))])
         else:
             self._state = Plateau([Player("OldIA", random.choice(classes_heros)),
-                                   Player("NewIA", random.choice(classes_heros_old))])
+                                   Player("NewIA", random.choice(classes_heros))])
             while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
-                self._state = Orchestrator().tour_ia_training(self._state, minimax(self._state, max_depth=2)[1])
+                self._state = Orchestrator().tour_ia_training(self._state, minimax(self._state)[1])
         self._episode_ended = False
         obs = self.observation_spec()
 
@@ -58,14 +58,17 @@ class Frenchstone(py_environment.PyEnvironment):
             return self.reset()
 
         """ Estimation de la récompense """
-        reward = estimated_advantage(action, self._state)
         # reward = 0
 
         """ Gestion des actions légales """
         self._state = Orchestrator().tour_ia_training(self._state, action)
+        if self._state.get_gamestate()['pseudo_j'] == 'OldIA':
+            reward = -calc_advantage_minmax(self._state)
+        else:
+            reward = calc_advantage_minmax(self._state)
 
         while self._state.get_gamestate()['pseudo_j'] == 'OldIA':
-            self._state = Orchestrator().tour_ia_training(self._state, minimax(self._state, max_depth=2)[1])
+            self._state = Orchestrator().tour_ia_training(self._state, minimax(self._state)[1])
 
         legal_actions = generate_legal_vector(self._state)
         obs = self.observation_spec()
@@ -83,16 +86,16 @@ train_env = tf_py_environment.TFPyEnvironment(train_env, check_dims=True)
 eval_env = tf_py_environment.TFPyEnvironment(eval_env, check_dims=True)
 time_step = train_env.reset()
 
-num_iterations = 100000  # @param {type:"integer"}
+num_iterations = 200000  # @param {type:"integer"}
 initial_collect_steps = 10  # @param {type:"integer"}
-collect_steps_per_iteration = 25  # @param {type:"integer"}
+collect_steps_per_iteration = 30  # @param {type:"integer"}
 replay_buffer_capacity = 60000  # @param {type:"integer"}
 
 
 num_atoms = 51  # @param {type:"integer"}
 min_q_value = -600  # @param {type:"integer"}
 max_q_value = 600  # @param {type:"integer"}
-n_step_update = 25  # @param {type:"integer"}
+n_step_update = 30  # @param {type:"integer"}
 
 
 batch_size = 512  # @param {type:"integer"}
@@ -104,7 +107,7 @@ lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
 log_interval = 200  # @param {type:"integer"}
 
 num_eval_episodes = 100  # @param {type:"integer"}
-eval_interval = 1000  # @param {type:"integer"}
+eval_interval = 2000  # @param {type:"integer"}
 
 fc_layer_params = (300, 250, 200, 100, 50, 30)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
@@ -118,7 +121,7 @@ train_step_counter = tf.Variable(0)
 # Epsilon decay
 epsilon = keras.optimizers.schedules.learning_rate_schedule.PolynomialDecay(
     1.0,
-    80000,
+    150000,
     0.01,
     power=1.2
 )

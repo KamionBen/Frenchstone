@@ -131,68 +131,88 @@ def generate_legal_vector_old(state):
 
 def generate_legal_vector(state):
     """ Gestion des actions légales """
-    legal_actions = [True]
+    legal_actions = [False] * 241
+    legal_actions[0] = True
     gamestate = state.get_gamestate()
-    for i in range(90):
-        legal_actions.append(False)
 
-    """ Quelles cartes peut-on jouer ? """
-    for i in range(int(gamestate["nbre_cartes_j"])):
-        for j in range(len(all_cards)):
-            if gamestate[f"is_carte{i + 1}_{all_cards[j]['name']}"] != -99 \
-            and get_card(all_cards[j]['name'], all_cards).cost <= gamestate["mana_dispo_j"] \
-            and gamestate[f"pv_serv7_j"] == -99:
-                legal_actions[i + 1] = True
+    """ Quelles cartes peut-on jouer ? Et qur quelles cibles le cas échéant ? """
+    for i in range(len(state.players[0].hand)):
+        if state.players[0].hand[i].cost <= state.players[0].mana:
+            if len(state.players[0].servants) != 7 and state.players[0].hand[i].type.lower() == "serviteur":
+
+                """ Serviteurs avec cris de guerre ciblés """
+                if "cri de guerre" in state.players[0].hand[i].effects and "choisi" in state.players[0].hand[i].effects["cri de guerre"][1]:
+                    if state.players[0].hand[i].effects["cri de guerre"][1][0] == "serviteur":
+                        if state.players[0].hand[i].effects["cri de guerre"][1][1] == "allié" and gamestate[f"serv1_j"] != -99:
+                            for j in range(len(state.players[0].servants)):
+                                legal_actions[16 * i + j + 3] = True
+                        elif state.players[0].hand[i].effects["cri de guerre"][1][1] == "tous" and (gamestate[f"serv1_j"] != -99 or gamestate[f"serv1_adv"] != -99):
+                            for j in range(len(state.players[0].servants)):
+                                legal_actions[16 * i + j + 3] = True
+                            for j in range(len(state.players[1].servants)):
+                                legal_actions[16 * i + j + 10] = True
+                        else:
+                            legal_actions[16 * i + 1] = True
+                    elif state.players[0].hand[i].effects["cri de guerre"][1][0] == "tous":
+                        if state.players[0].hand[i].effects["cri de guerre"][1][1] == "tous":
+                            legal_actions[16 * i + 2] = True
+                            legal_actions[16 * i + 9] = True
+                            for j in range(len(state.players[0].servants)):
+                                legal_actions[16 * i + j + 3] = True
+                            for j in range(len(state.players[1].servants)):
+                                legal_actions[16 * i + j + 10] = True
+                else:
+                    legal_actions[16 * i + 1] = True
+            elif state.players[0].hand[i].type.lower() == "sort":
+                legal_actions[16 * i + 1] = True
 
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     is_provoc = False
-    for j in range(1, 8):
-        if gamestate[f"atq_serv{j}_adv"] != -99 and "provocation" in state.players[1].servants[j - 1].effects:
+    for j in range(len(state.players[1].servants)):
+        if "provocation" in state.players[1].servants[j].effects:
             is_provoc = True
             break
     """ Notre héros peut attaquer """
-    if gamestate["remaining_atk_j"] > 0 and gamestate["attaque_j"] > 0:
+    if state.players[0].hero.remaining_atk > 0 and state.players[0].hero.attack > 0:
         if not is_provoc:
-            legal_actions[11] = True
-        for j in range(1, 8):
-            if gamestate[f"atq_serv{j}_adv"] != -99:
-                if not is_provoc:
-                    legal_actions[11 + j] = True
-                else:
-                    if "provocation" in state.players[1].servants[j - 1].effects:
-                        legal_actions[11 + j] = True
+            legal_actions[161] = True
+        for j in range(len(state.players[1].servants)):
+            if not is_provoc:
+                legal_actions[161 + j + 1] = True
+            else:
+                if "provocation" in state.players[1].servants[j].effects:
+                    legal_actions[161 + j + 1] = True
 
     """ Nos serviteurs peuvent attaquer """
 
-    for i in range(1, 8):
-        if gamestate[f"atq_remain_serv{i}_j"] > 0:
+    for i in range(len(state.players[0].servants)):
+        if gamestate[f"atq_remain_serv{i + 1}_j"] > 0:
             if not is_provoc:
-                legal_actions[11 + 8 * i] = True
-            if "ruée" in state.players[0].servants[i-1].effects:
-                if state.players[0].servants[i-1].effects["ruée"] == 1:
-                    legal_actions[11 + 8 * i] = False
-            for j in range(1, 8):
-                if gamestate[f"atq_serv{j}_adv"] != -99:
-                    if not is_provoc:
-                        legal_actions[11 + 8 * i + j] = True
-                    else:
-                        if "provocation" in state.players[1].servants[j - 1].effects:
-                            legal_actions[11 + 8 * i + j] = True
+                legal_actions[161 + 8 * (i + 1)] = True
+            if "ruée" in state.players[0].servants[i].effects:
+                if state.players[0].servants[i].effects["ruée"] == 1:
+                    legal_actions[161 + 8 * (i + 1)] = False
+            for j in range(len(state.players[1].servants)):
+                if not is_provoc:
+                    legal_actions[161 + 8 * (i + 1) + (j + 1)] = True
+                else:
+                    if "provocation" in state.players[1].servants[j].effects:
+                        legal_actions[161 + 8 * (i + 1) + (j + 1)] = True
 
-    if gamestate["dispo_ph_j"] and gamestate["cout_ph_j"] <= gamestate["mana_dispo_j"]:
+    if state.players[0].hero.dispo_pouvoir and state.players[0].hero.cout_pouvoir_temp <= state.players[0].mana:
         targets = state.targets_hp()
         if state.players[0].hero in targets:
-            legal_actions[75] = True
+            legal_actions[225] = True
         if state.players[1].hero in targets:
-            legal_actions[83] = True
-        for i in range(1, 8):
-            if gamestate[f"atq_serv{i}_j"] != -99:
-                if gamestate[f"serv{i}_j"] in targets:
-                    legal_actions[75 + i] = True
-            if gamestate[f"atq_serv{i}_adv"] != -99:
-                if gamestate[f"serv{i}_adv"] in targets:
-                    legal_actions[83 + i] = True
+            legal_actions[233] = True
+        if len(targets) >= 2:
+            for i in range(len(state.players[0].servants)):
+                if state.players[0].servants[i] in targets:
+                    legal_actions[226 + i] = True
+            for i in range(len(state.players[1].servants)):
+                if state.players[1].servants[i] in targets:
+                    legal_actions[234 + i] = True
 
     return legal_actions
 
@@ -838,38 +858,55 @@ class Orchestrator:
         return plateau
 
     def tour_ia_training(self, plateau, action):
-        """ L'IA génère une action d'après son modèle on la fait jouer par la classe Tourencours """
-
-        """ Le modèle choisit l'action à effectuer parmi les actions légales """
-
-        action = int(action)
+        """ Initialisation du vecteur d'état représentant le plateau"""
+        action_line = plateau.get_gamestate()
 
         if action == 0:
             TourEnCours(plateau).fin_du_tour()
-        elif action < 11:
-            TourEnCours(plateau).jouer_carte(plateau.players[0].hand[action - 1])
-        elif 11 <= action < 75:
-            if (action - 11) // 8 == 0:
+        elif action < 161:
+            played_card = plateau.players[0].hand[int((action - 1) // 16)]
+            if (action - 1) % 16 == 0:
+                target = None
+                if "cri de guerre" in played_card.effects and "choisi" not in played_card.effects["cri de guerre"]:
+                    if played_card.effects["cri de guerre"][1][0] == "main":
+                        if played_card.effects["cri de guerre"][1][1] == "allié":
+                            if played_card.effects["cri de guerre"][1][2] == "tous":
+                                target = CardGroup(
+                                    (x for x in plateau.players[0].hand if x.type.lower() == "serviteur"))
+                                target.remove(played_card)
+            elif (action - 1) % 16 == 1:
+                target = plateau.players[0].hero
+            elif (action - 1) % 16 == 8:
+                target = plateau.players[1].hero
+            elif (action - 1) % 16 < 8:
+                target = plateau.players[0].servants[int((action - 1) % 16) - 2]
+            else:
+                target = plateau.players[1].servants[int((action - 1) % 16) - 9]
+            TourEnCours(plateau).jouer_carte(played_card, target)
+        elif 161 <= action < 225:
+            if (action - 161) // 8 == 0:
                 attacker = plateau.players[0].hero
             else:
-                attacker = plateau.players[0].servants[int((action - 11) // 8 - 1)]
-            if (action - 11) % 8 == 0:
+                attacker = plateau.players[0].servants[int((action - 161) // 8 - 1)]
+            if (action - 161) % 8 == 0:
                 target = plateau.players[1].hero
             else:
-                target = plateau.players[1].servants[int((action - 11) % 8 - 1)]
+                target = plateau.players[1].servants[int((action - 161) % 8 - 1)]
             TourEnCours(plateau).attaquer(attacker, target)
-        elif action >= 75:
-            if action == 75:
+        else:
+            if action == 225:
                 target = plateau.players[0].hero
-            elif action == 83:
+            elif action == 233:
                 target = plateau.players[1].hero
-            elif action < 83:
-                target = plateau.players[0].servants[action - 76]
+            elif action < 233:
+                target = plateau.players[0].servants[int(action - 226)]
             else:
-                target = plateau.players[1].servants[action - 84]
+                target = plateau.players[1].servants[int(action - 234)]
             TourEnCours(plateau).pouvoir_heroique(plateau.players[0].classe, target)
 
-        plateau.update()
+        dead_servants = plateau.update()
+        for servant in dead_servants:
+            TourEnCours(plateau).apply_effects(servant)
         return plateau
 
     def tour_ia_minmax(self, plateau, logs, action, generate_logs=True):

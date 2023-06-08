@@ -82,12 +82,16 @@ for i in range(7):
     empty_action_line[f"divineshield_serv{i + 1}_j"] = -99
     empty_action_line[f"provocation_serv{i + 1}_j"] = -99
     empty_action_line[f"cant_attack_serv{i + 1}_j"] = -99
+    empty_action_line[f"ruee_serv{i + 1}_j"] = -99
+    empty_action_line[f"charge_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
     empty_action_line[f"divineshield_serv{i + 1}_adv"] = -99
     empty_action_line[f"provocation_serv{i + 1}_adv"] = -99
     empty_action_line[f"cant_attack_serv{i + 1}_adv"] = -99
+    empty_action_line[f"ruee_serv{i + 1}_adv"] = -99
+    empty_action_line[f"charge_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -226,6 +230,10 @@ class Plateau:
                 action_line[f"provocation_serv{i + 1}_j"] = player.servants[i].effects["provocation"]
             if "ne peut pas attaquer" in player.servants[i].effects:
                 action_line[f"cant_attack_serv{i + 1}_j"] = player.servants[i].effects["ne peut pas attaquer"]
+            if "ruée" in player.servants[i].effects:
+                action_line[f"ruee_serv{i + 1}_j"] = player.servants[i].effects["ruée"]
+            if "charge" in player.servants[i].effects:
+                action_line[f"charge_serv{i + 1}_j"] = player.servants[i].effects["charge"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -237,6 +245,10 @@ class Plateau:
                 action_line[f"provocation_serv{i + 1}_adv"] = adv.servants[i].effects["provocation"]
             if "ne peut pas attaquer" in adv.servants[i].effects:
                 action_line[f"cant_attack_serv{i + 1}_adv"] = adv.servants[i].effects["ne peut pas attaquer"]
+            if "ruée" in adv.servants[i].effects:
+                action_line[f"ruee_serv{i + 1}_j"] = adv.servants[i].effects["ruée"]
+            if "charge" in adv.servants[i].effects:
+                action_line[f"charge_serv{i + 1}_j"] = adv.servants[i].effects["charge"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line

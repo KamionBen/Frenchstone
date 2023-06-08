@@ -150,24 +150,24 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=4, explorati
 
 
 
-# logs = []
-# beginning = time.perf_counter()
-# for i in range(10):
-#     print(i)
-#     while plateau_depart.game_on:
-#         max_reward, best_action = minimax(plateau_depart)
-#         plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
-#         print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
-#         print(plateau_depart.get_gamestate())
-#         print('----------------------------------------------')
-#         logs.append(pd.DataFrame(logs_inter))
-#     plateau_depart = Plateau(deepcopy(players))
-# end = time.perf_counter()
-# logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)
-# print(end - beginning)
-#
-# """ Sauvegarde des logs"""
-# os.remove('logs_games.pickle')
-# with open('logs_games.pickle', 'wb') as f:
-#     pickle.dump(logs_hs, f)
+logs = []
+beginning = time.perf_counter()
+for i in range(10):
+    print(i)
+    while plateau_depart.game_on:
+        max_reward, best_action = minimax(plateau_depart)
+        plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+        print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
+        print(plateau_depart.get_gamestate())
+        print('----------------------------------------------')
+        logs.append(pd.DataFrame(logs_inter))
+    plateau_depart = Plateau(deepcopy(players))
+end = time.perf_counter()
+logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)
+print(end - beginning)
+
+""" Sauvegarde des logs"""
+os.remove('logs_games.pickle')
+with open('logs_games.pickle', 'wb') as f:
+    pickle.dump(logs_hs, f)
 

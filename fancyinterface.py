@@ -52,7 +52,7 @@ class CardSprite(pygame.sprite.Sprite):
             self.name = obj.name
             self.pv_max = obj.base_health
             self.attaque_max = obj.base_attack
-            self.description = " "
+            self.description = []
 
         self.attaque = None
         self.pv = None
@@ -80,11 +80,15 @@ class CardSprite(pygame.sprite.Sprite):
             if on_board_id.split('_')[-1] == 'j':
                 self.atq_remain = logline['atq_remain_'+on_board_id]
             if logline['divineshield_'+on_board_id] == 1:
-                self.description = " Bouclier divin"
+                self.description += [" Bouclier divin"]
             if logline['provocation_'+on_board_id] == 1:
-                self.description += " Provocation"
+                self.description += [" Provocation"]
             if logline['cant_attack_'+on_board_id] == 1:
-                self.description += " Ne peut pas attaquer"
+                self.description += [" Ne peut pas attaquer"]
+            if logline['ruee_'+on_board_id] == 1:
+                self.description += [" Ruée"]
+            if logline['charge_'+on_board_id] == 1:
+                self.description += [" Charge"]
 
         border = 1
         self.image.fill(self.color)
@@ -106,8 +110,9 @@ class CardSprite(pygame.sprite.Sprite):
             self.image.blit(name, (5,15))
             atq = default_font[32].render(str(self.attaque), True, 'white')
             self.image.blit(atq, (10, 120))
-            descr = default_font[16].render(self.description, True, 'white')
-            self.image.blit(descr, (10, 60))
+            for i in range(len(self.description)):
+                descr = default_font[16].render(self.description[i], True, 'white')
+                self.image.blit(descr, (10, 50 + 10 * i))
 
             if self.pv < self.pv_max:
                 color = 'red'

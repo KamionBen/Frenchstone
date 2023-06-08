@@ -84,6 +84,8 @@ for i in range(7):
     empty_action_line[f"cant_attack_serv{i + 1}_j"] = -99
     empty_action_line[f"ruee_serv{i + 1}_j"] = -99
     empty_action_line[f"charge_serv{i + 1}_j"] = -99
+    empty_action_line[f"camouflage_serv{i + 1}_j"] = -99
+    empty_action_line[f"reincarnation_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
@@ -92,6 +94,8 @@ for i in range(7):
     empty_action_line[f"cant_attack_serv{i + 1}_adv"] = -99
     empty_action_line[f"ruee_serv{i + 1}_adv"] = -99
     empty_action_line[f"charge_serv{i + 1}_adv"] = -99
+    empty_action_line[f"camouflage_serv{i + 1}_adv"] = -99
+    empty_action_line[f"reincarnation_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -162,6 +166,8 @@ class Plateau:
                     player.servants.remove(servant)
                     if "rale d'agonie" in servant.effects and servant.effects["rale d'agonie"][1][1] == "allié" and player == self.players[1]:
                         servant.effects["rale d'agonie"][1][1] = "ennemi"
+                    if "réincarnation" in servant.effects and player == self.players[0]:
+                        servant.effects["réincarnation"] = 0
                     dead_servants.append(servant)
         return dead_servants
 
@@ -234,6 +240,10 @@ class Plateau:
                 action_line[f"ruee_serv{i + 1}_j"] = player.servants[i].effects["ruée"]
             if "charge" in player.servants[i].effects:
                 action_line[f"charge_serv{i + 1}_j"] = player.servants[i].effects["charge"]
+            if "camouflage" in player.servants[i].effects:
+                action_line[f"camouflage_serv{i + 1}_j"] = player.servants[i].effects["camouflage"]
+            if "réincarnation" in player.servants[i].effects:
+                action_line[f"reincarnation_serv{i + 1}_j"] = player.servants[i].effects["réincarnation"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -246,9 +256,13 @@ class Plateau:
             if "ne peut pas attaquer" in adv.servants[i].effects:
                 action_line[f"cant_attack_serv{i + 1}_adv"] = adv.servants[i].effects["ne peut pas attaquer"]
             if "ruée" in adv.servants[i].effects:
-                action_line[f"ruee_serv{i + 1}_j"] = adv.servants[i].effects["ruée"]
+                action_line[f"ruee_serv{i + 1}_adv"] = adv.servants[i].effects["ruée"]
             if "charge" in adv.servants[i].effects:
-                action_line[f"charge_serv{i + 1}_j"] = adv.servants[i].effects["charge"]
+                action_line[f"charge_serv{i + 1}_adv"] = adv.servants[i].effects["charge"]
+            if "camouflage" in adv.servants[i].effects:
+                action_line[f"camouflage_serv{i + 1}_adv"] = adv.servants[i].effects["camouflage"]
+            if "réincarnation" in adv.servants[i].effects:
+                action_line[f"reincarnation_serv{i + 1}_adv"] = adv.servants[i].effects["réincarnation"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -269,6 +283,7 @@ class Player:
 
         self.mana, self.mana_max = 0, 0
         self.surcharge = 0
+        self.discount_next = []
 
     def start_game(self):
         self.deck.shuffle()
@@ -298,6 +313,16 @@ class Player:
             for servant in self.servants:
                 if servant.name == "Goule fragile":
                     self.servants.remove(servant)
+
+    def apply_discount(self):
+        if self.discount_next:
+            for card in self.hand:
+                card.cost = card.base_cost
+                for discount in self.discount_next:
+                    if card.type.lower() == discount[0]:
+                        if discount[1] != "" and discount[1] in card.genre:
+                            card.cost = max(0, card.base_cost - discount[2])
+
 
     def mana_spend(self, nb):
         self.mana -= nb
@@ -514,6 +539,8 @@ class Card:
             self.remaining_atk = 1
         if "ruée" in self.effects:
             self.effects["ruée"] = 0
+        if "aura" in self.effects and self.effects["aura"][1][3] == "temp_fullturn":
+            self.attack = self.base_attack
 
     def reset_complete(self):
         self.cost = self.base_cost

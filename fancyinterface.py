@@ -89,6 +89,10 @@ class CardSprite(pygame.sprite.Sprite):
                 self.description += [" Ruée"]
             if logline['charge_'+on_board_id] == 1:
                 self.description += [" Charge"]
+            if logline['camouflage_'+on_board_id] == 1:
+                self.description += [" Camouflage"]
+            if logline['reincarnation_'+on_board_id] == 1:
+                self.description += [" Réincarnation"]
 
         border = 1
         self.image.fill(self.color)

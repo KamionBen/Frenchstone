@@ -420,5 +420,84 @@
         "attack": 1,
         "health": 2,
         "effects": {"aura": ["boost", ["serviteur", "allié", "", "Mort-vivant"], [1, 0]]}
+    },
+    {
+        "id": 38,
+        "name": "Infiltrateur worgen",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"camouflage":  1}
+    },
+    {
+        "id": 39,
+        "name": "Mande flots murloc",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Murloc"],
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"aura": ["boost", ["self", "allié", "", "Murloc"], [1, 0]]}
+    },
+    {
+        "id": 40,
+        "name": "Murmie",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Murloc"],
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"réincarnation": 1}
+    },
+    {
+        "id": 41,
+        "name": "Ondulance feroce",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"aura": ["boost", ["self", "sort", "", "temp_fullturn"], [1, 0]]}
+    },
+    {
+        "id": 42,
+        "name": "Oscillateur basse frequence",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"cri de guerre": ["reduc_serv", ["serviteur", "prochain", "", "Méca"], 1]}
+    },
+    {
+        "id": 43,
+        "name": "Pince o tron",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"cri de guerre": ["boost", ["main", "allié", "1", "Méca"], [1, 1]],
+        "bouclier divin":  1}
+    },
+    {
+        "id": 44,
+        "name": "Piranha grouillant",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"aura": ["boost", ["self", "allié", "", "Piranha grouillant"], [1, 0]],
+        "ruée":  1}
     }
 ]

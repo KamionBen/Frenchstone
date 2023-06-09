@@ -499,5 +499,39 @@
         "health": 1,
         "effects": {"aura": ["boost", ["self", "allié", "", "Piranha grouillant"], [1, 0]],
         "ruée":  1}
+    },
+    {
+        "id": 45,
+        "name": "Pelican plongeur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "cost": 1,
+        "attack": 4,
+        "health": 1,
+        "effects": {"en sommeil": 1,
+        "ruée":  1}
+    },
+    {
+        "id": 46,
+        "name": "Sergent grossier",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "temp_turn"], [2, 0]]}
+    },
+    {
+        "id": 47,
+        "name": "Sir Finley guide maritime",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Murloc"],
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "temp_turn"], [2, 0]]}
     }
 ]

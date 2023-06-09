@@ -429,6 +429,8 @@ class TourEnCours:
                     target.attack += carte.effects["cri de guerre"][2][0]
                     target.health += carte.effects["cri de guerre"][2][1]
                     target.base_health += carte.effects["cri de guerre"][2][1]
+                    if "temp_turn" in carte.effects["cri de guerre"][1]:
+                        target.effects["temp_turn"] = [carte.effects["cri de guerre"][2][0], carte.effects["cri de guerre"][2][1]]
                 elif type(target) == CardGroup:
                     for card in target:
                         card.attack += carte.effects["cri de guerre"][2][0]
@@ -478,6 +480,7 @@ class TourEnCours:
                 target.attack += carte.effects["rale d'agonie"][2][0]
                 target.health += carte.effects["rale d'agonie"][2][1]
                 target.base_health += carte.effects["rale d'agonie"][2][1]
+
         aura_servants = [x for x in player.servants if "aura" in x.effects]
         for servant in aura_servants:
             if servant.effects["aura"][0] == "boost":

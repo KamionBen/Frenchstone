@@ -86,6 +86,7 @@ for i in range(7):
     empty_action_line[f"charge_serv{i + 1}_j"] = -99
     empty_action_line[f"camouflage_serv{i + 1}_j"] = -99
     empty_action_line[f"reincarnation_serv{i + 1}_j"] = -99
+    empty_action_line[f"en_sommeil_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
@@ -96,6 +97,7 @@ for i in range(7):
     empty_action_line[f"charge_serv{i + 1}_adv"] = -99
     empty_action_line[f"camouflage_serv{i + 1}_adv"] = -99
     empty_action_line[f"reincarnation_serv{i + 1}_adv"] = -99
+    empty_action_line[f"en_sommeil_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -244,6 +246,8 @@ class Plateau:
                 action_line[f"camouflage_serv{i + 1}_j"] = player.servants[i].effects["camouflage"]
             if "réincarnation" in player.servants[i].effects:
                 action_line[f"reincarnation_serv{i + 1}_j"] = player.servants[i].effects["réincarnation"]
+            if "en sommeil" in player.servants[i].effects:
+                action_line[f"en_sommeil_serv{i + 1}_j"] = player.servants[i].effects["en sommeil"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -263,6 +267,8 @@ class Plateau:
                 action_line[f"camouflage_serv{i + 1}_adv"] = adv.servants[i].effects["camouflage"]
             if "réincarnation" in adv.servants[i].effects:
                 action_line[f"reincarnation_serv{i + 1}_adv"] = adv.servants[i].effects["réincarnation"]
+            if "en sommeil" in adv.servants[i].effects:
+                action_line[f"en_sommeil_serv{i + 1}_adv"] = adv.servants[i].effects["en sommeil"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -309,10 +315,13 @@ class Player:
     def end_turn(self):
         """ Mise à jour de fin de tour """
         self.hero.attack = 0
-        if self.classe == "Chevalier de la mort":
-            for servant in self.servants:
-                if servant.name == "Goule fragile":
-                    self.servants.remove(servant)
+        for servant in self.servants:
+            if servant.name == "Goule fragile":
+                self.servants.remove(servant)
+            if "temp_turn" in servant.effects:
+                servant.attack -= servant.effects["temp_turn"][0]
+                servant.health -= servant.effects["temp_turn"][1]
+                servant.base_health -= servant.effects["temp_turn"][1]
 
     def apply_discount(self):
         if self.discount_next:
@@ -537,10 +546,14 @@ class Card:
             self.remaining_atk = 0
         else:
             self.remaining_atk = 1
-        if "ruée" in self.effects:
+        if "ruée" in self.effects and not "en sommeil" in self.effects:
             self.effects["ruée"] = 0
         if "aura" in self.effects and self.effects["aura"][1][3] == "temp_fullturn":
             self.attack = self.base_attack
+        if "en sommeil" in self.effects:
+            self.effects["en sommeil"] -= 1
+            if self.effects["en sommeil"] == 0:
+                self.effects.pop("en sommeil")
 
     def reset_complete(self):
         self.cost = self.base_cost

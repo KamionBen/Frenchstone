@@ -27,7 +27,7 @@ def generate_legal_vector_test(state):
                             for j in range(len(state.players[0].servants)):
                                 legal_actions[16 * i + j + 3] = True
                             for j in range(len(state.players[1].servants)):
-                                if "camouflage" not in state.players[1].servants[j].effects:
+                                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
                                     legal_actions[16 * i + j + 10] = True
                         else:
                             legal_actions[16 * i + 1] = True
@@ -38,7 +38,7 @@ def generate_legal_vector_test(state):
                             for j in range(len(state.players[0].servants)):
                                 legal_actions[16 * i + j + 3] = True
                             for j in range(len(state.players[1].servants)):
-                                if "camouflage" not in state.players[1].servants[j].effects:
+                                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
                                     legal_actions[16 * i + j + 10] = True
                 else:
                     legal_actions[16 * i + 1] = True
@@ -58,7 +58,7 @@ def generate_legal_vector_test(state):
             legal_actions[161] = True
         for j in range(len(state.players[1].servants)):
             if not is_provoc:
-                if "camouflage" not in state.players[1].servants[j].effects:
+                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
                     legal_actions[161 + j + 1] = True
             else:
                 if "provocation" in state.players[1].servants[j].effects:
@@ -67,7 +67,7 @@ def generate_legal_vector_test(state):
     """ Nos serviteurs peuvent attaquer """
 
     for i in range(len(state.players[0].servants)):
-        if gamestate[f"atq_remain_serv{i + 1}_j"] > 0:
+        if gamestate[f"atq_remain_serv{i + 1}_j"] > 0 and "en sommeil" not in state.players[0].servants[i].effects:
             if not is_provoc:
                 legal_actions[161 + 8 * (i + 1)] = True
             if "ruée" in state.players[0].servants[i].effects:
@@ -75,12 +75,13 @@ def generate_legal_vector_test(state):
                     legal_actions[161 + 8 * (i + 1)] = False
             for j in range(len(state.players[1].servants)):
                 if not is_provoc:
-                    if "camouflage" not in state.players[1].servants[j].effects:
+                    if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
                         legal_actions[161 + 8 * (i + 1) + (j + 1)] = True
                 else:
                     if "provocation" in state.players[1].servants[j].effects:
                         legal_actions[161 + 8 * (i + 1) + (j + 1)] = True
 
+    """ Pouvoir héroïque """
     if state.players[0].hero.dispo_pouvoir and state.players[0].hero.cout_pouvoir_temp <= state.players[0].mana:
         targets = state.targets_hp()
         if state.players[0].hero in targets:
@@ -92,7 +93,7 @@ def generate_legal_vector_test(state):
                 if state.players[0].servants[i] in targets:
                     legal_actions[226 + i] = True
             for i in range(len(state.players[1].servants)):
-                if state.players[1].servants[i] in targets and "camouflage" not in state.players[1].servants[i].effects:
+                if state.players[1].servants[i] in targets and "camouflage" not in state.players[1].servants[i].effects and "en sommeil" not in state.players[1].servants[i].effects:
                     legal_actions[234 + i] = True
 
     return legal_actions
@@ -120,7 +121,7 @@ def calc_advantage_minmax(state):
     return round(advantage, 2)
 
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=5, exploration_toll=1.6):
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=1.8):
 
     base_advantage = calc_advantage_minmax(state)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)

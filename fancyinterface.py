@@ -95,7 +95,8 @@ class CardSprite(pygame.sprite.Sprite):
                 self.description += [" Réincarnation"]
             if logline['en_sommeil_'+on_board_id] > 0:
                 self.description += [" En sommeil"]
-
+            if logline['gel_'+on_board_id] == 1:
+                self.description += [" Gelé"]
         border = 1
         self.image.fill(self.color)
         if logline is not None:
@@ -143,6 +144,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         """ Hero """
         self.attaque = 0
         self.surcharge = 0
+        self.armor = 0
         self.pv, self.pv_max = 30, 30
 
         """ Cards """
@@ -192,6 +194,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.mana_max = logline['mana_max_'+role]
         self.surcharge = logline['surcharge_'+role]
         self.pv, self.pv_max = logline['pv_'+role], logline['pv_max_'+role]
+        self.armor = logline['armor_'+role]
         self.attaque = logline['attaque_'+role]
 
         """ Cards """
@@ -226,6 +229,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         pseudo = default_font[32].render(f"{self.pseudo} ({self.classe})", True, color)
         mana = default_font[24].render(f"Mana : {self.mana}/{self.mana_max}", True, 'white')
         atq = default_font[32].render(str(self.attaque), True, 'white')
+        armor = default_font[32].render(str(self.armor), True, 'white')
         if self.pv < self.pv_max:
             color = 'red'
         else:
@@ -238,6 +242,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.image.blit(mana, (450 - mana.get_width() / 2, height[self.position][1]))
         self.image.blit(atq, (400 - atq.get_width() / 2, height[self.position][2]))
         self.image.blit(pv, (500 - pv.get_width() / 2, height[self.position][2]))
+        self.image.blit(armor, (600 - armor.get_width() / 2, height[self.position][2]))
 
 
 
@@ -352,10 +357,6 @@ class FancyInterface:
             if self.debug:
                 debug_str = {k: v for k, v in self.get_currentline().items() if v not in (-99, "")}
                 print(debug_str)
-
-
-
-
 
 
 

@@ -532,6 +532,83 @@
         "cost": 1,
         "attack": 1,
         "health": 3,
-        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "temp_turn"], [2, 0]]}
+        "effects": {"cri de guerre": "Sir Finley"}
+    },
+    {
+        "id": 48,
+        "name": "Surfeur de foule",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Murloc"],
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"rale d'agonie": ["boost", ["serviteur", "allié", "aléatoire"], [1, 1], "rebond"]}
+    },
+    {
+        "id": 49,
+        "name": "Totem de stele du vice",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Totem"],
+        "cost": 1,
+        "attack": 0,
+        "health": 3,
+        "effects": {"aura": ["boost", ["self", "end_turn"], [0, 1]]}
+    },
+    {
+        "id": 50,
+        "name": "Une erreur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"],
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {}
+    },
+    {
+        "id": 51,
+        "name": "Vendeuse d armures",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"cri de guerre":  ["add_armor", ["héros", "tous"], 4]}
+    },
+    {
+        "id": 52,
+        "name": "Eclat glaciaire",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"cri de guerre":  ["gel", ["tous", "adversaire", "choisi"], 1]}
+    },
+    {
+        "id": 53,
+        "name": "Oeuf infect",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "cost": 1,
+        "attack": 0,
+        "health": 2,
+        "effects": {"rale d'agonie":  ["invocation", ["allié"], "Poulet mort vivant"]}
+    },
+    {
+        "id": 54,
+        "name": "Poulet mort vivant",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {}
     }
 ]

@@ -87,6 +87,7 @@ for i in range(7):
     empty_action_line[f"camouflage_serv{i + 1}_j"] = -99
     empty_action_line[f"reincarnation_serv{i + 1}_j"] = -99
     empty_action_line[f"en_sommeil_serv{i + 1}_j"] = -99
+    empty_action_line[f"gel_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
@@ -98,6 +99,7 @@ for i in range(7):
     empty_action_line[f"camouflage_serv{i + 1}_adv"] = -99
     empty_action_line[f"reincarnation_serv{i + 1}_adv"] = -99
     empty_action_line[f"en_sommeil_serv{i + 1}_adv"] = -99
+    empty_action_line[f"gel_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -166,8 +168,8 @@ class Plateau:
             for servant in player.servants:
                 if servant.is_dead():
                     player.servants.remove(servant)
-                    if "rale d'agonie" in servant.effects and servant.effects["rale d'agonie"][1][1] == "allié" and player == self.players[1]:
-                        servant.effects["rale d'agonie"][1][1] = "ennemi"
+                    if "rale d'agonie" in servant.effects and "allié" in servant.effects["rale d'agonie"][1] and player == self.players[1]:
+                        servant.effects["rale d'agonie"][1] = ["ennemi" if x == "allié" else x for x in servant.effects["rale d'agonie"][1]]
                     if "réincarnation" in servant.effects and player == self.players[0]:
                         servant.effects["réincarnation"] = 0
                     dead_servants.append(servant)
@@ -248,6 +250,8 @@ class Plateau:
                 action_line[f"reincarnation_serv{i + 1}_j"] = player.servants[i].effects["réincarnation"]
             if "en sommeil" in player.servants[i].effects:
                 action_line[f"en_sommeil_serv{i + 1}_j"] = player.servants[i].effects["en sommeil"]
+            if "gel" in player.servants[i].effects:
+                action_line[f"gel_serv{i + 1}_j"] = player.servants[i].effects["gel"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -269,6 +273,8 @@ class Plateau:
                 action_line[f"reincarnation_serv{i + 1}_adv"] = adv.servants[i].effects["réincarnation"]
             if "en sommeil" in adv.servants[i].effects:
                 action_line[f"en_sommeil_serv{i + 1}_adv"] = adv.servants[i].effects["en sommeil"]
+            if "gel" in adv.servants[i].effects:
+                action_line[f"gel_serv{i + 1}_adv"] = adv.servants[i].effects["gel"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -315,6 +321,8 @@ class Player:
     def end_turn(self):
         """ Mise à jour de fin de tour """
         self.hero.attack = 0
+        if self.hero.remaining_atk == 0 and self.hero.gel == 1:
+            self.hero.gel = 0
         for servant in self.servants:
             if servant.name == "Goule fragile":
                 self.servants.remove(servant)
@@ -322,6 +330,13 @@ class Player:
                 servant.attack -= servant.effects["temp_turn"][0]
                 servant.health -= servant.effects["temp_turn"][1]
                 servant.base_health -= servant.effects["temp_turn"][1]
+            if "gel" in servant.effects and servant.remaining_atk == 0:
+                servant.effects.pop("gel")
+            if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
+                if "self" in servant.effects["aura"][1]:
+                    servant.attack += servant.effects["aura"][2][0]
+                    servant.health += servant.effects["aura"][2][1]
+                    servant.base_health += servant.effects["aura"][2][1]
 
     def apply_discount(self):
         if self.discount_next:
@@ -382,6 +397,7 @@ class Hero:
         self.attack = 0
         self.remaining_atk = 1
         self.armor = 0
+        self.gel = 0
         self.health, self.base_health = 30, 30
         self.weapon = None
 
@@ -398,7 +414,10 @@ class Hero:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
-        self.remaining_atk = 1
+        if self.gel == 0:
+            self.remaining_atk = 1
+        else:
+            self.remaining_atk = 0
         self.attack = self.weapon.attack if self.weapon is not None else 0
 
     def reset_complete(self):
@@ -409,6 +428,7 @@ class Hero:
 
         self.attack = 0
         self.armor = 0
+        self.gel = 0
         self.health, self.base_health = 30, 30
         self.weapon = None
 
@@ -436,6 +456,7 @@ class CardGroup:
     def add(self, new_card):
         if type(new_card) == Card:
             self.cards.append(new_card)
+
 
     def remove(self, card):
         if type(card) == Card:
@@ -548,8 +569,10 @@ class Card:
             self.remaining_atk = 1
         if "ruée" in self.effects and not "en sommeil" in self.effects:
             self.effects["ruée"] = 0
-        if "aura" in self.effects and self.effects["aura"][1][3] == "temp_fullturn":
+        if "aura" in self.effects and "temp_fullturn" in self.effects["aura"][1]:
             self.attack = self.base_attack
+        if "gel" in self.effects:
+            self.remaining_atk = 0
         if "en sommeil" in self.effects:
             self.effects["en sommeil"] -= 1
             if self.effects["en sommeil"] == 0:

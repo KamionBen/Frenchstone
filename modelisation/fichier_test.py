@@ -19,11 +19,11 @@ def generate_legal_vector_test(state):
 
                 """ Serviteurs avec cris de guerre ciblés """
                 if "cri de guerre" in state.players[0].hand[i].effects and "choisi" in state.players[0].hand[i].effects["cri de guerre"][1]:
-                    if state.players[0].hand[i].effects["cri de guerre"][1][0] == "serviteur":
-                        if state.players[0].hand[i].effects["cri de guerre"][1][1] == "allié" and gamestate[f"serv1_j"] != -99:
+                    if "serviteur" in state.players[0].hand[i].effects["cri de guerre"][1]:
+                        if "allié" in state.players[0].hand[i].effects["cri de guerre"][1] and gamestate[f"serv1_j"] != -99:
                             for j in range(len(state.players[0].servants)):
                                 legal_actions[16 * i + j + 3] = True
-                        elif state.players[0].hand[i].effects["cri de guerre"][1][1] == "tous" and (gamestate[f"serv1_j"] != -99 or gamestate[f"serv1_adv"] != -99):
+                        elif "tous" in state.players[0].hand[i].effects["cri de guerre"][1] and (gamestate[f"serv1_j"] != -99 or gamestate[f"serv1_adv"] != -99):
                             for j in range(len(state.players[0].servants)):
                                 legal_actions[16 * i + j + 3] = True
                             for j in range(len(state.players[1].servants)):
@@ -31,8 +31,13 @@ def generate_legal_vector_test(state):
                                     legal_actions[16 * i + j + 10] = True
                         else:
                             legal_actions[16 * i + 1] = True
-                    elif state.players[0].hand[i].effects["cri de guerre"][1][0] == "tous":
-                        if state.players[0].hand[i].effects["cri de guerre"][1][1] == "tous":
+                    elif "tous" in state.players[0].hand[i].effects["cri de guerre"][1]:
+                        if "adversaire" in state.players[0].hand[i].effects["cri de guerre"][1]:
+                            for j in range(len(state.players[1].servants)):
+                                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in \
+                                        state.players[1].servants[j].effects:
+                                    legal_actions[16 * i + j + 10] = True
+                        else:
                             legal_actions[16 * i + 2] = True
                             legal_actions[16 * i + 9] = True
                             for j in range(len(state.players[0].servants)):
@@ -67,7 +72,7 @@ def generate_legal_vector_test(state):
     """ Nos serviteurs peuvent attaquer """
 
     for i in range(len(state.players[0].servants)):
-        if gamestate[f"atq_remain_serv{i + 1}_j"] > 0 and "en sommeil" not in state.players[0].servants[i].effects:
+        if state.players[0].servants[i].remaining_atk * state.players[0].servants[i].attack > 0 and "en sommeil" not in state.players[0].servants[i].effects:
             if not is_provoc:
                 legal_actions[161 + 8 * (i + 1)] = True
             if "ruée" in state.players[0].servants[i].effects:
@@ -121,7 +126,7 @@ def calc_advantage_minmax(state):
     return round(advantage, 2)
 
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=1.8):
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=2):
 
     base_advantage = calc_advantage_minmax(state)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
@@ -135,6 +140,8 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
     first_estimate[0] = base_advantage
     first_estimate = np.array(first_estimate)
     possible_new_states = possible_new_states[first_estimate.argsort()[-max(round(len(possible_new_states)/(pow(exploration_toll, depth))), 1):]]
+    if depth == 1:
+        print(len(possible_new_states))
 
     for new_state in possible_new_states:
         previous_reward = alpha
@@ -157,7 +164,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-for i in range(10):
+for i in range(5):
     print(i)
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)

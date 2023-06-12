@@ -120,12 +120,13 @@ class Plateau:
                        'Chevalier de la mort': 'test_deck.csv',
                        'Prêtre': 'test_deck.csv'
                        }
+        self.cards_chosen = []
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
 
         else:
             self.players = list(players)
-        Card.created = []
+        Card.created = {}
 
         for player in self.players:
             player.set_deck(class_files[player.classe])
@@ -174,7 +175,6 @@ class Plateau:
                         servant.effects["réincarnation"] = 0
                     dead_servants.append(servant)
         return dead_servants
-
 
     def targets_hp(self):
         """ Retourne les cibles possibles du pouvoir héroïque """
@@ -293,7 +293,7 @@ class Player:
         self.hand = CardGroup()  # La main du joueur
         self.servants = CardGroup()  # Les cartes sur le "terrain"
 
-        self.mana, self.mana_max = 0, 0
+        self.mana, self.mana_max, self.mana_final = 0, 0, 10
         self.surcharge = 0
         self.discount_next = []
 
@@ -352,7 +352,7 @@ class Player:
         self.mana -= nb
 
     def mana_grow(self):
-        self.mana_max = min(self.mana_max + 1, 10)
+        self.mana_max = min(self.mana_max + 1, self.mana_final)
 
     def mana_reset(self):
         self.mana = self.mana_max - self.surcharge
@@ -524,21 +524,20 @@ class CardGroup:
 
 
 class Card:
-    created = []
+    created = {}
 
     def __init__(self, cid=None, **kw):
         """ Classe généraliste pour les cartes à jouer """
-        if cid is None:
-            # Génération d'un id de carte
-            self.id = self.generate_id(kw['id'])
-        else:
-            self.id = cid
-        Card.created.append(self.id)
-
         """ Description """
         self.name = kw["name"]
         self.effects = kw["effects"].copy()
         self.genre = kw["genre"]
+        if cid is None:
+            # Génération d'un id de carte
+            self.id = f"{kw['id']}-{self.generate_id()}"
+            Card.created[self.name] = self.generate_id()
+        else:
+            self.id = cid
 
         """ Category """
         self.classe = kw["classe"]
@@ -552,11 +551,13 @@ class Card:
         """ Combat """
         self.remaining_atk = 0
 
-    def generate_id(self, base_id):
-        x = 0
-        while f"{base_id}-{x}" in Card.created:
+    def generate_id(self):
+        try:
+            x = Card.created[self.name]
             x += 1
-        return f"{base_id}-{x}"
+        except:
+            x = 0
+        return x
 
     def get_effects(self):
         return list(self.effects.values())

@@ -8,7 +8,15 @@ plateau_depart = Plateau(deepcopy(players))
 
 def generate_legal_vector_test(state):
     """ Gestion des actions légales """
-    legal_actions = [False] * 241
+    legal_actions = [False] * 244
+
+    """ Découverte """
+    if state.cards_chosen:
+        legal_actions[0] = False
+        for i in range(241, 244):
+            legal_actions[i] = True
+        return legal_actions
+
     legal_actions[0] = True
     gamestate = state.get_gamestate()
 
@@ -21,8 +29,13 @@ def generate_legal_vector_test(state):
                 if "cri de guerre" in state.players[0].hand[i].effects and "choisi" in state.players[0].hand[i].effects["cri de guerre"][1]:
                     if "serviteur" in state.players[0].hand[i].effects["cri de guerre"][1]:
                         if "allié" in state.players[0].hand[i].effects["cri de guerre"][1] and gamestate[f"serv1_j"] != -99:
-                            for j in range(len(state.players[0].servants)):
-                                legal_actions[16 * i + j + 3] = True
+                            if "genre" in state.players[0].hand[i].effects["cri de guerre"][1]:
+                                for j in range(len(state.players[0].servants)):
+                                    if state.players[0].servants[j].genre:
+                                        legal_actions[16 * i + j + 3] = True
+                            else:
+                                for j in range(len(state.players[0].servants)):
+                                    legal_actions[16 * i + j + 3] = True
                         elif "tous" in state.players[0].hand[i].effects["cri de guerre"][1] and (gamestate[f"serv1_j"] != -99 or gamestate[f"serv1_adv"] != -99):
                             for j in range(len(state.players[0].servants)):
                                 legal_actions[16 * i + j + 3] = True
@@ -33,6 +46,42 @@ def generate_legal_vector_test(state):
                             legal_actions[16 * i + 1] = True
                     elif "tous" in state.players[0].hand[i].effects["cri de guerre"][1]:
                         if "adversaire" in state.players[0].hand[i].effects["cri de guerre"][1]:
+                            for j in range(len(state.players[1].servants)):
+                                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in \
+                                        state.players[1].servants[j].effects:
+                                    legal_actions[16 * i + j + 10] = True
+                        else:
+                            legal_actions[16 * i + 2] = True
+                            legal_actions[16 * i + 9] = True
+                            for j in range(len(state.players[0].servants)):
+                                legal_actions[16 * i + j + 3] = True
+                            for j in range(len(state.players[1].servants)):
+                                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
+                                    legal_actions[16 * i + j + 10] = True
+                else:
+                    legal_actions[16 * i + 1] = True
+                    
+                """ Serviteurs avec soif de mana ciblée """
+                if "soif de mana" in state.players[0].hand[i].effects and "choisi" in state.players[0].hand[i].effects["soif de mana"][1]:
+                    if "serviteur" in state.players[0].hand[i].effects["soif de mana"][1]:
+                        if "allié" in state.players[0].hand[i].effects["soif de mana"][1] and gamestate[f"serv1_j"] != -99:
+                            if "genre" in state.players[0].hand[i].effects["soif de mana"][1]:
+                                for j in range(len(state.players[0].servants)):
+                                    if state.players[0].servants[j].genre:
+                                        legal_actions[16 * i + j + 3] = True
+                            else:
+                                for j in range(len(state.players[0].servants)):
+                                    legal_actions[16 * i + j + 3] = True
+                        elif "tous" in state.players[0].hand[i].effects["soif de mana"][1] and (gamestate[f"serv1_j"] != -99 or gamestate[f"serv1_adv"] != -99):
+                            for j in range(len(state.players[0].servants)):
+                                legal_actions[16 * i + j + 3] = True
+                            for j in range(len(state.players[1].servants)):
+                                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
+                                    legal_actions[16 * i + j + 10] = True
+                        else:
+                            legal_actions[16 * i + 1] = True
+                    elif "tous" in state.players[0].hand[i].effects["soif de mana"][1]:
+                        if "adversaire" in state.players[0].hand[i].effects["soif de mana"][1]:
                             for j in range(len(state.players[1].servants)):
                                 if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in \
                                         state.players[1].servants[j].effects:
@@ -136,12 +185,11 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
         (action, Orchestrator().tour_ia_minmax(deepcopy(state), [], action, False)[0]) for action in legal_actions
     ])
 
-    first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
-    first_estimate[0] = base_advantage
-    first_estimate = np.array(first_estimate)
-    possible_new_states = possible_new_states[first_estimate.argsort()[-max(round(len(possible_new_states)/(pow(exploration_toll, depth))), 1):]]
-    if depth == 1:
-        print(len(possible_new_states))
+    if depth != 0:
+        first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
+        first_estimate[0] = base_advantage
+        first_estimate = np.array(first_estimate)
+        possible_new_states = possible_new_states[first_estimate.argsort()[-max(round(len(possible_new_states)/(pow(exploration_toll, depth))), 1):]]
 
     for new_state in possible_new_states:
         previous_reward = alpha
@@ -164,7 +212,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-for i in range(5):
+for i in range(10):
     print(i)
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)

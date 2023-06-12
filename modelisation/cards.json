@@ -610,5 +610,85 @@
         "attack": 3,
         "health": 3,
         "effects": {}
+    },
+    {
+        "id": 55,
+        "name": "Alchimiste dement",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre":  ["swap", ["serviteur", "tous", "choisi"]]}
+    },
+    {
+        "id": 56,
+        "name": "Amalgame des profondeurs",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"],
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre":  ["découverte", ["serviteur", "allié", "choisi", "genre"], ["serviteur", "genre"]]}
+    },
+    {
+        "id": 57,
+        "name": "Amasseur de butin",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "cost": 2,
+        "attack": 2,
+        "health": 1,
+        "effects": {"rale d'agonie":  ["pioche", ["allié"], 1]}
+    },
+    {
+        "id": 58,
+        "name": "Ampli audio",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre":  ["mana_final", ["allié"], 11]}
+    },
+    {
+        "id": 59,
+        "name": "Astalor ligessang",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre":  ["add_hand", ["allié"], "Astalor le protecteur"],
+        "soif de mana":  ["damage", ["tous", "tous", "choisi"], 2, 5]}
+    },
+    {
+        "id": 60,
+        "name": "Astalor le protecteur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {"cri de guerre":  ["add_hand", ["héros", "allié"], "Astalor le porte flamme"],
+        "soif de mana":  ["add_armor", ["héros", "allié"], 5, 8]}
+    },
+    {
+        "id": 61,
+        "name": "Astalor le porte flamme",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "aléatoire", 7], 1],
+        "soif de mana":  ["damage", ["tous", "ennemi", "aléatoire", 7], 1, 10]}
     }
 ]

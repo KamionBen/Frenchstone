@@ -2,7 +2,7 @@ import time
 from engine import *
 from statistics import mean
 
-players = [Player("NewIA", "Druide"), Player("OldIA", "Druide")]
+players = [Player("NewIA", "Chasseur"), Player("OldIA", "Mage")]
 plateau_depart = Plateau(deepcopy(players))
 
 
@@ -11,7 +11,7 @@ def generate_legal_vector_test(state):
     legal_actions = [False] * 244
 
     """ Découverte """
-    if state.cards_chosen:
+    if state.cards_chosen or state.cards_dragage:
         legal_actions[0] = False
         for i in range(241, 244):
             legal_actions[i] = True
@@ -23,12 +23,12 @@ def generate_legal_vector_test(state):
     """ Quelles cartes peut-on jouer ? Et qur quelles cibles le cas échéant ? """
     for i in range(len(state.players[0].hand)):
         if state.players[0].hand[i].cost <= state.players[0].mana:
-            if len(state.players[0].servants) != 7 and state.players[0].hand[i].type.lower() == "serviteur":
+            if len(state.players[0].servants) != 7 and state.players[0].hand[i].type == "Serviteur":
 
                 """ Serviteurs avec cris de guerre ciblés """
                 if "cri de guerre" in state.players[0].hand[i].effects and "choisi" in state.players[0].hand[i].effects["cri de guerre"][1]:
                     if "serviteur" in state.players[0].hand[i].effects["cri de guerre"][1]:
-                        if "allié" in state.players[0].hand[i].effects["cri de guerre"][1] and gamestate[f"serv1_j"] != -99:
+                        if "allié" in state.players[0].hand[i].effects["cri de guerre"][1] and state.players[0].servants.cards:
                             if "genre" in state.players[0].hand[i].effects["cri de guerre"][1]:
                                 for j in range(len(state.players[0].servants)):
                                     if state.players[0].servants[j].genre:
@@ -36,7 +36,7 @@ def generate_legal_vector_test(state):
                             else:
                                 for j in range(len(state.players[0].servants)):
                                     legal_actions[16 * i + j + 3] = True
-                        elif "tous" in state.players[0].hand[i].effects["cri de guerre"][1] and (gamestate[f"serv1_j"] != -99 or gamestate[f"serv1_adv"] != -99):
+                        elif "tous" in state.players[0].hand[i].effects["cri de guerre"][1] and (state.players[0].servants.cards or state.players[1].servants.cards):
                             for j in range(len(state.players[0].servants)):
                                 legal_actions[16 * i + j + 3] = True
                             for j in range(len(state.players[1].servants)):
@@ -58,11 +58,8 @@ def generate_legal_vector_test(state):
                             for j in range(len(state.players[1].servants)):
                                 if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
                                     legal_actions[16 * i + j + 10] = True
-                else:
-                    legal_actions[16 * i + 1] = True
-                    
-                """ Serviteurs avec soif de mana ciblée """
-                if "soif de mana" in state.players[0].hand[i].effects and "choisi" in state.players[0].hand[i].effects["soif de mana"][1]:
+                # Serviteurs avec soif de mana ciblée
+                elif "soif de mana" in state.players[0].hand[i].effects and "choisi" in state.players[0].hand[i].effects["soif de mana"][1]:
                     if "serviteur" in state.players[0].hand[i].effects["soif de mana"][1]:
                         if "allié" in state.players[0].hand[i].effects["soif de mana"][1] and gamestate[f"serv1_j"] != -99:
                             if "genre" in state.players[0].hand[i].effects["soif de mana"][1]:
@@ -98,6 +95,7 @@ def generate_legal_vector_test(state):
                     legal_actions[16 * i + 1] = True
             elif state.players[0].hand[i].type.lower() == "sort":
                 legal_actions[16 * i + 1] = True
+
 
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
@@ -147,7 +145,7 @@ def generate_legal_vector_test(state):
                 if state.players[0].servants[i] in targets:
                     legal_actions[226 + i] = True
             for i in range(len(state.players[1].servants)):
-                if state.players[1].servants[i] in targets and "camouflage" not in state.players[1].servants[i].effects and "en sommeil" not in state.players[1].servants[i].effects:
+                if state.players[1].servants[i] in targets and not list({"camouflage", "en sommeil", "inciblable"} and set(state.players[1].servants[i].effects)):
                     legal_actions[234 + i] = True
 
     return legal_actions
@@ -175,7 +173,7 @@ def calc_advantage_minmax(state):
     return round(advantage, 2)
 
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=2):
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=3):
 
     base_advantage = calc_advantage_minmax(state)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
@@ -212,7 +210,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-for i in range(10):
+for i in range(2):
     print(i)
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)

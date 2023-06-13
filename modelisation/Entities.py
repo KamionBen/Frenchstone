@@ -65,7 +65,7 @@ empty_action_line = {"carte_jouee": "",
    "pseudo_j": -99,
    "pseudo_adv": -99
 }
-for classe_heros in classes_heros:
+for classe_heros in set(classes_heros):
     empty_action_line[f"is_{classe_heros}"] = -99
 for i in range(10):
     empty_action_line[f"carte_en_main{i + 1}"] = -99
@@ -88,6 +88,7 @@ for i in range(7):
     empty_action_line[f"reincarnation_serv{i + 1}_j"] = -99
     empty_action_line[f"en_sommeil_serv{i + 1}_j"] = -99
     empty_action_line[f"gel_serv{i + 1}_j"] = -99
+    empty_action_line[f"inciblable_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
@@ -100,6 +101,7 @@ for i in range(7):
     empty_action_line[f"reincarnation_serv{i + 1}_adv"] = -99
     empty_action_line[f"en_sommeil_serv{i + 1}_adv"] = -99
     empty_action_line[f"gel_serv{i + 1}_adv"] = -99
+    empty_action_line[f"inciblable_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -121,6 +123,7 @@ class Plateau:
                        'Prêtre': 'test_deck.csv'
                        }
         self.cards_chosen = []
+        self.cards_dragage = []
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
 
@@ -155,7 +158,19 @@ class Plateau:
         self.players.reverse()
 
         self.players[1].end_turn()
+        """ Effets de fin de tour """
+        for servant in self.players[1].servants:
+            if "aura" in servant.effects and "pioche" in servant.effects["aura"]:
+                if servant.name == "Cuisinier toque" and self.players[0].hero.damage_this_turn >= 3:
+                    self.players[1].pick()
         self.players[0].start_turn()
+        """ Effets de début de tour """
+        for servant in self.players[0].servants:
+            if "aura" in servant.effects and "destroy" in servant.effects["aura"]:
+                if "serviteur" in servant.effects["aura"][1]:
+                    if "tous" in servant.effects["aura"][1]:
+                        self.players[0].servants = CardGroup()
+                        self.players[1].servants = CardGroup()
 
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
@@ -252,6 +267,8 @@ class Plateau:
                 action_line[f"en_sommeil_serv{i + 1}_j"] = player.servants[i].effects["en sommeil"]
             if "gel" in player.servants[i].effects:
                 action_line[f"gel_serv{i + 1}_j"] = player.servants[i].effects["gel"]
+            if "inciblable" in player.servants[i].effects:
+                action_line[f"inciblable_serv{i + 1}_j"] = player.servants[i].effects["inciblable"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -275,6 +292,8 @@ class Plateau:
                 action_line[f"en_sommeil_serv{i + 1}_adv"] = adv.servants[i].effects["en sommeil"]
             if "gel" in adv.servants[i].effects:
                 action_line[f"gel_serv{i + 1}_adv"] = adv.servants[i].effects["gel"]
+            if "inciblable" in adv.servants[i].effects:
+                action_line[f"inciblable_serv{i + 1}_adv"] = adv.servants[i].effects["inciblable"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -321,6 +340,7 @@ class Player:
     def end_turn(self):
         """ Mise à jour de fin de tour """
         self.hero.attack = 0
+        self.hero.damage_this_turn = 0
         if self.hero.remaining_atk == 0 and self.hero.gel == 1:
             self.hero.gel = 0
         for servant in self.servants:
@@ -401,7 +421,7 @@ class Hero:
         self.health, self.base_health = 30, 30
         self.weapon = None
 
-        self.fatigue = 0
+        self.fatigue, self.damage_this_turn = 0, 0
 
     def __repr__(self):
         return self.name
@@ -410,6 +430,7 @@ class Hero:
         nb_armor = nb * (self.armor >= nb) + self.armor * (self.armor < nb)
         self.armor -= nb_armor
         self.health -= (nb - nb_armor)
+        self.damage_this_turn += nb
 
     def reset(self):
         """ Le reset de début de tour """
@@ -418,6 +439,7 @@ class Hero:
             self.remaining_atk = 1
         else:
             self.remaining_atk = 0
+        self.damage_this_turn = 0
         self.attack = self.weapon.attack if self.weapon is not None else 0
 
     def reset_complete(self):
@@ -432,7 +454,7 @@ class Hero:
         self.health, self.base_health = 30, 30
         self.weapon = None
 
-        self.fatigue = 0
+        self.fatigue, self.damage_this_turn = 0, 0
 
     def heal(self, nb):
         self.health += nb
@@ -570,8 +592,9 @@ class Card:
             self.remaining_atk = 1
         if "ruée" in self.effects and not "en sommeil" in self.effects:
             self.effects["ruée"] = 0
-        if "aura" in self.effects and "temp_fullturn" in self.effects["aura"][1]:
-            self.attack = self.base_attack
+        if "aura" in self.effects :
+            if "temp_fullturn" in self.effects["aura"][1]:
+                self.attack = self.base_attack
         if "gel" in self.effects:
             self.remaining_atk = 0
         if "en sommeil" in self.effects:
@@ -589,7 +612,7 @@ class Card:
         """ Removes nb from the card health """
         if self.name == "Bulleur" and nb == 1:
             self.health = 0
-        if "bouclier divin" in self.effects:
+        if "bouclier divin" in self.effects and nb != 0:
             self.effects.pop("bouclier divin")
         else:
             self.health -= nb

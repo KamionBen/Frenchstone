@@ -25,7 +25,7 @@ class ScrollLog(pygame.sprite.Sprite):
 
         for i, logline in self.gamelog.items():
             if i == current_turn:
-                str_line = f"{i} : {logline['action']} -- {get_card(logline['carte_jouee'], CARD_POOL) if logline['carte_jouee'] else ''}"
+                str_line = f"{i} : {logline['action']} - {get_card(logline['carte_jouee'], CARD_POOL) if logline['carte_jouee'] else ''}"
             else:
                 str_line = str(i)
 
@@ -99,6 +99,8 @@ class CardSprite(pygame.sprite.Sprite):
                 self.description += [" Gelé"]
             if logline['inciblable_'+on_board_id] == 1:
                 self.description += [" Inciblable"]
+            if logline['voldevie_'+on_board_id] == 1:
+                self.description += [" Vol de vie"]
         border = 1
         self.image.fill(self.color)
         if logline is not None:

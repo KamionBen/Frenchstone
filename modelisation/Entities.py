@@ -26,6 +26,7 @@ def get_cards_data(file: str) -> list:
 cardsfile = "cards.json"
 all_cards = get_cards_data('cards.json')
 all_servants = [x for x in all_cards if x['type'] == "Serviteur"]
+all_spells = [x for x in all_cards if x['type'] == "Sort"]
 heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
           "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"],
           "Paladin": ["Uther"],
@@ -89,6 +90,7 @@ for i in range(7):
     empty_action_line[f"en_sommeil_serv{i + 1}_j"] = -99
     empty_action_line[f"gel_serv{i + 1}_j"] = -99
     empty_action_line[f"inciblable_serv{i + 1}_j"] = -99
+    empty_action_line[f"voldevie_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
@@ -102,6 +104,7 @@ for i in range(7):
     empty_action_line[f"en_sommeil_serv{i + 1}_adv"] = -99
     empty_action_line[f"gel_serv{i + 1}_adv"] = -99
     empty_action_line[f"inciblable_serv{i + 1}_adv"] = -99
+    empty_action_line[f"voldevie_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -184,6 +187,8 @@ class Plateau:
             for servant in player.servants:
                 if servant.is_dead():
                     player.servants.remove(servant)
+                    if "Mort-vivant" in servant.genre:
+                        player.dead_undeads.append(servant)
                     if "rale d'agonie" in servant.effects and "allié" in servant.effects["rale d'agonie"][1] and player == self.players[1]:
                         servant.effects["rale d'agonie"][1] = ["ennemi" if x == "allié" else x for x in servant.effects["rale d'agonie"][1]]
                     if "réincarnation" in servant.effects and player == self.players[0]:
@@ -269,6 +274,8 @@ class Plateau:
                 action_line[f"gel_serv{i + 1}_j"] = player.servants[i].effects["gel"]
             if "inciblable" in player.servants[i].effects:
                 action_line[f"inciblable_serv{i + 1}_j"] = player.servants[i].effects["inciblable"]
+            if "vol de vie" in player.servants[i].effects:
+                action_line[f"voldevie_serv{i + 1}_j"] = player.servants[i].effects["vol de vie"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -294,6 +301,8 @@ class Plateau:
                 action_line[f"gel_serv{i + 1}_adv"] = adv.servants[i].effects["gel"]
             if "inciblable" in adv.servants[i].effects:
                 action_line[f"inciblable_serv{i + 1}_adv"] = adv.servants[i].effects["inciblable"]
+            if "vol de vie" in adv.servants[i].effects:
+                action_line[f"voldevie_serv{i + 1}_adv"] = adv.servants[i].effects["vol de vie"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -315,6 +324,7 @@ class Player:
         self.mana, self.mana_max, self.mana_final = 0, 0, 10
         self.surcharge = 0
         self.discount_next = []
+        self.dead_undeads = []
 
     def start_game(self):
         self.deck.shuffle()
@@ -341,6 +351,7 @@ class Player:
         """ Mise à jour de fin de tour """
         self.hero.attack = 0
         self.hero.damage_this_turn = 0
+        self.dead_undeads = []
         if self.hero.remaining_atk == 0 and self.hero.gel == 1:
             self.hero.gel = 0
         for servant in self.servants:
@@ -364,8 +375,10 @@ class Player:
                 card.cost = card.base_cost
                 for discount in self.discount_next:
                     if card.type.lower() == discount[0]:
-                        if discount[1] != "" and discount[1] in card.genre:
-                            card.cost = max(0, card.base_cost - discount[2])
+                        if discount[1] != "" and discount[1] in card.genre and discount[2] < 0:
+                            card.cost = max(0, card.base_cost + discount[2])
+                        elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
+                            card.cost = discount[2]
 
 
     def mana_spend(self, nb):
@@ -420,6 +433,7 @@ class Hero:
         self.gel = 0
         self.health, self.base_health = 30, 30
         self.weapon = None
+        self.effects = {}
 
         self.fatigue, self.damage_this_turn = 0, 0
 

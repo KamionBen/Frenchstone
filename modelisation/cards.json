@@ -517,7 +517,7 @@
         "cost": 1,
         "attack": 2,
         "health": 1,
-        "effects": {"cri de guerre": ["reduc_serv", ["serviteur", "prochain", "", "Méca"], 1]}
+        "effects": {"cri de guerre": ["reduc", ["serviteur", "prochain", "", "Méca"], -1]}
     },
     {
         "id": 43,
@@ -640,7 +640,7 @@
         "cost": 1,
         "attack": 2,
         "health": 1,
-        "effects": {"cri de guerre":  ["gel", ["tous", "adversaire", "choisi"], 1]}
+        "effects": {"cri de guerre":  ["gel", ["tous", "ennemi", "choisi"], 1]}
     },
     {
         "id": 53,
@@ -896,5 +896,211 @@
         "attack": 2,
         "health": 2,
         "effects": {"cri de guerre":  ["damage", ["tous", "tous", "choisi", "conditional", "if_weapon"], 2]}
+    },
+    {
+        "id": 74,
+        "name": "Gargouille perchee",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "decouvrable": 1,
+        "genre": [],
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre":  ["boost", ["serviteur", "allié", "choisi", "Bête"], [2, 0]]}
+    },
+    {
+        "id": 75,
+        "name": "Geist ombreux",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 3,
+        "health": 1,
+        "effects": {"rale d'agonie":  ["add_hand", ["allié", "sort", "ombre", "aléatoire"], ""]}
+    },
+    {
+        "id": 76,
+        "name": "Guide du labyrinthe",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 1,
+        "effects": {"cri de guerre":  ["invocation", ["allié", "serviteur", "aléatoire", "cout", 2], 1]}
+    },
+    {
+        "id": 77,
+        "name": "Geomancien kobold",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"dégats des sorts":  1}
+    },
+    {
+        "id": 78,
+        "name": "Hipster",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 3,
+        "effects": {"cri de guerre":  ["découverte", [""], ["sort", "classe_adv"]]}
+    },
+    {
+        "id": 79,
+        "name": "Informatrice anonyme",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre": ["reduc", ["sort", "prochain", "", "secret"], 0]}
+    },
+    {
+        "id": 80,
+        "name": "Jeune maitre brasseur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 3,
+        "health": 2,
+        "effects": {"cri de guerre": ["remontee", ["serviteur", "allié", "choisi"], 1]}
+    },
+    {
+        "id": 81,
+        "name": "Lanceur d'os",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi", "conditional", "if_death_undead"], 2]}
+    },
+    {
+        "id": 82,
+        "name": "Loup alpha redoutable",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"aura": ["boost", ["serviteur", "allié", 2, "alive"], [1, 0]]}
+    },
+    {
+        "id": 83,
+        "name": "Mage de sang Thalnos",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 1,
+        "effects": {"rale d'agonie":  ["pioche", ["allié"], 1],
+        "dégat des sorts":  1}
+    },
+    {
+        "id": 84,
+        "name": "Mine marine",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 0,
+        "health": 2,
+        "effects": {"rale d'agonie":  ["damage", ["héros", "ennemi"], 4]}
+    },
+    {
+        "id": 85,
+        "name": "Mousse de la voile sanglante",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Pirate"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre":  ["boost", ["self"], ["atk_weapon", 0]]}
+    },
+    {
+        "id": 86,
+        "name": "Mouton explosif",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Bête", "Méca"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 1,
+        "effects": {"rale d'agonie":  ["damage", ["serviteur", "tous"], 2]}
+    },
+    {
+        "id": 87,
+        "name": "Medecin legiste",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre":  ["gel", ["serviteur", "ennemi", "choisi"], 1],
+        "soif de mana":  ["silence+gel", ["serviteur", "ennemi", "choisi"], 1, 6]}
+    },
+    {
+        "id": 88,
+        "name": "Medic audio",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"ruée" : 1, "final":  ["vol de vie", ["self"], 1]}
+    },
+    {
+        "id": 89,
+        "name": "Necrolyte vrykul",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre" : ["rale d'agonie", ["serviteur", "allié", "choisi"], ["invocation", ["allié"], "Zombie dechaine"]]}
+    },
+    {
+        "id": 90,
+        "name": "Zombie dechaine",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"ruée":  1}
     }
 ]

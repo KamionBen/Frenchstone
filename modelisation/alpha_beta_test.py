@@ -1,6 +1,3 @@
-import pickle
+import random
 
-with open('logs_games.pickle', 'rb') as f:
-    logs = pickle.load(f)
-
-print(logs[4:5].to_string())
+print(random.choice([]))

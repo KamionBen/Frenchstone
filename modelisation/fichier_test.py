@@ -1,6 +1,5 @@
 import time
 from engine import *
-from statistics import mean
 
 players = [Player("NewIA", "Chasseur"), Player("OldIA", "Mage")]
 plateau_depart = Plateau(deepcopy(players))
@@ -33,9 +32,17 @@ def generate_legal_vector_test(state):
                                 for j in range(len(state.players[0].servants)):
                                     if state.players[0].servants[j].genre:
                                         legal_actions[16 * i + j + 3] = True
+                            elif "Bête" in state.players[0].hand[i].effects["cri de guerre"][1]:
+                                for j in range(len(state.players[0].servants)):
+                                    if "Bête" in state.players[0].servants[j].genre:
+                                        legal_actions[16 * i + j + 3] = True
                             else:
                                 for j in range(len(state.players[0].servants)):
                                     legal_actions[16 * i + j + 3] = True
+                        elif "ennemi" in state.players[0].hand[i].effects["cri de guerre"][1] and state.players[1].servants.cards:
+                            for j in range(len(state.players[1].servants)):
+                                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
+                                    legal_actions[16 * i + j + 10] = True
                         elif "tous" in state.players[0].hand[i].effects["cri de guerre"][1] and (state.players[0].servants.cards or state.players[1].servants.cards):
                             for j in range(len(state.players[0].servants)):
                                 legal_actions[16 * i + j + 3] = True
@@ -45,19 +52,39 @@ def generate_legal_vector_test(state):
                         else:
                             legal_actions[16 * i + 1] = True
                     elif "tous" in state.players[0].hand[i].effects["cri de guerre"][1]:
-                        if "adversaire" in state.players[0].hand[i].effects["cri de guerre"][1]:
-                            for j in range(len(state.players[1].servants)):
-                                if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in \
-                                        state.players[1].servants[j].effects:
-                                    legal_actions[16 * i + j + 10] = True
-                        else:
-                            legal_actions[16 * i + 2] = True
-                            legal_actions[16 * i + 9] = True
-                            for j in range(len(state.players[0].servants)):
-                                legal_actions[16 * i + j + 3] = True
+                        if "ennemi" in state.players[0].hand[i].effects["cri de guerre"][1]:
                             for j in range(len(state.players[1].servants)):
                                 if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
                                     legal_actions[16 * i + j + 10] = True
+                        else:
+                            if "conditional" not in state.players[0].hand[i].effects["cri de guerre"][1]:
+                                legal_actions[16 * i + 2] = True
+                                legal_actions[16 * i + 9] = True
+                                for j in range(len(state.players[0].servants)):
+                                    legal_actions[16 * i + j + 3] = True
+                                for j in range(len(state.players[1].servants)):
+                                    if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
+                                        legal_actions[16 * i + j + 10] = True
+                            else:
+                                if "if_weapon" in state.players[0].hand[i].effects["cri de guerre"][1] and state.players[0].hero.weapon is not None:
+                                    legal_actions[16 * i + 2] = True
+                                    legal_actions[16 * i + 9] = True
+                                    for j in range(len(state.players[0].servants)):
+                                        legal_actions[16 * i + j + 3] = True
+                                    for j in range(len(state.players[1].servants)):
+                                        if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
+                                            legal_actions[16 * i + j + 10] = True
+                                elif "if_death_undead" in state.players[0].hand[i].effects["cri de guerre"][1] and state.players[0].dead_undeads:
+                                    legal_actions[16 * i + 2] = True
+                                    legal_actions[16 * i + 9] = True
+                                    for j in range(len(state.players[0].servants)):
+                                        legal_actions[16 * i + j + 3] = True
+                                    for j in range(len(state.players[1].servants)):
+                                        if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
+                                            legal_actions[16 * i + j + 10] = True
+                                else:
+                                        legal_actions[16 * i + 1] = True
+
                 # Serviteurs avec soif de mana ciblée
                 elif "soif de mana" in state.players[0].hand[i].effects and "choisi" in state.players[0].hand[i].effects["soif de mana"][1]:
                     if "serviteur" in state.players[0].hand[i].effects["soif de mana"][1]:
@@ -78,7 +105,7 @@ def generate_legal_vector_test(state):
                         else:
                             legal_actions[16 * i + 1] = True
                     elif "tous" in state.players[0].hand[i].effects["soif de mana"][1]:
-                        if "adversaire" in state.players[0].hand[i].effects["soif de mana"][1]:
+                        if "ennemi" in state.players[0].hand[i].effects["soif de mana"][1]:
                             for j in range(len(state.players[1].servants)):
                                 if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in \
                                         state.players[1].servants[j].effects:
@@ -210,7 +237,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-for i in range(2):
+for i in range(3):
     print(i)
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)

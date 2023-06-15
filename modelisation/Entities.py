@@ -179,6 +179,8 @@ class Plateau:
         """ Vérifie les serviteurs morts et les pdv des joueurs """
         dead_servants = []
         for player in self.players:
+            dead_servants_player = []
+            cards_impregnation = [x for x in player.hand if "impregnation" in x.effects]
             if player.hero.is_dead():
                 self.game_on = False
                 for winner in self.players:
@@ -191,9 +193,18 @@ class Plateau:
                         player.dead_undeads.append(servant)
                     if "rale d'agonie" in servant.effects and "allié" in servant.effects["rale d'agonie"][1] and player == self.players[1]:
                         servant.effects["rale d'agonie"][1] = ["ennemi" if x == "allié" else x for x in servant.effects["rale d'agonie"][1]]
+                    elif "rale d'agonie" in servant.effects and "ennemi" in servant.effects["rale d'agonie"][1] and player == self.players[1]:
+                        servant.effects["rale d'agonie"][1] = ["allié" if x == "ennemi" else x for x in servant.effects["rale d'agonie"][1]]
                     if "réincarnation" in servant.effects and player == self.players[0]:
                         servant.effects["réincarnation"] = 0
                     dead_servants.append(servant)
+                    dead_servants_player.append(servant)
+            if cards_impregnation and dead_servants_player:
+                for card in cards_impregnation:
+                    card.effects["impregnation"][1] -= len(dead_servants_player)
+                    if card.effects["impregnation"][1] <= 0:
+                        player.hand.remove(card)
+                        player.hand.add(get_card(card.effects["impregnation"][0], all_cards))
         return dead_servants
 
     def targets_hp(self):
@@ -320,10 +331,11 @@ class Player:
         self.deck = CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
         self.servants = CardGroup()  # Les cartes sur le "terrain"
+        self.last_card = "" # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final = 0, 0, 10
         self.surcharge = 0
-        self.discount_next = []
+        self.discount_next, self.augment = [], []
         self.dead_undeads = []
 
     def start_game(self):
@@ -352,6 +364,7 @@ class Player:
         self.hero.attack = 0
         self.hero.damage_this_turn = 0
         self.dead_undeads = []
+        self.augment = []
         if self.hero.remaining_atk == 0 and self.hero.gel == 1:
             self.hero.gel = 0
         for servant in self.servants:
@@ -379,6 +392,15 @@ class Player:
                             card.cost = max(0, card.base_cost + discount[2])
                         elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
                             card.cost = discount[2]
+                        else:
+                            card.cost = max(0, card.base_cost + discount[2])
+        if self.augment:
+            for card in self.hand:
+                card.cost = card.base_cost
+                for augment in self.augment:
+                    if card.type.lower() == augment[0]:
+                        if augment[2] > 0:
+                            card.cost += augment[2]
 
 
     def mana_spend(self, nb):

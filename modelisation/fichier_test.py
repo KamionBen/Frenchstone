@@ -239,11 +239,15 @@ logs = []
 beginning = time.perf_counter()
 for i in range(3):
     print(i)
+    print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)
         plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
         print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
-        print(plateau_depart.get_gamestate())
         print('----------------------------------------------')
         logs.append(pd.DataFrame(logs_inter))
     plateau_depart = Plateau(deepcopy(players))

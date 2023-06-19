@@ -36,6 +36,10 @@ def generate_legal_vector_test(state):
                                 for j in range(len(state.players[0].servants)):
                                     if "Bête" in state.players[0].servants[j].genre:
                                         legal_actions[16 * i + j + 3] = True
+                            elif "Mort-vivant" in state.players[0].hand[i].effects["cri de guerre"][1]:
+                                for j in range(len(state.players[0].servants)):
+                                    if "Mort-vivant" in state.players[0].servants[j].genre:
+                                        legal_actions[16 * i + j + 3] = True
                             else:
                                 for j in range(len(state.players[0].servants)):
                                     legal_actions[16 * i + j + 3] = True
@@ -66,15 +70,9 @@ def generate_legal_vector_test(state):
                                     if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
                                         legal_actions[16 * i + j + 10] = True
                             else:
-                                if "if_weapon" in state.players[0].hand[i].effects["cri de guerre"][1] and state.players[0].hero.weapon is not None:
-                                    legal_actions[16 * i + 2] = True
-                                    legal_actions[16 * i + 9] = True
-                                    for j in range(len(state.players[0].servants)):
-                                        legal_actions[16 * i + j + 3] = True
-                                    for j in range(len(state.players[1].servants)):
-                                        if "camouflage" not in state.players[1].servants[j].effects and "en sommeil" not in state.players[1].servants[j].effects:
-                                            legal_actions[16 * i + j + 10] = True
-                                elif "if_death_undead" in state.players[0].hand[i].effects["cri de guerre"][1] and state.players[0].dead_undeads:
+                                if "if_weapon" in state.players[0].hand[i].effects["cri de guerre"][1] and state.players[0].hero.weapon is not None \
+                                        or "if_death_undead" in state.players[0].hand[i].effects["cri de guerre"][1] and state.players[0].dead_undeads \
+                                        or "if_dragon_hand" in state.players[0].hand[i].effects["cri de guerre"][1] and [x for x in state.players[0].hand if "Dragon" in x.genre]:
                                     legal_actions[16 * i + 2] = True
                                     legal_actions[16 * i + 9] = True
                                     for j in range(len(state.players[0].servants)):

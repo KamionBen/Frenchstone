@@ -1,5 +1,17 @@
 [
     {
+        "id": -1,
+        "name": "",
+        "classe": "",
+        "type": "",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {}
+    },
+    {
         "id": 0,
         "name": "La piece",
         "classe": "Neutre",
@@ -7,8 +19,8 @@
         "genre": [],
         "decouvrable": 0,
         "cost": 0,
-        "attack": [],
-        "health": [],
+        "attack": null,
+        "health": null,
         "effects": {"add_mana" :  1}
     },
     {
@@ -1028,7 +1040,7 @@
         "cost": 2,
         "attack": 0,
         "health": 2,
-        "effects": {"rale d'agonie":  ["damage", ["héros", "ennemi"], 4]}
+        "effects": {"rale d'agonie":  ["damage", ["heros", "ennemi"], 4]}
     },
     {
         "id": 85,
@@ -1246,5 +1258,246 @@
         "attack": 2,
         "health": 2,
         "effects": {"rale d'agonie":  ["damage", ["tous", "ennemi",  "aléatoire"], 2]}
+    },
+    {
+        "id": 103,
+        "name": "Tol'vir blesse",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 6,
+        "effects": {"provocation":  1, "cri de guerre":  ["damage", ["self"], 3]}
+    },
+    {
+        "id": 104,
+        "name": "Totem stereo",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Totem"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 0,
+        "health": 3,
+        "effects": {"aura": ["boost", ["main", "serviteur", "allié", "aléatoire", "end_turn"], [2, 2]]}
+    },
+    {
+        "id": 105,
+        "name": "Etrangere louche",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre":  ["découverte", ["sort", "secret", "aléatoire"], ""]}
+    },
+    {
+        "id": 106,
+        "name": "Oeuf de nerubien",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": 0,
+        "health": 2,
+        "effects": {"rale d'agonie":  ["invocation", ["allié"], "Nerubien"]}
+    },
+    {
+        "id": 107,
+        "name": "Nerubien",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 4,
+        "attack": 4,
+        "health": 4,
+        "effects": {}
+    },
+    {
+        "id": 108,
+        "name": "Acolyte de la souffrance",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 1,
+        "health": 3,
+        "effects": {"aura":  ["pioche", ["allié", "global", "damage_self", "alive"], 1]}
+    },
+    {
+        "id": 109,
+        "name": "Arcaniste de lune d'argent",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 2,
+        "effects": {"dégats des sorts":  2, "cri de guerre":  ["boost", ["heros", "ennemi", "temp_turn"], "inciblable"]}
+    },
+    {
+        "id": 110,
+        "name": "Artiste de soiree",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre":  ["invocation", ["deck", "allié", "aléatoire", "cout"], ""]}
+    },
+    {
+        "id": 111,
+        "name": "Capitaine des mers du sud",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Pirate"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "Pirate", "alive"], [1, 1]]}
+    },
+    {
+        "id": 112,
+        "name": "Chef de guerre murloc",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Murloc"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "Murloc", "alive"], [2, 0]]}
+    },
+    {
+        "id": 113,
+        "name": "Chef de raid",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 3,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "tous", "alive"], [1, 0]]}
+    },
+    {
+        "id": 114,
+        "name": "Chevalier sanguin",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 4,
+        "health": 5,
+        "effects": {"aura": ["damage", ["heros", "allié", "end_turn"], 2]}
+    },
+    {
+        "id": 115,
+        "name": "Dragonnet d'ambre",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Dragon"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre":  ["damage", ["tous", "tous", "choisi", "conditional", "if_dragon_hand"], 3]}
+    },
+    {
+        "id": 116,
+        "name": "Embaumeur drakkari",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre" : ["réincarnation", ["serviteur", "allié", "choisi", "Mort-vivant"], 1]}
+    },
+    {
+        "id": 117,
+        "name": "Enchanteur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"aura" : ["double_dmg", ["serviteur", "ennemi", "tous"], 1]}
+    },
+    {
+        "id": 118,
+        "name": "Enrage du fleau",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 5,
+        "health": 4,
+        "effects": {"réincarnation" : 1, "cri de guerre":  ["suicide", ["self"], 1]}
+    },
+    {
+        "id": 119,
+        "name": "Fan bruyante",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Huran"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 1,
+        "health": 5,
+        "effects": {"cri de guerre":  ["boost", ["serviteur", "allié", "choisi", "alive"], [3, 0]]}
+    },
+    {
+        "id": 120,
+        "name": "Feplouf photographe",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre":  ["add_deck", "Instantane de Feplouf"]}
+    },
+    {
+        "id": 121,
+        "name": "Instantane de Feplouf",
+        "classe": "Neutre",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": []}
+    },
+    {
+        "id": 122,
+        "name": "Gardien de l'au dela",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"aura": ["gardien de l'au dela", [""], ""]}
     }
 ]
+

@@ -180,7 +180,10 @@ class Plateau:
         dead_servants = []
         for player in self.players:
             dead_servants_player = []
-            cards_impregnation = [x for x in player.hand if "impregnation" in x.effects]
+            if not "gardien de l'au dela" in [x.effects["aura"] for x in player.servants if "aura" in x.effects]:
+                cards_impregnation = [x for x in player.hand if "impregnation" in x.effects]
+            else:
+                cards_impregnation = [x for x in player.hand if "impregnation" in x.effects] + [x for x in player.deck if "impregnation" in x.effects]
             if player.hero.is_dead():
                 self.game_on = False
                 for winner in self.players:
@@ -189,12 +192,16 @@ class Plateau:
             for servant in player.servants:
                 if servant.is_dead():
                     player.servants.remove(servant)
+                    if "rale d'agonie" in get_card(servant.name, all_servants).effects:
+                        servant.effects["rale d'agonie"][1] = get_card(servant.name, all_servants).effects["rale d'agonie"][1]
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
-                    if "rale d'agonie" in servant.effects and "allié" in servant.effects["rale d'agonie"][1] and player == self.players[1]:
-                        servant.effects["rale d'agonie"][1] = ["ennemi" if x == "allié" else x for x in servant.effects["rale d'agonie"][1]]
-                    elif "rale d'agonie" in servant.effects and "ennemi" in servant.effects["rale d'agonie"][1] and player == self.players[1]:
-                        servant.effects["rale d'agonie"][1] = ["allié" if x == "ennemi" else x for x in servant.effects["rale d'agonie"][1]]
+                    if "rale d'agonie" in servant.effects and "allié" in servant.effects["rale d'agonie"][1]:
+                        if player == self.players[1]:
+                            servant.effects["rale d'agonie"][1] = ["ennemi" if x == "allié" else x for x in servant.effects["rale d'agonie"][1]]
+                    elif "rale d'agonie" in servant.effects and "ennemi" in servant.effects["rale d'agonie"][1]:
+                        if player == self.players[1]:
+                            servant.effects["rale d'agonie"][1] = ["allié" if x == "ennemi" else x for x in servant.effects["rale d'agonie"][1]]
                     if "réincarnation" in servant.effects and player == self.players[0]:
                         servant.effects["réincarnation"] = 0
                     dead_servants.append(servant)
@@ -367,7 +374,11 @@ class Player:
         self.augment = []
         if self.hero.remaining_atk == 0 and self.hero.gel == 1:
             self.hero.gel = 0
+        if self.hero.effects:
+            if "inciblable" in self.hero.effects and "temp_turn" in self.hero.effects["inciblable"]:
+                self.hero.effects.pop("inciblable")
         for servant in self.servants:
+            servant.damage_taken = False
             if servant.name == "Goule fragile":
                 self.servants.remove(servant)
             if "temp_turn" in servant.effects:
@@ -377,10 +388,22 @@ class Player:
             if "gel" in servant.effects and servant.remaining_atk == 0:
                 servant.effects.pop("gel")
             if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
-                if "self" in servant.effects["aura"][1]:
+                if "boost" in servant.effects["aura"] and "self" in servant.effects["aura"][1]:
                     servant.attack += servant.effects["aura"][2][0]
+                    servant.base_attack += servant.effects["aura"][2][0]
                     servant.health += servant.effects["aura"][2][1]
                     servant.base_health += servant.effects["aura"][2][1]
+                elif "damage" in servant.effects["aura"]:
+                    if "heros" in servant.effects["aura"][1] and "allié" in servant.effects["aura"][1]:
+                        self.hero.damage(servant.effects["aura"][2])
+                elif "main" in servant.effects["aura"][1]:
+                    if "allié" in servant.effects["aura"][1] and "serviteur" in servant.effects["aura"][1]:
+                        if [x for x in self.hand if x.type == "Serviteur"]:
+                            target = random.choice([x for x in self.hand if x.type == "Serviteur"])
+                            target.attack += servant.effects["aura"][2][0]
+                            target.base_attack += servant.effects["aura"][2][0]
+                            target.health += servant.effects["aura"][2][1]
+                            target.base_health += servant.effects["aura"][2][1]
 
     def apply_discount(self):
         if self.discount_next:
@@ -608,6 +631,8 @@ class Card:
         
         """ Combat """
         self.remaining_atk = 0
+        self.damage_taken, self.blessure = False, 0
+        self.total_temp_boost = [0, 0]
 
     def generate_id(self):
         try:
@@ -652,10 +677,14 @@ class Card:
             self.effects.pop("bouclier divin")
         else:
             self.health -= nb
+            self.damage_taken = True if nb > 0 else False
+            self.blessure += nb
+
 
     def heal(self, nb):
         """ Heal nb health to a given creatures """
         self.health += nb
+        self.blessure = max(0, self.blessure - nb)
         if self.health > self.base_health:
             self.health = self.base_health
 

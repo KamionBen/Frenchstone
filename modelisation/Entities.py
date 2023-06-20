@@ -191,7 +191,6 @@ class Plateau:
                         self.winner = winner
             for servant in player.servants:
                 if servant.is_dead():
-                    player.servants.remove(servant)
                     if "rale d'agonie" in get_card(servant.name, all_servants).effects:
                         servant.effects["rale d'agonie"][1] = get_card(servant.name, all_servants).effects["rale d'agonie"][1]
                     if "Mort-vivant" in servant.genre:
@@ -212,7 +211,7 @@ class Plateau:
                     if card.effects["impregnation"][1] <= 0:
                         player.hand.remove(card)
                         player.hand.add(get_card(card.effects["impregnation"][0], all_cards))
-        return dead_servants
+        return dead_servants, dead_servants_player
 
     def targets_hp(self):
         """ Retourne les cibles possibles du pouvoir héroïque """
@@ -413,10 +412,13 @@ class Player:
                     if card.type.lower() == discount[0]:
                         if discount[1] != "" and discount[1] in card.genre and discount[2] < 0:
                             card.cost = max(0, card.base_cost + discount[2])
+                            card.discount = discount
                         elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
                             card.cost = discount[2]
-                        else:
+                            card.discount = discount
+                        elif "tous" in discount[1]:
                             card.cost = max(0, card.base_cost + discount[2])
+                            card.discount = discount
         if self.augment:
             for card in self.hand:
                 card.cost = card.base_cost
@@ -625,7 +627,7 @@ class Card:
         self.type = kw["type"]
 
         """ Stats """
-        self.cost, self.base_cost = kw["cost"], kw["cost"]
+        self.cost, self.base_cost, self.discount = kw["cost"], kw["cost"], []
         self.attack, self.base_attack = kw["attack"], kw["attack"]
         self.health, self.base_health = kw["health"], kw["health"]
         

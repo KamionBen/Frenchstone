@@ -1705,7 +1705,116 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"aura":  ["damage", ["tous", "ennemi", "heros_allié_attack"], 1]}
+        "effects": {"aura":  ["damage", ["tous", "ennemi", "heros_allié_attack", "alive"], 1]}
+    },
+    {
+        "id": 140,
+        "name": "Porteur d'invitation",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"porteur d'invitation":  1}
+    },
+    {
+        "id": 141,
+        "name": "Prince Renathal",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"start_game":  ["pv_max", 35], "legendaire":  1}
+    },
+    {
+        "id": 142,
+        "name": "Pretresse solfurie",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 4,
+        "effects": {"cri de guerre": ["heal", ["tous", "allié"], 3],
+        "soif de mana": ["heal", ["tous", "allié"], 3, 6]}
+    },
+    {
+        "id": 143,
+        "name": "Rampeur du goudron",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 1,
+        "health": 5,
+        "effects": {"provocation": 1, "aura": ["boost", ["self", "conditional", "if_enemyturn", "alive"], [2, 0]]}
+    },
+    {
+        "id": 144,
+        "name": "Remix de musicien",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"ruée": 1, "transformation": ["Musicien organiste", "Musicien des tropiques", "Musicien romantique", "Musicien cacophonique"]}
+    },
+    {
+        "id": 145,
+        "name": "Musicien organiste",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"ruée": 1, "bouclier divin": 1, "start_turn": ["transformation", ["Musicien des tropiques", "Musicien romantique", "Musicien cacophonique"]]}
+    },
+    {
+        "id": 146,
+        "name": "Musicien des tropiques",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"ruée": 1, "furie des vents": 1, "start_turn": ["transformation", ["Musicien organiste", "Musicien romantique", "Musicien cacophonique"]]}
+    },
+    {
+        "id": 147,
+        "name": "Musicien romantique",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"ruée": 1, "vol de vie": 1, "start_turn": ["transformation", ["Musicien des tropiques", "Musicien organiste", "Musicien cacophonique"]]}
+    },
+    {
+        "id": 148,
+        "name": "Musicien cacophonique",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"ruée": 1, "toxicite": 1, "start_turn": ["transformation", ["Musicien des tropiques", "Musicien romantique", "Musicien organiste"]]}
     }
 ]
 

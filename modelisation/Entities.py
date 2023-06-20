@@ -183,7 +183,15 @@ class Plateau:
                     else:
                         servant.health -= 1
                         servant.base_health -= 1
-                    fion = self.update()
+                    self.update()
+        if [x for x in self.players[0].hand if "start_turn" in x.effects]:
+            for servant in [x for x in self.players[0].hand if "start_turn" in x.effects]:
+                if "start_turn" in servant.effects:
+                    """ Transformation des serviteurs concernés """
+                    if "transformation" in servant.effects["start_turn"]:
+                        potential_transform = [get_card(x, all_servants) for x in servant.effects["start_turn"][1]]
+                        self.players[0].hand.remove(servant)
+                        self.players[0].hand.add(random.choice(potential_transform))
 
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
@@ -358,11 +366,14 @@ class Player:
 
     def start_game(self):
         self.deck.shuffle()
-        self.pick_multi(3)
         self.hero.reset_complete()
         if self.classe == "Chasseur de démons":
             self.hero.cout_pouvoir = 1
             self.hero.cout_pouvoir_temp = 1
+        if "Prince Renathal" in [x.name for x in self.deck]:
+            self.hero.health = 35
+            self.hero.base_health = 35
+        self.pick_multi(3)
 
     def start_turn(self):
         """ Remise à zéro de début de tour """
@@ -495,7 +506,7 @@ class Hero:
         self.effet_pouvoir = None
 
         self.attack = 0
-        self.remaining_atk = 1
+        self.remaining_atk, self.has_attacked = 1, 0
         self.armor = 0
         self.gel = 0
         self.health, self.base_health = 30, 30

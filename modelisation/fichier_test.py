@@ -194,7 +194,7 @@ def calc_advantage_minmax(state):
         advantage -= 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage -= 1.5 * servant.attack
-    advantage += 0.25 * (pow(30 - state.players[1].hero.health, 1.3) - pow(30 - state.players[0].hero.health, 1.3))
+    advantage += 0.25 * (pow(state.players[1].hero.base_health - state.players[1].hero.health, 1.3) - pow(state.players[0].hero.base_health - state.players[0].hero.health, 1.3))
     advantage += state.players[0].hero.attack
     if state.players[0].hero.health <= 0:
         return -500

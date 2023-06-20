@@ -191,18 +191,18 @@ class Plateau:
                         self.winner = winner
             for servant in player.servants:
                 if servant.is_dead():
-                    if "rale d'agonie" in get_card(servant.name, all_servants).effects:
-                        servant.effects["rale d'agonie"][1] = get_card(servant.name, all_servants).effects["rale d'agonie"][1]
+                    # if "rale d'agonie" in get_card(servant.name, all_servants).effects:
+                    #     servant.effects["rale d'agonie"][1] = get_card(servant.name, all_servants).effects["rale d'agonie"][1]
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
-                    if "rale d'agonie" in servant.effects and "allié" in servant.effects["rale d'agonie"][1]:
-                        if player == self.players[1]:
+                    if player == self.players[1]:
+                        if "rale d'agonie" in servant.effects and "allié" in servant.effects["rale d'agonie"][1]:
                             servant.effects["rale d'agonie"][1] = ["ennemi" if x == "allié" else x for x in servant.effects["rale d'agonie"][1]]
-                    elif "rale d'agonie" in servant.effects and "ennemi" in servant.effects["rale d'agonie"][1]:
-                        if player == self.players[1]:
+                        elif "rale d'agonie" in servant.effects and "ennemi" in servant.effects["rale d'agonie"][1]:
                             servant.effects["rale d'agonie"][1] = ["allié" if x == "ennemi" else x for x in servant.effects["rale d'agonie"][1]]
-                    if "réincarnation" in servant.effects and player == self.players[0]:
-                        servant.effects["réincarnation"] = 0
+                    else:
+                        if "réincarnation" in servant.effects:
+                            servant.effects["réincarnation"] = 0
                     dead_servants.append(servant)
                     dead_servants_player.append(servant)
             if cards_impregnation and dead_servants_player:

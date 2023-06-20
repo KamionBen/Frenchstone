@@ -2,7 +2,7 @@ import time
 from engine import *
 
 players = [Player("NewIA", "Chasseur"), Player("OldIA", "Mage")]
-plateau_depart = Plateau(deepcopy(players))
+plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
 def generate_legal_vector_test(state):
@@ -184,7 +184,6 @@ def generate_legal_vector_test(state):
 
 
 def calc_advantage_minmax(state):
-    beginning = time.perf_counter()
     advantage = (len(state.players[0].hand) - len(state.players[1].hand)) + 0.8 * (
                 len(state.players[0].hand) / max(1, len(state.players[1].hand)))
     for servant in state.players[0].servants:
@@ -204,33 +203,30 @@ def calc_advantage_minmax(state):
 
     return round(advantage, 2)
 
-
-avg_step2, avg_lenactions = [], []
-
-
+total_actions = 0
 def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=3):
 
+    global total_actions
     base_advantage = calc_advantage_minmax(state)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
     legal_actions = [i for i in range(len(legal_actions)) if legal_actions[i]]
-    step2 = time.perf_counter()
+    state_saved = pickle.dumps(state, -1)
 
     possible_new_states = np.array([
-        (action, Orchestrator().tour_ia_minmax(deepcopy(state), [], action, False)[0]) for action in legal_actions
+        (action, Orchestrator().tour_ia_minmax(pickle.loads(state_saved), [], action, False)[0]) for action
+        in legal_actions
     ])
-    step3 = time.perf_counter()
 
+    first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
+    first_estimate[0] = base_advantage
+    first_estimate = np.array(first_estimate)
     if depth != 0:
-        first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
-        first_estimate[0] = base_advantage
-        first_estimate = np.array(first_estimate)
-        possible_new_states = possible_new_states[first_estimate.argsort()[-max(round(len(possible_new_states)/(pow(exploration_toll, depth))), 1):]]
-
-    avg_step2.append(step3 - step2)
-    avg_lenactions.append(len(possible_new_states))
-    print(f"Average time : {sum(avg_step2)/len(avg_step2)}, Average actions : {sum(avg_lenactions)/len(avg_lenactions)}")
+        possible_new_states = possible_new_states[first_estimate.argsort()[-max(round(min(30, len(possible_new_states))/(pow(exploration_toll, depth))), 1):]]
+    else:
+        possible_new_states = possible_new_states[first_estimate.argsort()[-min(25, len(possible_new_states)):]]
 
     for new_state in possible_new_states:
+        total_actions += 1
         previous_reward = alpha
 
         """ On va chercher les feuilles de l'arbre pour en récuperer la valeur """
@@ -244,6 +240,10 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
             best_action = new_state[0]
             if alpha == 500:
                 break
+
+    if depth == 0:
+        print(f"Total actions : {total_actions}")
+        total_actions = 0
 
     return alpha, best_action
 
@@ -264,7 +264,7 @@ for i in range(2):
         print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
         print('----------------------------------------------')
         logs.append(pd.DataFrame(logs_inter))
-    plateau_depart = Plateau(deepcopy(players))
+    plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 end = time.perf_counter()
 logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)
 print(end - beginning)

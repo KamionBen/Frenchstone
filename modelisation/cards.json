@@ -90,7 +90,7 @@
         "type": "Serviteur",
         "genre": [],
         "decouvrable": 1,
-        "cost": 7,
+        "cost": 8,
         "attack": 7,
         "health": 7,
         "effects": {}
@@ -1595,6 +1595,30 @@
         "attack": 3,
         "health": 4,
         "effects": {"cri de guerre":  ["découverte", [""], ["sort", "deck_adv"]]}
+    },
+    {
+        "id": 131,
+        "name": "Metrognome",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 4,
+        "effects": {"aura":  ["pioche", ["allié", "play_cost", 1], ["cost", 2]]}
+    },
+    {
+        "id": 132,
+        "name": "Negociante en cristal",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 2,
+        "effects": {"soif de mana":  ["invocation", ["allié", "serviteur", "aléatoire", "cout", 3], 1, 5]}
     }
 ]
 

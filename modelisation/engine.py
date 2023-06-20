@@ -1,3 +1,4 @@
+import time
 from abc import ABC
 
 import pandas as pd
@@ -550,25 +551,24 @@ class TourEnCours:
             if "add_deck" in carte.effects["cri de guerre"]:
                 card_to_add = get_card(carte.effects["cri de guerre"][1], all_cards)
                 if card_to_add.name == "Instantane de Feplouf":
-                    for card in player.hand:
-                        card_to_add.effects["add_hand"].append(get_card(card.name, all_cards))
+                    card_to_add.effects["add_hand"] = [x for x in player.hand]
                 player.deck.add(card_to_add)
                 player.deck.shuffle()
             if "pioche" in carte.effects["cri de guerre"]:
                 if "allié" in carte.effects["cri de guerre"][1]:
                     if "arme" in carte.effects["cri de guerre"][1]:
-                        weapons_in_deck = [x for x in player.deck if x.type == "weapon"]
-                        if weapons_in_deck:
-                            weapon_drawn = random.choice(weapons_in_deck)
-                            player.deck.remove(weapon_drawn)
-                            player.hand.add(weapon_drawn)
+                        drawable_cards = [x for x in player.deck if x.type == "weapon"]
+                        if drawable_cards:
+                            card_drawn = random.choice(drawable_cards)
+                            player.deck.remove(card_drawn)
+                            player.hand.add(card_drawn)
                     elif "Naga" in carte.effects["cri de guerre"][1]:
                         if carte.effects["cri de guerre"][2] == 1:
-                            naga_in_deck = [x for x in player.deck if x.type == "Serviteur" and "Naga" in x.genre]
-                            if naga_in_deck:
-                                naga_drawn = random.choice(naga_in_deck)
-                                player.deck.remove(naga_drawn)
-                                player.hand.add(naga_drawn)
+                            drawable_cards = [x for x in player.deck if x.type == "Serviteur" and "Naga" in x.genre]
+                            if drawable_cards:
+                                card_drawn = random.choice(drawable_cards)
+                                player.deck.remove(card_drawn)
+                                player.hand.add(card_drawn)
                     else:
                         player.pick_multi(carte.effects["rale d'agonie"][2])
             if "dragage" in carte.effects["cri de guerre"]:
@@ -931,6 +931,15 @@ class TourEnCours:
                         if servant.damage_taken:
                             player.pick_multi(servant.effects["aura"][2])
                             servant.damage_taken = False
+                    if "play_cost" in servant.effects["aura"][1] and carte.cost == servant.effects["aura"][1][2]:
+                        drawable_cards = [x for x in player.deck if x.cost == servant.effects["aura"][2][1]]
+                        if drawable_cards:
+                            card_drawn = random.choice(drawable_cards)
+                            player.deck.remove(card_drawn)
+                            player.hand.add(card_drawn)
+                            servant.effects["aura"][1][2] += 1
+                            servant.effects["aura"][2][1] += 1
+
         for servant in ennemy_aura_servants:
             if "boost" in servant.effects["aura"]:
                 if "serviteur" in servant.effects["aura"][1]:
@@ -1402,16 +1411,19 @@ class Orchestrator:
         return plateau
 
     def tour_ia_minmax(self, plateau, logs, action, generate_logs=True):
+        
+        player = plateau.players[0]
+        adv = plateau.players[1]
+
         """ Initialisation du vecteur d'état représentant le plateau"""
         action_line = plateau.get_gamestate()
-
         if action == 0:
             if generate_logs:
                 action_line["action"] = "passer_tour"
                 logs.append(action_line)
             TourEnCours(plateau).fin_du_tour()
         elif action < 161:
-            played_card = plateau.players[0].hand[(action - 1) // 16]
+            played_card = player.hand[(action - 1) // 16]
             if generate_logs:
                 action_line["action"] = "jouer_carte"
                 action_line["carte_jouee"] = played_card.id  # name ou id ?
@@ -1422,15 +1434,15 @@ class Orchestrator:
                     if "main" in played_card.effects["cri de guerre"][1]:
                         if "allié" in played_card.effects["cri de guerre"][1]:
                             if "tous" in played_card.effects["cri de guerre"][1]:
-                                target = CardGroup((x for x in plateau.players[0].hand if x.type == "Serviteur"))
+                                target = CardGroup((x for x in player.hand if x.type == "Serviteur"))
                                 target.remove(played_card)
                             elif "1" in played_card.effects["cri de guerre"][1]:
                                 if "Méca" in played_card.effects["cri de guerre"][1]:
-                                    target = CardGroup((x for x in plateau.players[0].hand if x.type == "Serviteur" and "Méca" in x.genre))
+                                    target = CardGroup((x for x in player.hand if x.type == "Serviteur" and "Méca" in x.genre))
                                     target.remove(played_card)
                                     target = random.choice(target) if len(target) > 0 else None
                             elif "chaque type" in played_card.effects["cri de guerre"][1]:
-                                potential_boost = [x for x in plateau.players[0].hand if x.genre and x != played_card].copy()
+                                potential_boost = [x for x in player.hand if x.genre and x != played_card].copy()
                                 target = CardGroup()
                                 for genre in ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"]:
                                     if [x for x in potential_boost if genre in x.genre]:
@@ -1442,31 +1454,31 @@ class Orchestrator:
                         if "allié" in played_card.effects["cri de guerre"][1]:
                             if "serviteur" in played_card.effects["cri de guerre"][1] and "tous" in played_card.effects["cri de guerre"][1]:
                                 if "if_crideguerre" in played_card.effects["cri de guerre"][1]:
-                                    target = CardGroup((x for x in plateau.players[0].deck if x.type == "Serviteur" and "cri de guerre" in x.effects))
+                                    target = CardGroup((x for x in player.deck if x.type == "Serviteur" and "cri de guerre" in x.effects))
             elif (action - 1) % 16 == 1:
-                target = plateau.players[0].hero
+                target = player.hero
             elif (action - 1) % 16 == 8:
-                target = plateau.players[1].hero
+                target = adv.hero
             elif (action - 1) % 16 < 8:
-                target = plateau.players[0].servants[(action - 1) % 16 - 2]
+                target = player.servants[(action - 1) % 16 - 2]
             else:
-                target = plateau.players[1].servants[(action - 1) % 16 - 9]
+                target = adv.servants[(action - 1) % 16 - 9]
             inter_cost = played_card.cost
             TourEnCours(plateau).jouer_carte(played_card, target)
-            plateau.players[0].last_card = played_card
+            player.last_card = played_card
             if inter_cost != played_card.base_cost:
-                if played_card.discount in plateau.players[0].discount_next:
-                    plateau.players[0].discount_next.remove(played_card.discount)
+                if played_card.discount in player.discount_next:
+                    player.discount_next.remove(played_card.discount)
                     played_card.discount = []
         elif 161 <= action < 225:
             if (action - 161) // 8 == 0:
-                attacker = plateau.players[0].hero
+                attacker = player.hero
             else:
-                attacker = plateau.players[0].servants[int((action - 161) // 8 - 1)]
+                attacker = player.servants[int((action - 161) // 8 - 1)]
             if (action - 161) % 8 == 0:
-                target = plateau.players[1].hero
+                target = adv.hero
             else:
-                target = plateau.players[1].servants[int((action - 161) % 8 - 1)]
+                target = adv.servants[int((action - 161) % 8 - 1)]
             if generate_logs:
                 action_line["action"] = "attaquer"
                 action_line["attaquant"] = attacker.id if type(attacker) is Card else "heros"
@@ -1479,20 +1491,20 @@ class Orchestrator:
             TourEnCours(plateau).attaquer(attacker, target)
         elif action < 241:
             if action == 225:
-                target = plateau.players[0].hero
+                target = player.hero
             elif action == 233:
-                target = plateau.players[1].hero
+                target = adv.hero
             elif action < 233:
-                target = plateau.players[0].servants[action - 226]
+                target = player.servants[action - 226]
             else:
-                target = plateau.players[1].servants[action - 234]
+                target = adv.servants[action - 234]
             if generate_logs:
                 action_line["action"] = "pouvoir_heroique"
                 action_line["cible"] = target.id if type(target) is Card else "heros"
                 action_line["cible_atq"] = target.attack
                 action_line["cible_pv"] = target.health
                 logs.append(action_line)
-            TourEnCours(plateau).pouvoir_heroique(plateau.players[0].classe, target)
+            TourEnCours(plateau).pouvoir_heroique(player.classe, target)
         else:
             if generate_logs:
                 action_line["action"] = "decouverte" if plateau.cards_chosen else "dragage"
@@ -1500,30 +1512,31 @@ class Orchestrator:
             if plateau.cards_chosen:
                 TourEnCours(plateau).decouverte(plateau.cards_chosen, action - 241)
             elif plateau.cards_dragage:
-                TourEnCours(plateau).decouverte(plateau.cards_dragage, action - 241, type="dragage")
+                TourEnCours(plateau).decouverte(plateau.cards_dragage, action - 241, type_dec="dragage")
 
         """ Application des rales d'agonie """
         dead_servants, dead_servants_player = plateau.update()
         while dead_servants:
             for servant in dead_servants:
                 TourEnCours(plateau).apply_effects(servant)
-                if servant in dead_servants_player and servant in plateau.players[1].servants:
-                    plateau.players[1].servants.remove(servant)
-                elif servant in plateau.players[0].servants:
-                    plateau.players[0].servants.remove(servant)
+                if servant in dead_servants_player and servant in adv.servants:
+                    adv.servants.remove(servant)
+                elif servant in player.servants:
+                    player.servants.remove(servant)
             dead_servants, dead_servants_player = plateau.update()
 
         """ Application des effets d'aura """
-        aura_servants = [x for x in plateau.players[0].servants.cards + plateau.players[1].servants.cards if
+        aura_servants = [x for x in player.servants.cards + adv.servants.cards if
                          "aura" in x.effects and not x.is_dead() and "alive" in x.effects["aura"][1]]
-        for creature in plateau.players[0].servants.cards + plateau.players[1].servants.cards:
+        for creature in player.servants.cards + adv.servants.cards:
             creature.total_temp_boost = [0, 0]
         if aura_servants:
             TourEnCours(plateau).apply_effects(get_card(-1, all_cards))
-        for creature in plateau.players[0].servants.cards + plateau.players[1].servants.cards:
+        for creature in player.servants.cards + adv.servants.cards:
             creature.attack = creature.base_attack + creature.total_temp_boost[0]
             creature.health = creature.base_health + creature.total_temp_boost[1] - creature.blessure
-        plateau.players[0].apply_discount()
+        player.apply_discount()
+
         return plateau, logs
 
     """ Génère un nombre donné de parties et créé les logs associés"""

@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Chasseur"), Player("OldIA", "Mage")]
+players = [Player("NewIA", "Druide"), Player("OldIA", "Druide")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -251,7 +251,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-for i in range(2):
+for i in range(3):
     print(i)
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')

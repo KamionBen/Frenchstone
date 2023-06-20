@@ -91,6 +91,7 @@ for i in range(7):
     empty_action_line[f"gel_serv{i + 1}_j"] = -99
     empty_action_line[f"inciblable_serv{i + 1}_j"] = -99
     empty_action_line[f"voldevie_serv{i + 1}_j"] = -99
+    empty_action_line[f"toxicite_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
@@ -105,6 +106,7 @@ for i in range(7):
     empty_action_line[f"gel_serv{i + 1}_adv"] = -99
     empty_action_line[f"inciblable_serv{i + 1}_adv"] = -99
     empty_action_line[f"voldevie_serv{i + 1}_adv"] = -99
+    empty_action_line[f"toxicite_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -169,11 +171,19 @@ class Plateau:
         self.players[0].start_turn()
         """ Effets de début de tour """
         for servant in self.players[0].servants:
-            if "aura" in servant.effects and "destroy" in servant.effects["aura"]:
-                if "serviteur" in servant.effects["aura"][1]:
+            if "aura" in servant.effects and "start_turn" in servant.effects["aura"][1]:
+                if "serviteur" in servant.effects["aura"][1] and "destroy" in servant.effects["aura"]:
                     if "tous" in servant.effects["aura"][1]:
                         self.players[0].servants = CardGroup()
                         self.players[1].servants = CardGroup()
+                if "boost" in servant.effects["aura"] and "self" in servant.effects["aura"][1] and "random_lose" in servant.effects["aura"][1]:
+                    if random.randint(0, 1) == 0:
+                        servant.attack -= 1
+                        servant.base_attack -= 1
+                    else:
+                        servant.health -= 1
+                        servant.base_health -= 1
+                    fion = self.update()
 
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
@@ -191,8 +201,6 @@ class Plateau:
                         self.winner = winner
             for servant in player.servants:
                 if servant.is_dead():
-                    # if "rale d'agonie" in get_card(servant.name, all_servants).effects:
-                    #     servant.effects["rale d'agonie"][1] = get_card(servant.name, all_servants).effects["rale d'agonie"][1]
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
                     if player == self.players[1]:
@@ -293,6 +301,8 @@ class Plateau:
                 action_line[f"inciblable_serv{i + 1}_j"] = player.servants[i].effects["inciblable"]
             if "vol de vie" in player.servants[i].effects:
                 action_line[f"voldevie_serv{i + 1}_j"] = player.servants[i].effects["vol de vie"]
+            if "toxicite" in player.servants[i].effects:
+                action_line[f"toxicite_serv{i + 1}_j"] = player.servants[i].effects["toxicite"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -320,6 +330,8 @@ class Plateau:
                 action_line[f"inciblable_serv{i + 1}_adv"] = adv.servants[i].effects["inciblable"]
             if "vol de vie" in adv.servants[i].effects:
                 action_line[f"voldevie_serv{i + 1}_adv"] = adv.servants[i].effects["vol de vie"]
+            if "toxicite" in adv.servants[i].effects:
+                action_line[f"toxicite_serv{i + 1}_adv"] = adv.servants[i].effects["toxicite"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -388,10 +400,18 @@ class Player:
                 servant.effects.pop("gel")
             if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
                 if "boost" in servant.effects["aura"] and "self" in servant.effects["aura"][1]:
-                    servant.attack += servant.effects["aura"][2][0]
-                    servant.base_attack += servant.effects["aura"][2][0]
-                    servant.health += servant.effects["aura"][2][1]
-                    servant.base_health += servant.effects["aura"][2][1]
+                    if "random_lose" in servant.effects["aura"][1]:
+                        if random.randint(0, 1) == 0:
+                            servant.attack -= 1
+                            servant.base_attack -= 1
+                        else:
+                            servant.health -= 1
+                            servant.base_health -= 1
+                    else:
+                        servant.attack += servant.effects["aura"][2][0]
+                        servant.base_attack += servant.effects["aura"][2][0]
+                        servant.health += servant.effects["aura"][2][1]
+                        servant.base_health += servant.effects["aura"][2][1]
                 elif "damage" in servant.effects["aura"]:
                     if "heros" in servant.effects["aura"][1] and "allié" in servant.effects["aura"][1]:
                         self.hero.damage(servant.effects["aura"][2])
@@ -655,7 +675,7 @@ class Card:
             self.remaining_atk = 1
         if "ruée" in self.effects and not "en sommeil" in self.effects:
             self.effects["ruée"] = 0
-        if "aura" in self.effects :
+        if "aura" in self.effects:
             if "temp_fullturn" in self.effects["aura"][1]:
                 self.attack = self.base_attack
         if "gel" in self.effects:

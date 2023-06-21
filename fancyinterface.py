@@ -103,6 +103,8 @@ class CardSprite(pygame.sprite.Sprite):
                 self.description += [" Vol de vie"]
             if logline['toxicite_'+on_board_id] == 1:
                 self.description += [" Toxicité"]
+            if logline['furiedesvents_'+on_board_id] == 1:
+                self.description += [" Furie des vents"]
         border = 1
         self.image.fill(self.color)
         if logline is not None:

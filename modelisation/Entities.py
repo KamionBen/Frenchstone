@@ -92,6 +92,7 @@ for i in range(7):
     empty_action_line[f"inciblable_serv{i + 1}_j"] = -99
     empty_action_line[f"voldevie_serv{i + 1}_j"] = -99
     empty_action_line[f"toxicite_serv{i + 1}_j"] = -99
+    empty_action_line[f"furiedesvents_serv{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
@@ -107,6 +108,7 @@ for i in range(7):
     empty_action_line[f"inciblable_serv{i + 1}_adv"] = -99
     empty_action_line[f"voldevie_serv{i + 1}_adv"] = -99
     empty_action_line[f"toxicite_serv{i + 1}_adv"] = -99
+    empty_action_line[f"furiedesvents_serv{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -311,6 +313,8 @@ class Plateau:
                 action_line[f"voldevie_serv{i + 1}_j"] = player.servants[i].effects["vol de vie"]
             if "toxicite" in player.servants[i].effects:
                 action_line[f"toxicite_serv{i + 1}_j"] = player.servants[i].effects["toxicite"]
+            if "furie des vents" in player.servants[i].effects:
+                action_line[f"furiedesvents_serv{i + 1}_j"] = player.servants[i].effects["furie des vents"]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -340,6 +344,8 @@ class Plateau:
                 action_line[f"voldevie_serv{i + 1}_adv"] = adv.servants[i].effects["vol de vie"]
             if "toxicite" in adv.servants[i].effects:
                 action_line[f"toxicite_serv{i + 1}_adv"] = adv.servants[i].effects["toxicite"]
+            if "furie des vents" in adv.servants[i].effects:
+                action_line[f"furiedesvents_serv{i + 1}_adv"] = adv.servants[i].effects["furie des vents"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         return action_line
@@ -399,6 +405,9 @@ class Player:
         if self.hero.effects:
             if "inciblable" in self.hero.effects and "temp_turn" in self.hero.effects["inciblable"]:
                 self.hero.effects.pop("inciblable")
+            if "draw" in self.hero.effects and "temp_turn" in self.hero.effects["draw"]:
+                self.hero.effects.pop("draw")
+
         for servant in self.servants:
             servant.damage_taken = False
             if servant.name == "Goule fragile":
@@ -476,6 +485,8 @@ class Player:
         """ Prendre la première carte du deck et l'ajouter à sa main """
         if len(self.hand) < 10:
             self.hand.add(self.deck.pick_one())
+            if "draw" in self.hero.effects:
+                self.hero.damage(self.hero.effects["draw"][2])
         else:
             self.deck.pick_one()
             # raise PermissionError("Il a plus de cartes en main que de place prévue dans le log")
@@ -684,6 +695,8 @@ class Card:
             self.remaining_atk = 0
         else:
             self.remaining_atk = 1
+        if "furie des vents" in self.effects:
+            self.effects["furie des vents"] = 1
         if "ruée" in self.effects and not "en sommeil" in self.effects:
             self.effects["ruée"] = 0
         if "aura" in self.effects:

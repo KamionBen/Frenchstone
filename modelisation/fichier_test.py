@@ -7,7 +7,7 @@ plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 def generate_legal_vector_test(state):
     """ Gestion des actions légales """
-    legal_actions = [False] * 244
+    legal_actions = [False] * 254
     player = state.players[0]
     adv = state.players[1]
     
@@ -74,7 +74,8 @@ def generate_legal_vector_test(state):
                             else:
                                 if "if_weapon" in player.hand[i].effects["cri de guerre"][1] and player.hero.weapon is not None \
                                         or "if_death_undead" in player.hand[i].effects["cri de guerre"][1] and player.dead_undeads \
-                                        or "if_dragon_hand" in player.hand[i].effects["cri de guerre"][1] and [x for x in player.hand if "Dragon" in x.genre]:
+                                        or "if_dragon_hand" in player.hand[i].effects["cri de guerre"][1] and [x for x in player.hand if "Dragon" in x.genre] \
+                                        or "if_alone" in player.hand[i].effects["cri de guerre"][1] and len(player.servants) == 0:
                                     legal_actions[16 * i + 2] = True
                                     legal_actions[16 * i + 9] = True
                                     for j in range(len(player.servants)):
@@ -179,6 +180,11 @@ def generate_legal_vector_test(state):
             for i in range(len(adv.servants)):
                 if adv.servants[i] in targets and not list({"camouflage", "en sommeil", "inciblable"} and set(adv.servants[i].effects)):
                     legal_actions[234 + i] = True
+
+    """ Mot-clé échangeable """
+    for i in range(len(player.hand)):
+        if player.mana >= 1 and "echangeable" in player.hand[i].effects:
+            legal_actions[244 + i] = True
 
     return legal_actions
 

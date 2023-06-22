@@ -494,6 +494,8 @@ class TourEnCours:
             if "suicide" in carte.effects["cri de guerre"]:
                 carte.health = 0
             if "destroy" in carte.effects["cri de guerre"]:
+                if target is not None:
+                    target.blessure = 1000
                 if "arme" in carte.effects["cri de guerre"][1] and "ennemi" in carte.effects["cri de guerre"][1]:
                     adv.hero.weapon = None
             if "réincarnation" in carte.effects["cri de guerre"] and target is not None:
@@ -525,7 +527,7 @@ class TourEnCours:
                     else:
                         target.damage(carte.effects["cri de guerre"][2])
                 else:
-                    if "tous" in carte.effects["cri de guerre"][1]:
+                    if carte.effects["cri de guerre"][1][0] == "tous":
                         if "ennemi" in carte.effects["cri de guerre"][1]:
                             try:
                                 for i in range(0, carte.effects["cri de guerre"][1][3]):
@@ -549,12 +551,19 @@ class TourEnCours:
                                         random_target.damage(carte.effects["cri de guerre"][2])
                             except:
                                 pass
-                    elif "self" in carte.effects["cri de guerre"][1]:
+                    elif carte.effects["cri de guerre"][1][0] == "serviteur":
+                        if len(player.servants) + len(adv.servants) > 1:
+                            for serv in [x for x in player.servants.cards + adv.servants.cards if x != carte]:
+                                serv.damage(carte.effects["cri de guerre"][2])
+                    elif carte.effects["cri de guerre"][1][0] == "self":
                         carte.damage(carte.effects["cri de guerre"][2])
-                    elif "heros" in carte.effects["cri de guerre"][1]:
+                    elif carte.effects["cri de guerre"][1][0] == "heros":
                         if "ennemi" in carte.effects["cri de guerre"][1]:
                             if "if_draw" in carte.effects["cri de guerre"][1] and "next_enemyturn" in carte.effects["cri de guerre"][1]:
                                 adv.hero.effects["draw"] = ["damage", "temp_turn", 2]
+                    elif carte.effects["cri de guerre"][1][0] == "buveuse de vie":
+                        adv.hero.damage(3)
+                        player.hero.heal(3)
             if "heal" in carte.effects["cri de guerre"]:
                 if target is not None:
                     target.heal(carte.effects["cri de guerre"][2])
@@ -567,6 +576,12 @@ class TourEnCours:
                 target.effects["ne peut pas attaquer"] = 1
                 target.remaining_atk = 0
                 carte.effects["liberation"] = target.id
+            if "silence" in carte.effects["cri de guerre"] and target is not None:
+                target.base_attack = get_card(target.name, all_servants).base_attack
+                target.attack = get_card(target.name, all_servants).base_attack
+                target.blessure = min(target.blessure, get_card(target.name, all_servants).base_health - 1)
+                target.base_health = get_card(target.name, all_servants).base_health
+                target.effects = {}
             if "swap" in carte.effects["cri de guerre"] and target is not None:
                 inter_health = target.health
                 target.health = target.attack
@@ -587,11 +602,20 @@ class TourEnCours:
                         if "porteur d'invitation" in [x.effects for x in player.servants] and len(player.hand) < 10 and get_card(carte.effects["cri de guerre"][2], all_cards).classe not in ["Neutre", player.classe]:
                             player.hand.add(get_card(carte.effects["cri de guerre"][2], all_cards))
             if "add_deck" in carte.effects["cri de guerre"]:
-                card_to_add = get_card(carte.effects["cri de guerre"][1], all_cards)
-                if card_to_add.name == "Instantane de Feplouf":
-                    card_to_add.effects["add_hand"] = [get_card(x.name, all_cards) for x in player.hand]
-                player.deck.add(card_to_add)
-                player.deck.shuffle()
+                if "end_deck" in carte.effects["cri de guerre"]:
+                    if "colossal" in carte.effects["cri de guerre"][1]:
+                        try:
+                            cards_to_add = random.sample([x for x in all_servants if "colossal" in x.effects], 3)
+                        except:
+                            cards_to_add = random.sample([x for x in all_servants], 3)
+                        for card_to_add in cards_to_add:
+                            player.deck.add(card_to_add)
+                else:
+                    card_to_add = get_card(carte.effects["cri de guerre"][1], all_cards)
+                    if card_to_add.name == "Instantane de Feplouf":
+                        card_to_add.effects["add_hand"] = [get_card(x.name, all_cards) for x in player.hand]
+                    player.deck.add(card_to_add)
+                    player.deck.shuffle()
             if "pioche" in carte.effects["cri de guerre"]:
                 if "allié" in carte.effects["cri de guerre"][1]:
                     if "arme" in carte.effects["cri de guerre"][1]:
@@ -715,6 +739,10 @@ class TourEnCours:
                     adv.hero.armor += carte.effects["soif de mana"][2]
                 player.hero.armor += carte.effects["soif de mana"][2]
             if "silence+gel" in carte.effects["soif de mana"] and target is not None:
+                target.base_attack = get_card(target.name, all_servants).base_attack
+                target.attack = get_card(target.name, all_servants).base_attack
+                target.health = max(1, get_card(target.name, all_servants).base_health - target.blessure)
+                target.base_health = get_card(target.name, all_servants).base_health
                 target.effects = {"gel": carte.effects["soif de mana"][2]}
             if "invocation" in carte.effects["soif de mana"]:
                 if "cout" in carte.effects["soif de mana"][1]:
@@ -1157,7 +1185,6 @@ class TourEnCours:
             servant.effects.pop("soif de mana")
         if len(self.plt.players[player].servants) < 7:
             self.plt.players[player].servants.add(servant)
-            self.apply_effects(servant)
 
     def jouer_carte(self, carte, target=None):
         """ Action de poser une carte depuis la main du joueur dont c'est le tour.
@@ -1168,9 +1195,9 @@ class TourEnCours:
                 player.hand.remove(carte)
                 player.mana_spend(carte.cost)
                 self.apply_effects(carte)
-                if [x for x in player.hand if x.name == "Massacreur pince broyeuse"]:
-                    for serv in [x for x in player.hand if x.name == "Massacreur pince broyeuse"]:
-                        serv.effects["cri de guerre"][2] = 1
+                if [x for x in player.hand if "if_spell" in x.effects]:
+                    for serv in [x for x in player.hand if "if_spell" in x.effects]:
+                        serv.effects["cri de guerre"][2] = serv.effects["cri de guerre"][3]
             elif carte.type.lower() == "serviteur":
                 if len(player.servants) < 7:
                     player.hand.remove(carte)
@@ -1208,7 +1235,7 @@ class TourEnCours:
                 if "aura" in attaquant.effects and attaquant.effects["aura"][2] == "attack":
                     if "self" in attaquant.effects["aura"][1]:
                         if "destroy" in attaquant.effects["aura"]:
-                            attaquant.health = 0
+                            attaquant.blessure = 1000
             if type(attaquant) == Hero:
                 if attaquant.weapon is not None:
                     attaquant.weapon.durability -= 1
@@ -1280,7 +1307,8 @@ class TourEnCours:
                 group_filtered = [x for x in all_servants if other in x['effects'] and x["decouvrable"] == 1]
                 discovery = random.sample(group_filtered, min(3, len(group_filtered)))
             else:
-                discovery = random.sample(all_servants, 3)
+                group_filtered = [x for x in all_servants if x["decouvrable"] == 1]
+                discovery = random.sample(group_filtered, 3)
 
         elif type == "sort":
             if classe:
@@ -1294,28 +1322,26 @@ class TourEnCours:
                 try:
                     discovery = random.sample(all_spells, 3)
                 except:
-                    discovery = random.sample(all_servants, 3)
+                    group_filtered = [x for x in all_servants if x["decouvrable"] == 1]
+                    discovery = random.sample(group_filtered, 3)
             if other == "Secret":
                 group_filtered = [x for x in all_spells if "secret" in x.effects and x["decouvrable"] == 1]
                 discovery = random.sample(group_filtered, min(3, len(group_filtered)))
 
+        discovery = [Card(**x) for x in discovery]
         if reduc is not None:
             for element in discovery:
-                element["cost"] = max(0, element["cost"] - reduc)
+                element.cost = max(0, element.cost - reduc)
         return discovery
 
     def decouverte(self, cards, choice, type_dec="decouverte"):
         if len(self.plt.players[0].hand) < 10 and type_dec == "decouverte":
-            if type(cards[choice]) != Card:
+            self.plt.players[0].hand.add(cards[choice])
+            if self.plt.players[0].dead_undeads:
+                print(cards[choice], cards[choice].cost)
+            if "porteur d'invitation" in [x.effects for x in self.plt.players[0].servants] and len(self.plt.players[0].hand) < 10 and Card(**cards[choice]).classe not in ["Neutre", self.plt.players[0].classe]:
                 self.plt.players[0].hand.add(Card(**cards[choice]))
-                if "porteur d'invitation" in [x.effects for x in self.plt.players[0].servants] and len(self.plt.players[0].hand) < 10 and Card(**cards[choice]).classe not in ["Neutre", self.plt.players[0].classe]:
-                    self.plt.players[0].hand.add(Card(**cards[choice]))
-                self.plt.cards_chosen = []
-            else:
-                self.plt.players[0].hand.add(get_card(cards[choice].name, all_cards))
-                if "porteur d'invitation" in [x.effects for x in self.plt.players[0].servants] and len(self.plt.players[0].hand) < 10 and get_card(cards[choice].name, all_cards).classe not in ["Neutre", self.plt.players[0].classe]:
-                    self.plt.players[0].hand.add(get_card(cards[choice].name, all_cards))
-                self.plt.cards_chosen = []
+            self.plt.cards_chosen = []
         if type_dec == "dragage":
             self.plt.players[0].deck.cards.remove(cards[choice])
             self.plt.players[0].deck.cards.insert(0, cards[choice])

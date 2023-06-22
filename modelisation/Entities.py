@@ -176,8 +176,8 @@ class Plateau:
             if "aura" in servant.effects and "start_turn" in servant.effects["aura"][1]:
                 if "serviteur" in servant.effects["aura"][1] and "destroy" in servant.effects["aura"]:
                     if "tous" in servant.effects["aura"][1]:
-                        self.players[0].servants = CardGroup()
-                        self.players[1].servants = CardGroup()
+                        for serv in self.players[0].servants.cards + self.players[1].servants.cards:
+                            serv.blessure = 1000
                 if "boost" in servant.effects["aura"] and "self" in servant.effects["aura"][1] and "random_lose" in servant.effects["aura"][1]:
                     if random.randint(0, 1) == 0:
                         servant.attack -= 1

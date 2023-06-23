@@ -635,6 +635,11 @@ class TourEnCours:
                         player.pick_multi(carte.effects["rale d'agonie"][2])
             if "dragage" in carte.effects["cri de guerre"]:
                 self.plt.cards_dragage = CardGroup(player.deck.cards[-3:].copy())
+            if "entrave" in carte.effects["cri de guerre"]:
+                self.plt.cards_entrave = CardGroup(random.sample(adv.hand.cards, min(3, len(adv.hand.cards))))
+                print(adv.hand.cards)
+                print(self.plt.cards_entrave)
+                print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
             if "invocation" in carte.effects["cri de guerre"]:
                 if "allié" in carte.effects["cri de guerre"][1] and len(player.servants) < 7:
                     if "aléatoire" in carte.effects["cri de guerre"][1]:
@@ -699,6 +704,8 @@ class TourEnCours:
                                     self.plt.cards_chosen = self.choice_decouverte(type="sort", classe=adv.classe)
                                 except:
                                     pass
+                            if "choix mystere" in carte.effects["cri de guerre"][2]:
+                                self.plt.cards_chosen = self.choice_decouverte(type="sort", other="choix mystere")
                             else:
                                 self.plt.cards_chosen = self.choice_decouverte(type="sort")
                         elif "serviteur" in carte.effects["cri de guerre"][2]:
@@ -706,7 +713,6 @@ class TourEnCours:
                                 self.plt.cards_chosen = self.choice_decouverte(type="serviteur", other="legendaire")
                         if "deck_adv" in carte.effects["cri de guerre"][2]:
                             self.plt.cards_chosen = self.choice_decouverte(card_group=adv.deck)
-
             if "rale d'agonie" in carte.effects["cri de guerre"] and target is not None:
                 if "rale d'agonie" in target.effects:
                     target.effects["rale d'agonie2"] = carte.effects["cri de guerre"][2]
@@ -1329,6 +1335,8 @@ class TourEnCours:
                 discovery = random.sample(group_filtered, min(3, len(group_filtered)))
 
         discovery = [Card(**x) for x in discovery]
+        if other == "choix mystere":
+            discovery.append("choix mystere")
         if reduc is not None:
             for element in discovery:
                 element.cost = max(0, element.cost - reduc)
@@ -1336,16 +1344,21 @@ class TourEnCours:
 
     def decouverte(self, cards, choice, type_dec="decouverte"):
         if len(self.plt.players[0].hand) < 10 and type_dec == "decouverte":
-            self.plt.players[0].hand.add(cards[choice])
-            if self.plt.players[0].dead_undeads:
-                print(cards[choice], cards[choice].cost)
-            if "porteur d'invitation" in [x.effects for x in self.plt.players[0].servants] and len(self.plt.players[0].hand) < 10 and Card(**cards[choice]).classe not in ["Neutre", self.plt.players[0].classe]:
-                self.plt.players[0].hand.add(Card(**cards[choice]))
+            if choice != 3:
+                self.plt.players[0].hand.add(cards[choice])
+                if "porteur d'invitation" in [x.effects for x in self.plt.players[0].servants] and len(self.plt.players[0].hand) < 10 and Card(**cards[choice]).classe not in ["Neutre", self.plt.players[0].classe]:
+                    self.plt.players[0].hand.add(Card(**cards[choice]))
+            else:
+                if cards[choice] == "choix mystere":
+                    self.plt.players[0].hand.add(Card(**random.choice(all_spells)))
             self.plt.cards_chosen = []
-        if type_dec == "dragage":
+        elif type_dec == "dragage":
             self.plt.players[0].deck.cards.remove(cards[choice])
             self.plt.players[0].deck.cards.insert(0, cards[choice])
             self.plt.cards_dragage = []
+        elif type_dec == "entrave":
+            cards[choice].effects["entrave"] = 1
+            self.plt.cards_entrave = []
 
     def echange(self, carte):
         player = self.plt.players[0]
@@ -1721,19 +1734,21 @@ class Orchestrator:
                 action_line["cible_pv"] = target.health
                 logs.append(action_line)
             TourEnCours(plateau).pouvoir_heroique(player.classe, target)
-        elif action < 244:
+        elif action < 245:
             if generate_logs:
-                action_line["action"] = "decouverte" if plateau.cards_chosen else "dragage"
+                action_line["action"] = "decouverte" if plateau.cards_chosen else "dragage" if plateau.cards_dragage else "entrave"
                 logs.append(action_line)
             if plateau.cards_chosen:
-                TourEnCours(plateau).decouverte(plateau.cards_chosen, action - 241)
+                    TourEnCours(plateau).decouverte(plateau.cards_chosen, action - 241)
             elif plateau.cards_dragage:
                 TourEnCours(plateau).decouverte(plateau.cards_dragage, action - 241, type_dec="dragage")
+            elif plateau.cards_entrave:
+                TourEnCours(plateau).decouverte(plateau.cards_entrave, action - 241, type_dec="entrave")
         else:
             if generate_logs:
                 action_line["action"] = "echange"
                 logs.append(action_line)
-            TourEnCours(plateau).echange(player.hand[action - 244])
+            TourEnCours(plateau).echange(player.hand[action - 245])
 
         player = plateau.players[0]
         adv = plateau.players[1]

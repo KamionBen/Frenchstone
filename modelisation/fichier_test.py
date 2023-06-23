@@ -7,7 +7,7 @@ plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 def generate_legal_vector_test(state):
     """ Gestion des actions légales """
-    legal_actions = [False] * 254
+    legal_actions = [False] * 255
     player = state.players[0]
     adv = state.players[1]
     
@@ -16,6 +16,13 @@ def generate_legal_vector_test(state):
         legal_actions[0] = False
         for i in range(241, 244):
             legal_actions[i] = True
+        if state.cards_chosen and len(state.cards_chosen) == 4 and state.cards_chosen[3] == "choix mystere":
+            legal_actions[244] = True
+        return legal_actions
+
+    if state.cards_entrave:
+        for i in range(241, 241 + len(state.cards_entrave)):
+            legal_actions[i] = True
         return legal_actions
 
     legal_actions[0] = True
@@ -23,7 +30,7 @@ def generate_legal_vector_test(state):
 
     """ Quelles cartes peut-on jouer ? Et qur quelles cibles le cas échéant ? """
     for i in range(len(player.hand)):
-        if player.hand[i].cost <= player.mana:
+        if player.hand[i].cost <= player.mana and "entrave" not in player.hand[i].effects:
             if len(player.servants) != 7 and player.hand[i].type == "Serviteur":
 
                 """ Serviteurs avec cris de guerre ciblés """
@@ -198,7 +205,7 @@ def generate_legal_vector_test(state):
     """ Mot-clé échangeable """
     for i in range(len(player.hand)):
         if player.mana >= 1 and "echangeable" in player.hand[i].effects:
-            legal_actions[244 + i] = True
+            legal_actions[245 + i] = True
 
     return legal_actions
 

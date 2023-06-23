@@ -131,6 +131,7 @@ class Plateau:
                        }
         self.cards_chosen = []
         self.cards_dragage = []
+        self.cards_entrave = []
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
 
@@ -697,6 +698,8 @@ class Card:
             self.remaining_atk = 1
         if "furie des vents" in self.effects:
             self.effects["furie des vents"] = 1
+        if "entrave" in self.effects:
+            self.effects.pop("entrave")
         if "ruée" in self.effects and not "en sommeil" in self.effects:
             self.effects["ruée"] = 0
         if "aura" in self.effects:

@@ -77,34 +77,38 @@ class CardSprite(pygame.sprite.Sprite):
         if on_board_id is not None:
             self.attaque = logline['atq_'+on_board_id]
             self.pv = logline['pv_'+on_board_id]
-            if on_board_id.split('_')[-1] == 'j':
-                self.atq_remain = logline['atq_remain_'+on_board_id]
-            if logline['divineshield_'+on_board_id] == 1:
-                self.description += [" Bouclier divin"]
-            if logline['provocation_'+on_board_id] == 1:
-                self.description += [" Provocation"]
-            if logline['cant_attack_'+on_board_id] == 1:
-                self.description += [" Ne peut pas attaquer"]
-            if logline['ruee_'+on_board_id] == 1:
-                self.description += [" Ruée"]
-            if logline['charge_'+on_board_id] == 1:
-                self.description += [" Charge"]
-            if logline['camouflage_'+on_board_id] == 1:
-                self.description += [" Camouflage"]
-            if logline['reincarnation_'+on_board_id] >= 0:
-                self.description += [" Réincarnation"]
-            if logline['en_sommeil_'+on_board_id] > 0:
-                self.description += [" En sommeil"]
-            if logline['gel_'+on_board_id] == 1:
-                self.description += [" Gelé"]
-            if logline['inciblable_'+on_board_id] == 1:
-                self.description += [" Inciblable"]
-            if logline['voldevie_'+on_board_id] == 1:
-                self.description += [" Vol de vie"]
-            if logline['toxicite_'+on_board_id] == 1:
-                self.description += [" Toxicité"]
-            if logline['furiedesvents_'+on_board_id] == 1:
-                self.description += [" Furie des vents"]
+            try:
+                if on_board_id.split('_')[-1] == 'j':
+                    self.atq_remain = logline['atq_remain_'+on_board_id]
+                if logline['divineshield_'+on_board_id] == 1:
+                    self.description += [" Bouclier divin"]
+                if logline['provocation_'+on_board_id] == 1:
+                    self.description += [" Provocation"]
+                if logline['cant_attack_'+on_board_id] == 1:
+                    self.description += [" Ne peut pas attaquer"]
+                if logline['ruee_'+on_board_id] == 1:
+                    self.description += [" Ruée"]
+                if logline['charge_'+on_board_id] == 1:
+                    self.description += [" Charge"]
+                if logline['camouflage_'+on_board_id] == 1:
+                    self.description += [" Camouflage"]
+                if logline['reincarnation_'+on_board_id] >= 0:
+                    self.description += [" Réincarnation"]
+                if logline['en_sommeil_'+on_board_id] > 0:
+                    self.description += [" En sommeil"]
+                if logline['gel_'+on_board_id] == 1:
+                    self.description += [" Gelé"]
+                if logline['inciblable_'+on_board_id] == 1:
+                    self.description += [" Inciblable"]
+                if logline['voldevie_'+on_board_id] == 1:
+                    self.description += [" Vol de vie"]
+                if logline['toxicite_'+on_board_id] == 1:
+                    self.description += [" Toxicité"]
+                if logline['furiedesvents_'+on_board_id] == 1:
+                    self.description += [" Furie des vents"]
+            except:
+                if logline['impregnation_'+on_board_id] != -99:
+                    self.description += [" Imprégnation" + str(logline['impregnation_'+on_board_id])]
         border = 1
         self.image.fill(self.color)
         if logline is not None:
@@ -129,10 +133,13 @@ class CardSprite(pygame.sprite.Sprite):
                 descr = default_font[16].render(self.description[i], True, 'white')
                 self.image.blit(descr, (10, 50 + 10 * i))
 
-            if self.pv < self.pv_max:
-                color = 'red'
-            else:
-                color = 'white'
+            try:
+                if self.pv < self.pv_max:
+                    color = 'red'
+                else:
+                    color = 'white'
+            except:
+                color = "white"
             pv = default_font[32].render(str(self.pv), True, color)
             self.image.blit(pv, (80, 120))
 
@@ -165,7 +172,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.gets_attacked = False
 
         """ Pygame variables """
-        self.image = pygame.Surface([900, 330])
+        self.image = pygame.Surface([1080, 330])
         self.image.fill(color)
         self.rect = self.image.get_rect()
 
@@ -206,9 +213,13 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.attaque = logline['attaque_'+role]
 
         """ Cards """
-        self.hand = pygame.sprite.Group(*[CardSprite() for x in range(logline['nbre_cartes_'+role])])
-        self.hand.update()
-
+        if role == "j":
+            hand = [logline[f"carte_en_main{i + 1}_{role}"] for i in range(10)]
+            self.hand = pygame.sprite.Group(*[CardSprite(e) for e in hand if e != -99])
+            self.hand.update(logline)
+        else:
+            self.hand = pygame.sprite.Group(*[CardSprite() for x in range(logline['nbre_cartes_' + role])])
+            self.hand.update()
         servant = [logline[f"serv{i+1}_{role}"] for i in range(7)]
         self.servant = pygame.sprite.Group(*[CardSprite(e) for e in servant if e != -99])
         self.servant.update(logline)
@@ -216,10 +227,10 @@ class PlayerSprite(pygame.sprite.Sprite):
         """ Update sprite """
         self.image.fill(self.color)
         border = 1
-        pygame.draw.rect(self.image, (20, 20, 20), (border, border, 900 - border * 2, 330 - border * 2))
+        pygame.draw.rect(self.image, (20, 20, 20), (border, border, 1080 - border * 2, 330 - border * 2))
 
         """ Hand """
-        height = {'top': -70, 'bottom': 250}
+        height = {'top': 0, 'bottom': 180}
         hand = pygame.Surface((100*len(self.hand), 150))
         for x, card in enumerate(self.hand):
             hand.blit(card.image, (100 * x, 0))
@@ -246,14 +257,11 @@ class PlayerSprite(pygame.sprite.Sprite):
 
         height = {'top': (10, 40, 70), 'bottom': (300, 270, 240)}
 
-        self.image.blit(pseudo, (450 - pseudo.get_width()/2, height[self.position][0]))
-        self.image.blit(mana, (450 - mana.get_width() / 2, height[self.position][1]))
-        self.image.blit(atq, (400 - atq.get_width() / 2, height[self.position][2]))
-        self.image.blit(pv, (500 - pv.get_width() / 2, height[self.position][2]))
-        self.image.blit(armor, (600 - armor.get_width() / 2, height[self.position][2]))
-
-
-
+        self.image.blit(pseudo, (950 - pseudo.get_width()/2, height[self.position][0]))
+        self.image.blit(mana, (950 - mana.get_width() / 2, height[self.position][1]))
+        self.image.blit(atq, (850 - atq.get_width() / 2, height[self.position][2]))
+        self.image.blit(pv, (950 - pv.get_width() / 2, height[self.position][2]))
+        self.image.blit(armor, (1050 - armor.get_width() / 2, height[self.position][2]))
 
         """ Servants """
         gap = 5

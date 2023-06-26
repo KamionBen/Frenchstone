@@ -4,6 +4,7 @@ from os import path
 from random import shuffle, choice
 from typing import Union
 import random
+from copy import deepcopy
 import pickle
 
 """ CONSTANTS """
@@ -69,10 +70,11 @@ empty_action_line = {"carte_jouee": "",
 for classe_heros in set(classes_heros):
     empty_action_line[f"is_{classe_heros}"] = -99
 for i in range(10):
-    empty_action_line[f"carte_en_main{i + 1}"] = -99
-    empty_action_line[f"carte_en_main{i + 1}_cost"] = -99
-    empty_action_line[f"carte_en_main{i + 1}_atk"] = -99
-    empty_action_line[f"carte_en_main{i + 1}_pv"] = -99
+    empty_action_line[f"carte_en_main{i + 1}_j"] = -99
+    empty_action_line[f"cost_carte_en_main{i + 1}_j"] = -99
+    empty_action_line[f"atq_carte_en_main{i + 1}_j"] = -99
+    empty_action_line[f"pv_carte_en_main{i + 1}_j"] = -99
+    empty_action_line[f"impregnation_carte_en_main{i + 1}_j"] = -99
     for j in range(len(all_cards)):
         empty_action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = -99
 for i in range(7):
@@ -194,7 +196,10 @@ class Plateau:
                     if "transformation" in servant.effects["start_turn"]:
                         potential_transform = [get_card(x, all_servants) for x in servant.effects["start_turn"][1]]
                         self.players[0].hand.remove(servant)
-                        self.players[0].hand.add(random.choice(potential_transform))
+                        new_cost = servant.cost
+                        new_servant = random.choice(potential_transform)
+                        new_servant.cost = new_cost
+                        self.players[0].hand.add(new_servant)
 
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
@@ -214,11 +219,6 @@ class Plateau:
                 if servant.is_dead():
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
-                    if player == self.players[1]:
-                        if "rale d'agonie" in servant.effects and "allié" in servant.effects["rale d'agonie"][1]:
-                            servant.effects["rale d'agonie"][1] = ["ennemi" if x == "allié" else x for x in servant.effects["rale d'agonie"][1]]
-                        elif "rale d'agonie" in servant.effects and "ennemi" in servant.effects["rale d'agonie"][1]:
-                            servant.effects["rale d'agonie"][1] = ["allié" if x == "ennemi" else x for x in servant.effects["rale d'agonie"][1]]
                     else:
                         if "réincarnation" in servant.effects:
                             servant.effects["réincarnation"] = 0
@@ -226,7 +226,7 @@ class Plateau:
                     dead_servants_player.append(servant)
             if cards_impregnation and dead_servants_player:
                 for card in cards_impregnation:
-                    card.effects["impregnation"][1] -= len(dead_servants_player)
+                    card.effects["impregnation"][1] = deepcopy(card.effects["impregnation"][1]) - len(dead_servants_player)
                     if card.effects["impregnation"][1] <= 0:
                         player.hand.remove(card)
                         player.hand.add(get_card(card.effects["impregnation"][0], all_cards))
@@ -278,11 +278,12 @@ class Plateau:
 
         """ HAND """
         for i in range(len(player.hand)):
-            action_line[f"carte_en_main{i + 1}"] = player.hand[i].id
-            action_line[f"carte_en_main{i + 1}_cost"] = player.hand[i].cost
-            action_line[f"carte_en_main{i + 1}_atk"] = player.hand[i].attack
-            action_line[f"carte_en_main{i + 1}_pv"] = player.hand[i].health
-            action_line[f"is_carte{i + 1}_{player.hand[i].name}"] = 1
+            action_line[f"carte_en_main{i + 1}_j"] = player.hand[i].id
+            action_line[f"cost_carte_en_main{i + 1}_j"] = player.hand[i].cost
+            action_line[f"atq_carte_en_main{i + 1}_j"] = player.hand[i].attack
+            action_line[f"pv_carte_en_main{i + 1}_j"] = player.hand[i].health
+            action_line[f"impregnation_carte_en_main{i + 1}_j"] = player.hand[i].effects["impregnation"][1] if "impregnation" in player.hand[i].effects else -99
+            action_line[f"is_carte{i + 1}_{player.hand[i].name}_j"] = 1
 
         """ SERVANTS """
         for i in range(len(player.servants)):
@@ -363,13 +364,13 @@ class Player:
         # Cartes
         self.deck = CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
-        self.servants = CardGroup()  # Les cartes sur le "terrain"
+        self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()  # Les cartes sur le "terrain"
         self.last_card = "" # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final = 0, 0, 10
         self.surcharge = 0
         self.discount_next, self.augment = [], []
-        self.dead_undeads = []
+        self.dead_undeads, self.oiseaux_libres = [], 0
 
     def start_game(self):
         self.deck.shuffle()
@@ -446,6 +447,9 @@ class Player:
                             target.base_health += servant.effects["aura"][2][1]
 
     def apply_discount(self):
+        if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.hero.weapon is not None:
+            for corsaire in [x for x in self.hand if x.name == "Corsaire de l'effroi"]:
+                corsaire.cost = max(0, corsaire.base_cost - self.hero.weapon.attack - self.hero.attack)
         if self.discount_next:
             for card in self.hand:
                 card.cost = card.base_cost
@@ -656,7 +660,7 @@ class Card:
         """ Classe généraliste pour les cartes à jouer """
         """ Description """
         self.name = kw["name"]
-        self.effects = kw["effects"].copy()
+        self.effects = deepcopy(kw["effects"])
         self.genre = kw["genre"]
         if cid is None:
             # Génération d'un id de carte

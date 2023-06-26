@@ -14,7 +14,7 @@ def generate_legal_vector_test(state):
     """ Découverte """
     if state.cards_chosen or state.cards_dragage:
         legal_actions[0] = False
-        for i in range(241, 244):
+        for i in range(241, 241 + len(state.cards_chosen) if state.cards_chosen else 241 + len(state.cards_dragage)):
             legal_actions[i] = True
         if state.cards_chosen and len(state.cards_chosen) == 4 and state.cards_chosen[3] == "choix mystere":
             legal_actions[244] = True
@@ -53,9 +53,17 @@ def generate_legal_vector_test(state):
                                 for j in range(len(player.servants)):
                                     legal_actions[16 * i + j + 3] = True
                         elif "ennemi" in player.hand[i].effects["cri de guerre"][1] and adv.servants.cards:
-                            for j in range(len(adv.servants)):
-                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
-                                    legal_actions[16 * i + j + 10] = True
+                            if "conditional" not in player.hand[i].effects["cri de guerre"][1]:
+                                for j in range(len(adv.servants)):
+                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                        legal_actions[16 * i + j + 10] = True
+                            else:
+                                if "if_provocation" in player.hand[i].effects["cri de guerre"][1]:
+                                    for j in range(len(adv.servants)):
+                                        if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "provocation" in adv.servants[j].effects:
+                                            legal_actions[16 * i + j + 10] = True
+                                else:
+                                    legal_actions[16 * i + 1] = True
                         elif "tous" in player.hand[i].effects["cri de guerre"][1] and (player.servants.cards or adv.servants.cards):
                             if "conditional" not in player.hand[i].effects["cri de guerre"][1]:
                                 for j in range(len(player.servants)):
@@ -105,7 +113,19 @@ def generate_legal_vector_test(state):
                                         if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
                                             legal_actions[16 * i + j + 10] = True
                                 else:
-                                        legal_actions[16 * i + 1] = True
+                                    legal_actions[16 * i + 1] = True
+                    elif "lieu" in player.hand[i].effects["cri de guerre"][1]:
+                        if "ennemi" in player.hand[i].effects["cri de guerre"][1]:
+                            for j in range(len(adv.lieux)):
+                                legal_actions[16 * i + j + 10] = True
+
+                elif "final" in player.hand[i].effects and "choisi" in player.hand[i].effects["final"][1]:
+                    if "serviteur" in player.hand[i].effects["final"][1]:
+                        if "allié" in player.hand[i].effects["final"][1] and player.servants.cards:
+                            for j in range(len(player.servants)):
+                                legal_actions[16 * i + j + 3] = True
+                        else:
+                            legal_actions[16 * i + 1] = True
 
                 # Serviteurs avec soif de mana ciblée
                 elif "soif de mana" in player.hand[i].effects and "choisi" in player.hand[i].effects["soif de mana"][1]:
@@ -118,6 +138,10 @@ def generate_legal_vector_test(state):
                             else:
                                 for j in range(len(player.servants)):
                                     legal_actions[16 * i + j + 3] = True
+                        elif "ennemi" in player.hand[i].effects["cri de guerre"][1] and adv.servants.cards:
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                    legal_actions[16 * i + j + 10] = True
                         elif "tous" in player.hand[i].effects["soif de mana"][1] and (gamestate[f"serv1_j"] != -99 or gamestate[f"serv1_adv"] != -99):
                             for j in range(len(player.servants)):
                                 legal_actions[16 * i + j + 3] = True
@@ -280,16 +304,16 @@ logs = []
 beginning = time.perf_counter()
 for i in range(3):
     print(i)
-    print('------------------------------------------------------------------------------')
-    print('------------------------------------------------------------------------------')
-    print('------------------------------------------------------------------------------')
-    print('------------------------------------------------------------------------------')
-    print('------------------------------------------------------------------------------')
+    # print('------------------------------------------------------------------------------')
+    # print('------------------------------------------------------------------------------')
+    # print('------------------------------------------------------------------------------')
+    # print('------------------------------------------------------------------------------')
+    # print('------------------------------------------------------------------------------')
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)
         plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
-        print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
-        print('----------------------------------------------')
+        # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
+        # print('----------------------------------------------')
         logs.append(pd.DataFrame(logs_inter))
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 end = time.perf_counter()

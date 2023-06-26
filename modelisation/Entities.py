@@ -166,20 +166,37 @@ class Plateau:
         """ Met à jour le plateau à la fin du tour d'un joueur """
         self.game_turn += 1
         self.players.reverse()
+        player = self.players[0]
+        adv = self.players[1]
 
-        self.players[1].end_turn()
+        adv.end_turn()
         """ Effets de fin de tour """
-        for servant in self.players[1].servants:
-            if "aura" in servant.effects and "pioche" in servant.effects["aura"]:
-                if servant.name == "Cuisinier toque" and self.players[0].hero.damage_this_turn >= 3:
-                    self.players[1].pick()
-        self.players[0].start_turn()
+        for servant in adv.servants:
+            if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
+                if servant.name == "Cuisinier toque" and player.hero.damage_this_turn >= 3:
+                    adv.pick()
+                elif "add_deck" in servant.effects["aura"] and "random_spell_top" in servant.effects["aura"][1]:
+                    try:
+                        player.deck.cards.insert(0, Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1])))
+                    except:
+                        player.deck.cards.insert(0, Card(**random.choice([x for x in all_servants if x["decouvrable"] == 1])))
+        if "Rock en fusion" in [x.name for x in adv.hand]:
+            rock_en_fusion = [x for x in adv.hand if x.name == "Rock en fusion"][0]
+            adv.hand.remove(rock_en_fusion)
+            if adv.mana > 0:
+                adv.hero.damage(rock_en_fusion.effects["rock_en_fusion"])
+            else:
+                rock_en_fusion.effects["rock_en_fusion"] += 2
+                if len(player.hand) < 10:
+                    player.hand.add(rock_en_fusion)
+                
+        player.start_turn()
         """ Effets de début de tour """
-        for servant in self.players[0].servants:
+        for servant in player.servants:
             if "aura" in servant.effects and "start_turn" in servant.effects["aura"][1]:
                 if "serviteur" in servant.effects["aura"][1] and "destroy" in servant.effects["aura"]:
                     if "tous" in servant.effects["aura"][1]:
-                        for serv in self.players[0].servants.cards + self.players[1].servants.cards:
+                        for serv in player.servants.cards + adv.servants.cards:
                             serv.blessure = 1000
                 if "boost" in servant.effects["aura"] and "self" in servant.effects["aura"][1] and "random_lose" in servant.effects["aura"][1]:
                     if random.randint(0, 1) == 0:
@@ -189,17 +206,17 @@ class Plateau:
                         servant.health -= 1
                         servant.base_health -= 1
                     self.update()
-        if [x for x in self.players[0].hand if "start_turn" in x.effects]:
-            for servant in [x for x in self.players[0].hand if "start_turn" in x.effects]:
+        if [x for x in player.hand if "start_turn" in x.effects]:
+            for servant in [x for x in player.hand if "start_turn" in x.effects]:
                 if "start_turn" in servant.effects:
                     """ Transformation des serviteurs concernés """
                     if "transformation" in servant.effects["start_turn"]:
                         potential_transform = [get_card(x, all_servants) for x in servant.effects["start_turn"][1]]
-                        self.players[0].hand.remove(servant)
+                        player.hand.remove(servant)
                         new_cost = servant.cost
                         new_servant = random.choice(potential_transform)
                         new_servant.cost = new_cost
-                        self.players[0].hand.add(new_servant)
+                        player.hand.add(new_servant)
 
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
@@ -226,7 +243,7 @@ class Plateau:
                     dead_servants_player.append(servant)
             if cards_impregnation and dead_servants_player:
                 for card in cards_impregnation:
-                    card.effects["impregnation"][1] = deepcopy(card.effects["impregnation"][1]) - len(dead_servants_player)
+                    card.effects["impregnation"][1] -= len(dead_servants_player)
                     if card.effects["impregnation"][1] <= 0:
                         player.hand.remove(card)
                         player.hand.add(get_card(card.effects["impregnation"][0], all_cards))
@@ -446,24 +463,24 @@ class Player:
                             target.health += servant.effects["aura"][2][1]
                             target.base_health += servant.effects["aura"][2][1]
 
+
     def apply_discount(self):
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.hero.weapon is not None:
             for corsaire in [x for x in self.hand if x.name == "Corsaire de l'effroi"]:
                 corsaire.cost = max(0, corsaire.base_cost - self.hero.weapon.attack - self.hero.attack)
         if self.discount_next:
-            for card in self.hand:
-                card.cost = card.base_cost
-                for discount in self.discount_next:
-                    if card.type.lower() == discount[0]:
+            for discount in self.discount_next:
+                for card in self.hand:
+                    if card.type.lower() == discount[0] and discount not in card.discount:
                         if discount[1] != "" and discount[1] in card.genre and discount[2] < 0:
                             card.cost = max(0, card.base_cost + discount[2])
-                            card.discount = discount
+                            card.discount.append(discount)
                         elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
                             card.cost = discount[2]
-                            card.discount = discount
+                            card.discount.append(discount)
                         elif "tous" in discount[1]:
                             card.cost = max(0, card.base_cost + discount[2])
-                            card.discount = discount
+                            card.discount.append(discount)
         if self.augment:
             for card in self.hand:
                 card.cost = card.base_cost
@@ -471,7 +488,6 @@ class Player:
                     if card.type.lower() == augment[0]:
                         if augment[2] > 0:
                             card.cost += augment[2]
-
 
     def mana_spend(self, nb):
         self.mana -= nb

@@ -57,6 +57,7 @@ class CardSprite(pygame.sprite.Sprite):
         self.attaque = None
         self.pv = None
         self.atq_remain = None
+        self.cost = None
 
         self.color = (128,128,128)
 
@@ -109,6 +110,7 @@ class CardSprite(pygame.sprite.Sprite):
             except:
                 if logline['impregnation_'+on_board_id] != -99:
                     self.description += [" Imprégnation" + str(logline['impregnation_'+on_board_id])]
+                self.cost = logline['cost_'+on_board_id]
         border = 1
         self.image.fill(self.color)
         if logline is not None:
@@ -127,8 +129,9 @@ class CardSprite(pygame.sprite.Sprite):
                 color = 'white'
             name = default_font[16].render(self.name, True, color)
             self.image.blit(name, (5,15))
-            atq = default_font[32].render(str(self.attaque), True, 'white')
-            self.image.blit(atq, (10, 120))
+            if self.attaque is not None:
+                atq = default_font[32].render(str(self.attaque), True, 'white')
+                self.image.blit(atq, (10, 120))
             for i in range(len(self.description)):
                 descr = default_font[16].render(self.description[i], True, 'white')
                 self.image.blit(descr, (10, 50 + 10 * i))
@@ -140,8 +143,13 @@ class CardSprite(pygame.sprite.Sprite):
                     color = 'white'
             except:
                 color = "white"
-            pv = default_font[32].render(str(self.pv), True, color)
-            self.image.blit(pv, (80, 120))
+            if self.pv is not None:
+                pv = default_font[32].render(str(self.pv), True, color)
+                self.image.blit(pv, (80, 120))
+            if self.cost is not None:
+                cost = default_font[16].render(str(self.cost), True, color)
+                self.image.blit(cost, (5, 30))
+
 
 
 class PlayerSprite(pygame.sprite.Sprite):
@@ -209,6 +217,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.mana_max = logline['mana_max_'+role]
         self.surcharge = logline['surcharge_'+role]
         self.pv, self.pv_max = logline['pv_'+role], logline['pv_max_'+role]
+        self.cost = 0
         self.armor = logline['armor_'+role]
         self.attaque = logline['attaque_'+role]
 

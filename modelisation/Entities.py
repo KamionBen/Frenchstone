@@ -143,8 +143,7 @@ class Plateau:
 
         for player in self.players:
             player.set_deck(class_files[player.classe])
-
-        # shuffle(self.players)  ## Il ne faut probablement pas shuffle les joueurs, mais plutôt les faire alterner dans le main
+            player.initial_deck = player.deck
 
         """ Mélange des decks et tirage de la main de départ """
         for player in self.players:
@@ -379,7 +378,7 @@ class Player:
         self.hero = Hero(heroes[self.classe][0])  # Premier héros par défaut
 
         # Cartes
-        self.deck = CardGroup()  # Le tas de cartes à l'envers
+        self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()  # Les cartes sur le "terrain"
         self.last_card = "" # la dernière carte jouée par le joueur
@@ -463,8 +462,9 @@ class Player:
                             target.health += servant.effects["aura"][2][1]
                             target.base_health += servant.effects["aura"][2][1]
 
-
     def apply_discount(self):
+        for card in self.hand:
+            card.cost = card.base_cost
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.hero.weapon is not None:
             for corsaire in [x for x in self.hand if x.name == "Corsaire de l'effroi"]:
                 corsaire.cost = max(0, corsaire.base_cost - self.hero.weapon.attack - self.hero.attack)
@@ -473,17 +473,16 @@ class Player:
                 for card in self.hand:
                     if card.type.lower() == discount[0] and discount not in card.discount:
                         if discount[1] != "" and discount[1] in card.genre and discount[2] < 0:
-                            card.cost = max(0, card.base_cost + discount[2])
+                            card.cost = max(0, card.cost + discount[2])
                             card.discount.append(discount)
                         elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
                             card.cost = discount[2]
                             card.discount.append(discount)
                         elif "tous" in discount[1]:
-                            card.cost = max(0, card.base_cost + discount[2])
+                            card.cost = max(0, card.cost + discount[2])
                             card.discount.append(discount)
         if self.augment:
             for card in self.hand:
-                card.cost = card.base_cost
                 for augment in self.augment:
                     if card.type.lower() == augment[0]:
                         if augment[2] > 0:

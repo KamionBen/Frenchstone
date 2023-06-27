@@ -2692,6 +2692,79 @@
         "attack": 6,
         "health": 5,
         "effects": {"magnetisme":  1}
+    },
+    {
+        "id": 222,
+        "name": "Goule infectieuse",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 5,
+        "health": 4,
+        "effects": {"rale d'agonie": ["rale d'agonie", ["serviteur", "allié", "aléatoire"], ["invocation", ["allié"], "Goule infectieuse"]]}
+    },
+    {
+        "id": 223,
+        "name": "Ini Glissorage",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 4,
+        "health": 4,
+        "effects": {"cri de guerre":  ["boosted_copy", ["serviteur", "allié", "choisi", "Méca"], ["ruée", "bouclier divin", "furie des vents"]],
+        "legendaire":  1}
+    },
+    {
+        "id": 224,
+        "name": "Institutrice de transposition",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 4,
+        "health": 4,
+        "effects": {"cri de guerre":  ["echange", ["serviteur", "ennemi", "choisi"], ["deck", "serviteur", "ennemi"]]}
+    },
+    {
+        "id": 225,
+        "name": "Magatha l'antimusique",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {"cri de guerre":  ["pioche", ["allié", "give_spells"], 5]}
+    },
+    {
+        "id": 226,
+        "name": "Nettoyeur a vapeur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {"cri de guerre":  ["nettoyeur a vapeur", [""], ""]}
+    },
+    {
+        "id": 227,
+        "name": "Plombiere bourbeuse",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {"aura":  ["augment", ["serviteur", "tous", "", ""], 2]}
     }
 ]
 

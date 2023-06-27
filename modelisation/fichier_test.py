@@ -49,6 +49,10 @@ def generate_legal_vector_test(state):
                                 for j in range(len(player.servants)):
                                     if "Mort-vivant" in player.servants[j].genre:
                                         legal_actions[16 * i + j + 3] = True
+                            elif "Méca" in player.hand[i].effects["cri de guerre"][1]:
+                                for j in range(len(player.servants)):
+                                    if "Méca" in player.servants[j].genre:
+                                        legal_actions[16 * i + j + 3] = True
                             else:
                                 for j in range(len(player.servants)):
                                     legal_actions[16 * i + j + 3] = True

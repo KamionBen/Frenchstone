@@ -240,6 +240,14 @@ class Plateau:
                             servant.effects["réincarnation"] = 0
                     dead_servants.append(servant)
                     dead_servants_player.append(servant)
+                    if servant.name in ["Vaillefendre cavalier de la guerre", "Blaumeux cavaliere de la famine", "Korth'azz cavalier de la mort", "Zeliek cavalier de la conquete"]:
+                        player.cavalier_apocalypse.append(servant.name)
+                        player.cavalier_apocalypse = list(set(player.cavalier_apocalypse))
+                        if len(player.cavalier_apocalypse) == 4:
+                            if player == self.players[0]:
+                                self.players[1].damage(1000)
+                            else:
+                                self.players[0].damage(1000)
             if cards_impregnation and dead_servants_player:
                 for card in cards_impregnation:
                     card.effects["impregnation"][1] -= len(dead_servants_player)
@@ -386,7 +394,7 @@ class Player:
         self.mana, self.mana_max, self.mana_final = 0, 0, 10
         self.surcharge = 0
         self.discount_next, self.augment = [], []
-        self.dead_undeads, self.oiseaux_libres = [], 0
+        self.dead_undeads, self.oiseaux_libres, self.cavalier_apocalypse = [], 0, []
 
     def start_game(self):
         self.deck.shuffle()
@@ -405,6 +413,12 @@ class Player:
             self.pick()
         else:
             self.hero.fatigue += 1
+        if "murmegivre" in self.hero.effects:
+            self.discount_next.append(["murmegivre"])
+            if self.hero.effects["murmegivre"] == 0:
+                self.hero.damage(1000)
+            else:
+                self.hero.effects["murmegivre"] -= 1
         self.hero.damage(self.hero.fatigue)
         self.hero.reset()
         self.mana_grow()
@@ -481,6 +495,9 @@ class Player:
                         elif "tous" in discount[1]:
                             card.cost = max(0, card.cost + discount[2])
                             card.discount.append(discount)
+                    elif discount[0] == "murmegivre":
+                        card.cost = 0
+                        card.discount.append(discount)
         if self.augment:
             for card in self.hand:
                 for augment in self.augment:

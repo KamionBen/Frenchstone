@@ -14,14 +14,14 @@ def generate_legal_vector_test(state):
     """ Découverte """
     if state.cards_chosen or state.cards_dragage:
         legal_actions[0] = False
-        for i in range(241, 241 + len(state.cards_chosen) if state.cards_chosen else 241 + len(state.cards_dragage)):
+        for i in range(241, 241 + len(state.cards_chosen[0]) if state.cards_chosen else 241 + len(state.cards_dragage[0])):
             legal_actions[i] = True
-        if state.cards_chosen and len(state.cards_chosen) == 4 and state.cards_chosen[3] == "choix mystere":
+        if state.cards_chosen and len(state.cards_chosen[0]) == 4 and state.cards_chosen[0][3] == "choix mystere":
             legal_actions[244] = True
         return legal_actions
 
     if state.cards_entrave:
-        for i in range(241, 241 + len(state.cards_entrave)):
+        for i in range(241, 241 + len(state.cards_entrave[0])):
             legal_actions[i] = True
         return legal_actions
 
@@ -106,7 +106,7 @@ def generate_legal_vector_test(state):
                             else:
                                 if "if_weapon" in player.hand[i].effects["cri de guerre"][1] and player.hero.weapon is not None \
                                         or "if_death_undead" in player.hand[i].effects["cri de guerre"][1] and player.dead_undeads \
-                                        or "if_dragon_hand" in player.hand[i].effects["cri de guerre"][1] and [x for x in player.hand if "Dragon" in x.genre] \
+                                        or "if_dragon_hand" in player.hand[i].effects["cri de guerre"][1] and [x for x in player.hand if "Dragon" in x.genre and x != player.hand[i]] \
                                         or "if_alone" in player.hand[i].effects["cri de guerre"][1] and len(player.servants) == 0\
                                         or "if_spell" in player.hand[i].effects["cri de guerre"][1] and player.hand[i].effects["cri de guerre"][2] != 0:
                                     legal_actions[16 * i + 2] = True

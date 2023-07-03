@@ -18,6 +18,7 @@ classes_heros_old = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Drui
                  "Chevalier de la mort"]
 classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
                  "Chevalier de la mort"]
+all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"]
 
 def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
@@ -179,6 +180,11 @@ class Plateau:
                         player.deck.cards.insert(0, Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1])))
                     except:
                         player.deck.cards.insert(0, Card(**random.choice([x for x in all_servants if x["decouvrable"] == 1])))
+                elif "damage" in servant.effects["aura"]:
+                    if "tous" in servant.effects["aura"][1]:
+                        for entity in [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards:
+                            if entity != servant:
+                                entity.damage(servant.effects["aura"][2])
         if "Rock en fusion" in [x.name for x in adv.hand]:
             rock_en_fusion = [x for x in adv.hand if x.name == "Rock en fusion"][0]
             adv.hand.remove(rock_en_fusion)
@@ -394,7 +400,7 @@ class Player:
         self.mana, self.mana_max, self.mana_final = 0, 0, 10
         self.surcharge = 0
         self.discount_next, self.augment = [], []
-        self.dead_undeads, self.oiseaux_libres, self.cavalier_apocalypse = [], 0, []
+        self.dead_undeads, self.oiseaux_libres, self.cavalier_apocalypse, self.genre_joues = [], 0, [], []
 
     def start_game(self):
         self.deck.shuffle()
@@ -521,11 +527,19 @@ class Player:
     def pick(self):
         """ Prendre la première carte du deck et l'ajouter à sa main """
         if len(self.hand) < 10:
-            self.hand.add(self.deck.pick_one())
-            if "draw" in self.hero.effects:
-                self.hero.damage(self.hero.effects["draw"][2])
+            if self.deck.cards:
+                self.hand.add(self.deck.pick_one())
+                if "draw" in self.hero.effects:
+                    self.hero.damage(self.hero.effects["draw"][2])
+            else:
+                self.hero.fatigue += 1
+                self.hero.damage(self.hero.fatigue)
         else:
-            self.deck.pick_one()
+            if self.deck.cards:
+                self.deck.pick_one()
+            else:
+                self.hero.fatigue += 1
+                self.hero.damage(self.hero.fatigue)
             # raise PermissionError("Il a plus de cartes en main que de place prévue dans le log")
 
     def pick_multi(self, nb):

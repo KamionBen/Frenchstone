@@ -3201,6 +3201,43 @@
         "attack": 5,
         "health": 4,
         "effects": {"ruée": 1, "rale d'agonie":  ["invocation", ["allié", "Méca", "aléatoire", "cout", "<=3"], 2]}
+    },
+    {
+        "id": 264,
+        "name": "Amalgame instrumental",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 6,
+        "health": 6,
+        "effects": {"legendaire": 1, "cri de guerre":  ["boost", ["self", "chaque type"],
+            ["ruée", "vol de vie", "bouclier divin", "provocation", "furie des vents", "camouflage", "reincarnation", "toxicite"]]}
+    },
+    {
+        "id": 265,
+        "name": "Baron Geddon",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 7,
+        "health": 7,
+        "effects": {"aura": ["damage", ["tous", "tous", "end_turn"], 2], "legendaire":  1}
+    },
+    {
+        "id": 266,
+        "name": "Champion de hurlevent",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 7,
+        "health": 7,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "tous", "alive"], [1, 1]]}
     }
 ]
 

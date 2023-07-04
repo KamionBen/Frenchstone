@@ -7,7 +7,7 @@ plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 def generate_legal_vector_test(state):
     """ Gestion des actions légales """
-    legal_actions = [False] * 255
+    legal_actions = [False] * 315
     player = state.players[0]
     adv = state.players[1]
     
@@ -31,7 +31,7 @@ def generate_legal_vector_test(state):
     """ Quelles cartes peut-on jouer ? Et qur quelles cibles le cas échéant ? """
     for i in range(len(player.hand)):
         if player.hand[i].cost <= player.mana and "entrave" not in player.hand[i].effects:
-            if len(player.servants) != 7 and player.hand[i].type == "Serviteur":
+            if len(player.servants) + len(player.lieux) < 7 and player.hand[i].type == "Serviteur":
 
                 """ Serviteurs avec cris de guerre ciblés """
                 if "cri de guerre" in player.hand[i].effects and "choisi" in player.hand[i].effects["cri de guerre"][1]:
@@ -177,8 +177,8 @@ def generate_legal_vector_test(state):
                             legal_actions[16 * i + j + 3] = True
             elif player.hand[i].type.lower() == "sort":
                 legal_actions[16 * i + 1] = True
-
-
+            elif player.hand[i].type.lower() == "lieu" and len(player.servants) + len(player.lieux) < 7:
+                legal_actions[16 * i + 1] = True
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     is_provoc = False
@@ -199,7 +199,6 @@ def generate_legal_vector_test(state):
                     legal_actions[161 + j + 1] = True
 
     """ Nos serviteurs peuvent attaquer """
-
     for i in range(len(player.servants)):
         if player.servants[i].remaining_atk * player.servants[i].attack > 0 and "en sommeil" not in player.servants[i].effects:
             if not is_provoc:
@@ -235,12 +234,23 @@ def generate_legal_vector_test(state):
         if player.mana >= 1 and "echangeable" in player.hand[i].effects:
             legal_actions[245 + i] = True
 
+    """ Lieux """
+    for i in range(len(player.lieux)):
+        if player.lieux[i].attack == 1 and "choisi" in player.lieux[i].effects["use"][1]:
+            if player.lieux[i].effects["use"][1][0] == "tous":
+                legal_actions[255 + 8 * i] = True
+                legal_actions[255 + 8 * i + 7] = True
+                for m in range(len(player.servants)):
+                    legal_actions[255 + 8 * i + m + 1] = True
+                for n in range(len(adv.servants)):
+                    if "camouflage" not in adv.servants[n].effects:
+                        legal_actions[255 + 8 * i + n + 8] = True
+
     return legal_actions
 
 
 def calc_advantage_minmax(state):
-    advantage = (len(state.players[0].hand) - len(state.players[1].hand)) + 0.8 * (
-                len(state.players[0].hand) / max(1, len(state.players[1].hand)))
+    advantage = (len(state.players[0].hand) - len(state.players[1].hand)) + 0.8 * (len(state.players[0].hand) / max(1, len(state.players[1].hand)))
     for servant in state.players[0].servants:
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
@@ -308,11 +318,11 @@ logs = []
 beginning = time.perf_counter()
 for i in range(3):
     print(i)
-    # print('------------------------------------------------------------------------------')
-    # print('------------------------------------------------------------------------------')
-    # print('------------------------------------------------------------------------------')
-    # print('------------------------------------------------------------------------------')
-    # print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------')
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)
         plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)

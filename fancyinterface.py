@@ -108,9 +108,12 @@ class CardSprite(pygame.sprite.Sprite):
                 if logline['furiedesvents_'+on_board_id] == 1:
                     self.description += [" Furie des vents"]
             except:
-                if logline['impregnation_'+on_board_id] != -99:
-                    self.description += [" Imprégnation" + str(logline['impregnation_'+on_board_id])]
-                self.cost = logline['cost_'+on_board_id]
+                try:
+                    if logline['impregnation_'+on_board_id] != -99:
+                        self.description += [" Imprégnation" + str(logline['impregnation_'+on_board_id])]
+                    self.cost = logline['cost_'+on_board_id]
+                except:
+                    pass
         border = 1
         self.image.fill(self.color)
         if logline is not None:
@@ -173,6 +176,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         """ Cards """
         self.hand = pygame.sprite.Group()
         self.servant = pygame.sprite.Group()
+        self.lieux = pygame.sprite.Group()
 
         """ State """
         self.is_playing = False
@@ -232,6 +236,9 @@ class PlayerSprite(pygame.sprite.Sprite):
         servant = [logline[f"serv{i+1}_{role}"] for i in range(7)]
         self.servant = pygame.sprite.Group(*[CardSprite(e) for e in servant if e != -99])
         self.servant.update(logline)
+        lieux = [logline[f"lieu{i+1}_{role}"] for i in range(7)]
+        self.lieux = pygame.sprite.Group(*[CardSprite(e) for e in lieux if e != -99])
+        self.lieux.update(logline)
 
         """ Update sprite """
         self.image.fill(self.color)
@@ -279,6 +286,12 @@ class PlayerSprite(pygame.sprite.Sprite):
         for x, card in enumerate(self.servant):
             self.image.blit(card.image, (pos_x + (card.width + gap) * x, height[self.position]))
 
+        """ Lieux """
+        gap = 5
+        pos_x = 900 - ((100 + gap) * len(self.lieux))/2
+        height = {'top': 170, 'bottom': 10}
+        for x, card in enumerate(self.lieux):
+            self.image.blit(card.image, (pos_x + (card.width + gap) * x, height[self.position]))
 
 class FancyInterface:
     def __init__(self, log_filename, debug=False, resolution=(1280, 720)):

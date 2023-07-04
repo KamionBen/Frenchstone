@@ -1474,7 +1474,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"cri de guerre":  ["add_deck", "Instantane de Feplouf"], "legendaire":  1}
+        "effects": {"cri de guerre":  ["add_deck", ["allié"], ["Instantane de Feplouf"]], "legendaire":  1}
     },
     {
         "id": 121,
@@ -2064,7 +2064,7 @@
         "cost": 4,
         "attack": 4,
         "health": 5,
-        "effects": {"cri de guerre":  ["add_deck", ["colossal", 3], "end_deck"], "legendaire":  1}
+        "effects": {"cri de guerre":  ["add_deck", ["allié", "colossal", 3], "end_deck"], "legendaire":  1}
     },
     {
         "id": 170,
@@ -2911,7 +2911,7 @@
         "cost": 5,
         "attack": 5,
         "health": 6,
-        "effects": {"provocation": 1, "cri de guerre":  ["add_deck", "Sentinelle engloutie", "end_deck"]}
+        "effects": {"provocation": 1, "cri de guerre":  ["add_deck", ["allié"], ["Sentinelle engloutie"], "end_deck"]}
     },
     {
         "id": 240,
@@ -3238,6 +3238,162 @@
         "attack": 7,
         "health": 7,
         "effects": {"aura": ["boost", ["serviteur", "allié", "tous", "alive"], [1, 1]]}
+    },
+    {
+        "id": 267,
+        "name": "Dr Boum",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 7,
+        "health": 7,
+        "effects": {"cri de guerre": ["invocation", ["allié"], ["Ro'boum", "Ro'boum"]], "legendaire":  1}
+    },
+    {
+        "id": 268,
+        "name": "Ro'boum",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"rale d'agonie":  ["damage", ["tous", "ennemi", "aléatoire"], [1, 2, 3, 4]]}
+    },
+    {
+        "id": 269,
+        "name": "Golem pecheur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 2,
+        "health": 2,
+        "effects": {"impregnation":  ["Golem pecheur impregne", 3]}
+    },
+    {
+        "id": 270,
+        "name": "Golem pecheur impregne",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 7,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre":  ["boost", ["self"], "last_3_servants"]}
+    },
+    {
+        "id": 271,
+        "name": "Hareng saur",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 3,
+        "health": 12,
+        "effects": {"provocation": 1, "aura": ["boost", ["serviteur", "allié", "tous", "alive"], "camouflage"]}
+    },
+    {
+        "id": 272,
+        "name": "Lor'themar Theron",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 7,
+        "health": 7,
+        "effects": {"cri de guerre":  ["boost", ["deck", "serviteur", "tous", "allié"], "double"], "legendaire":  1}
+    },
+    {
+        "id": 273,
+        "name": "Mortecaille rampant",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 5,
+        "health": 9,
+        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "if_spell", 3], 0, 3]}
+    },
+    {
+        "id": 274,
+        "name": "Nozdormu l'eternel",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Dragon"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 8,
+        "health": 8,
+        "effects": {"legendaire":  1}
+    },
+    {
+        "id": 275,
+        "name": "Prison de Yogg Saron",
+        "classe": "Neutre",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 1,
+        "health": 3,
+        "effects": {"use": ["random_spell", ["tous", "tous", "choisi"], 4], "legendaire":  1}
+    },
+    {
+        "id": 276,
+        "name": "Concert promo drake",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Dragon"],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"echangeable":  1, "cri de guerre":  ["destroy", ["serviteur", "ennemi", "choisi"], ""]}
+    },
+    {
+        "id": 277,
+        "name": "Drake primordial",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": ["Dragon"],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 4,
+        "health": 8,
+        "effects": {"provocation":  1, "cri de guerre":  ["damage", ["serviteur", "tous"], 2]}
+    },
+    {
+        "id": 278,
+        "name": "Fils de hodir",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"cri de guerre":  ["add_deck", ["allié"], ["Tyran givre"] * 4]}
+    },
+    {
+        "id": 279,
+        "name": "Tyran givre",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"invoked_drawn":  1}
     }
 ]
 

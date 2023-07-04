@@ -96,6 +96,9 @@ for i in range(7):
     empty_action_line[f"voldevie_serv{i + 1}_j"] = -99
     empty_action_line[f"toxicite_serv{i + 1}_j"] = -99
     empty_action_line[f"furiedesvents_serv{i + 1}_j"] = -99
+    empty_action_line[f"lieu{i + 1}_j"] = -99
+    empty_action_line[f"atq_lieu{i + 1}_j"] = -99
+    empty_action_line[f"pv_lieu{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
     empty_action_line[f"atq_serv{i + 1}_adv"] = -99
     empty_action_line[f"pv_serv{i + 1}_adv"] = -99
@@ -112,6 +115,9 @@ for i in range(7):
     empty_action_line[f"voldevie_serv{i + 1}_adv"] = -99
     empty_action_line[f"toxicite_serv{i + 1}_adv"] = -99
     empty_action_line[f"furiedesvents_serv{i + 1}_adv"] = -99
+    empty_action_line[f"lieu{i + 1}_adv"] = -99
+    empty_action_line[f"atq_lieu{i + 1}_adv"] = -99
+    empty_action_line[f"pv_lieu{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_j"] = -99
         empty_action_line[f"is_servant{i + 1}_{all_servants[j]['name']}_adv"] = -99
@@ -244,6 +250,9 @@ class Plateau:
                     else:
                         if "réincarnation" in servant.effects:
                             servant.effects["réincarnation"] = 0
+                    player.all_dead_servants.append(servant)
+                    if len(player.all_dead_servants) > 3:
+                        player.all_dead_servants = player.all_dead_servants[-3:]
                     dead_servants.append(servant)
                     dead_servants_player.append(servant)
                     if servant.name in ["Vaillefendre cavalier de la guerre", "Blaumeux cavaliere de la famine", "Korth'azz cavalier de la mort", "Zeliek cavalier de la conquete"]:
@@ -259,7 +268,10 @@ class Plateau:
                     card.effects["impregnation"][1] -= len(dead_servants_player)
                     if card.effects["impregnation"][1] <= 0:
                         player.hand.remove(card)
-                        player.hand.add(get_card(card.effects["impregnation"][0], all_cards))
+                        new_card = get_card(card.effects["impregnation"][0], all_cards)
+                        player.hand.add(new_card)
+                        if new_card.name == "Golem pecheur impregne":
+                            new_card.effects["cri de guerre"][2] = [sum([x.base_attack for x in player.all_dead_servants]), sum([x.base_health for x in player.all_dead_servants])]
         return dead_servants, dead_servants_player
 
     def targets_hp(self):
@@ -272,7 +284,7 @@ class Plateau:
         elif player.classe == "Chasseur":
             targets.append(adv.hero)
         elif player.classe in ["Paladin", "Chevalier de la mort"]:
-            if len(player.servants) < 7:
+            if len(player.servants) + len(player.lieux) < 7:
                 targets.append(player.hero)
         else:
             targets.append(player.hero)
@@ -380,6 +392,15 @@ class Plateau:
                 action_line[f"furiedesvents_serv{i + 1}_adv"] = adv.servants[i].effects["furie des vents"]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
+        for i in range(len(player.lieux)):
+            action_line[f"lieu{i + 1}_j"] = player.lieux[i].id
+            action_line[f"atq_lieu{i + 1}_j"] = player.lieux[i].attack
+            action_line[f"pv_lieu{i + 1}_j"] = player.lieux[i].health
+        for i in range(len(adv.lieux)):
+            action_line[f"lieu{i + 1}_adv"] = adv.lieux[i].id
+            action_line[f"atq_lieu{i + 1}_adv"] = adv.lieux[i].attack
+            action_line[f"pv_lieu{i + 1}_adv"] = adv.lieux[i].health
+
         return action_line
 
 
@@ -400,6 +421,7 @@ class Player:
         self.mana, self.mana_max, self.mana_final = 0, 0, 10
         self.surcharge = 0
         self.discount_next, self.augment = [], []
+        self.all_dead_servants = []
         self.dead_undeads, self.oiseaux_libres, self.cavalier_apocalypse, self.genre_joues = [], 0, [], []
 
     def start_game(self):
@@ -425,6 +447,8 @@ class Player:
                 self.hero.damage(1000)
             else:
                 self.hero.effects["murmegivre"] -= 1
+        for lieu in self.lieux:
+            lieu.attack += 0.5
         self.hero.damage(self.hero.fatigue)
         self.hero.reset()
         self.mana_grow()

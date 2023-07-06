@@ -233,6 +233,8 @@ class Plateau:
                     self.update()
                 if "suicide" in servant.effects["aura"]:
                     servant.blessure = 1000
+                if "Thaddius" in servant.effects["aura"]:
+                    servant.effects["aura"][2] = 1 if servant.effects["aura"][2] == 0 else 0
         if [x for x in player.hand if "start_turn" in x.effects]:
             for servant in [x for x in player.hand if "start_turn" in x.effects]:
                 if "start_turn" in servant.effects:
@@ -244,6 +246,7 @@ class Plateau:
                         new_servant = random.choice(potential_transform)
                         new_servant.cost = new_cost
                         player.hand.add(new_servant)
+        player.apply_discount()
 
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
@@ -280,11 +283,15 @@ class Plateau:
                 for card in cards_impregnation:
                     card.effects["impregnation"][1] -= len(dead_servants_player)
                     if card.effects["impregnation"][1] <= 0:
-                        player.hand.remove(card)
-                        new_card = get_card(card.effects["impregnation"][0], all_cards)
-                        player.hand.add(new_card)
-                        if new_card.name == "Golem pecheur impregne":
-                            new_card.effects["cri de guerre"][2] = [sum([x.base_attack for x in player.all_dead_servants]), sum([x.base_health for x in player.all_dead_servants])]
+                        if card.name == "Sire Denathrius":
+                            card.effects["impregnation"][1] = 2
+                            card.effects["cri de guerre"][1][3] += 1
+                        else:
+                            player.hand.remove(card)
+                            new_card = get_card(card.effects["impregnation"][0], all_cards)
+                            player.hand.add(new_card)
+                            if new_card.name == "Golem pecheur impregne":
+                                new_card.effects["cri de guerre"][2] = [sum([x.base_attack for x in player.all_dead_servants]), sum([x.base_health for x in player.all_dead_servants])]
         return dead_servants, dead_servants_player
 
     def targets_hp(self):
@@ -432,11 +439,12 @@ class Player:
         self.serv_this_turn = CardGroup()
         self.last_card = "" # la dernière carte jouée par le joueur
 
-        self.mana, self.mana_max, self.mana_final = 0, 0, 10
+        self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge = 0
         self.discount_next, self.augment = [], []
         self.all_dead_servants = []
-        self.dead_undeads, self.oiseaux_libres, self.cavalier_apocalypse, self.genre_joues = [], 0, [], []
+        self.dead_undeads, self.cavalier_apocalypse, self.genre_joues = [], [], []
+        self.oiseaux_libres, self.geolier = 0, 0
 
     def start_game(self):
         self.deck.shuffle()
@@ -532,8 +540,11 @@ class Player:
         for card in self.hand:
             card.cost = card.base_cost
             if "reduc" in card.effects:
-                if "self" in card.effects["reduc"] and "len_hand" in card.effects["reduc"]:
-                    card.cost = card.base_cost - len(self.hand) + 1
+                if "self" in card.effects["reduc"] :
+                    if "len_hand" in card.effects["reduc"]:
+                        card.cost = card.base_cost - len(self.hand) + 1
+                    elif "total_mana_spend_spells" in card.effects["reduc"]:
+                        card.cost = card.base_cost - self.mana_spend_spells
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.hero.weapon is not None:
             for corsaire in [x for x in self.hand if x.name == "Corsaire de l'effroi"]:
                 corsaire.cost = max(0, corsaire.base_cost - self.hero.weapon.attack - self.hero.attack)
@@ -562,6 +573,11 @@ class Player:
                     if card.type.lower() == augment[0]:
                         if augment[2] > 0:
                             card.cost += augment[2]
+        if [x for x in self.servants if "aura" in x.effects and "Thaddius" in x.effects["aura"]]:
+            reduction = [x for x in self.servants if "aura" in x.effects and "Thaddius" in x.effects["aura"]][0].effects["aura"][2]
+            for card in self.hand:
+                if reduction == card.cost % 2:
+                    card.cost = 1
 
     def mana_spend(self, nb):
         self.mana -= nb
@@ -828,7 +844,8 @@ class Card:
         if self.name == "Bulleur" and nb == 1:
             self.health = 0
         if "bouclier divin" in self.effects and nb != 0:
-            self.effects.pop("bouclier divin")
+            if self.effects["bouclier divin"] != 2:
+                self.effects.pop("bouclier divin")
         else:
             self.health -= nb
             self.damage_taken = True if nb > 0 else False

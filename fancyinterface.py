@@ -81,7 +81,7 @@ class CardSprite(pygame.sprite.Sprite):
             try:
                 if on_board_id.split('_')[-1] == 'j':
                     self.atq_remain = logline['atq_remain_'+on_board_id]
-                if logline['divineshield_'+on_board_id] == 1:
+                if logline['divineshield_'+on_board_id] >= 1:
                     self.description += [" Bouclier divin"]
                 if logline['provocation_'+on_board_id] == 1:
                     self.description += [" Provocation"]

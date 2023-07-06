@@ -188,9 +188,23 @@ class Plateau:
                         player.deck.cards.insert(0, Card(**random.choice([x for x in all_servants if x["decouvrable"] == 1])))
                 elif "damage" in servant.effects["aura"]:
                     if "tous" in servant.effects["aura"][1]:
-                        for entity in [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards:
-                            if entity != servant:
-                                entity.damage(servant.effects["aura"][2])
+                        if not "aléatoire" in servant.effects["aura"][1]:
+                            for entity in [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards:
+                                if entity != servant:
+                                    entity.damage(servant.effects["aura"][2])
+                        elif "ennemi" in servant.effects["aura"][1]:
+                            target = random.choice([player.hero] + player.servants.cards)
+                            target.damage(servant.effects["aura"][2])
+                elif "invocation" in servant.effects["aura"]:
+                    if "until_full" in servant.effects["aura"][1]:
+                        while len(adv.servants) + len(adv.lieux) < 7:
+                            adv.servants.add(get_card(servant.effects["aura"][2], all_servants))
+        for servant in player.servants:
+            if "aura" in servant.effects and "each_turn" in servant.effects["aura"][1]:
+                if "invocation" in servant.effects["aura"]:
+                    if "until_full" in servant.effects["aura"][1]:
+                        while len(player.servants) + len(player.lieux) < 7:
+                            player.servants.add(get_card(servant.effects["aura"][2], all_servants))
         if "Rock en fusion" in [x.name for x in adv.hand]:
             rock_en_fusion = [x for x in adv.hand if x.name == "Rock en fusion"][0]
             adv.hand.remove(rock_en_fusion)
@@ -217,6 +231,8 @@ class Plateau:
                         servant.health -= 1
                         servant.base_health -= 1
                     self.update()
+                if "suicide" in servant.effects["aura"]:
+                    servant.blessure = 1000
         if [x for x in player.hand if "start_turn" in x.effects]:
             for servant in [x for x in player.hand if "start_turn" in x.effects]:
                 if "start_turn" in servant.effects:
@@ -247,9 +263,6 @@ class Plateau:
                 if servant.is_dead():
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
-                    else:
-                        if "réincarnation" in servant.effects:
-                            servant.effects["réincarnation"] = 0
                     player.all_dead_servants.append(servant)
                     if len(player.all_dead_servants) > 3:
                         player.all_dead_servants = player.all_dead_servants[-3:]
@@ -415,7 +428,8 @@ class Player:
         # Cartes
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
-        self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()  # Les cartes sur le "terrain"
+        self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
+        self.serv_this_turn = CardGroup()
         self.last_card = "" # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final = 0, 0, 10
@@ -461,6 +475,7 @@ class Player:
         self.hero.attack = 0
         self.hero.damage_this_turn = 0
         self.dead_undeads = []
+        self.serv_this_turn = CardGroup()
         self.augment = []
         if self.hero.remaining_atk == 0 and self.hero.gel == 1:
             self.hero.gel = 0
@@ -470,6 +485,13 @@ class Player:
             if "draw" in self.hero.effects and "temp_turn" in self.hero.effects["draw"]:
                 self.hero.effects.pop("draw")
 
+        if self.discount_next:
+            for discount in self.discount_next:
+                if "end_turn" in discount:
+                    self.discount_next.remove(discount)
+                    for servant in self.servants:
+                        if discount in servant.discount:
+                            servant.discount.remove(discount)
         for servant in self.servants:
             servant.damage_taken = False
             if servant.name == "Goule fragile":
@@ -509,6 +531,9 @@ class Player:
     def apply_discount(self):
         for card in self.hand:
             card.cost = card.base_cost
+            if "reduc" in card.effects:
+                if "self" in card.effects["reduc"] and "len_hand" in card.effects["reduc"]:
+                    card.cost = card.base_cost - len(self.hand) + 1
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.hero.weapon is not None:
             for corsaire in [x for x in self.hand if x.name == "Corsaire de l'effroi"]:
                 corsaire.cost = max(0, corsaire.base_cost - self.hero.weapon.attack - self.hero.attack)
@@ -518,6 +543,9 @@ class Player:
                     if card.type.lower() == discount[0] and discount not in card.discount:
                         if discount[1] != "" and discount[1] in card.genre and discount[2] < 0:
                             card.cost = max(0, card.cost + discount[2])
+                            card.discount.append(discount)
+                        elif discount[2] >= 0:
+                            card.cost = max(0, discount[2])
                             card.discount.append(discount)
                         elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
                             card.cost = discount[2]
@@ -552,6 +580,9 @@ class Player:
         """ Prendre la première carte du deck et l'ajouter à sa main """
         if len(self.hand) < 10:
             if self.deck.cards:
+                while "invoked_drawn" in self.deck.cards[0].effects:
+                    if len(self.servants) + len(self.lieux) < 7:
+                        self.servants.add(self.deck.pick_one())
                 self.hand.add(self.deck.pick_one())
                 if "draw" in self.hero.effects:
                     self.hero.damage(self.hero.effects["draw"][2])

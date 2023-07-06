@@ -176,7 +176,20 @@ def generate_legal_vector_test(state):
                         if "Méca" in player.servants[j].genre:
                             legal_actions[16 * i + j + 3] = True
             elif player.hand[i].type.lower() == "sort":
-                legal_actions[16 * i + 1] = True
+                if "ciblage" in player.hand[i].effects:
+                    if "serviteur" in player.hand[i].effects["ciblage"]:
+                        if "ennemi" in player.hand[i].effects["ciblage"]:
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                    legal_actions[16 * i + j + 10] = True
+                        elif "tous" in player.hand[i].effects["ciblage"]:
+                            for j in range(len(player.servants)):
+                                legal_actions[16 * i + j + 3] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                    legal_actions[16 * i + j + 10] = True
+                else:
+                    legal_actions[16 * i + 1] = True
             elif player.hand[i].type.lower() == "lieu" and len(player.servants) + len(player.lieux) < 7:
                 legal_actions[16 * i + 1] = True
 
@@ -245,7 +258,6 @@ def generate_legal_vector_test(state):
                 for n in range(len(adv.servants)):
                     if "camouflage" not in adv.servants[n].effects:
                         legal_actions[255 + 8 * i + n + 8] = True
-
     return legal_actions
 
 

@@ -168,9 +168,10 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.color = color
 
         """ Hero """
-        self.attaque = 0
+        self.attaque, self.durabilite = 0, 0
         self.surcharge = 0
         self.armor = 0
+        self.cadavres = 0
         self.pv, self.pv_max = 30, 30
 
         """ Cards """
@@ -223,7 +224,9 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.pv, self.pv_max = logline['pv_'+role], logline['pv_max_'+role]
         self.cost = 0
         self.armor = logline['armor_'+role]
+        self.cadavres = logline['cadavres_' + role]
         self.attaque = logline['attaque_'+role]
+        self.durabilite = logline['durabilite_arme_' + role]
 
         """ Cards """
         if role == "j":
@@ -264,7 +267,9 @@ class PlayerSprite(pygame.sprite.Sprite):
         pseudo = default_font[32].render(f"{self.pseudo} ({self.classe})", True, color)
         mana = default_font[24].render(f"Mana : {self.mana}/{self.mana_max}", True, 'white')
         atq = default_font[32].render(str(self.attaque), True, 'white')
+        durabilite = default_font[20].render("dur : " + str(self.durabilite), True, 'white')
         armor = default_font[32].render(str(self.armor), True, 'white')
+        cadavres = default_font[20].render("cad : " + str(self.cadavres), True, 'white')
         if self.pv < self.pv_max:
             color = 'red'
         else:
@@ -276,8 +281,10 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.image.blit(pseudo, (950 - pseudo.get_width()/2, height[self.position][0]))
         self.image.blit(mana, (950 - mana.get_width() / 2, height[self.position][1]))
         self.image.blit(atq, (850 - atq.get_width() / 2, height[self.position][2]))
+        self.image.blit(durabilite, (830 - atq.get_width() / 2, height[self.position][1]))
         self.image.blit(pv, (950 - pv.get_width() / 2, height[self.position][2]))
         self.image.blit(armor, (1050 - armor.get_width() / 2, height[self.position][2]))
+        self.image.blit(cadavres, (1030 - atq.get_width() / 2, height[self.position][1]))
 
         """ Servants """
         gap = 5

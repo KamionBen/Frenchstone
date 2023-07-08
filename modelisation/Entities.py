@@ -54,6 +54,7 @@ empty_action_line = {"carte_jouee": "",
    "pv_max_j": -99, "pv_max_adv": -99,
    "nbre_cartes_j": -99,
    "nbre_cartes_adv": -99,
+   "cadavres_j": -99, "cadavres_adv": -99,
    "dispo_ph_j": -99,
    "cout_ph_j": -99,
    "arme_j": -99,
@@ -135,7 +136,7 @@ class Plateau:
                        'Druide': 'test_deck.csv',
                        'Voleur': 'test_deck.csv',
                        'Guerrier': 'test_deck.csv',
-                       'Chevalier de la mort': 'test_deck.csv',
+                       'Chevalier de la mort': 'test_dk.csv',
                        'Prêtre': 'test_deck.csv'
                        }
         self.cards_chosen = []
@@ -271,6 +272,7 @@ class Plateau:
                         player.all_dead_servants = player.all_dead_servants[-3:]
                     dead_servants.append(servant)
                     dead_servants_player.append(servant)
+                    player.cadavres += 1
                     if servant.name in ["Vaillefendre cavalier de la guerre", "Blaumeux cavaliere de la famine", "Korth'azz cavalier de la mort", "Zeliek cavalier de la conquete"]:
                         player.cavalier_apocalypse.append(servant.name)
                         player.cavalier_apocalypse = list(set(player.cavalier_apocalypse))
@@ -324,15 +326,17 @@ class Plateau:
         action_line["armor_j"], action_line["armor_adv"] = player.hero.armor, adv.hero.armor
         action_line["surcharge_j"], action_line["surcharge_adv"] = player.surcharge, adv.surcharge
         action_line["pv_max_j"], action_line["pv_max_adv"] = player.hero.base_health, adv.hero.base_health
+        action_line["cadavres_j"], action_line["cadavres_adv"] = player.cadavres, adv.cadavres
         action_line["nbre_cartes_j"], action_line["nbre_cartes_adv"] = len(player.hand), len(adv.hand)
         action_line["dispo_ph_j"], action_line["cout_ph_j"] = player.hero.dispo_pouvoir, player.hero.cout_pouvoir
-        action_line["arme_j"], action_line["arme_adv"] = player.hero.weapon, adv.hero.weapon
+        action_line["arme_j"] = player.hero.weapon.name if player.hero.weapon is not None else ""
+        action_line["arme_adv"] = adv.hero.weapon.name if adv.hero.weapon is not None else ""
         action_line["attaque_j"], action_line["attaque_adv"] = player.hero.attack, adv.hero.attack
         action_line["remaining_atk_j"] = player.hero.remaining_atk
         action_line["attack_arme_j"] = player.hero.weapon.attack if player.hero.weapon is not None else 0
         action_line["attack_arme_adv"] = adv.hero.weapon.attack if adv.hero.weapon is not None else 0
-        action_line["durabilite_arme_j"] = player.hero.weapon.durability if player.hero.weapon is not None else 0
-        action_line["durabilite_arme_adv"] = adv.hero.weapon.durability if adv.hero.weapon is not None else 0
+        action_line["durabilite_arme_j"] = player.hero.weapon.health if player.hero.weapon is not None else 0
+        action_line["durabilite_arme_adv"] = adv.hero.weapon.health if adv.hero.weapon is not None else 0
         action_line["pseudo_j"], action_line["pseudo_adv"] = player.name, adv.name
 
         """ HERO """
@@ -441,6 +445,7 @@ class Player:
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge = 0
+        self.cadavres = 0
         self.discount_next, self.augment = [], []
         self.all_dead_servants = []
         self.dead_undeads, self.cavalier_apocalypse, self.genre_joues = [], [], []
@@ -477,10 +482,11 @@ class Player:
         self.mana_reset()
         self.power_reset()
         self.servants.reset()
+        self.apply_weapon()
 
     def end_turn(self):
         """ Mise à jour de fin de tour """
-        self.hero.attack = 0
+        self.hero.attack, self.hero.inter_attack = 0, 0
         self.hero.damage_this_turn = 0
         self.dead_undeads = []
         self.serv_this_turn = CardGroup()
@@ -503,7 +509,7 @@ class Player:
         for servant in self.servants:
             servant.damage_taken = False
             if servant.name == "Goule fragile":
-                self.servants.remove(servant)
+                servant.blessure = 1000
             if "temp_turn" in servant.effects:
                 servant.attack -= servant.effects["temp_turn"][0]
                 servant.health -= servant.effects["temp_turn"][1]
@@ -579,6 +585,12 @@ class Player:
                 if reduction == card.cost % 2:
                     card.cost = 1
 
+    def apply_weapon(self):
+        if self.hero.weapon is not None:
+            self.hero.attack = self.hero.weapon.attack + self.hero.inter_attack
+        else:
+            self.hero.attack = self.hero.inter_attack
+
     def mana_spend(self, nb):
         self.mana -= nb
 
@@ -596,9 +608,12 @@ class Player:
         """ Prendre la première carte du deck et l'ajouter à sa main """
         if len(self.hand) < 10:
             if self.deck.cards:
-                while "invoked_drawn" in self.deck.cards[0].effects:
-                    if len(self.servants) + len(self.lieux) < 7:
+                while "invoked_drawn" in self.deck.cards[0].effects and len(self.servants) + len(self.lieux) < 7:
+                    if self.deck.cards[0].type == "Serviteur":
                         self.servants.add(self.deck.pick_one())
+                    else:
+                        self.servants.add(get_card(self.deck.cards[0].effects["invoked_drawn"], all_servants))
+                        self.deck.remove(self.deck.cards[0])
                 self.hand.add(self.deck.pick_one())
                 if "draw" in self.hero.effects:
                     self.hero.damage(self.hero.effects["draw"][2])
@@ -638,7 +653,7 @@ class Hero:
         self.cout_pouvoir_temp = 2
         self.effet_pouvoir = None
 
-        self.attack = 0
+        self.attack, self.inter_attack = 0, 0
         self.remaining_atk, self.has_attacked = 1, 0
         self.armor = 0
         self.gel = 0
@@ -665,7 +680,7 @@ class Hero:
         else:
             self.remaining_atk = 0
         self.damage_this_turn = 0
-        self.attack = self.weapon.attack if self.weapon is not None else 0
+        self.inter_attack = 0
 
     def reset_complete(self):
         """ Le reset de début de partie """
@@ -886,7 +901,7 @@ class Weapon:
         self.name = name
 
         self.attack = 0
-        self.durability = 0
+        self.health = 0
 
 """ FUNCTIONS """
 

@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Druide"), Player("OldIA", "Druide")]
+players = [Player("NewIA", "Chevalier de la mort"), Player("OldIA", "Druide")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -191,9 +191,16 @@ def generate_legal_vector_test(state):
                             for j in range(len(adv.servants)):
                                 if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
                                     legal_actions[17 * i + j + 11] = True
+                    elif "tous" in player.hand[i].effects["ciblage"]:
+                        if "ennemi" in player.hand[i].effects["ciblage"]:
+                            legal_actions[17 * i + 10] = True
+                            for j in range(len(adv.servants)):
+                                legal_actions[17 * i + j + 11] = True
                 else:
                     legal_actions[17 * i + 1] = True
             elif player.hand[i].type.lower() == "lieu" and len(player.servants) + len(player.lieux) < 7:
+                legal_actions[17 * i + 1] = True
+            elif player.hand[i].type.lower() == "arme":
                 legal_actions[17 * i + 1] = True
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
@@ -265,20 +272,23 @@ def generate_legal_vector_test(state):
 
 
 def calc_advantage_minmax(state):
-    advantage = (len(state.players[0].hand) - len(state.players[1].hand)) + 0.8 * (len(state.players[0].hand) / max(1, len(state.players[1].hand)))
-    for servant in state.players[0].servants:
+    player = state.players[0]
+    adv = state.players[1]
+    advantage = (len(player.hand) - len(adv.hand)) + 0.8 * (len(player.hand) / max(1, len(adv.hand)))
+    for servant in player.servants:
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage += 1.5 * servant.attack
-    for servant in state.players[1].servants:
+    for servant in adv.servants:
         advantage -= 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage -= 1.5 * servant.attack
-    advantage += 0.25 * (pow(state.players[1].hero.base_health - state.players[1].hero.health, 1.3) - pow(state.players[0].hero.base_health - state.players[0].hero.health, 1.3))
-    advantage += state.players[0].hero.attack
-    if state.players[0].hero.health <= 0:
+    advantage += 0.25 * (pow(adv.hero.base_health - adv.hero.health, 1.3) - pow(player.hero.base_health - player.hero.health, 1.3))
+    advantage += player.hero.attack
+    advantage += 0.02 * player.cadavres
+    if player.hero.health <= 0:
         return -500
-    elif state.players[1].hero.health <= 0:
+    elif adv.hero.health <= 0:
         return 500
 
     return round(advantage, 2)
@@ -331,7 +341,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-for i in range(5):
+for i in range(3):
     print(i)
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')

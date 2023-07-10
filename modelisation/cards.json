@@ -503,7 +503,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"réincarnation": 1}
+        "effects": {"reincarnation": 1}
     },
     {
         "id": 41,
@@ -1198,7 +1198,7 @@
         "cost": 2,
         "attack": 3,
         "health": 2,
-        "effects": {"aura": ["damage", ["serviteur", "tous", "conditional", "sort"], 1]}
+        "effects": {"aura": ["damage", ["serviteur", "tous", "conditional", "if_spell"], 1]}
     },
     {
         "id": 98,
@@ -1426,7 +1426,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre" : ["réincarnation", ["serviteur", "allié", "choisi", "Mort-vivant"], 1]}
+        "effects": {"cri de guerre" : ["reincarnation", ["serviteur", "allié", "choisi", "Mort-vivant"], 1]}
     },
     {
         "id": 117,
@@ -1450,7 +1450,7 @@
         "cost": 3,
         "attack": 5,
         "health": 4,
-        "effects": {"réincarnation" : 1, "cri de guerre":  ["suicide", ["self"], 1]}
+        "effects": {"reincarnation" : 1, "cri de guerre":  ["suicide", ["self"], 1]}
     },
     {
         "id": 119,
@@ -1631,7 +1631,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"ruée": 1, "soif de mana" :  ["réincarnation", ["self"], 1, 6]}
+        "effects": {"ruée": 1, "soif de mana" :  ["reincarnation", ["self"], 1, 6]}
     },
     {
         "id": 134,
@@ -3405,7 +3405,7 @@
         "cost": 8,
         "attack": 5,
         "health": 5,
-        "effects": {"réincarnation": 1, "cri de guerre":  ["boost", ["serviteur", "allié", "aléatoire", "Mort-vivant"], [5, 5, "provocation"]],
+        "effects": {"reincarnation": 1, "cri de guerre":  ["boost", ["serviteur", "allié", "aléatoire", "Mort-vivant"], [5, 5, "provocation"]],
             "rale d'agonie": ["boost", ["serviteur", "allié", "aléatoire", "Mort-vivant"], [5, 5, "provocation"]], "legendaire":  1}
     },
     {
@@ -3794,7 +3794,7 @@
         "cost": 0,
         "attack": null,
         "health": null,
-        "effects": {"refresh_mana": 2}
+        "effects": {"refresh_mana": 2, "bleu":  1}
     },
     {
         "id": 313,
@@ -3818,7 +3818,7 @@
         "cost": 1,
         "attack": 1,
         "health": 2,
-        "effects": {"cri de guerre": ["boost", ["self", "givre_spells"], [0, 0]]}
+        "effects": {"cri de guerre": ["boost", ["self", "givre_spells"], [0, 0]], "bleu":  1}
     },
     {
         "id": 315,
@@ -3830,7 +3830,7 @@
         "cost": 1,
         "attack": 2,
         "health": 2,
-        "effects": {"aura":  ["damage", ["heros", "ennemi", "if_attack"], 2]}
+        "effects": {"aura":  ["damage", ["heros", "ennemi", "if_attack"], 2], "bleu":  1}
     },
     {
         "id": 316,
@@ -3842,7 +3842,7 @@
         "cost": 1,
         "attack": 1,
         "health": 2,
-        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "choisi", "self_heros"], 2]}
+        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "choisi", "self_heros"], 2], "rouge":  1}
     },
     {
         "id": 317,
@@ -3854,7 +3854,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"cadavre": 4, "add_deck":  ["allié", ["Caisse de cereales", "Caisse de cereales", "Caisse de cereales", "Caisse de cereales"]]}
+        "effects": {"cadavre": 4, "add_deck":  ["allié", ["Caisse de cereales", "Caisse de cereales", "Caisse de cereales", "Caisse de cereales"]], "vert":  1}
     },
     {
         "id": 318,
@@ -3878,7 +3878,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"damage":  3, "ciblage":  ["serviteur", "ennemi", "choisi"], "cadavre_if_killed":  1}
+        "effects": {"damage":  3, "ciblage":  ["serviteur", "ennemi", "choisi"], "cadavre_if_killed":  1, "rouge":  1}
     },
     {
         "id": 320,
@@ -3902,7 +3902,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"pioche":  ["allié", "arme"], "reduc_if_cadavre":  1}
+        "effects": {"pioche":  ["allié", "arme", 1], "reduc_if_cadavre":  1}
     },
     {
         "id": 322,
@@ -3926,7 +3926,307 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"propagation":  ["rale d'agonie", "voisin"], "ciblage":  ["serviteur", "tous", "choisi"]}
+        "effects": {"propagation":  ["rale d'agonie", "voisin"], "ciblage":  ["serviteur", "tous", "choisi", "if_rale_agonie"], "vert":  1}
+    },
+    {
+        "id": 324,
+        "name": "Air mortel",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"destroy+invoke":  ["serviteur", "allié", "tous", "Mort-vivant"], "vert":  1, "bleu":  1}
+    },
+    {
+        "id": 325,
+        "name": "Aneantissement",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"destroy": 1, "self_damage": 3, "ciblage":  ["serviteur", "tous", "choisi"], "rouge":  1}
+    },
+    {
+        "id": 326,
+        "name": "Drain sanglant",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"boost":  ["main", "allié", "serviteur", "tous", [1, 1]], "repeat_if_cadavre":  3, "rouge":  1}
+    },
+    {
+        "id": 327,
+        "name": "Degivrage",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche":  ["allié", 1, 1], "if_cadavre":  2, "bleu":  1}
+    },
+    {
+        "id": 328,
+        "name": "Fossoyeuse necrotique",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_death_undead"], ["tous", "vert"]], "vert":  1}
+    },
+    {
+        "id": 329,
+        "name": "Frappe de givre",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "if_killed": ["decouverte", ["tous", "bleu"]], "ciblage":  ["serviteur", "tous", "choisi"], "bleu":  1}
+    },
+    {
+        "id": 330,
+        "name": "Frappe pestiferee",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "if_killed": ["invocation", ["Zombie dechaine"]], "ciblage":  ["serviteur", "tous", "choisi"], "vert":  1}
+    },
+    {
+        "id": 331,
+        "name": "Frenesie impie",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"attack+invoke":  ["serviteur", "allié", "tous"], "ciblage":  ["serviteur", "ennemi", "choisi"], "vert":  1}
+    },
+    {
+        "id": 332,
+        "name": "Geist chercheuse d'os",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre":  ["boost", ["self", "spend_cadavre", 1], [1, 2]], "vert":  1}
+    },
+    {
+        "id": 333,
+        "name": "Hematurge",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_cadavre", 1], ["tous", "rouge"]], "rouge":  1}
+    },
+    {
+        "id": 334,
+        "name": "La fosse",
+        "classe": "Chevalier de la mort",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 2,
+        "effects": {"use": ["reincarnation", ["serviteur", "allié", "choisi", "conditional", "if_cadavre", 3], 1]}
+    },
+    {
+        "id": 335,
+        "name": "Messagere de l'hiver",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"rale d'agonie": ["pioche", ["allié", "sort", "givre"], 1], "bleu":  1}
+    },
+    {
+        "id": 336,
+        "name": "Necromancien belliciste",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"aura": ["invocation", ["allié", "end_turn", "if_cadavre", 1], "Fantassin ressuscite"], "vert":  1}
+    },
+    {
+        "id": 337,
+        "name": "Fantassin ressuscite",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"provocation":  1}
+    },
+    {
+        "id": 338,
+        "name": "Peur bleue",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"augment":  ["serviteur", "ennemi", "temp_fullturn", 5]}
+    },
+    {
+        "id": 339,
+        "name": "Porte froid de la mort",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"aura": ["damage", ["ennemi", "tous", "aléatoire", 2, "conditional", "if_spell"], 1], "bleu":  1}
+    },
+    {
+        "id": 340,
+        "name": "Sang vampirique",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": ["heros", "allié", [0, 5], [0, 5]], "pioche": ["allié", 0, 1], "if_cadavre": 3, "rouge":  1}
+    },
+    {
+        "id": 341,
+        "name": "Sombre transformation",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"transformation": "Monstruosite morte vivante", "ciblage": ["serviteur", "tous", "choisi", "Mort-vivant"], "vert":  1}
+    },
+    {
+        "id": 342,
+        "name": "Monstruosite morte vivante",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 4,
+        "attack": 4,
+        "health": 5,
+        "effects": {"ruée": 1}
+    },
+    {
+        "id": 343,
+        "name": "Ver de sang vicieux",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 3,
+        "health": 2,
+        "effects": {"cri de guerre": ["boost", ["main", "allié", "serviteur", "aléatoire", "atq_serv"], [0, 0]], "rouge":  1}
+    },
+    {
+        "id": 344,
+        "name": "Acolyte de la mort",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"aura": ["pioche", ["allié", "if_dead_undead"], 1], "bleu":  1}
+    },
+    {
+        "id": 345,
+        "name": "Asphyxier",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"destroy": "highest_atq_adv", "rouge":  1}
+    },
+    {
+        "id": 346,
+        "name": "Avancee glaciale",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 4, "reduc":  [["sort", "prochain", "end_turn", "tous"], -1], "ciblage": ["tous", "tous", "choisi"],"bleu":  1}
+    },
+    {
+        "id": 347,
+        "name": "Baron chute des froids",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre":  ["pioche", ["allié"], 1], "rale d'agonie":  ["pioche", ["allié"], 1]}
+    },
+    {
+        "id": 348,
+        "name": "Brisame",
+        "classe": "Chevalier de la mort",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 2,
+        "effects": {"aura":  ["cadavre", ["if_serv_kill"], 2], "rouge":  1}
     }
 ]
 

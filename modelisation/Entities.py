@@ -272,7 +272,8 @@ class Plateau:
                         player.all_dead_servants = player.all_dead_servants[-3:]
                     dead_servants.append(servant)
                     dead_servants_player.append(servant)
-                    player.cadavres += 1
+                    if servant.name != "Fantassin ressuscite":
+                        player.cadavres += 1
                     if servant.name in ["Vaillefendre cavalier de la guerre", "Blaumeux cavaliere de la famine", "Korth'azz cavalier de la mort", "Zeliek cavalier de la conquete"]:
                         player.cavalier_apocalypse.append(servant.name)
                         player.cavalier_apocalypse = list(set(player.cavalier_apocalypse))
@@ -369,8 +370,8 @@ class Plateau:
                 action_line[f"charge_serv{i + 1}_j"] = player.servants[i].effects["charge"]
             if "camouflage" in player.servants[i].effects:
                 action_line[f"camouflage_serv{i + 1}_j"] = player.servants[i].effects["camouflage"]
-            if "réincarnation" in player.servants[i].effects:
-                action_line[f"reincarnation_serv{i + 1}_j"] = player.servants[i].effects["réincarnation"]
+            if "reincarnation" in player.servants[i].effects:
+                action_line[f"reincarnation_serv{i + 1}_j"] = player.servants[i].effects["reincarnation"]
             if "en sommeil" in player.servants[i].effects:
                 action_line[f"en_sommeil_serv{i + 1}_j"] = player.servants[i].effects["en sommeil"]
             if "gel" in player.servants[i].effects:
@@ -400,8 +401,8 @@ class Plateau:
                 action_line[f"charge_serv{i + 1}_adv"] = adv.servants[i].effects["charge"]
             if "camouflage" in adv.servants[i].effects:
                 action_line[f"camouflage_serv{i + 1}_adv"] = adv.servants[i].effects["camouflage"]
-            if "réincarnation" in adv.servants[i].effects:
-                action_line[f"reincarnation_serv{i + 1}_adv"] = adv.servants[i].effects["réincarnation"]
+            if "reincarnation" in adv.servants[i].effects:
+                action_line[f"reincarnation_serv{i + 1}_adv"] = adv.servants[i].effects["reincarnation"]
             if "en sommeil" in adv.servants[i].effects:
                 action_line[f"en_sommeil_serv{i + 1}_adv"] = adv.servants[i].effects["en sommeil"]
             if "gel" in adv.servants[i].effects:
@@ -475,7 +476,7 @@ class Player:
             else:
                 self.hero.effects["murmegivre"] -= 1
         for lieu in self.lieux:
-            lieu.attack += 0.5
+            lieu.attack = min(0.5 + lieu.attack, 1)
         self.hero.damage(self.hero.fatigue)
         self.hero.reset()
         self.mana_grow()
@@ -506,6 +507,13 @@ class Player:
                     for servant in self.servants:
                         if discount in servant.discount:
                             servant.discount.remove(discount)
+                    for card in self.hand:
+                        if discount in card.discount:
+                            card.discount.remove(discount)
+        if self.augment:
+            for augment in self.augment:
+                if "temp_fullturn" in augment:
+                    self.augment.remove(augment)
         for servant in self.servants:
             servant.damage_taken = False
             if servant.name == "Goule fragile":
@@ -541,6 +549,10 @@ class Player:
                             target.base_attack += servant.effects["aura"][2][0]
                             target.health += servant.effects["aura"][2][1]
                             target.base_health += servant.effects["aura"][2][1]
+                elif "invocation" in servant.effects["aura"]:
+                    if "if_cadavre" in servant.effects["aura"][1] and self.cadavres >= servant.effects["aura"][1][-1] and len(self.servants) + len(self.lieux) < 7:
+                        self.cadavres -= servant.effects["aura"][1][-1]
+                        self.servants.add(get_card(servant.effects["aura"][2], all_servants))
 
     def apply_discount(self):
         for card in self.hand:
@@ -557,28 +569,33 @@ class Player:
         if self.discount_next:
             for discount in self.discount_next:
                 for card in self.hand:
-                    if card.type.lower() == discount[0] and discount not in card.discount:
+                    if card.type.lower() == discount[0]:
                         if discount[1] != "" and discount[1] in card.genre and discount[2] < 0:
                             card.cost = max(0, card.cost + discount[2])
-                            card.discount.append(discount)
+                            if discount not in card.discount:
+                                card.discount.append(discount)
                         elif discount[2] >= 0:
                             card.cost = max(0, discount[2])
-                            card.discount.append(discount)
+                            if discount not in card.discount:
+                                card.discount.append(discount)
                         elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
                             card.cost = discount[2]
-                            card.discount.append(discount)
+                            if discount not in card.discount:
+                                card.discount.append(discount)
                         elif "tous" in discount[1]:
                             card.cost = max(0, card.cost + discount[2])
-                            card.discount.append(discount)
+                            if discount not in card.discount:
+                                card.discount.append(discount)
                     elif discount[0] == "murmegivre":
                         card.cost = 0
-                        card.discount.append(discount)
+                        if discount not in card.discount:
+                            card.discount.append(discount)
         if self.augment:
             for card in self.hand:
                 for augment in self.augment:
                     if card.type.lower() == augment[0]:
                         if augment[2] > 0:
-                            card.cost += augment[2]
+                            card.cost = card.base_cost + augment[2]
         if [x for x in self.servants if "aura" in x.effects and "Thaddius" in x.effects["aura"]]:
             reduction = [x for x in self.servants if "aura" in x.effects and "Thaddius" in x.effects["aura"]][0].effects["aura"][2]
             for card in self.hand:

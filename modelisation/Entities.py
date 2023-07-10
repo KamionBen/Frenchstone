@@ -237,16 +237,16 @@ class Plateau:
                 if "Thaddius" in servant.effects["aura"]:
                     servant.effects["aura"][2] = 1 if servant.effects["aura"][2] == 0 else 0
         if [x for x in player.hand if "start_turn" in x.effects]:
-            for servant in [x for x in player.hand if "start_turn" in x.effects]:
-                if "start_turn" in servant.effects:
+            for card in [x for x in player.hand if "start_turn" in x.effects]:
+                if "start_turn" in card.effects:
                     """ Transformation des serviteurs concernés """
-                    if "transformation" in servant.effects["start_turn"]:
-                        potential_transform = [get_card(x, all_servants) for x in servant.effects["start_turn"][1]]
-                        player.hand.remove(servant)
-                        new_cost = servant.cost
-                        new_servant = random.choice(potential_transform)
-                        new_servant.cost = new_cost
-                        player.hand.add(new_servant)
+                    if "transformation" in card.effects["start_turn"]:
+                        potential_transform = [get_card(x, all_cards) for x in card.effects["start_turn"][1]]
+                        player.hand.remove(card)
+                        new_cost = card.cost
+                        new_card = random.choice(potential_transform)
+                        new_card.cost = new_cost
+                        player.hand.add(new_card)
         player.apply_discount()
 
     def update(self):
@@ -601,7 +601,14 @@ class Player:
             for card in self.hand:
                 if reduction == card.cost % 2:
                     card.cost = 1
-
+        if [x for x in self.servants if "cost_pv" in x.effects]:
+            if self.hero.heal_this_turn > 0:
+                for creature in [x for x in self.servants if "cost_pv" in x.effects]:
+                    creature.cost = 0
+                    creature.effects["cost_pv"][1] = 1
+            else:
+                for creature in [x for x in self.servants if "cost_pv" in x.effects]:
+                    creature.effects["cost_pv"][1] = 0
     def apply_weapon(self):
         if self.hero.weapon is not None:
             self.hero.attack = self.hero.weapon.attack + self.hero.inter_attack
@@ -678,7 +685,7 @@ class Hero:
         self.weapon = None
         self.effects = {}
 
-        self.fatigue, self.damage_this_turn = 0, 0
+        self.fatigue, self.damage_this_turn, self.heal_this_turn = 0, 0, 0
 
     def __repr__(self):
         return self.name
@@ -697,6 +704,7 @@ class Hero:
         else:
             self.remaining_atk = 0
         self.damage_this_turn = 0
+        self.heal_this_turn = 0
         self.inter_attack = 0
 
     def reset_complete(self):
@@ -714,9 +722,9 @@ class Hero:
         self.fatigue, self.damage_this_turn = 0, 0
 
     def heal(self, nb):
-        self.health += nb
-        if self.health > self.base_health:
-            self.health = self.base_health
+        nb_heal = min(nb, self.base_health - self.health)
+        self.health += nb_heal
+        self.heal_this_turn += nb_heal
 
     def is_dead(self) -> bool:
         return self.health <= 0

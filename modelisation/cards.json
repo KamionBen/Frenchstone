@@ -4218,15 +4218,75 @@
     },
     {
         "id": 348,
-        "name": "Brisame",
+        "name": "Carapace anti magie",
         "classe": "Chevalier de la mort",
-        "type": "Arme",
-        "genre": [],
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"boost":  ["serviteur", "allié", "tous", "inciblable", [1, 1]], "vert":  1}
+    },
+    {
+        "id": 349,
+        "name": "Chevalier dess metal",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
         "decouvrable": 1,
         "cost": 3,
         "attack": 3,
-        "health": 2,
-        "effects": {"aura":  ["cadavre", ["if_serv_kill"], 2], "rouge":  1}
+        "health": 4,
+        "effects": {"provocation": 1, "cost_pv":  ["if_heal_this_turn", 0], "rouge": 1}
+    },
+    {
+        "id": 350,
+        "name": "Hachoir a viande",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre": ["cadavre", ["destroy_serv", "deck", "allié"], 4], "vert":  1}
+    },
+    {
+        "id": 351,
+        "name": "Metal harmonique",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": ["main", "allié", "serviteur", 4, [2, 2]], "start_turn": ["transformation", ["Metal dissonant"]], "rouge":  1}
+    },
+    {
+        "id": 352,
+        "name": "Metal dissonant",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": ["main", "allié", "serviteur", 2, [4, 4]], "start_turn": ["transformation", ["Metal harmonique"]], "rouge":  1}
+    },
+    {
+        "id": 353,
+        "name": "Neophyte tenebrante",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 5,
+        "effects": {"cri de guerre":  ["boost", ["main", "allié", "serviteur", "tous", "spend_cadavre", 2], [2, 0]], "rouge":  1}
     }
 ]
 

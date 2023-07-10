@@ -183,43 +183,47 @@ def generate_legal_vector_test(state):
                     if "serviteur" in player.hand[i].effects["ciblage"]:
                         if "ennemi" in player.hand[i].effects["ciblage"]:
                             for j in range(len(adv.servants)):
-                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                     legal_actions[17 * i + j + 11] = True
                         elif "tous" in player.hand[i].effects["ciblage"]:
                             if "if_rale_agonie" in player.hand[i].effects["ciblage"]:
                                 for j in range(len(player.servants)):
-                                    if "rale d'agonie" in player.servants[j].effects:
+                                    if "rale d'agonie" in player.servants[j].effects and "inciblable" not in player.servants[j].effects:
                                         legal_actions[17 * i + j + 3] = True
                                 for j in range(len(adv.servants)):
-                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                         if "rale d'agonie" in adv.servants[j].effects:
                                             legal_actions[17 * i + j + 11] = True
                             elif "Mort-vivant" in player.hand[i].effects["ciblage"]:
                                 for j in range(len(player.servants)):
-                                    if "Mort-vivant" in player.servants[j].genre:
+                                    if "Mort-vivant" in player.servants[j].genre and "inciblable" not in player.servants[j].effects:
                                         legal_actions[17 * i + j + 3] = True
                                 for j in range(len(adv.servants)):
-                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                         if "Mort-vivant" in adv.servants[j].genre:
                                             legal_actions[17 * i + j + 11] = True
                             else:
                                 for j in range(len(player.servants)):
-                                    legal_actions[17 * i + j + 3] = True
+                                    if "inciblable" not in player.servants[j].effects:
+                                        legal_actions[17 * i + j + 3] = True
                                 for j in range(len(adv.servants)):
-                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                         legal_actions[17 * i + j + 11] = True
                     elif "tous" in player.hand[i].effects["ciblage"]:
                         if "ennemi" in player.hand[i].effects["ciblage"]:
                             legal_actions[17 * i + 10] = True
                             for j in range(len(adv.servants)):
-                                legal_actions[17 * i + j + 11] = True
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    legal_actions[17 * i + j + 11] = True
                         else:
                             legal_actions[17 * i + 2] = True
                             legal_actions[17 * i + 10] = True
                             for j in range(len(player.servants)):
-                                legal_actions[17 * i + j + 3] = True
+                                if "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 3] = True
                             for j in range(len(adv.servants)):
-                                legal_actions[17 * i + j + 11] = True
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    legal_actions[17 * i + j + 11] = True
                 else:
                     legal_actions[17 * i + 1] = True
             elif player.hand[i].type.lower() == "lieu" and len(player.servants) + len(player.lieux) < 7:

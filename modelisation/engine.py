@@ -142,43 +142,47 @@ def generate_targets(state):
                 if "serviteur" in player.hand[i].effects["ciblage"]:
                     if "ennemi" in player.hand[i].effects["ciblage"]:
                         for j in range(len(adv.servants)):
-                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                 legal_actions[17 * i + j + 10] = True
                     elif "tous" in player.hand[i].effects["ciblage"]:
                         if "if_rale_agonie" in player.hand[i].effects["ciblage"]:
                             for j in range(len(player.servants)):
-                                if "rale d'agonie" in player.servants[j].effects:
+                                if "rale d'agonie" in player.servants[j].effects and "inciblable" not in player.servants[j].effects:
                                     legal_actions[17 * i + j + 2] = True
                             for j in range(len(adv.servants)):
-                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                     if "rale d'agonie" in adv.servants[j].effects:
                                         legal_actions[17 * i + j + 10] = True
                         elif "Mort-vivant" in player.hand[i].effects["ciblage"]:
                             for j in range(len(player.servants)):
-                                if "Mort-vivant" in player.servants[j].genre:
+                                if "Mort-vivant" in player.servants[j].genre and "inciblable" not in player.servants[j].effects:
                                     legal_actions[17 * i + j + 2] = True
                             for j in range(len(adv.servants)):
-                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                     if "Mort-vivant" in adv.servants[j].genre:
                                         legal_actions[17 * i + j + 10] = True
                         else:
                             for j in range(len(player.servants)):
-                                legal_actions[17 * i + j + 2] = True
+                                if "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
                             for j in range(len(adv.servants)):
-                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                     legal_actions[17 * i + j + 10] = True
                 elif "tous" in player.hand[i].effects["ciblage"]:
                     if "ennemi" in player.hand[i].effects["ciblage"]:
                         legal_actions[17 * i + 9] = True
                         for j in range(len(adv.servants)):
-                            legal_actions[17 * i + j + 10] = True
+                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                legal_actions[17 * i + j + 10] = True
                     else:
                         legal_actions[17 * i + 1] = True
                         legal_actions[17 * i + 9] = True
                         for j in range(len(player.servants)):
-                            legal_actions[17 * i + j + 2] = True
+                            if "inciblable" not in player.servants[j].effects:
+                                legal_actions[17 * i + j + 2] = True
                         for j in range(len(adv.servants)):
-                            legal_actions[17 * i + j + 10] = True
+                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                legal_actions[17 * i + j + 10] = True
             else:
                 legal_actions[17 * i] = True
     return legal_actions
@@ -1094,7 +1098,12 @@ class TourEnCours:
                     player.deck = CardGroup()
                     player.geolier = 1
                 elif "cadavre" in carte.effects["cri de guerre"]:
-                    player.cadavres += carte.effects["cri de guerre"][2]
+                    if "destroy_serv" in carte.effects["cri de guerre"][1]:
+                        if "deck" in carte.effects["cri de guerre"][1] and "allié" in carte.effects["cri de guerre"][1] and [x for x in player.deck if x.type == "Serviteur"]:
+                            player.deck.remove(random.choice([x for x in player.deck if x.type == "Serviteur"]))
+                            player.cadavres += carte.effects["cri de guerre"][2]
+                    else:
+                        player.cadavres += carte.effects["cri de guerre"][2]
                 if "invocation" in carte.effects["cri de guerre"]:
                     if "allié" in carte.effects["cri de guerre"][1] and len(player.servants) + len(player.lieux) < 7:
                         if "aléatoire" in carte.effects["cri de guerre"][1]:
@@ -1862,26 +1871,44 @@ class TourEnCours:
                         target.effects["aura"] = ["suicide", ["start_turn"], "start_turn"]
                 else:
                     if "main" in carte.effects["boost"] and "allié" in carte.effects["boost"]:
-                        if "serviteur" in carte.effects["boost"] and "tous" in carte.effects["boost"] and [x for x in player.hand if x.type == "Serviteur"]:
-                            for creature in [x for x in player.hand if x.type == "Serviteur"]:
-                                creature.attack += carte.effects["boost"][-1][0]
-                                creature.base_attack += carte.effects["boost"][-1][0]
-                                creature.health += carte.effects["boost"][-1][1]
-                                creature.base_health += carte.effects["boost"][-1][1]
-                            if "repeat_if_cadavre" in carte.effects and player.cadavres >= carte.effects["repeat_if_cadavre"]:
-                                player.cadavres -= carte.effects["repeat_if_cadavre"]
+                        if "serviteur" in carte.effects["boost"] and [x for x in player.hand if x.type == "Serviteur"]:
+                            if "tous" in carte.effects["boost"]:
                                 for creature in [x for x in player.hand if x.type == "Serviteur"]:
                                     creature.attack += carte.effects["boost"][-1][0]
                                     creature.base_attack += carte.effects["boost"][-1][0]
                                     creature.health += carte.effects["boost"][-1][1]
                                     creature.base_health += carte.effects["boost"][-1][1]
-                    if "heros" in carte.effects["boost"] and "allié" in carte.effects["boost"]:
+                                if "repeat_if_cadavre" in carte.effects and player.cadavres >= carte.effects["repeat_if_cadavre"]:
+                                    player.cadavres -= carte.effects["repeat_if_cadavre"]
+                                    for creature in [x for x in player.hand if x.type == "Serviteur"]:
+                                        creature.attack += carte.effects["boost"][-1][0]
+                                        creature.base_attack += carte.effects["boost"][-1][0]
+                                        creature.health += carte.effects["boost"][-1][1]
+                                        creature.base_health += carte.effects["boost"][-1][1]
+                            elif type(carte.effects["boost"][3]) == int:
+                                boosted_servants = random.sample([x for x in player.hand if x.type == "Serviteur"], min(carte.effects["boost"][3], len([x for x in player.hand if x.type == "Serviteur"])))
+                                for creature in boosted_servants:
+                                    creature.attack += carte.effects["boost"][-1][0]
+                                    creature.base_attack += carte.effects["boost"][-1][0]
+                                    creature.health += carte.effects["boost"][-1][1]
+                                    creature.base_health += carte.effects["boost"][-1][1]
+
+                    elif "heros" in carte.effects["boost"] and "allié" in carte.effects["boost"]:
                         player.hero.health += carte.effects["boost"][2][1]
                         player.hero.base_health += carte.effects["boost"][2][1]
                         if "if_cadavre" in carte.effects and player.cadavres >= carte.effects["if_cadavre"]:
                             player.cadavres -= carte.effects["if_cadavre"]
                             player.hero.health += carte.effects["boost"][3][1]
                             player.hero.base_health += carte.effects["boost"][3][1]
+                    elif "serviteur" in carte.effects["boost"] and "allié" in carte.effects["boost"]:
+                        if "tous" in carte.effects["boost"] and player.servants.cards:
+                            for creature in player.servants:
+                                creature.attack += carte.effects["boost"][-1][0]
+                                creature.base_attack += carte.effects["boost"][-1][0]
+                                creature.health += carte.effects["boost"][-1][1]
+                                creature.base_health += carte.effects["boost"][-1][1]
+                                if "inciblable" in carte.effects["boost"]:
+                                    creature.effects["inciblable"] = 1
             if "damage" in carte.effects:
                 if target is not None:
                     target.damage(carte.effects["damage"])
@@ -1905,7 +1932,7 @@ class TourEnCours:
                 for creature in carte.effects["invocation"]:
                     if len(player.servants) + len(player.lieux) < 7:
                         self.invoke_servant(get_card(creature, all_servants), 0)
-            elif "transformation" in carte.effects:
+            elif "transformation" in carte.effects and target is not None:
                 if target in player.servants:
                     player.servants.remove(target)
                     self.invoke_servant(get_card(carte.effects["transformation"], all_servants), 0)
@@ -2401,6 +2428,7 @@ class TourEnCours:
                     player.hero.weapon.health -= 1
 
 
+
     def invoke_servant(self, servant, player):
         if "cri de guerre" in servant.effects:
             servant.effects.pop("cri de guerre")
@@ -2446,6 +2474,8 @@ class TourEnCours:
                     if "counter" in [x.effects["aura"][0] for x in adv.servants if "aura" in x.effects] and "serviteur" in [x.effects["aura"][1] for x in adv.servants if "aura" in x.effects]:
                         print("Serviteur contré")
                         [x for x in adv.servants if "counter" in x.effects["aura"][0]][0].effects.pop("counter")
+                    elif "cost_pv" in carte.effects and carte.effects["cost_pv"][1] == 1:
+                        player.hero.damage(carte.base_cost)
                     else:
                         player.servants.add(carte)
                         self.apply_effects(carte, target)
@@ -2527,9 +2557,13 @@ class TourEnCours:
                             
             if type(attaquant) == Hero:
                 if attaquant.weapon is not None:
-                    if "aura" in attaquant.weapon.effects and "if_attack" in attaquant.weapon.effects["aura"][1]:
-                        if "damage" in attaquant.weapon.effects["aura"] and "heros" in attaquant.weapon.effects["aura"][1] and "ennemi" in attaquant.weapon.effects["aura"][1]:
-                            adv.hero.damage(attaquant.weapon.effects["aura"][2])
+                    if "aura" in attaquant.weapon.effects:
+                        if "if_attack" in attaquant.weapon.effects["aura"][1]:
+                            if "damage" in attaquant.weapon.effects["aura"] and "heros" in attaquant.weapon.effects["aura"][1] and "ennemi" in attaquant.weapon.effects["aura"][1]:
+                                adv.hero.damage(attaquant.weapon.effects["aura"][2])
+                            elif "cadavre" in attaquant.weapon.effects["aura"]:
+                                if cible.is_dead():
+                                    player.cadavres += attaquant.weapon.effects["aura"][2]
                     attaquant.weapon.health -= 1
                     if attaquant.weapon.health == 0:
                         attaquant.weapon = None
@@ -2985,6 +3019,11 @@ class Orchestrator:
                             if "tous" in played_card.effects["cri de guerre"][1]:
                                 target = CardGroup((x for x in player.hand if x.type == "Serviteur"))
                                 target.remove(played_card)
+                                if "spend_cadavre" in played_card.effects["cri de guerre"][1]:
+                                    if player.cadavres >= played_card.effects["cri de guerre"][1][-1]:
+                                        player.cadavres -= played_card.effects["cri de guerre"][1][-1]
+                                    else:
+                                        target = None
                             elif "1" in played_card.effects["cri de guerre"][1]:
                                 if "Méca" in played_card.effects["cri de guerre"][1]:
                                     target = CardGroup(

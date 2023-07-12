@@ -136,7 +136,7 @@ class Plateau:
                        'Druide': 'test_deck.csv',
                        'Voleur': 'test_deck.csv',
                        'Guerrier': 'test_deck.csv',
-                       'Chevalier de la mort': 'test_dk.csv',
+                       'Chevalier de la mort': 'dk_givre.csv',
                        'Prêtre': 'test_deck.csv'
                        }
         self.cards_chosen = []
@@ -172,21 +172,22 @@ class Plateau:
     def tour_suivant(self):
         """ Met à jour le plateau à la fin du tour d'un joueur """
         self.game_turn += 1
-        self.players.reverse()
         player = self.players[0]
         adv = self.players[1]
-
-        adv.end_turn()
+        """ Fin du tour"""
+        player.end_turn()
         """ Effets de fin de tour """
-        for servant in adv.servants:
+        for servant in player.servants:
             if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
-                if servant.name == "Cuisinier toque" and player.hero.damage_this_turn >= 3:
-                    adv.pick()
+                if servant.name == "Cuisinier toque" and adv.hero.damage_this_turn >= 3:
+                    player.pick()
                 elif "add_deck" in servant.effects["aura"] and "random_spell_top" in servant.effects["aura"][1]:
                     try:
-                        player.deck.cards.insert(0, Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1])))
+                        adv.deck.cards.insert(0, Card(
+                            **random.choice([x for x in all_spells if x["decouvrable"] == 1])))
                     except:
-                        player.deck.cards.insert(0, Card(**random.choice([x for x in all_servants if x["decouvrable"] == 1])))
+                        adv.deck.cards.insert(0, Card(
+                            **random.choice([x for x in all_servants if x["decouvrable"] == 1])))
                 elif "damage" in servant.effects["aura"]:
                     if "tous" in servant.effects["aura"][1]:
                         if not "aléatoire" in servant.effects["aura"][1]:
@@ -194,28 +195,34 @@ class Plateau:
                                 if entity != servant:
                                     entity.damage(servant.effects["aura"][2])
                         elif "ennemi" in servant.effects["aura"][1]:
-                            target = random.choice([player.hero] + player.servants.cards)
+                            target = random.choice([adv.hero] + adv.servants.cards)
                             target.damage(servant.effects["aura"][2])
                 elif "invocation" in servant.effects["aura"]:
                     if "until_full" in servant.effects["aura"][1]:
-                        while len(adv.servants) + len(adv.lieux) < 7:
-                            adv.servants.add(get_card(servant.effects["aura"][2], all_servants))
-        for servant in player.servants:
+                        while len(player.servants) + len(player.lieux) < 7:
+                            player.servants.add(get_card(servant.effects["aura"][2], all_servants))
+        for servant in adv.servants:
             if "aura" in servant.effects and "each_turn" in servant.effects["aura"][1]:
                 if "invocation" in servant.effects["aura"]:
                     if "until_full" in servant.effects["aura"][1]:
-                        while len(player.servants) + len(player.lieux) < 7:
-                            player.servants.add(get_card(servant.effects["aura"][2], all_servants))
-        if "Rock en fusion" in [x.name for x in adv.hand]:
-            rock_en_fusion = [x for x in adv.hand if x.name == "Rock en fusion"][0]
-            adv.hand.remove(rock_en_fusion)
-            if adv.mana > 0:
-                adv.hero.damage(rock_en_fusion.effects["rock_en_fusion"])
+                        while len(adv.servants) + len(adv.lieux) < 7:
+                            adv.servants.add(get_card(servant.effects["aura"][2], all_servants))
+        if "Rock en fusion" in [x.name for x in player.hand]:
+            rock_en_fusion = [x for x in player.hand if x.name == "Rock en fusion"][0]
+            player.hand.remove(rock_en_fusion)
+            if player.mana > 0:
+                player.hero.damage(rock_en_fusion.effects["rock_en_fusion"])
             else:
                 rock_en_fusion.effects["rock_en_fusion"] += 2
-                if len(player.hand) < 10:
-                    player.hand.add(rock_en_fusion)
-                
+                if len(adv.hand) < 10:
+                    adv.hand.add(rock_en_fusion)
+
+        self.players.reverse()
+
+        player = self.players[0]
+        adv = self.players[1]
+
+        """ Debut du tour """
         player.start_turn()
         """ Effets de début de tour """
         for servant in player.servants:
@@ -272,7 +279,7 @@ class Plateau:
                         player.all_dead_servants = player.all_dead_servants[-3:]
                     dead_servants.append(servant)
                     dead_servants_player.append(servant)
-                    if servant.name != "Fantassin ressuscite":
+                    if "ressuscite" not in servant.name:
                         player.cadavres += 1
                     if servant.name in ["Vaillefendre cavalier de la guerre", "Blaumeux cavaliere de la famine", "Korth'azz cavalier de la mort", "Zeliek cavalier de la conquete"]:
                         player.cavalier_apocalypse.append(servant.name)
@@ -488,7 +495,7 @@ class Player:
     def end_turn(self):
         """ Mise à jour de fin de tour """
         self.hero.attack, self.hero.inter_attack = 0, 0
-        self.hero.damage_this_turn = 0
+        self.hero.damage_this_turn, self.hero.my_turn = 0, 0
         self.dead_undeads = []
         self.serv_this_turn = CardGroup()
         self.augment = []
@@ -609,6 +616,7 @@ class Player:
             else:
                 for creature in [x for x in self.servants if "cost_pv" in x.effects]:
                     creature.effects["cost_pv"][1] = 0
+
     def apply_weapon(self):
         if self.hero.weapon is not None:
             self.hero.attack = self.hero.weapon.attack + self.hero.inter_attack
@@ -654,6 +662,8 @@ class Player:
 
     def pick_multi(self, nb):
         for _ in range(nb):
+            if type(nb) == str:
+                print(nb)
             self.pick()
 
     def set_hero(self, name):
@@ -686,6 +696,7 @@ class Hero:
         self.effects = {}
 
         self.fatigue, self.damage_this_turn, self.heal_this_turn = 0, 0, 0
+        self.my_turn = 0
 
     def __repr__(self):
         return self.name
@@ -695,6 +706,8 @@ class Hero:
         self.armor -= nb_armor
         self.health -= (nb - nb_armor)
         self.damage_this_turn += nb
+        if nb - nb_armor and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn == 1:
+            self.weapon.effects["stack"] += 1
 
     def reset(self):
         """ Le reset de début de tour """
@@ -706,6 +719,7 @@ class Hero:
         self.damage_this_turn = 0
         self.heal_this_turn = 0
         self.inter_attack = 0
+        self.my_turn = 1
 
     def reset_complete(self):
         """ Le reset de début de partie """
@@ -725,6 +739,8 @@ class Hero:
         nb_heal = min(nb, self.base_health - self.health)
         self.health += nb_heal
         self.heal_this_turn += nb_heal
+        if nb_heal and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn == 1:
+            self.weapon.effects["stack"] += 1
 
     def is_dead(self) -> bool:
         return self.health <= 0

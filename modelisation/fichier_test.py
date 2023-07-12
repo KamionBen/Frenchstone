@@ -376,7 +376,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-for i in range(3):
+for i in range(4):
     print(i)
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')

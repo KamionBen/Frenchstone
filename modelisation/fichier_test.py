@@ -35,7 +35,6 @@ def generate_legal_vector_test(state):
                 player.hand[i].cost -= len(player.servants) + len(adv.servants)
         if player.hand[i].cost <= player.mana and "entrave" not in player.hand[i].effects:
             if len(player.servants) + len(player.lieux) < 7 and player.hand[i].type == "Serviteur":
-
                 """ Serviteurs avec cris de guerre ciblés """
                 if "cri de guerre" in player.hand[i].effects and "choisi" in player.hand[i].effects["cri de guerre"][1]:
                     if "serviteur" in player.hand[i].effects["cri de guerre"][1]:
@@ -55,6 +54,10 @@ def generate_legal_vector_test(state):
                             elif "Méca" in player.hand[i].effects["cri de guerre"][1]:
                                 for j in range(len(player.servants)):
                                     if "Méca" in player.servants[j].genre:
+                                        legal_actions[17 * i + j + 3] = True
+                            elif "if_rale_agonie" in player.hand[i].effects["cri de guerre"][1]:
+                                for j in range(len(player.servants)):
+                                    if "rale d'agonie" in player.servants[j].effects:
                                         legal_actions[17 * i + j + 3] = True
                             else:
                                 for j in range(len(player.servants)):
@@ -107,7 +110,7 @@ def generate_legal_vector_test(state):
                                     if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
                                         legal_actions[17 * i + j + 11] = True
                             else:
-                                if "if_weapon" in player.hand[i].effects["cri de guerre"][1] and player.hero.weapon is not None \
+                                if "if_weapon" in player.hand[i].effects["cri de guerre"][1] and player.weapon is not None \
                                         or "if_death_undead" in player.hand[i].effects["cri de guerre"][1] and player.dead_undeads \
                                         or "if_dragon_hand" in player.hand[i].effects["cri de guerre"][1] and [x for x in player.hand if "Dragon" in x.genre and x != player.hand[i]] \
                                         or "if_alone" in player.hand[i].effects["cri de guerre"][1] and len(player.servants) == 0\
@@ -238,7 +241,7 @@ def generate_legal_vector_test(state):
             is_provoc = True
             break
     """ Notre héros peut attaquer """
-    if player.hero.remaining_atk > 0 and player.hero.attack > 0:
+    if player.remaining_atk > 0 and player.attack > 0:
         if not is_provoc:
             legal_actions[171] = True
         for j in range(len(adv.servants)):
@@ -266,11 +269,11 @@ def generate_legal_vector_test(state):
                         legal_actions[171 + 8 * (i + 1) + (j + 1)] = True
 
     """ Pouvoir héroïque """
-    if player.hero.dispo_pouvoir and player.hero.cout_pouvoir_temp <= player.mana:
+    if player.dispo_pouvoir and player.cout_pouvoir_temp <= player.mana:
         targets = state.targets_hp()
-        if player.hero in targets:
+        if player in targets:
             legal_actions[235] = True
-        if adv.hero in targets:
+        if adv in targets:
             legal_actions[243] = True
         if len(targets) >= 2:
             for i in range(len(player.servants)):
@@ -302,6 +305,9 @@ def generate_legal_vector_test(state):
                         if "if_cadavre" in player.lieux[i].effects["use"][1] and player.cadavres >= player.lieux[i].effects["use"][1][-1]:
                             for m in range(len(player.servants)):
                                 legal_actions[265 + 15 * i + m + 1] = True
+                    else:
+                        for m in range(len(player.servants)):
+                            legal_actions[265 + 15 * i + m + 1] = True
     return legal_actions
 
 
@@ -317,13 +323,13 @@ def calc_advantage_minmax(state):
         advantage -= 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage -= 1.5 * servant.attack
-    advantage += 0.25 * (pow(adv.hero.base_health - adv.hero.health, 1.3) - pow(player.hero.base_health - player.hero.health, 1.3))
-    advantage += player.hero.attack
+    advantage += 0.25 * (pow(adv.base_health - adv.health, 1.3) - pow(player.base_health - player.health, 1.3))
+    advantage += player.attack
     advantage += 0.02 * player.cadavres
     advantage += 3 * len(player.lieux)
-    if player.hero.health <= 0:
+    if player.health <= 0:
         return -500
-    elif adv.hero.health <= 0:
+    elif adv.health <= 0:
         return 500
 
     return round(advantage, 2)

@@ -179,7 +179,7 @@ class Plateau:
         """ Effets de fin de tour """
         for servant in player.servants:
             if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
-                if servant.name == "Cuisinier toque" and adv.hero.damage_this_turn >= 3:
+                if servant.name == "Cuisinier toque" and adv.damage_this_turn >= 3:
                     player.pick()
                 elif "add_deck" in servant.effects["aura"] and "random_spell_top" in servant.effects["aura"][1]:
                     try:
@@ -191,11 +191,11 @@ class Plateau:
                 elif "damage" in servant.effects["aura"]:
                     if "tous" in servant.effects["aura"][1]:
                         if not "aléatoire" in servant.effects["aura"][1]:
-                            for entity in [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards:
+                            for entity in [player] + [adv] + player.servants.cards + adv.servants.cards:
                                 if entity != servant:
                                     entity.damage(servant.effects["aura"][2])
                         elif "ennemi" in servant.effects["aura"][1]:
-                            target = random.choice([adv.hero] + adv.servants.cards)
+                            target = random.choice([adv] + adv.servants.cards)
                             target.damage(servant.effects["aura"][2])
                 elif "invocation" in servant.effects["aura"]:
                     if "until_full" in servant.effects["aura"][1]:
@@ -211,7 +211,7 @@ class Plateau:
             rock_en_fusion = [x for x in player.hand if x.name == "Rock en fusion"][0]
             player.hand.remove(rock_en_fusion)
             if player.mana > 0:
-                player.hero.damage(rock_en_fusion.effects["rock_en_fusion"])
+                player.damage(rock_en_fusion.effects["rock_en_fusion"])
             else:
                 rock_en_fusion.effects["rock_en_fusion"] += 2
                 if len(adv.hand) < 10:
@@ -265,7 +265,7 @@ class Plateau:
                 cards_impregnation = [x for x in player.hand if "impregnation" in x.effects]
             else:
                 cards_impregnation = [x for x in player.hand if "impregnation" in x.effects] + [x for x in player.deck if "impregnation" in x.effects]
-            if player.hero.is_dead():
+            if player.is_dead():
                 self.game_on = False
                 for winner in self.players:
                     if winner != player:
@@ -310,14 +310,14 @@ class Plateau:
         adv = self.players[1]
         targets = []
         if player.classe in ["Mage", "Prêtre"]:
-            targets = [player.hero] + [adv.hero] + player.servants.cards + adv.servants.cards
+            targets = [player] + [adv] + player.servants.cards + adv.servants.cards
         elif player.classe == "Chasseur":
-            targets.append(adv.hero)
+            targets.append(adv)
         elif player.classe in ["Paladin", "Chevalier de la mort"]:
             if len(player.servants) + len(player.lieux) < 7:
-                targets.append(player.hero)
+                targets.append(player)
         else:
-            targets.append(player.hero)
+            targets.append(player)
         return targets
 
     def get_gamestate(self) -> dict:
@@ -330,21 +330,21 @@ class Plateau:
         action_line["classe_j"], action_line["classe_adv"] = player.classe, adv.classe
         action_line["mana_dispo_j"], action_line["mana_max_j"] = player.mana, player.mana_max
         action_line["mana_max_adv"] = adv.mana_max
-        action_line["pv_j"], action_line["pv_adv"] = player.hero.health, adv.hero.health
-        action_line["armor_j"], action_line["armor_adv"] = player.hero.armor, adv.hero.armor
+        action_line["pv_j"], action_line["pv_adv"] = player.health, adv.health
+        action_line["armor_j"], action_line["armor_adv"] = player.armor, adv.armor
         action_line["surcharge_j"], action_line["surcharge_adv"] = player.surcharge, adv.surcharge
-        action_line["pv_max_j"], action_line["pv_max_adv"] = player.hero.base_health, adv.hero.base_health
+        action_line["pv_max_j"], action_line["pv_max_adv"] = player.base_health, adv.base_health
         action_line["cadavres_j"], action_line["cadavres_adv"] = player.cadavres, adv.cadavres
         action_line["nbre_cartes_j"], action_line["nbre_cartes_adv"] = len(player.hand), len(adv.hand)
-        action_line["dispo_ph_j"], action_line["cout_ph_j"] = player.hero.dispo_pouvoir, player.hero.cout_pouvoir
-        action_line["arme_j"] = player.hero.weapon.name if player.hero.weapon is not None else ""
-        action_line["arme_adv"] = adv.hero.weapon.name if adv.hero.weapon is not None else ""
-        action_line["attaque_j"], action_line["attaque_adv"] = player.hero.attack, adv.hero.attack
-        action_line["remaining_atk_j"] = player.hero.remaining_atk
-        action_line["attack_arme_j"] = player.hero.weapon.attack if player.hero.weapon is not None else 0
-        action_line["attack_arme_adv"] = adv.hero.weapon.attack if adv.hero.weapon is not None else 0
-        action_line["durabilite_arme_j"] = player.hero.weapon.health if player.hero.weapon is not None else 0
-        action_line["durabilite_arme_adv"] = adv.hero.weapon.health if adv.hero.weapon is not None else 0
+        action_line["dispo_ph_j"], action_line["cout_ph_j"] = player.dispo_pouvoir, player.cout_pouvoir
+        action_line["arme_j"] = player.weapon.name if player.weapon is not None else ""
+        action_line["arme_adv"] = adv.weapon.name if adv.weapon is not None else ""
+        action_line["attaque_j"], action_line["attaque_adv"] = player.attack, adv.attack
+        action_line["remaining_atk_j"] = player.remaining_atk
+        action_line["attack_arme_j"] = player.weapon.attack if player.weapon is not None else 0
+        action_line["attack_arme_adv"] = adv.weapon.attack if adv.weapon is not None else 0
+        action_line["durabilite_arme_j"] = player.weapon.health if player.weapon is not None else 0
+        action_line["durabilite_arme_adv"] = adv.weapon.health if adv.weapon is not None else 0
         action_line["pseudo_j"], action_line["pseudo_adv"] = player.name, adv.name
 
         """ HERO """
@@ -442,7 +442,6 @@ class Player:
         self.name = name
         self.classe = classe
         self.ia = ia
-        self.hero = Hero(heroes[self.classe][0])  # Premier héros par défaut
 
         # Cartes
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
@@ -459,15 +458,35 @@ class Player:
         self.dead_undeads, self.cavalier_apocalypse, self.genre_joues = [], [], []
         self.oiseaux_libres, self.geolier = 0, 0
 
+        """ Héros choisi par le joueur """
+        self.name = name
+        self.power = None
+
+        self.dispo_pouvoir = True
+        self.cout_pouvoir = 2
+        self.cout_pouvoir_temp = 2
+        self.effet_pouvoir = None
+
+        self.attack, self.inter_attack = 0, 0
+        self.remaining_atk, self.has_attacked = 1, 0
+        self.armor = 0
+        self.gel = 0
+        self.health, self.base_health = 30, 30
+        self.weapon = None
+        self.effects = {}
+
+        self.fatigue, self.damage_this_turn, self.heal_this_turn = 0, 0, 0
+        self.my_turn = 0
+
     def start_game(self):
         self.deck.shuffle()
-        self.hero.reset_complete()
+        self.reset_complete()
         if self.classe == "Chasseur de démons":
-            self.hero.cout_pouvoir = 1
-            self.hero.cout_pouvoir_temp = 1
+            self.cout_pouvoir = 1
+            self.cout_pouvoir_temp = 1
         if "Prince Renathal" in [x.name for x in self.deck]:
-            self.hero.health = 35
-            self.hero.base_health = 35
+            self.health = 35
+            self.base_health = 35
         self.pick_multi(3)
 
     def start_turn(self):
@@ -475,17 +494,17 @@ class Player:
         if len(self.deck) > 0:
             self.pick()
         else:
-            self.hero.fatigue += 1
-        if "murmegivre" in self.hero.effects:
+            self.fatigue += 1
+        if "murmegivre" in self.effects:
             self.discount_next.append(["murmegivre"])
-            if self.hero.effects["murmegivre"] == 0:
-                self.hero.damage(1000)
+            if self.effects["murmegivre"] == 0:
+                self.damage(1000)
             else:
-                self.hero.effects["murmegivre"] -= 1
+                self.effects["murmegivre"] -= 1
         for lieu in self.lieux:
             lieu.attack = min(0.5 + lieu.attack, 1)
-        self.hero.damage(self.hero.fatigue)
-        self.hero.reset()
+        self.damage(self.fatigue)
+        self.reset()
         self.mana_grow()
         self.mana_reset()
         self.power_reset()
@@ -494,18 +513,18 @@ class Player:
 
     def end_turn(self):
         """ Mise à jour de fin de tour """
-        self.hero.attack, self.hero.inter_attack = 0, 0
-        self.hero.damage_this_turn, self.hero.my_turn = 0, 0
+        self.attack, self.inter_attack = 0, 0
+        self.damage_this_turn, self.my_turn = 0, 0
         self.dead_undeads = []
         self.serv_this_turn = CardGroup()
         self.augment = []
-        if self.hero.remaining_atk == 0 and self.hero.gel == 1:
-            self.hero.gel = 0
-        if self.hero.effects:
-            if "inciblable" in self.hero.effects and "temp_turn" in self.hero.effects["inciblable"]:
-                self.hero.effects.pop("inciblable")
-            if "draw" in self.hero.effects and "temp_turn" in self.hero.effects["draw"]:
-                self.hero.effects.pop("draw")
+        if self.remaining_atk == 0 and self.gel == 1:
+            self.gel = 0
+        if self.effects:
+            if "inciblable" in self.effects and "temp_turn" in self.effects["inciblable"]:
+                self.effects.pop("inciblable")
+            if "draw" in self.effects and "temp_turn" in self.effects["draw"]:
+                self.effects.pop("draw")
 
         if self.discount_next:
             for discount in self.discount_next:
@@ -547,7 +566,7 @@ class Player:
                         servant.base_health += servant.effects["aura"][2][1]
                 elif "damage" in servant.effects["aura"]:
                     if "heros" in servant.effects["aura"][1] and "allié" in servant.effects["aura"][1]:
-                        self.hero.damage(servant.effects["aura"][2])
+                        self.damage(servant.effects["aura"][2])
                 elif "main" in servant.effects["aura"][1]:
                     if "allié" in servant.effects["aura"][1] and "serviteur" in servant.effects["aura"][1]:
                         if [x for x in self.hand if x.type == "Serviteur"]:
@@ -559,7 +578,16 @@ class Player:
                 elif "invocation" in servant.effects["aura"]:
                     if "if_cadavre" in servant.effects["aura"][1] and self.cadavres >= servant.effects["aura"][1][-1] and len(self.servants) + len(self.lieux) < 7:
                         self.cadavres -= servant.effects["aura"][1][-1]
-                        self.servants.add(get_card(servant.effects["aura"][2], all_servants))
+                        if "copy" in servant.effects["aura"][1]:
+                            invoked_servant = get_card(servant.name, all_servants)
+                            invoked_servant.attack = servant.attack
+                            invoked_servant.base_attack = servant.base_attack
+                            invoked_servant.health = servant.health
+                            invoked_servant.base_health = servant.base_health
+                            invoked_servant.effects = servant.effects.copy()
+                            self.servants.add(invoked_servant)
+                        else:
+                            self.servants.add(get_card(servant.effects["aura"][2], all_servants))
 
     def apply_discount(self):
         for card in self.hand:
@@ -570,9 +598,9 @@ class Player:
                         card.cost = card.base_cost - len(self.hand) + 1
                     elif "total_mana_spend_spells" in card.effects["reduc"]:
                         card.cost = card.base_cost - self.mana_spend_spells
-        if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.hero.weapon is not None:
+        if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.weapon is not None:
             for corsaire in [x for x in self.hand if x.name == "Corsaire de l'effroi"]:
-                corsaire.cost = max(0, corsaire.base_cost - self.hero.weapon.attack - self.hero.attack)
+                corsaire.cost = max(0, corsaire.base_cost - self.weapon.attack - self.attack)
         if self.discount_next:
             for discount in self.discount_next:
                 for card in self.hand:
@@ -609,7 +637,7 @@ class Player:
                 if reduction == card.cost % 2:
                     card.cost = 1
         if [x for x in self.servants if "cost_pv" in x.effects]:
-            if self.hero.heal_this_turn > 0:
+            if self.heal_this_turn > 0:
                 for creature in [x for x in self.servants if "cost_pv" in x.effects]:
                     creature.cost = 0
                     creature.effects["cost_pv"][1] = 1
@@ -618,10 +646,10 @@ class Player:
                     creature.effects["cost_pv"][1] = 0
 
     def apply_weapon(self):
-        if self.hero.weapon is not None:
-            self.hero.attack = self.hero.weapon.attack + self.hero.inter_attack
+        if self.weapon is not None:
+            self.attack = self.weapon.attack + self.inter_attack
         else:
-            self.hero.attack = self.hero.inter_attack
+            self.attack = self.inter_attack
 
     def mana_spend(self, nb):
         self.mana -= nb
@@ -634,7 +662,7 @@ class Player:
         self.surcharge = 0
 
     def power_reset(self):
-        self.hero.dispo_pouvoir = True
+        self.dispo_pouvoir = True
 
     def pick(self):
         """ Prendre la première carte du deck et l'ajouter à sa main """
@@ -647,17 +675,17 @@ class Player:
                         self.servants.add(get_card(self.deck.cards[0].effects["invoked_drawn"], all_servants))
                         self.deck.remove(self.deck.cards[0])
                 self.hand.add(self.deck.pick_one())
-                if "draw" in self.hero.effects:
-                    self.hero.damage(self.hero.effects["draw"][2])
+                if "draw" in self.effects:
+                    self.damage(self.effects["draw"][2])
             else:
-                self.hero.fatigue += 1
-                self.hero.damage(self.hero.fatigue)
+                self.fatigue += 1
+                self.damage(self.fatigue)
         else:
             if self.deck.cards:
                 self.deck.pick_one()
             else:
-                self.hero.fatigue += 1
-                self.hero.damage(self.hero.fatigue)
+                self.fatigue += 1
+                self.damage(self.fatigue)
             # raise PermissionError("Il a plus de cartes en main que de place prévue dans le log")
 
     def pick_multi(self, nb):
@@ -666,41 +694,9 @@ class Player:
                 print(nb)
             self.pick()
 
-    def set_hero(self, name):
-        self.hero = Hero(name)
-
     def set_deck(self, file):
         self.deck = import_deck(file)
-
-    def __repr__(self) -> str:
-        return self.name
-
-
-class Hero:
-    def __init__(self, name):
-        """ Héros choisi par le joueur """
-        self.name = name
-        self.power = None
-
-        self.dispo_pouvoir = True
-        self.cout_pouvoir = 2
-        self.cout_pouvoir_temp = 2
-        self.effet_pouvoir = None
-
-        self.attack, self.inter_attack = 0, 0
-        self.remaining_atk, self.has_attacked = 1, 0
-        self.armor = 0
-        self.gel = 0
-        self.health, self.base_health = 30, 30
-        self.weapon = None
-        self.effects = {}
-
-        self.fatigue, self.damage_this_turn, self.heal_this_turn = 0, 0, 0
-        self.my_turn = 0
-
-    def __repr__(self):
-        return self.name
-
+        
     def damage(self, nb):
         nb_armor = nb * (self.armor >= nb) + self.armor * (self.armor < nb)
         self.armor -= nb_armor
@@ -742,8 +738,12 @@ class Hero:
         if nb_heal and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn == 1:
             self.weapon.effects["stack"] += 1
 
+
     def is_dead(self) -> bool:
         return self.health <= 0
+
+    def __repr__(self) -> str:
+        return self.name
 
 
 class CardGroup:

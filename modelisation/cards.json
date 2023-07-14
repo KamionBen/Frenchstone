@@ -638,7 +638,7 @@
         "cost": 1,
         "attack": 1,
         "health": 3,
-        "effects": {"cri de guerre":  ["add_armor", ["héros", "tous"], 4]}
+        "effects": {"cri de guerre":  ["add_armor", ["heros", "tous"], 4]}
     },
     {
         "id": 52,
@@ -749,7 +749,7 @@
         "attack": 5,
         "health": 5,
         "effects": {"cri de guerre":  ["add_hand", ["allié"], "Astalor le porte flamme"],
-        "soif de mana":  ["add_armor", ["héros", "allié"], 5, 8],
+        "soif de mana":  ["add_armor", ["heros", "allié"], 5, 8],
         "legendaire":  1}
     },
     {
@@ -1234,7 +1234,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"rale d'agonie":  ["add_armor", ["héros", "allié"], 3]}
+        "effects": {"rale d'agonie":  ["add_armor", ["heros", "allié"], 3]}
     },
     {
         "id": 101,
@@ -4639,6 +4639,199 @@
         "attack": 3,
         "health": 6,
         "effects": {"vol de vie": 1, "aura": ["Banshee hurlante", [""], ""], "rouge":  1}
+    },
+    {
+        "id": 383,
+        "name": "Fanshee",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {}
+    },
+    {
+        "id": 384,
+        "name": "Explosion morbide",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": null,
+        "health": null,
+        "effects": {"damage":  [["serviteur", "tous", "if_cadavre"], 1], "repeat_if_cadavre_and_serv": 1, "rouge":  1}
+    },
+    {
+        "id": 385,
+        "name": "Furoncle sanglant",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": null,
+        "health": null,
+        "effects": {"infection":  [["serviteur", "ennemi", "tous"], ["end_turn", "self_damage", "vol de vie", 2]], "rouge":  1}
+    },
+    {
+        "id": 386,
+        "name": "Mariee cadaverique",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 4,
+        "health": 4,
+        "effects": {"cri de guerre": ["invocation", ["allié", "conditional", "until_cadavre", 8], "Marie ressuscite"]}
+    },
+    {
+        "id": 387,
+        "name": "Marie ressuscite",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {}
+    },
+    {
+        "id": 388,
+        "name": "Moulin a os",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 5,
+        "health": 4,
+        "effects": {"cri de guerre": ["apply_gain_rale", ["serviteur", "allié", "mort", "if_rale_agonie", "if_cadavre", 5], 1], "vert":  1}
+    },
+    {
+        "id": 389,
+        "name": "Porte mort saurcroc",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 3,
+        "health": 5,
+        "effects": {"rale d'agonie": ["add_hand", ["allié", "cost_pv"], "Porte mort saurcroc"],
+            "rouge":  1, "legendaire":  1, "provocation":  1}
+    },
+    {
+        "id": 390,
+        "name": "Possessionaire",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre":  ["invocation", ["allié"], ["Combattant possede", "Combattant possede"]], "vert":  1}
+    },
+    {
+        "id": 391,
+        "name": "Combattant possede",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"ruée":  1, "reincarnation":  1}
+    },
+    {
+        "id": 392,
+        "name": "Sculpteur de frimas",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 4,
+        "health": 3,
+        "effects": {"cri de guerre":  ["invocation", ["allié"], ["Elementaire de frimas", "Elementaire de frimas"]], "bleu":  1}
+    },
+    {
+        "id": 393,
+        "name": "Elementaire de frimas",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"rale d'agonie": ["damage", ["tous", "ennemi", "aléatoire"], 2]}
+    },
+    {
+        "id": 394,
+        "name": "Cerbere carbonise",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": 3,
+        "health": 6,
+        "effects": {"ruée": 1, "vol de vie": 1, "cleave":  1}
+    },
+    {
+        "id": 395,
+        "name": "Contremaitresse Frigidara",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": 3,
+        "health": 6,
+        "effects": {"cri de guerre":  ["pioche", ["allié", "sort", "dmg_if_givre"], 2], "legendaire":  1, "bleu":  1}
+    },
+    {
+        "id": 396,
+        "name": "Croque gnomes",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": 5,
+        "health": 6,
+        "effects": {"provocation":  1, "vol de vie":  1, "aura":  ["attack", ["tous", "ennemi", "lowest_health", "end_turn"], 1],"rouge":  1}
+    },
+    {
+        "id": 397,
+        "name": "Manipulatrice de moelle",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": 5,
+        "health": 5,
+        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "spend_cadavre", "aléatoire", 5], 2], "bleu":  1}
+    },
+    {
+        "id": 398,
+        "name": "Porte cendres corrompue",
+        "classe": "Chevalier de la mort",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": 5,
+        "health": 2,
+        "effects": {"vol de vie":  1, "rouge":  1}
     }
 ]
 

@@ -176,49 +176,7 @@ class Plateau:
         adv = self.players[1]
         """ Fin du tour"""
         player.end_turn()
-        """ Effets de fin de tour """
-        for servant in player.servants:
-            if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
-                if servant.name == "Cuisinier toque" and adv.damage_this_turn >= 3:
-                    player.pick()
-                elif "add_deck" in servant.effects["aura"] and "random_spell_top" in servant.effects["aura"][1]:
-                    try:
-                        adv.deck.cards.insert(0, Card(
-                            **random.choice([x for x in all_spells if x["decouvrable"] == 1])))
-                    except:
-                        adv.deck.cards.insert(0, Card(
-                            **random.choice([x for x in all_servants if x["decouvrable"] == 1])))
-                elif "damage" in servant.effects["aura"]:
-                    if "tous" in servant.effects["aura"][1]:
-                        if not "aléatoire" in servant.effects["aura"][1]:
-                            for entity in [player] + [adv] + player.servants.cards + adv.servants.cards:
-                                if entity != servant:
-                                    entity.damage(servant.effects["aura"][2])
-                        elif "ennemi" in servant.effects["aura"][1]:
-                            target = random.choice([adv] + adv.servants.cards)
-                            target.damage(servant.effects["aura"][2])
-                elif "invocation" in servant.effects["aura"]:
-                    if "until_full" in servant.effects["aura"][1]:
-                        while len(player.servants) + len(player.lieux) < 7:
-                            player.servants.add(get_card(servant.effects["aura"][2], all_servants))
-        for servant in adv.servants:
-            if "aura" in servant.effects and "each_turn" in servant.effects["aura"][1]:
-                if "invocation" in servant.effects["aura"]:
-                    if "until_full" in servant.effects["aura"][1]:
-                        while len(adv.servants) + len(adv.lieux) < 7:
-                            adv.servants.add(get_card(servant.effects["aura"][2], all_servants))
-        if "Rock en fusion" in [x.name for x in player.hand]:
-            rock_en_fusion = [x for x in player.hand if x.name == "Rock en fusion"][0]
-            player.hand.remove(rock_en_fusion)
-            if player.mana > 0:
-                player.damage(rock_en_fusion.effects["rock_en_fusion"])
-            else:
-                rock_en_fusion.effects["rock_en_fusion"] += 2
-                if len(adv.hand) < 10:
-                    adv.hand.add(rock_en_fusion)
-
         self.players.reverse()
-
         player = self.players[0]
         adv = self.players[1]
 
@@ -274,6 +232,8 @@ class Plateau:
                 if servant.is_dead():
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
+                    if "rale d'agonie" in servant.effects:
+                        player.dead_rale.append(servant)
                     player.all_dead_servants.append(servant)
                     if len(player.all_dead_servants) > 3:
                         player.all_dead_servants = player.all_dead_servants[-3:]
@@ -455,11 +415,10 @@ class Player:
         self.cadavres = 0
         self.discount_next, self.augment = [], []
         self.all_dead_servants = []
-        self.dead_undeads, self.cavalier_apocalypse, self.genre_joues = [], [], []
+        self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues = [], [], [], []
         self.oiseaux_libres, self.geolier = 0, 0
 
         """ Héros choisi par le joueur """
-        self.name = name
         self.power = None
 
         self.dispo_pouvoir = True
@@ -636,14 +595,17 @@ class Player:
             for card in self.hand:
                 if reduction == card.cost % 2:
                     card.cost = 1
-        if [x for x in self.servants if "cost_pv" in x.effects]:
-            if self.heal_this_turn > 0:
-                for creature in [x for x in self.servants if "cost_pv" in x.effects]:
+        if [x for x in self.hand if "cost_pv" in x.effects]:
+            for creature in [x for x in self.hand if "cost_pv" in x.effects]:
+                if "if_heal_this_turn" in creature.effects["cost_pv"]:
+                    if self.heal_this_turn > 0:
+                        creature.cost = 0
+                        creature.effects["cost_pv"][1] = 1
+                    else:
+                        creature.effects["cost_pv"][1] = 0
+                else:
                     creature.cost = 0
                     creature.effects["cost_pv"][1] = 1
-            else:
-                for creature in [x for x in self.servants if "cost_pv" in x.effects]:
-                    creature.effects["cost_pv"][1] = 0
 
     def apply_weapon(self):
         if self.weapon is not None:
@@ -737,6 +699,13 @@ class Player:
         self.heal_this_turn += nb_heal
         if nb_heal and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn == 1:
             self.weapon.effects["stack"] += 1
+        if nb_heal > 0 and [x for x in self.servants if "aura" in x.effects and "Banshee hurlante" in x.effects["aura"]] and len(self.servants) + len(self.lieux) < 7:
+            invoked_servant = get_card("Fanshee", all_servants)
+            invoked_servant.attack = nb_heal
+            invoked_servant.base_attack = nb_heal
+            invoked_servant.health = nb_heal
+            invoked_servant.base_health = nb_heal
+            self.servants.add(invoked_servant)
 
 
     def is_dead(self) -> bool:

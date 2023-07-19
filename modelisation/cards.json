@@ -21,7 +21,7 @@
         "cost": 0,
         "attack": null,
         "health": null,
-        "effects": {"add_mana" :  1}
+        "effects": {"add_mana" : 1}
     },
     {
         "id": 1,
@@ -105,7 +105,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"provocation" :  1}
+        "effects": {"provocation" : 1}
     },
     {
         "id": 8,
@@ -249,7 +249,7 @@
         "cost": 9,
         "attack": 8,
         "health": 8,
-        "effects": {"charge": 1, "legendaire":  1}
+        "effects": {"charge": 1, "legendaire": 1}
     },
     {
         "id": 20,
@@ -322,7 +322,7 @@
         "attack": 1,
         "health": 1,
         "effects": {"provocation": 1,
-        "bouclier divin":  1}
+        "bouclier divin": 1}
     },
     {
         "id": 26,
@@ -335,7 +335,7 @@
         "attack": 1,
         "health": 2,
         "effects": {"provocation": 1,
-        "bouclier divin":  1}
+        "bouclier divin": 1}
     },
     {
         "id": 27,
@@ -407,7 +407,7 @@
         "cost": 1,
         "attack": 4,
         "health": 3,
-        "effects": {"ne peut pas attaquer":  1}
+        "effects": {"ne peut pas attaquer": 1}
     },
     {
         "id": 33,
@@ -479,7 +479,7 @@
         "cost": 1,
         "attack": 2,
         "health": 1,
-        "effects": {"camouflage":  1}
+        "effects": {"camouflage": 1}
     },
     {
         "id": 39,
@@ -540,7 +540,7 @@
         "attack": 1,
         "health": 1,
         "effects": {"cri de guerre": ["boost", ["main", "allié", "1", "Méca"], [1, 1]],
-        "bouclier divin":  1}
+        "bouclier divin": 1}
     },
     {
         "id": 44,
@@ -553,7 +553,7 @@
         "attack": 1,
         "health": 1,
         "effects": {"aura": ["boost", ["self", "allié", "", "Piranha grouillant"], [1, 0]],
-        "ruée":  1}
+        "ruée": 1}
     },
     {
         "id": 45,
@@ -566,7 +566,7 @@
         "attack": 4,
         "health": 1,
         "effects": {"en sommeil": 1,
-        "ruée":  1}
+        "ruée": 1}
     },
     {
         "id": 46,
@@ -590,7 +590,7 @@
         "cost": 1,
         "attack": 1,
         "health": 3,
-        "effects": {"cri de guerre": "Sir Finley", "legendaire":  1}
+        "effects": {"cri de guerre": "Sir Finley", "legendaire": 1}
     },
     {
         "id": 48,
@@ -621,7 +621,7 @@
         "name": "Une erreur",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"],
+        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"],
         "decouvrable": 1,
         "cost": 1,
         "attack": 1,
@@ -638,7 +638,7 @@
         "cost": 1,
         "attack": 1,
         "health": 3,
-        "effects": {"cri de guerre":  ["add_armor", ["heros", "tous"], 4]}
+        "effects": {"cri de guerre": ["add_armor", ["heros", "tous"], 4]}
     },
     {
         "id": 52,
@@ -650,7 +650,7 @@
         "cost": 1,
         "attack": 2,
         "health": 1,
-        "effects": {"cri de guerre":  ["gel", ["tous", "ennemi", "choisi"], 1]}
+        "effects": {"cri de guerre": ["gel", ["tous", "ennemi", "choisi"], 1]}
     },
     {
         "id": 53,
@@ -662,7 +662,7 @@
         "cost": 1,
         "attack": 0,
         "health": 2,
-        "effects": {"rale d'agonie":  ["invocation", ["allié"], "Poulet mort vivant"]}
+        "effects": {"rale d'agonie": ["invocation", ["allié"], "Poulet mort vivant"]}
     },
     {
         "id": 54,
@@ -686,19 +686,19 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["swap", ["serviteur", "tous", "choisi"]]}
+        "effects": {"cri de guerre": ["swap", ["serviteur", "tous", "choisi"]]}
     },
     {
         "id": 56,
         "name": "Amalgame des profondeurs",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"],
+        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"],
         "decouvrable": 1,
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre":  ["découverte", ["serviteur", "allié", "choisi", "genre"], ["serviteur", "genre"]]}
+        "effects": {"cri de guerre": ["découverte", ["serviteur", "allié", "choisi", "genre"], ["serviteur", "genre"]]}
     },
     {
         "id": 57,
@@ -710,7 +710,7 @@
         "cost": 2,
         "attack": 2,
         "health": 1,
-        "effects": {"rale d'agonie":  ["pioche", ["allié"], 1]}
+        "effects": {"rale d'agonie": ["pioche", ["allié"], 1]}
     },
     {
         "id": 58,
@@ -722,7 +722,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre":  ["mana_final", ["allié"], 11]}
+        "effects": {"cri de guerre": ["mana_final", ["allié"], 11]}
     },
     {
         "id": 59,
@@ -734,9 +734,9 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["add_hand", ["allié"], "Astalor le protecteur"],
-        "soif de mana":  ["damage", ["tous", "tous", "choisi"], 2, 5],
-        "legendaire":  1}
+        "effects": {"cri de guerre": ["add_hand", ["allié"], "Astalor le protecteur"],
+        "soif de mana": ["damage", ["tous", "tous", "choisi"], 2, 5],
+        "legendaire": 1}
     },
     {
         "id": 60,
@@ -748,9 +748,9 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre":  ["add_hand", ["allié"], "Astalor le porte flamme"],
-        "soif de mana":  ["add_armor", ["heros", "allié"], 5, 8],
-        "legendaire":  1}
+        "effects": {"cri de guerre": ["add_hand", ["allié"], "Astalor le porte flamme"],
+        "soif de mana": ["add_armor", ["heros", "allié"], 5, 8],
+        "legendaire": 1}
     },
     {
         "id": 61,
@@ -762,9 +762,9 @@
         "cost": 8,
         "attack": 8,
         "health": 8,
-        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "aléatoire", 7], 1],
-        "soif de mana":  ["damage", ["tous", "ennemi", "aléatoire", 7], 1, 10],
-        "legendaire":  1}
+        "effects": {"cri de guerre": ["damage", ["tous", "ennemi", "aléatoire", 7], 1],
+        "soif de mana": ["damage", ["tous", "ennemi", "aléatoire", 7], 1, 10],
+        "legendaire": 1}
     },
     {
         "id": 62,
@@ -776,7 +776,7 @@
         "cost": 2,
         "attack": 0,
         "health": 7,
-        "effects": {"aura":  ["destroy", ["serviteur", "tous", "start_turn"], ""]}
+        "effects": {"aura": ["destroy", ["serviteur", "tous", "start_turn"], ""]}
     },
     {
         "id": 63,
@@ -788,7 +788,7 @@
         "cost": 2,
         "attack": 1,
         "health": 3,
-        "effects": {"aura":  ["boost", ["self", "Méca", ""], [1, 1]]}
+        "effects": {"aura": ["boost", ["self", "Méca", ""], [1, 1]]}
     },
     {
         "id": 64,
@@ -800,7 +800,7 @@
         "cost": 2,
         "attack": 3,
         "health": 2,
-        "effects": {"cri de guerre":  ["damage", ["tous", "tous", "aléatoire", 3], 1]}
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "aléatoire", 3], 1]}
     },
     {
         "id": 65,
@@ -812,7 +812,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"dégats des sorts":  1}
+        "effects": {"dégats des sorts": 1}
     },
     {
         "id": 66,
@@ -896,7 +896,7 @@
         "cost": 2,
         "attack": 3,
         "health": 2,
-        "effects": {"inciblable":  1}
+        "effects": {"inciblable": 1}
     },
     {
         "id": 73,
@@ -908,7 +908,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["damage", ["tous", "tous", "choisi", "conditional", "if_weapon"], 2]}
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi", "conditional", "if_weapon"], 2]}
     },
     {
         "id": 74,
@@ -920,7 +920,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre":  ["boost", ["serviteur", "allié", "choisi", "Bête"], [2, 0]]}
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "Bête"], [2, 0]]}
     },
     {
         "id": 75,
@@ -932,7 +932,7 @@
         "cost": 2,
         "attack": 3,
         "health": 1,
-        "effects": {"rale d'agonie":  ["add_hand", ["allié", "sort", "ombre", "aléatoire"], ""]}
+        "effects": {"rale d'agonie": ["add_hand", ["allié", "sort", "ombre", "aléatoire"], ""]}
     },
     {
         "id": 76,
@@ -944,7 +944,7 @@
         "cost": 2,
         "attack": 1,
         "health": 1,
-        "effects": {"cri de guerre":  ["invocation", ["allié", "serviteur", "aléatoire", "cout", 2], 1]}
+        "effects": {"cri de guerre": ["invocation", ["allié", "serviteur", "aléatoire", "cout", 2], 1]}
     },
     {
         "id": 77,
@@ -956,7 +956,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"dégats des sorts":  1}
+        "effects": {"dégats des sorts": 1}
     },
     {
         "id": 78,
@@ -968,7 +968,7 @@
         "cost": 2,
         "attack": 1,
         "health": 3,
-        "effects": {"cri de guerre":  ["découverte", [""], ["sort", "classe_adv"]]}
+        "effects": {"cri de guerre": ["découverte", [""], ["sort", "classe_adv"]]}
     },
     {
         "id": 79,
@@ -1028,8 +1028,8 @@
         "cost": 2,
         "attack": 1,
         "health": 1,
-        "effects": {"rale d'agonie":  ["pioche", ["allié"], 1],
-        "dégat des sorts":  1, "legendaire":  1}
+        "effects": {"rale d'agonie": ["pioche", ["allié"], 1],
+        "dégat des sorts": 1, "legendaire": 1}
     },
     {
         "id": 84,
@@ -1041,7 +1041,7 @@
         "cost": 2,
         "attack": 0,
         "health": 2,
-        "effects": {"rale d'agonie":  ["damage", ["heros", "ennemi"], 4]}
+        "effects": {"rale d'agonie": ["damage", ["heros", "ennemi"], 4]}
     },
     {
         "id": 85,
@@ -1053,7 +1053,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre":  ["boost", ["self"], ["atk_weapon", 0]]}
+        "effects": {"cri de guerre": ["boost", ["self"], ["atk_weapon", 0]]}
     },
     {
         "id": 86,
@@ -1065,7 +1065,7 @@
         "cost": 2,
         "attack": 1,
         "health": 1,
-        "effects": {"rale d'agonie":  ["damage", ["serviteur", "tous"], 2]}
+        "effects": {"rale d'agonie": ["damage", ["serviteur", "tous"], 2]}
     },
     {
         "id": 87,
@@ -1077,8 +1077,8 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["gel", ["serviteur", "ennemi", "choisi"], 1],
-        "soif de mana":  ["silence+gel", ["serviteur", "ennemi", "choisi"], 1, 6]}
+        "effects": {"cri de guerre": ["gel", ["serviteur", "ennemi", "choisi"], 1],
+        "soif de mana": ["silence+gel", ["serviteur", "ennemi", "choisi"], 1, 6]}
     },
     {
         "id": 88,
@@ -1090,7 +1090,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"ruée" : 1, "final":  ["vol de vie", ["self"], 1]}
+        "effects": {"ruée" : 1, "final": ["vol de vie", ["self"], 1]}
     },
     {
         "id": 89,
@@ -1114,7 +1114,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"ruée":  1}
+        "effects": {"ruée": 1}
     },
     {
         "id": 91,
@@ -1162,7 +1162,7 @@
         "cost": 2,
         "attack": 1,
         "health": 2,
-        "effects": {"cri de guerre":  ["pioche", ["allié", "arme"], 1]}
+        "effects": {"cri de guerre": ["pioche", ["allié", "arme"], 1]}
     },
     {
         "id": 95,
@@ -1174,7 +1174,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"provocation": 1, "impregnation":  ["Pretre des defunts impregne", 3]}
+        "effects": {"provocation": 1, "impregnation": ["Pretre des defunts impregne", 3]}
     },
     {
         "id": 96,
@@ -1210,7 +1210,7 @@
         "cost": 2,
         "attack": 2,
         "health": 6,
-        "effects": {"provocation":  1, "cri de guerre" :  ["invocation", ["serviteur", "ennemi", "main", "aléatoire"], 1]}
+        "effects": {"provocation": 1, "cri de guerre" : ["invocation", ["serviteur", "ennemi", "main", "aléatoire"], 1]}
     },
     {
         "id": 99,
@@ -1222,7 +1222,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"ruée":  1, "cri de guerre" :  ["boost", ["self", "cout_last_card", 1], [1, 1]]}
+        "effects": {"ruée": 1, "cri de guerre" : ["boost", ["self", "cout_last_card", 1], [1, 1]]}
     },
     {
         "id": 100,
@@ -1234,7 +1234,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"rale d'agonie":  ["add_armor", ["heros", "allié"], 3]}
+        "effects": {"rale d'agonie": ["add_armor", ["heros", "allié"], 3]}
     },
     {
         "id": 101,
@@ -1246,7 +1246,7 @@
         "cost": 2,
         "attack": 3,
         "health": 2,
-        "effects": {"cri de guerre":  ["reduc", ["sort", "prochain", "tous",  ""], -1]}
+        "effects": {"cri de guerre": ["reduc", ["sort", "prochain", "tous",  ""], -1]}
     },
     {
         "id": 102,
@@ -1258,7 +1258,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"rale d'agonie":  ["damage", ["tous", "ennemi",  "aléatoire"], 2]}
+        "effects": {"rale d'agonie": ["damage", ["tous", "ennemi",  "aléatoire"], 2]}
     },
     {
         "id": 103,
@@ -1270,7 +1270,7 @@
         "cost": 2,
         "attack": 2,
         "health": 6,
-        "effects": {"provocation":  1, "cri de guerre":  ["damage", ["self"], 3]}
+        "effects": {"provocation": 1, "cri de guerre": ["damage", ["self"], 3]}
     },
     {
         "id": 104,
@@ -1294,7 +1294,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["découverte", [""], ["sort", "secret", "aléatoire"]]}
+        "effects": {"cri de guerre": ["découverte", [""], ["sort", "secret", "aléatoire"]]}
     },
     {
         "id": 106,
@@ -1306,7 +1306,7 @@
         "cost": 2,
         "attack": 0,
         "health": 2,
-        "effects": {"rale d'agonie":  ["invocation", ["allié"], "Nerubien"]}
+        "effects": {"rale d'agonie": ["invocation", ["allié"], "Nerubien"]}
     },
     {
         "id": 107,
@@ -1330,7 +1330,7 @@
         "cost": 3,
         "attack": 1,
         "health": 3,
-        "effects": {"aura":  ["pioche", ["allié", "global", "damage_self", "alive"], 1]}
+        "effects": {"aura": ["pioche", ["allié", "global", "damage_self", "alive"], 1]}
     },
     {
         "id": 109,
@@ -1342,7 +1342,7 @@
         "cost": 3,
         "attack": 2,
         "health": 2,
-        "effects": {"dégats des sorts":  2, "cri de guerre":  ["boost", ["heros", "ennemi", "temp_turn"], "inciblable"]}
+        "effects": {"dégats des sorts": 2, "cri de guerre": ["boost", ["heros", "ennemi", "temp_turn"], "inciblable"]}
     },
     {
         "id": 110,
@@ -1354,7 +1354,7 @@
         "cost": 3,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre":  ["invocation", ["deck", "allié", "aléatoire", "cout"], ""]}
+        "effects": {"cri de guerre": ["invocation", ["deck", "allié", "aléatoire", "cout"], ""]}
     },
     {
         "id": 111,
@@ -1414,7 +1414,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"cri de guerre":  ["damage", ["tous", "tous", "choisi", "conditional", "if_dragon_hand"], 3]}
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi", "conditional", "if_dragon_hand"], 3]}
     },
     {
         "id": 116,
@@ -1450,7 +1450,7 @@
         "cost": 3,
         "attack": 5,
         "health": 4,
-        "effects": {"reincarnation" : 1, "cri de guerre":  ["suicide", ["self"], 1]}
+        "effects": {"reincarnation" : 1, "cri de guerre": ["suicide", ["self"], 1]}
     },
     {
         "id": 119,
@@ -1462,7 +1462,7 @@
         "cost": 3,
         "attack": 1,
         "health": 5,
-        "effects": {"cri de guerre":  ["boost", ["serviteur", "allié", "choisi", "alive"], [3, 0]]}
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "alive"], [3, 0]]}
     },
     {
         "id": 120,
@@ -1474,7 +1474,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"cri de guerre":  ["add_deck", ["allié"], ["Instantane de Feplouf"]], "legendaire":  1}
+        "effects": {"cri de guerre": ["add_deck", ["allié"], ["Instantane de Feplouf"]], "legendaire": 1}
     },
     {
         "id": 121,
@@ -1510,7 +1510,7 @@
         "cost": 3,
         "attack": 2,
         "health": 5,
-        "effects": {"provocation": 1, "magnetisme":  1}
+        "effects": {"provocation": 1, "magnetisme": 1}
     },
     {
         "id": 124,
@@ -1522,7 +1522,7 @@
         "cost": 3,
         "attack": 1,
         "health": 5,
-        "effects": {"provocation": 1, "rale d'agonie":  ["pioche", ["allié"], 1]}
+        "effects": {"provocation": 1, "rale d'agonie": ["pioche", ["allié"], 1]}
     },
     {
         "id": 125,
@@ -1534,7 +1534,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre":  ["découverte", ["conditional", "serviteur", "allié", "Méca"], ["serviteur", "Méca"]]}
+        "effects": {"cri de guerre": ["découverte", ["conditional", "serviteur", "allié", "Méca"], ["serviteur", "Méca"]]}
     },
     {
         "id": 126,
@@ -1546,7 +1546,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"aura":  ["boost", ["self", "heros_allié_attack"], [1, 1]]}
+        "effects": {"aura": ["boost", ["self", "heros_allié_attack"], [1, 1]]}
     },
     {
         "id": 127,
@@ -1558,8 +1558,8 @@
         "cost": 3,
         "attack": 3,
         "health": 2,
-        "effects": {"cri de guerre":  ["invocation", ["allié"], "Piranha grouillant"],
-        "rale d'agonie":  ["invocation", ["allié"], "Piranha grouillant"]}
+        "effects": {"cri de guerre": ["invocation", ["allié"], "Piranha grouillant"],
+        "rale d'agonie": ["invocation", ["allié"], "Piranha grouillant"]}
     },
     {
         "id": 128,
@@ -1571,7 +1571,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre":  ["pioche", ["allié", "Naga", "conditional", "if_spell", 1], 0, 1]}
+        "effects": {"cri de guerre": ["pioche", ["allié", "Naga", "conditional", "if_spell", 1], 0, 1]}
     },
     {
         "id": 129,
@@ -1583,7 +1583,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"cri de guerre":  ["boost", ["deck", "serviteur", "tous","allié", "if_crideguerre"], [1, 1]]}
+        "effects": {"cri de guerre": ["boost", ["deck", "serviteur", "tous","allié", "if_crideguerre"], [1, 1]]}
     },
     {
         "id": 130,
@@ -1595,7 +1595,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre":  ["découverte", [""], ["deck_adv"]], "legendaire":  1}
+        "effects": {"cri de guerre": ["découverte", [""], ["deck_adv"]], "legendaire": 1}
     },
     {
         "id": 131,
@@ -1607,7 +1607,7 @@
         "cost": 3,
         "attack": 2,
         "health": 4,
-        "effects": {"aura":  ["pioche", ["allié", "play_cost", 1], ["cost", 2]]}
+        "effects": {"aura": ["pioche", ["allié", "play_cost", 1], ["cost", 2]]}
     },
     {
         "id": 132,
@@ -1619,7 +1619,7 @@
         "cost": 3,
         "attack": 3,
         "health": 2,
-        "effects": {"soif de mana":  ["invocation", ["allié", "serviteur", "aléatoire", "cout", 3], 1, 5]}
+        "effects": {"soif de mana": ["invocation", ["allié", "serviteur", "aléatoire", "cout", 3], 1, 5]}
     },
     {
         "id": 133,
@@ -1631,7 +1631,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"ruée": 1, "soif de mana" :  ["reincarnation", ["self"], 1, 6]}
+        "effects": {"ruée": 1, "soif de mana" : ["reincarnation", ["self"], 1, 6]}
     },
     {
         "id": 134,
@@ -1643,7 +1643,7 @@
         "cost": 3,
         "attack": 5,
         "health": 6,
-        "effects": {"aura":  ["boost", ["self", "start_turn", "end_turn", "random_lose"], [0, 0]]}
+        "effects": {"aura": ["boost", ["self", "start_turn", "end_turn", "random_lose"], [0, 0]]}
     },
     {
         "id": 135,
@@ -1655,7 +1655,7 @@
         "cost": 3,
         "attack": 2,
         "health": 4,
-        "effects": {"cri de guerre":  ["invocation", ["conditional", "serviteur", "allié", "Méca"], ["Mecaille", "Mecaille"]]}
+        "effects": {"cri de guerre": ["invocation", ["conditional", "serviteur", "allié", "Méca"], ["Mecaille", "Mecaille"]]}
     },
     {
         "id": 136,
@@ -1679,7 +1679,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre":  ["découverte", [""], ["serviteur", "legendaire"]]}
+        "effects": {"cri de guerre": ["découverte", [""], ["serviteur", "legendaire"]]}
     },
     {
         "id": 138,
@@ -1691,7 +1691,7 @@
         "cost": 3,
         "attack": 2,
         "health": 4,
-        "effects": {"en sommeil": 1, "ruée":  1, "toxicite":  1}
+        "effects": {"en sommeil": 1, "ruée": 1, "toxicite": 1}
     },
     {
         "id": 139,
@@ -1703,7 +1703,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"aura":  ["damage", ["tous", "ennemi", "heros_allié_attack", "alive"], 1]}
+        "effects": {"aura": ["damage", ["tous", "ennemi", "heros_allié_attack", "alive"], 1]}
     },
     {
         "id": 140,
@@ -1715,7 +1715,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"porteur d'invitation":  1}
+        "effects": {"porteur d'invitation": 1}
     },
     {
         "id": 141,
@@ -1727,7 +1727,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"start_game":  ["pv_max", 35], "legendaire":  1}
+        "effects": {"start_game": ["pv_max", 35], "legendaire": 1}
     },
     {
         "id": 142,
@@ -1860,7 +1860,7 @@
         "cost": 3,
         "attack": 2,
         "health": 5,
-        "effects": {"provocation": 1, "soif de mana" :  ["boost", ["self", "bouclier divin"], [2, 2], 8]}
+        "effects": {"provocation": 1, "soif de mana" : ["boost", ["self", "bouclier divin"], [2, 2], 8]}
     },
     {
         "id": 153,
@@ -1872,7 +1872,7 @@
         "cost": 3,
         "attack": 4,
         "health": 2,
-        "effects": {"cri de guerre":  ["damage", ["tous", "tous", "choisi", "conditional", "if_alone"], 2]}
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi", "conditional", "if_alone"], 2]}
     },
     {
         "id": 154,
@@ -1884,7 +1884,7 @@
         "cost": 3,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["boost", ["serviteur", "allié", "choisi", "based_on_stats"], [0, 0]]}
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "based_on_stats"], [0, 0]]}
     },
     {
         "id": 155,
@@ -1896,7 +1896,7 @@
         "cost": 3,
         "attack": 2,
         "health": 1,
-        "effects": {"ruée": 1, "cri de guerre":  ["invocation", ["allié", "copy", 1], "Surf de double aileron"]}
+        "effects": {"ruée": 1, "cri de guerre": ["invocation", ["allié", "copy", 1], "Surf de double aileron"]}
     },
     {
         "id": 156,
@@ -1908,7 +1908,7 @@
         "cost": 3,
         "attack": 2,
         "health": 5,
-        "effects": {"provocation": 1, "final":  ["attack", ["self"], ["serviteur", "ennemi", "tous"]]}
+        "effects": {"provocation": 1, "final": ["attack", ["self"], ["serviteur", "ennemi", "tous"]]}
     },
     {
         "id": 157,
@@ -1920,7 +1920,7 @@
         "cost": 3,
         "attack": 0,
         "health": 6,
-        "effects": {"aura":  ["replacement", ["self"], ["serviteur", "tous", "last_dead"]]}
+        "effects": {"aura": ["replacement", ["self"], ["serviteur", "tous", "last_dead"]]}
     },
     {
         "id": 158,
@@ -1932,7 +1932,7 @@
         "cost": 3,
         "attack": 4,
         "health": 8,
-        "effects": {"ne peut pas attaquer":  1}
+        "effects": {"ne peut pas attaquer": 1}
     },
     {
         "id": 159,
@@ -1944,7 +1944,7 @@
         "cost": 3,
         "attack": 2,
         "health": 5,
-        "effects": {"aura":  ["secret_unreveal", [""], ""]}
+        "effects": {"aura": ["secret_unreveal", [""], ""]}
     },
     {
         "id": 160,
@@ -1956,7 +1956,7 @@
         "cost": 3,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre":  ["découverte", [""], ["sort", "choix mystere"]]}
+        "effects": {"cri de guerre": ["découverte", [""], ["sort", "choix mystere"]]}
     },
     {
         "id": 161,
@@ -2004,7 +2004,7 @@
         "cost": 3,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre" : ["add_hand", ["serviteur", "allié", "choisi"], "copy"], "legendaire":  1}
+        "effects": {"cri de guerre" : ["add_hand", ["serviteur", "allié", "choisi"], "copy"], "legendaire": 1}
     },
     {
         "id": 165,
@@ -2052,7 +2052,7 @@
         "cost": 3,
         "attack": 2,
         "health": 4,
-        "effects": {"cri de guerre":  ["damage", ["heros", "ennemi", "if_draw", "next_enemyturn"], 2]}
+        "effects": {"cri de guerre": ["damage", ["heros", "ennemi", "if_draw", "next_enemyturn"], 2]}
     },
     {
         "id": 169,
@@ -2064,7 +2064,7 @@
         "cost": 4,
         "attack": 4,
         "health": 5,
-        "effects": {"cri de guerre":  ["add_deck", ["allié", "colossal", 3], "end_deck"], "legendaire":  1}
+        "effects": {"cri de guerre": ["add_deck", ["allié", "colossal", 3], "end_deck"], "legendaire": 1}
     },
     {
         "id": 170,
@@ -2076,7 +2076,7 @@
         "cost": 4,
         "attack": 4,
         "health": 4,
-        "effects": {"ruée": 1, "soif de mana" :  ["boost", ["self"], [2, 2], 7]}
+        "effects": {"ruée": 1, "soif de mana" : ["boost", ["self"], [2, 2], 7]}
     },
     {
         "id": 171,
@@ -2088,7 +2088,7 @@
         "cost": 4,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre" :  ["damage", ["tous", "tous", "choisi", "conditional", "if_spell", 1],0, 3]}
+        "effects": {"cri de guerre" : ["damage", ["tous", "tous", "choisi", "conditional", "if_spell", 1],0, 3]}
     },
     {
         "id": 172,
@@ -2100,7 +2100,7 @@
         "cost": 4,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre" :  ["damage", ["serviteur", "tous"], 2]}
+        "effects": {"cri de guerre" : ["damage", ["serviteur", "tous"], 2]}
     },
     {
         "id": 173,
@@ -2112,7 +2112,7 @@
         "cost": 4,
         "attack": 4,
         "health": 4,
-        "effects": {"echangeable": 1, "cri de guerre" :  ["silence", ["serviteur", "ennemi", "choisi"], 1]}
+        "effects": {"echangeable": 1, "cri de guerre" : ["silence", ["serviteur", "ennemi", "choisi"], 1]}
     },
     {
         "id": 174,
@@ -2124,7 +2124,7 @@
         "cost": 4,
         "attack": 3,
         "health": 3,
-        "effects": {"cri de guerre" :  ["damage", ["buveuse de vie"], ""]}
+        "effects": {"cri de guerre" : ["damage", ["buveuse de vie"], ""]}
     },
     {
         "id": 175,
@@ -2160,7 +2160,7 @@
         "cost": 4,
         "attack": 3,
         "health": 3,
-        "effects": {"provocation":  1}
+        "effects": {"provocation": 1}
     },
     {
         "id": 178,
@@ -2172,7 +2172,7 @@
         "cost": 4,
         "attack": 3,
         "health": 6,
-        "effects": {"aura":  ["courbe sort", ["serviteur", "allié"], "self"]}
+        "effects": {"aura": ["courbe sort", ["serviteur", "allié"], "self"]}
     },
     {
         "id": 179,
@@ -2184,7 +2184,7 @@
         "cost": 4,
         "attack": 7,
         "health": 7,
-        "effects": {"rale d'agonie":  ["pioche", ["ennemi"], 2]}
+        "effects": {"rale d'agonie": ["pioche", ["ennemi"], 2]}
     },
     {
         "id": 180,
@@ -2196,7 +2196,7 @@
         "cost": 4,
         "attack": 4,
         "health": 1,
-        "effects": {"cri de guerre":  ["boost", ["self", "cards_in_hand"], [0, 0]]}
+        "effects": {"cri de guerre": ["boost", ["self", "cards_in_hand"], [0, 0]]}
     },
     {
         "id": 181,
@@ -2208,7 +2208,7 @@
         "cost": 4,
         "attack": 3,
         "health": 3,
-        "effects": {"cri de guerre":  ["boost", ["serviteur", "allié", "choisi", "voisin", "provocation"], [1, 1]]}
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "voisin", "provocation"], [1, 1]]}
     },
     {
         "id": 182,
@@ -2220,8 +2220,8 @@
         "cost": 4,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre":  ["découverte", ["ETC"], ["Bibliothecaire royal", "Rat deloyal", "Vipere rongerouille"]],
-        "legendaire":  1}
+        "effects": {"cri de guerre": ["découverte", ["ETC"], ["Bibliothecaire royal", "Rat deloyal", "Vipere rongerouille"]],
+        "legendaire": 1}
     },
     {
         "id": 183,
@@ -2233,7 +2233,7 @@
         "cost": 4,
         "attack": 5,
         "health": 4,
-        "effects": {"rale d'agonie":  ["invocation", ["allié", "mana_dispo"], "Zombie dechaine"]}
+        "effects": {"rale d'agonie": ["invocation", ["allié", "mana_dispo"], "Zombie dechaine"]}
     },
     {
         "id": 184,
@@ -2245,7 +2245,7 @@
         "cost": 4,
         "attack": 2,
         "health": 6,
-        "effects": {"cri de guerre":  ["boost", ["serviteur", "tous", "choisi", "alive"], "camouflage"]}
+        "effects": {"cri de guerre": ["boost", ["serviteur", "tous", "choisi", "alive"], "camouflage"]}
     },
     {
         "id": 185,
@@ -2257,7 +2257,7 @@
         "cost": 4,
         "attack": 2,
         "health": 5,
-        "effects": {"provocation": 1, "cri de guerre":  ["invocation", ["allié", "copy", 1, "if_secret"], "Goule medisante"]}
+        "effects": {"provocation": 1, "cri de guerre": ["invocation", ["allié", "copy", 1, "if_secret"], "Goule medisante"]}
     },
     {
         "id": 186,
@@ -2269,7 +2269,7 @@
         "cost": 4,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre":  ["institutrice", [""], ""]}
+        "effects": {"cri de guerre": ["institutrice", [""], ""]}
     },
     {
         "id": 187,
@@ -2281,7 +2281,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"cri de guerre":  ["play", [""], ""]}
+        "effects": {"cri de guerre": ["play", [""], ""]}
     },
     {
         "id": 188,
@@ -2306,7 +2306,7 @@
         "attack": 4,
         "health": 4,
         "effects": {"cri de guerre" : ["destroy", ["serviteur", "ennemi", "choisi", "conditional", "if_provocation"], ""],
-        "legendaire":  1}
+        "legendaire": 1}
     },
     {
         "id": 190,
@@ -2330,7 +2330,7 @@
         "cost": 4,
         "attack": 2,
         "health": 6,
-        "effects": {"cri de guerre" : ["Okani", [""], ""],  "legendaire":  1}
+        "effects": {"cri de guerre" : ["Okani", [""], ""],  "legendaire": 1}
     },
     {
         "id": 192,
@@ -2366,7 +2366,7 @@
         "cost": 4,
         "attack": 3,
         "health": 2,
-        "effects": {"magnetisme" : 1, "rale d'agonie":  ["invocation", ["allié"], ["Microbot", "Microbot", "Microbot"]]}
+        "effects": {"magnetisme" : 1, "rale d'agonie": ["invocation", ["allié"], ["Microbot", "Microbot", "Microbot"]]}
     },
     {
         "id": 195,
@@ -2390,7 +2390,7 @@
         "cost": 4,
         "attack": 3,
         "health": 4,
-        "effects": {"vol de vie":  1, "impregnation":  ["Murlocula impregne", 4]}
+        "effects": {"vol de vie": 1, "impregnation": ["Murlocula impregne", 4]}
     },
     {
         "id": 197,
@@ -2402,7 +2402,7 @@
         "cost": 0,
         "attack": 3,
         "health": 4,
-        "effects": {"vol de vie":  1}
+        "effects": {"vol de vie": 1}
     },
     {
         "id": 198,
@@ -2414,7 +2414,7 @@
         "cost": 4,
         "attack": 2,
         "health": 4,
-        "effects": {"cri de guerre":  ["invocation", ["allié"], ["Squelette", "Squelette"]]}
+        "effects": {"cri de guerre": ["invocation", ["allié"], ["Squelette", "Squelette"]]}
     },
     {
         "id": 199,
@@ -2438,7 +2438,7 @@
         "cost": 4,
         "attack": 2,
         "health": 2,
-        "effects": {"charge":  1, "cri de guerre":  ["boost", ["self", "other_oiseau_libre"], [0, 0]]}
+        "effects": {"charge": 1, "cri de guerre": ["boost", ["self", "other_oiseau_libre"], [0, 0]]}
     },
     {
         "id": 201,
@@ -2462,7 +2462,7 @@
         "cost": 4,
         "attack": 3,
         "health": 3,
-        "effects": {"bouclier divin": 1, "final":  ["boost", ["serviteur", "allié", "choisi", "voisin", "bouclier divin"], [0, 0]]}
+        "effects": {"bouclier divin": 1, "final": ["boost", ["serviteur", "allié", "choisi", "voisin", "bouclier divin"], [0, 0]]}
     },
     {
         "id": 203,
@@ -2475,7 +2475,7 @@
         "attack": 4,
         "health": 4,
         "effects": {"cri de guerre": ["add_hand", ["ennemi"], ["Rob'audio", "Rob'audio"]],
-            "rale d'agonie":  ["invocation", ["allié", "conditional", "if_robaudio"], "Rob'audio"], "legendaire":  1}
+            "rale d'agonie": ["invocation", ["allié", "conditional", "if_robaudio"], "Rob'audio"], "legendaire": 1}
     },
     {
         "id": 204,
@@ -2499,7 +2499,7 @@
         "cost": 4,
         "attack": 2,
         "health": 5,
-        "effects": {"aura":  ["add_hand", ["allié", "conditional", "if_spell", "alive"], "fire_spell"]}
+        "effects": {"aura": ["add_hand", ["allié", "conditional", "if_spell", "alive"], "fire_spell"]}
     },
     {
         "id": 206,
@@ -2511,7 +2511,7 @@
         "cost": 4,
         "attack": 5,
         "health": 4,
-        "effects": {"cri de guerre":  ["pioche", ["allié", "conditional", "if_weapon_hand"], 3]}
+        "effects": {"cri de guerre": ["pioche", ["allié", "conditional", "if_weapon_hand"], 3]}
     },
     {
         "id": 207,
@@ -2523,7 +2523,7 @@
         "cost": 4,
         "attack": 4,
         "health": 4,
-        "effects": {"rale d'agonie":  ["add_hand", ["ennemi", "serv_transformation"], "Repandeur de peste"]}
+        "effects": {"rale d'agonie": ["add_hand", ["ennemi", "serv_transformation"], "Repandeur de peste"]}
     },
     {
         "id": 208,
@@ -2595,7 +2595,7 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"impregnation":  ["Accusateur vive pierre impregne", 5]}
+        "effects": {"impregnation": ["Accusateur vive pierre impregne", 5]}
     },
     {
         "id": 214,
@@ -2619,7 +2619,7 @@
         "cost": 5,
         "attack": 3,
         "health": 5,
-        "effects": {"cri de guerre":  ["pioche", ["allié"], 1], "impregnation":  ["Bouffon affame impregne", 4]}
+        "effects": {"cri de guerre": ["pioche", ["allié"], 1], "impregnation": ["Bouffon affame impregne", 4]}
     },
     {
         "id": 216,
@@ -2631,7 +2631,7 @@
         "cost": 5,
         "attack": 3,
         "health": 5,
-        "effects": {"cri de guerre":  ["pioche", ["allié"], 3]}
+        "effects": {"cri de guerre": ["pioche", ["allié"], 3]}
     },
     {
         "id": 217,
@@ -2643,7 +2643,7 @@
         "cost": 5,
         "attack": 3,
         "health": 3,
-        "effects": {"cri de guerre":  ["echange", ["deck", "serviteur", "ennemi"], 1]}
+        "effects": {"cri de guerre": ["echange", ["deck", "serviteur", "ennemi"], 1]}
     },
     {
         "id": 218,
@@ -2655,7 +2655,7 @@
         "cost": 5,
         "attack": 4,
         "health": 5,
-        "effects": {"dégats des sorts":  1, "cri de guerre":  ["pioche", ["allié"], 1]}
+        "effects": {"dégats des sorts": 1, "cri de guerre": ["pioche", ["allié"], 1]}
     },
     {
         "id": 219,
@@ -2667,7 +2667,7 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre":  ["add_hand", ["ennemi"], "Rock en fusion"]}
+        "effects": {"cri de guerre": ["add_hand", ["ennemi"], "Rock en fusion"]}
     },
     {
         "id": 220,
@@ -2691,7 +2691,7 @@
         "cost": 5,
         "attack": 6,
         "health": 5,
-        "effects": {"magnetisme":  1}
+        "effects": {"magnetisme": 1}
     },
     {
         "id": 222,
@@ -2715,8 +2715,8 @@
         "cost": 5,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre":  ["boosted_copy", ["serviteur", "allié", "choisi", "Méca"], ["ruée", "bouclier divin", "furie des vents"]],
-        "legendaire":  1}
+        "effects": {"cri de guerre": ["boosted_copy", ["serviteur", "allié", "choisi", "Méca"], ["ruée", "bouclier divin", "furie des vents"]],
+        "legendaire": 1}
     },
     {
         "id": 224,
@@ -2728,7 +2728,7 @@
         "cost": 5,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre":  ["echange", ["serviteur", "ennemi", "choisi"], ["deck", "serviteur", "ennemi"]]}
+        "effects": {"cri de guerre": ["echange", ["serviteur", "ennemi", "choisi"], ["deck", "serviteur", "ennemi"]]}
     },
     {
         "id": 225,
@@ -2740,7 +2740,7 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre":  ["pioche", ["allié", "give_spells"], 5]}
+        "effects": {"cri de guerre": ["pioche", ["allié", "give_spells"], 5]}
     },
     {
         "id": 226,
@@ -2752,7 +2752,7 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre":  ["nettoyeur a vapeur", [""], ""]}
+        "effects": {"cri de guerre": ["nettoyeur a vapeur", [""], ""]}
     },
     {
         "id": 227,
@@ -2764,7 +2764,7 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"aura":  ["augment", ["serviteur", "tous", "", ""], 2]}
+        "effects": {"aura": ["augment", ["serviteur", "tous", "", ""], 2]}
     },
     {
         "id": 228,
@@ -2776,7 +2776,7 @@
         "cost": 5,
         "attack": 6,
         "health": 4,
-        "effects": {"en sommeil":  1, "ruée":  1, "insensible_attack":  1}
+        "effects": {"en sommeil": 1, "ruée": 1, "insensible_attack": 1}
     },
     {
         "id": 229,
@@ -2788,7 +2788,7 @@
         "cost": 5,
         "attack": 4,
         "health": 6,
-        "effects": {"provocation":  1, "rale d'agonie": ["heal", ["heros", "allié"], 6]}
+        "effects": {"provocation": 1, "rale d'agonie": ["heal", ["heros", "allié"], 6]}
     },
     {
         "id": 230,
@@ -2800,8 +2800,8 @@
         "cost": 5,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre":  ["découverte", [""], ["sort"]],
-        "final":  ["découverte", [""], ["sort", 2]]}
+        "effects": {"cri de guerre": ["découverte", [""], ["sort"]],
+        "final": ["découverte", [""], ["sort", 2]]}
     },
     {
         "id": 231,
@@ -2813,7 +2813,7 @@
         "cost": 5,
         "attack": 4,
         "health": 3,
-        "effects": {"cri de guerre":  ["pioche", ["allié", "serviteur", "Murloc"], 3]}
+        "effects": {"cri de guerre": ["pioche", ["allié", "serviteur", "Murloc"], 3]}
     },
     {
         "id": 232,
@@ -2825,8 +2825,8 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre":  ["découverte", ["if_spell", 3], [], ["Anneau des marees", "Cor des anciens", "Xal'atath", "Pierre des marees"]],
-        "legendaire":  1}
+        "effects": {"cri de guerre": ["découverte", ["if_spell", 3], [], ["Anneau des marees", "Cor des anciens", "Xal'atath", "Pierre des marees"]],
+        "legendaire": 1}
     },
     {
         "id": 233,
@@ -2838,7 +2838,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"aura":  ["temp_copy", ["allié", "last_spell"]]}
+        "effects": {"aura": ["temp_copy", ["allié", "last_spell"]]}
     },
     {
         "id": 234,
@@ -2850,7 +2850,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"add_hand":  [["allié", "serviteur", "colossal", "aléatoire"], ["fix_cost", 1]]}
+        "effects": {"add_hand": [["allié", "serviteur", "colossal", "aléatoire"], ["fix_cost", 1]]}
     },
     {
         "id": 235,
@@ -2862,7 +2862,7 @@
         "cost": 2,
         "attack": 0,
         "health": 5,
-        "effects": {"aura":  ["damage", ["heros", "ennemi", "conditional", "if_spell"], 2]}
+        "effects": {"aura": ["damage", ["heros", "ennemi", "conditional", "if_spell"], 2]}
     },
     {
         "id": 236,
@@ -2874,8 +2874,8 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"add_deck":  [["allié", "sort", "aléatoire"], ["fix_cost", 1], 5],
-        "pioche":  ["allié", 2]}
+        "effects": {"add_deck": [["allié", "sort", "aléatoire"], ["fix_cost", 1], 5],
+        "pioche": ["allié", 2]}
     },
     {
         "id": 237,
@@ -2887,7 +2887,7 @@
         "cost": 5,
         "attack": 4,
         "health": 6,
-        "effects": {"vol de vie": 1, "aura":  ["damage", ["heros", "ennemi", "conditional", "if_attack"], 2]}
+        "effects": {"vol de vie": 1, "aura": ["damage", ["heros", "ennemi", "conditional", "if_attack"], 2]}
     },
     {
         "id": 238,
@@ -2899,7 +2899,7 @@
         "cost": 5,
         "attack": 3,
         "health": 6,
-        "effects": {"ruée": 1, "aura":  ["boost", ["main", "allié", "tous", "conditional", "if_attack"], [1, 1]]}
+        "effects": {"ruée": 1, "aura": ["boost", ["main", "allié", "tous", "conditional", "if_attack"], [1, 1]]}
     },
     {
         "id": 239,
@@ -2911,7 +2911,7 @@
         "cost": 5,
         "attack": 5,
         "health": 6,
-        "effects": {"provocation": 1, "cri de guerre":  ["add_deck", ["allié"], ["Sentinelle engloutie"], "end_deck"]}
+        "effects": {"provocation": 1, "cri de guerre": ["add_deck", ["allié"], ["Sentinelle engloutie"], "end_deck"]}
     },
     {
         "id": 240,
@@ -2923,7 +2923,7 @@
         "cost": 5,
         "attack": 5,
         "health": 6,
-        "effects": {"provocation": 1, "bouclier divin":  1, "vol de vie":  1}
+        "effects": {"provocation": 1, "bouclier divin": 1, "vol de vie": 1}
     },
     {
         "id": 241,
@@ -2935,8 +2935,8 @@
         "cost": 5,
         "attack": 3,
         "health": 3,
-        "effects": {"provocation": 1, "bouclier divin":  1, "rale d'agonie":  ["pioche", ["allié", "highest_servant"], 1],
-        "legendaire":  1}
+        "effects": {"provocation": 1, "bouclier divin": 1, "rale d'agonie": ["pioche", ["allié", "highest_servant"], 1],
+        "legendaire": 1}
     },
     {
         "id": 242,
@@ -2948,7 +2948,7 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"camouflage":  1}
+        "effects": {"camouflage": 1}
     },
     {
         "id": 243,
@@ -2960,7 +2960,7 @@
         "cost": 5,
         "attack": 4,
         "health": 6,
-        "effects": {"aura":  ["deck_swap", ["tous"] , 1], "final":  ["pioche", ["allié"], 1], "legendaire":  1}
+        "effects": {"aura": ["deck_swap", ["tous"] , 1], "final": ["pioche", ["allié"], 1], "legendaire": 1}
     },
     {
         "id": 244,
@@ -2972,7 +2972,7 @@
         "cost": 5,
         "attack": 6,
         "health": 5,
-        "effects": {"rale d'agonie":  ["destroy", ["serviteur", "ennemi", "aléatoire"], 1]}
+        "effects": {"rale d'agonie": ["destroy", ["serviteur", "ennemi", "aléatoire"], 1]}
     },
     {
         "id": 245,
@@ -2996,7 +2996,7 @@
         "cost": 6,
         "attack": 5,
         "health": 5,
-        "effects": {"rale d'agonie":  ["invocation", ["allié"], "Baine sabot de sang"], "legendaire":  1}
+        "effects": {"rale d'agonie": ["invocation", ["allié"], "Baine sabot de sang"], "legendaire": 1}
     },
     {
         "id": 247,
@@ -3020,7 +3020,7 @@
         "cost": 6,
         "attack": 4,
         "health": 4,
-        "effects": {"aura":  ["pioche", ["allié", "conditional", "if_spell"], 1]}
+        "effects": {"aura": ["pioche", ["allié", "conditional", "if_spell"], 1]}
     },
     {
         "id": 249,
@@ -3056,7 +3056,7 @@
         "cost": 6,
         "attack": 3,
         "health": 7,
-        "effects": {"provocation": 1, "cri de guerre":  ["swap_spell", ["sort", "hands"], 1]}
+        "effects": {"provocation": 1, "cri de guerre": ["swap_spell", ["sort", "hands"], 1]}
     },
     {
         "id": 252,
@@ -3068,7 +3068,7 @@
         "cost": 6,
         "attack": 4,
         "health": 4,
-        "effects": {"ruée": 1, "rale d'agonie":  ["invocation", ["allié", "copy_deck", [2, 2]], 1]}
+        "effects": {"ruée": 1, "rale d'agonie": ["invocation", ["allié", "copy_deck", [2, 2]], 1]}
     },
     {
         "id": 253,
@@ -3080,7 +3080,7 @@
         "cost": 6,
         "attack": 4,
         "health": 6,
-        "effects": {"provocation": 1, "rale d'agonie":  ["damage", ["tous", "ennemi", "aléatoire"], 4]}
+        "effects": {"provocation": 1, "rale d'agonie": ["damage", ["tous", "ennemi", "aléatoire"], 4]}
     },
     {
         "id": 254,
@@ -3092,7 +3092,7 @@
         "cost": 6,
         "attack": 5,
         "health": 5,
-        "effects": {"rale d'agonie":  ["invocation", ["allié", "serviteur", "aléatoire", "cout", 5], 1]}
+        "effects": {"rale d'agonie": ["invocation", ["allié", "serviteur", "aléatoire", "cout", 5], 1]}
     },
     {
         "id": 255,
@@ -3104,7 +3104,7 @@
         "cost": 6,
         "attack": 6,
         "health": 6,
-        "effects": {"rale d'agonie":  ["murmegivre", ["allié"], ""], "legendaire":  1}
+        "effects": {"rale d'agonie": ["murmegivre", ["allié"], ""], "legendaire": 1}
     },
     {
         "id": 256,
@@ -3116,7 +3116,7 @@
         "cost": 6,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre":  ["destroy", ["serviteur", "ennemi", "choisi"], ""], "impregnation":  ["Sylvanas l'accusee impregne", 7],"legendaire":  1}
+        "effects": {"cri de guerre": ["destroy", ["serviteur", "ennemi", "choisi"], ""], "impregnation": ["Sylvanas l'accusee impregne", 7],"legendaire": 1}
     },
     {
         "id": 257,
@@ -3128,7 +3128,7 @@
         "cost": 6,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre":  ["take_control", ["serviteur", "ennemi", "choisi"], ""], "legendaire":  1}
+        "effects": {"cri de guerre": ["take_control", ["serviteur", "ennemi", "choisi"], ""], "legendaire": 1}
     },
     {
         "id": 258,
@@ -3140,7 +3140,7 @@
         "cost": 6,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre":  ["découverte", [""], ["adv_hand", "player_hand", 2]],"legendaire":  1}
+        "effects": {"cri de guerre": ["découverte", [""], ["adv_hand", "player_hand", 2]],"legendaire": 1}
     },
     {
         "id": 259,
@@ -3152,7 +3152,7 @@
         "cost": 6,
         "attack": 6,
         "health": 6,
-        "effects": {"rale d'agonie":  ["add_deck", ["allié"], ["Blaumeux cavaliere de la famine", "Korth'azz cavalier de la mort", "Zeliek cavalier de la conquete"]],"legendaire":  1}
+        "effects": {"rale d'agonie": ["add_deck", ["allié"], ["Blaumeux cavaliere de la famine", "Korth'azz cavalier de la mort", "Zeliek cavalier de la conquete"]],"legendaire": 1}
     },
     {
         "id": 260,
@@ -3164,7 +3164,7 @@
         "cost": 6,
         "attack": 6,
         "health": 6,
-        "effects": {"vol de vie":  1}
+        "effects": {"vol de vie": 1}
     },
     {
         "id": 261,
@@ -3176,7 +3176,7 @@
         "cost": 6,
         "attack": 6,
         "health": 6,
-        "effects": {"ruée":  1}
+        "effects": {"ruée": 1}
     },
     {
         "id": 262,
@@ -3188,7 +3188,7 @@
         "cost": 6,
         "attack": 6,
         "health": 6,
-        "effects": {"provocation":  1}
+        "effects": {"provocation": 1}
     },
     {
         "id": 263,
@@ -3200,19 +3200,19 @@
         "cost": 6,
         "attack": 5,
         "health": 4,
-        "effects": {"ruée": 1, "rale d'agonie":  ["invocation", ["allié", "Méca", "aléatoire", "cout", "<=3"], 2]}
+        "effects": {"ruée": 1, "rale d'agonie": ["invocation", ["allié", "Méca", "aléatoire", "cout", "<=3"], 2]}
     },
     {
         "id": 264,
         "name": "Amalgame instrumental",
         "classe": "Neutre",
         "type": "Serviteur",
-        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"],
+        "genre": ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"],
         "decouvrable": 1,
         "cost": 7,
         "attack": 6,
         "health": 6,
-        "effects": {"legendaire": 1, "cri de guerre":  ["boost", ["self", "chaque type"],
+        "effects": {"legendaire": 1, "cri de guerre": ["boost", ["self", "chaque type"],
             ["ruée", "vol de vie", "bouclier divin", "provocation", "furie des vents", "camouflage", "reincarnation", "toxicite"]]}
     },
     {
@@ -3225,7 +3225,7 @@
         "cost": 7,
         "attack": 7,
         "health": 7,
-        "effects": {"aura": ["damage", ["tous", "tous", "end_turn"], 2], "legendaire":  1}
+        "effects": {"aura": ["damage", ["tous", "tous", "end_turn"], 2], "legendaire": 1}
     },
     {
         "id": 266,
@@ -3249,7 +3249,7 @@
         "cost": 7,
         "attack": 7,
         "health": 7,
-        "effects": {"cri de guerre": ["invocation", ["allié"], ["Ro'boum", "Ro'boum"]], "legendaire":  1}
+        "effects": {"cri de guerre": ["invocation", ["allié"], ["Ro'boum", "Ro'boum"]], "legendaire": 1}
     },
     {
         "id": 268,
@@ -3261,7 +3261,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"rale d'agonie":  ["damage", ["tous", "ennemi", "aléatoire"], [1, 2, 3, 4]]}
+        "effects": {"rale d'agonie": ["damage", ["tous", "ennemi", "aléatoire"], [1, 2, 3, 4]]}
     },
     {
         "id": 269,
@@ -3273,7 +3273,7 @@
         "cost": 7,
         "attack": 2,
         "health": 2,
-        "effects": {"impregnation":  ["Golem pecheur impregne", 3]}
+        "effects": {"impregnation": ["Golem pecheur impregne", 3]}
     },
     {
         "id": 270,
@@ -3285,7 +3285,7 @@
         "cost": 7,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["boost", ["self"], "last_3_servants"]}
+        "effects": {"cri de guerre": ["boost", ["self"], "last_3_servants"]}
     },
     {
         "id": 271,
@@ -3309,7 +3309,7 @@
         "cost": 7,
         "attack": 7,
         "health": 7,
-        "effects": {"cri de guerre":  ["boost", ["deck", "serviteur", "tous", "allié"], "double"], "legendaire":  1}
+        "effects": {"cri de guerre": ["boost", ["deck", "serviteur", "tous", "allié"], "double"], "legendaire": 1}
     },
     {
         "id": 273,
@@ -3321,7 +3321,7 @@
         "cost": 7,
         "attack": 5,
         "health": 9,
-        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "if_spell", 3], 0, 3]}
+        "effects": {"cri de guerre": ["damage", ["tous", "ennemi", "if_spell", 3], 0, 3]}
     },
     {
         "id": 274,
@@ -3333,7 +3333,7 @@
         "cost": 7,
         "attack": 8,
         "health": 8,
-        "effects": {"legendaire":  1}
+        "effects": {"legendaire": 1}
     },
     {
         "id": 275,
@@ -3345,7 +3345,7 @@
         "cost": 7,
         "attack": 1,
         "health": 3,
-        "effects": {"use": ["random_spell", ["tous", "tous", "choisi"], 4], "legendaire":  1}
+        "effects": {"use": ["random_spell", ["tous", "tous", "choisi"], 4], "legendaire": 1}
     },
     {
         "id": 276,
@@ -3357,7 +3357,7 @@
         "cost": 8,
         "attack": 8,
         "health": 8,
-        "effects": {"echangeable":  1, "cri de guerre":  ["destroy", ["serviteur", "ennemi", "choisi"], ""]}
+        "effects": {"echangeable": 1, "cri de guerre": ["destroy", ["serviteur", "ennemi", "choisi"], ""]}
     },
     {
         "id": 277,
@@ -3369,7 +3369,7 @@
         "cost": 8,
         "attack": 4,
         "health": 8,
-        "effects": {"provocation":  1, "cri de guerre":  ["damage", ["serviteur", "tous"], 2]}
+        "effects": {"provocation": 1, "cri de guerre": ["damage", ["serviteur", "tous"], 2]}
     },
     {
         "id": 278,
@@ -3381,7 +3381,7 @@
         "cost": 8,
         "attack": 8,
         "health": 8,
-        "effects": {"cri de guerre":  ["add_deck", ["allié"], ["Tyran givre", "Tyran givre", "Tyran givre", "Tyran givre"]]}
+        "effects": {"cri de guerre": ["add_deck", ["allié"], ["Tyran givre", "Tyran givre", "Tyran givre", "Tyran givre"]]}
     },
     {
         "id": 279,
@@ -3393,7 +3393,7 @@
         "cost": 8,
         "attack": 8,
         "health": 8,
-        "effects": {"invoked_drawn":  1}
+        "effects": {"invoked_drawn": 1}
     },
     {
         "id": 280,
@@ -3405,8 +3405,8 @@
         "cost": 8,
         "attack": 5,
         "health": 5,
-        "effects": {"reincarnation": 1, "cri de guerre":  ["boost", ["serviteur", "allié", "aléatoire", "Mort-vivant"], [5, 5, "provocation"]],
-            "rale d'agonie": ["boost", ["serviteur", "allié", "aléatoire", "Mort-vivant"], [5, 5, "provocation"]], "legendaire":  1}
+        "effects": {"reincarnation": 1, "cri de guerre": ["boost", ["serviteur", "allié", "aléatoire", "Mort-vivant"], [5, 5, "provocation"]],
+            "rale d'agonie": ["boost", ["serviteur", "allié", "aléatoire", "Mort-vivant"], [5, 5, "provocation"]], "legendaire": 1}
     },
     {
         "id": 281,
@@ -3418,7 +3418,7 @@
         "cost": 8,
         "attack": 4,
         "health": 7,
-        "effects": {"aura":  ["reduc", ["serviteur", "next", "alive", "if_third"], 0],"legendaire":  1}
+        "effects": {"aura": ["reduc", ["serviteur", "next", "alive", "if_third"], 0],"legendaire": 1}
     },
     {
         "id": 282,
@@ -3430,7 +3430,7 @@
         "cost": 8,
         "attack": 6,
         "health": 5,
-        "effects": {"rale d'agonie":  ["destroy", ["serviteur", "ennemi", "aléatoire"], "nbre_tentacules"], "colossal": [6, "Tentacule d'ozumat"], "legendaire":  1}
+        "effects": {"rale d'agonie": ["destroy", ["serviteur", "ennemi", "aléatoire"], "nbre_tentacules"], "colossal": [6, "Tentacule d'ozumat"], "legendaire": 1}
     },
     {
         "id": 283,
@@ -3454,7 +3454,7 @@
         "cost": 8,
         "attack": 3,
         "health": 10,
-        "effects": {"ruée":  1, "aura":  ["boost+attack", ["serviteur", "ennemi", "aléatoire"], [1, 0]]}
+        "effects": {"ruée": 1, "aura": ["boost+attack", ["serviteur", "ennemi", "aléatoire"], [1, 0]]}
     },
     {
         "id": 285,
@@ -3466,7 +3466,7 @@
         "cost": 8,
         "attack": 8,
         "health": 8,
-        "effects": {"ne peut pas attaquer":  1, "aura": ["damage", ["tous", "ennemi", "aléatoire", "end_turn"], 8], "legendaire":  1}
+        "effects": {"ne peut pas attaquer": 1, "aura": ["damage", ["tous", "ennemi", "aléatoire", "end_turn"], 8], "legendaire": 1}
     },
     {
         "id": 286,
@@ -3478,7 +3478,7 @@
         "cost": 8,
         "attack": 7,
         "health": 9,
-        "effects": {"cri de guerre":  ["launch", ["serviteur", "ennemi", "choisi"], ["main", "serviteur", "allié", "aléatoire"]]}
+        "effects": {"cri de guerre": ["launch", ["serviteur", "ennemi", "choisi"], ["main", "serviteur", "allié", "aléatoire"]]}
     },
     {
         "id": 287,
@@ -3490,7 +3490,7 @@
         "cost": 9,
         "attack": 8,
         "health": 8,
-        "effects": {"cri de guerre":  ["alextrasza", ["tous", "tous", "choisi"], 8], "legendaire":  1}
+        "effects": {"cri de guerre": ["alextrasza", ["tous", "tous", "choisi"], 8], "legendaire": 1}
     },
     {
         "id": 288,
@@ -3502,7 +3502,7 @@
         "cost": 9,
         "attack": 4,
         "health": 8,
-        "effects": {"provocation": 1, "rale d'agonie":  ["pioche+invocation", ["allié", "Mort-vivant"], 1]}
+        "effects": {"provocation": 1, "rale d'agonie": ["pioche+invocation", ["allié", "Mort-vivant"], 1]}
     },
     {
         "id": 289,
@@ -3514,7 +3514,7 @@
         "cost": 9,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre":  ["destroy+boost", ["serviteur", "ennemi", "choisi"], "caracs"], "impregnation":  ["Devoreur insatiable impregne", 5]}
+        "effects": {"cri de guerre": ["destroy+boost", ["serviteur", "ennemi", "choisi"], "caracs"], "impregnation": ["Devoreur insatiable impregne", 5]}
     },
     {
         "id": 290,
@@ -3526,7 +3526,7 @@
         "cost": 9,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre":  ["destroy+boost", ["serviteur", "ennemi", "choisi", "voisin"], "caracs"]}
+        "effects": {"cri de guerre": ["destroy+boost", ["serviteur", "ennemi", "choisi", "voisin"], "caracs"]}
     },
     {
         "id": 291,
@@ -3538,7 +3538,7 @@
         "cost": 9,
         "attack": null,
         "health": null,
-        "effects": {"add_hand":  [["allié", "sort", "aléatoire", "until_full"]], "reduc":  ["self", "len_hand"], "legendaire":  1}
+        "effects": {"add_hand": [["allié", "sort", "aléatoire", "until_full"]], "reduc": ["self", "len_hand"], "legendaire": 1}
     },
     {
         "id": 292,
@@ -3550,7 +3550,7 @@
         "cost": 9,
         "attack": 4,
         "health": 12,
-        "effects": {"cri de guerre":  ["pioche", ["allié", "sort"], "until_full"], "legendaire":  1}
+        "effects": {"cri de guerre": ["pioche", ["allié", "sort"], "until_full"], "legendaire": 1}
     },
     {
         "id": 293,
@@ -3562,7 +3562,7 @@
         "cost": 9,
         "attack": 8,
         "health": 8,
-        "effects": {"aura":  ["invocation", ["allié", "end_turn", "each_turn", "until_full"], "Dragonnet"], "legendaire":  1}
+        "effects": {"aura": ["invocation", ["allié", "end_turn", "each_turn", "until_full"], "Dragonnet"], "legendaire": 1}
     },
     {
         "id": 294,
@@ -3586,8 +3586,8 @@
         "cost": 9,
         "attack": 4,
         "health": 12,
-        "effects": {"cri de guerre":  ["add_hand", ["allié"], ["Cauchemar", "Reveil d'Ysera", "Soeur rieuse", "Drake emeraude", "Reve"]],
-            "legendaire":  1}
+        "effects": {"cri de guerre": ["add_hand", ["allié"], ["Cauchemar", "Reveil d'Ysera", "Soeur rieuse", "Drake emeraude", "Reve"]],
+            "legendaire": 1}
     },
     {
         "id": 296,
@@ -3599,7 +3599,7 @@
         "cost": 0,
         "attack": null,
         "health": null,
-        "effects": {"boost":  [[4, 4], ["suicide", "start_turn"]], "ciblage":  ["serviteur", "tous", "choisi"]}
+        "effects": {"boost": ["suicide", "start_turn", [4, 4]], "ciblage": ["serviteur", "tous", "choisi"]}
     },
     {
         "id": 297,
@@ -3611,7 +3611,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"damage":  [["tous", "tous", "except_self"], 5]}
+        "effects": {"damage": [["tous", "tous", "except_self"], 5]}
     },
     {
         "id": 298,
@@ -3623,7 +3623,7 @@
         "cost": 2,
         "attack": 3,
         "health": 5,
-        "effects": {"inciblable":  1}
+        "effects": {"inciblable": 1}
     },
     {
         "id": 299,
@@ -3647,7 +3647,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"return_hand": 1, "ciblage":  ["serviteur", "ennemi", "choisi"]}
+        "effects": {"return_hand": 1, "ciblage": ["serviteur", "ennemi", "choisi"]}
     },
     {
         "id": 301,
@@ -3659,8 +3659,8 @@
         "cost": 10,
         "attack": 12,
         "health": 12,
-        "effects": {"cri de guerre":  ["destroy", ["serviteur", "tous", "except_self"], "defausse"],
-            "legendaire":  1}
+        "effects": {"cri de guerre": ["destroy", ["serviteur", "tous", "except_self"], "defausse"],
+            "legendaire": 1}
     },
     {
         "id": 302,
@@ -3672,7 +3672,7 @@
         "cost": 10,
         "attack": 6,
         "health": 12,
-        "effects": {"provocation":  1, "rale d'agonie":  ["damage", ["serviteur", "ennemi", "tous"], 3]}
+        "effects": {"provocation": 1, "rale d'agonie": ["damage", ["serviteur", "ennemi", "tous"], 3]}
     },
     {
         "id": 303,
@@ -3684,7 +3684,7 @@
         "cost": 10,
         "attack": 8,
         "health": 8,
-        "effects": {"reduc":  ["self", "total_serv"]}
+        "effects": {"reduc": ["self", "total_serv"]}
     },
     {
         "id": 304,
@@ -3696,7 +3696,7 @@
         "cost": 10,
         "attack": 8,
         "health": 8,
-        "effects": {"ruée":  1, "rale d'agonie":  ["invocation", ["allié"], "Tombaile"]}
+        "effects": {"ruée": 1, "rale d'agonie": ["invocation", ["allié"], "Tombaile"]}
     },
     {
         "id": 305,
@@ -3708,7 +3708,7 @@
         "cost": 8,
         "attack": 8,
         "health": 8,
-        "effects": {"ruée":  1}
+        "effects": {"ruée": 1}
     },
     {
         "id": 306,
@@ -3720,7 +3720,7 @@
         "cost": 10,
         "attack": 10,
         "health": 10,
-        "effects": {"cri de guerre":  ["geolier", [""], ""], "legendaire":  1}
+        "effects": {"cri de guerre": ["geolier", [""], ""], "legendaire": 1}
     },
     {
         "id": 307,
@@ -3733,7 +3733,7 @@
         "attack": 7,
         "health": 7,
         "effects": {"aura": ["Neptulon", [""], ""],
-            "ruée":  1, "furie des vents": 1, "colossal": [2, "Main de neptulon"], "legendaire":  1}
+            "ruée": 1, "furie des vents": 1, "colossal": [2, "Main de neptulon"], "legendaire": 1}
     },
     {
         "id": 308,
@@ -3745,7 +3745,7 @@
         "cost": 4,
         "attack": 4,
         "health": 2,
-        "effects": {"insensible_attack":  1}
+        "effects": {"insensible_attack": 1}
     },
     {
         "id": 309,
@@ -3757,8 +3757,8 @@
         "cost": 10,
         "attack": 10,
         "health": 10,
-        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "aléatoire", 5], 1], "impregnation": ["Sire Denathrius", 2],
-            "vol de vie": 1, "legendaire":  1}
+        "effects": {"cri de guerre": ["damage", ["tous", "ennemi", "aléatoire", 5], 1], "impregnation": ["Sire Denathrius", 2],
+            "vol de vie": 1, "legendaire": 1}
     },
     {
         "id": 310,
@@ -3770,7 +3770,7 @@
         "cost": 10,
         "attack": 11,
         "health": 11,
-        "effects": {"provocation":  1, "legendaire":  1, "aura":  ["Thaddius", ["start_turn"], 1]}
+        "effects": {"provocation": 1, "legendaire": 1, "aura": ["Thaddius", ["start_turn"], 1]}
     },
     {
         "id": 311,
@@ -3782,7 +3782,7 @@
         "cost": 20,
         "attack": 8,
         "health": 8,
-        "effects": {"reduc":  ["self", "total_mana_spend_spells"]}
+        "effects": {"reduc": ["self", "total_mana_spend_spells"]}
     },
     {
         "id": 312,
@@ -3794,7 +3794,7 @@
         "cost": 0,
         "attack": null,
         "health": null,
-        "effects": {"refresh_mana": 2, "bleu":  1}
+        "effects": {"refresh_mana": 2, "bleu": 1}
     },
     {
         "id": 313,
@@ -3818,7 +3818,7 @@
         "cost": 1,
         "attack": 1,
         "health": 2,
-        "effects": {"cri de guerre": ["boost", ["self", "givre_spells"], [0, 0]], "bleu":  1}
+        "effects": {"cri de guerre": ["boost", ["self", "givre_spells"], [0, 0]], "bleu": 1}
     },
     {
         "id": 315,
@@ -3830,7 +3830,7 @@
         "cost": 1,
         "attack": 2,
         "health": 2,
-        "effects": {"aura":  ["damage", ["heros", "ennemi", "if_attack"], 2], "bleu":  1}
+        "effects": {"aura": ["damage", ["heros", "ennemi", "if_attack"], 2], "bleu": 1}
     },
     {
         "id": 316,
@@ -3842,7 +3842,7 @@
         "cost": 1,
         "attack": 1,
         "health": 2,
-        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "choisi", "self_heros"], 2], "rouge":  1}
+        "effects": {"cri de guerre": ["damage", ["tous", "ennemi", "choisi", "self_heros"], 2], "rouge": 1}
     },
     {
         "id": 317,
@@ -3854,7 +3854,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"cadavre": 4, "add_deck":  ["allié", ["Caisse de cereales", "Caisse de cereales", "Caisse de cereales", "Caisse de cereales"]], "vert":  1}
+        "effects": {"cadavre": 4, "add_deck": ["allié", ["Caisse de cereales", "Caisse de cereales", "Caisse de cereales", "Caisse de cereales"]], "vert": 1}
     },
     {
         "id": 318,
@@ -3878,7 +3878,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"damage":  3, "ciblage":  ["serviteur", "ennemi", "choisi"], "cadavre_if_killed":  1, "rouge":  1}
+        "effects": {"damage": 3, "ciblage": ["serviteur", "ennemi", "choisi"], "cadavre_if_killed": 1, "rouge": 1}
     },
     {
         "id": 320,
@@ -3890,7 +3890,7 @@
         "cost": 1,
         "attack": 1,
         "health": 3,
-        "effects": {"cri de guerre":  ["cadavre", [""], 1]}
+        "effects": {"cri de guerre": ["cadavre", [""], 1]}
     },
     {
         "id": 321,
@@ -3902,7 +3902,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"pioche":  ["allié", "arme", 1], "reduc_if_cadavre":  1}
+        "effects": {"pioche": ["allié", "arme", 1], "reduc_if_cadavre": 1}
     },
     {
         "id": 322,
@@ -3914,7 +3914,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"damage":  2, "gel":  1, "ciblage":  ["tous", "ennemi", "choisi"]}
+        "effects": {"damage": 2, "gel": 1, "ciblage": ["tous", "ennemi", "choisi"]}
     },
     {
         "id": 323,
@@ -3926,7 +3926,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"propagation":  ["rale d'agonie", "voisin"], "ciblage":  ["serviteur", "tous", "choisi", "if_rale_agonie"], "vert":  1}
+        "effects": {"propagation": ["rale d'agonie", "voisin"], "ciblage": ["serviteur", "tous", "choisi", "if_rale_agonie"], "vert": 1}
     },
     {
         "id": 324,
@@ -3938,7 +3938,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"destroy+invoke":  ["serviteur", "allié", "tous", "Mort-vivant"], "vert":  1, "bleu":  1}
+        "effects": {"destroy+invoke": ["serviteur", "allié", "tous", "Mort-vivant"], "vert": 1, "bleu": 1}
     },
     {
         "id": 325,
@@ -3950,7 +3950,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"destroy": 1, "self_damage": 3, "ciblage":  ["serviteur", "tous", "choisi"], "rouge":  1}
+        "effects": {"destroy": 1, "self_damage": 3, "ciblage": ["serviteur", "tous", "choisi"], "rouge": 1}
     },
     {
         "id": 326,
@@ -3962,7 +3962,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"boost":  ["main", "allié", "serviteur", "tous", [1, 1]], "repeat_if_cadavre":  3, "rouge":  1}
+        "effects": {"boost": ["main", "allié", "serviteur", "tous", [1, 1]], "repeat_if_cadavre": 3, "rouge": 1}
     },
     {
         "id": 327,
@@ -3974,7 +3974,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"pioche":  ["allié", 1, 1], "if_cadavre":  2, "bleu":  1}
+        "effects": {"pioche": ["allié", 1, 1], "if_cadavre": 2, "bleu": 1}
     },
     {
         "id": 328,
@@ -3986,7 +3986,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_death_undead"], ["tous", "vert"]], "vert":  1}
+        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_death_undead"], ["tous", "vert"]], "vert": 1}
     },
     {
         "id": 329,
@@ -3998,7 +3998,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"damage": 3, "if_killed": ["decouverte", ["tous", "bleu"]], "ciblage":  ["serviteur", "tous", "choisi"], "bleu":  1}
+        "effects": {"damage": 3, "if_killed": ["decouverte", ["tous", "bleu"]], "ciblage": ["serviteur", "tous", "choisi"], "bleu": 1}
     },
     {
         "id": 330,
@@ -4010,7 +4010,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"damage": 3, "if_killed": ["invocation", ["Zombie dechaine"]], "ciblage":  ["serviteur", "tous", "choisi"], "vert":  1}
+        "effects": {"damage": 3, "if_killed": ["invocation", ["Zombie dechaine"]], "ciblage": ["serviteur", "tous", "choisi"], "vert": 1}
     },
     {
         "id": 331,
@@ -4022,7 +4022,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"attack+invoke":  ["serviteur", "allié", "tous"], "ciblage":  ["serviteur", "ennemi", "choisi"], "vert":  1}
+        "effects": {"attack+invoke": ["serviteur", "allié", "tous"], "ciblage": ["serviteur", "ennemi", "choisi"], "vert": 1}
     },
     {
         "id": 332,
@@ -4034,7 +4034,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["boost", ["self", "spend_cadavre", 1], [1, 2]], "vert":  1}
+        "effects": {"cri de guerre": ["boost", ["self", "spend_cadavre", 1], [1, 2]], "vert": 1}
     },
     {
         "id": 333,
@@ -4046,7 +4046,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_cadavre", 1], ["tous", "rouge"]], "rouge":  1}
+        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_cadavre", 1], ["tous", "rouge"]], "rouge": 1}
     },
     {
         "id": 334,
@@ -4070,7 +4070,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"rale d'agonie": ["pioche", ["allié", "sort", "givre"], 1], "bleu":  1}
+        "effects": {"rale d'agonie": ["pioche", ["allié", "sort", "givre"], 1], "bleu": 1}
     },
     {
         "id": 336,
@@ -4082,7 +4082,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"aura": ["invocation", ["allié", "end_turn", "if_cadavre", 1], "Fantassin ressuscite"], "vert":  1}
+        "effects": {"aura": ["invocation", ["allié", "end_turn", "if_cadavre", 1], "Fantassin ressuscite"], "vert": 1}
     },
     {
         "id": 337,
@@ -4094,7 +4094,7 @@
         "cost": 1,
         "attack": 1,
         "health": 3,
-        "effects": {"provocation":  1}
+        "effects": {"provocation": 1}
     },
     {
         "id": 338,
@@ -4106,7 +4106,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"augment":  ["serviteur", "ennemi", "temp_fullturn", 5]}
+        "effects": {"augment": ["serviteur", "ennemi", "temp_fullturn", 5]}
     },
     {
         "id": 339,
@@ -4118,7 +4118,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"aura": ["damage", ["ennemi", "tous", "aléatoire", 2, "conditional", "if_spell"], 1], "bleu":  1}
+        "effects": {"aura": ["damage", ["ennemi", "tous", "aléatoire", 2, "conditional", "if_spell"], 1], "bleu": 1}
     },
     {
         "id": 340,
@@ -4130,7 +4130,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"boost": ["heros", "allié", [0, 5], [0, 5]], "pioche": ["allié", 0, 1], "if_cadavre": 3, "rouge":  1}
+        "effects": {"boost": ["heros", "allié", [0, 5], [0, 5]], "pioche": ["allié", 0, 1], "if_cadavre": 3, "rouge": 1}
     },
     {
         "id": 341,
@@ -4142,7 +4142,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"transformation": "Monstruosite morte vivante", "ciblage": ["serviteur", "tous", "choisi", "Mort-vivant"], "vert":  1}
+        "effects": {"transformation": "Monstruosite morte vivante", "ciblage": ["serviteur", "tous", "choisi", "Mort-vivant"], "vert": 1}
     },
     {
         "id": 342,
@@ -4166,7 +4166,7 @@
         "cost": 2,
         "attack": 3,
         "health": 2,
-        "effects": {"cri de guerre": ["boost", ["main", "allié", "serviteur", "aléatoire", "atq_serv"], [0, 0]], "rouge":  1}
+        "effects": {"cri de guerre": ["boost", ["main", "allié", "serviteur", "aléatoire", "atq_serv"], [0, 0]], "rouge": 1}
     },
     {
         "id": 344,
@@ -4178,7 +4178,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"aura": ["pioche", ["allié", "if_dead_undead"], 1], "bleu":  1}
+        "effects": {"aura": ["pioche", ["allié", "if_dead_undead"], 1], "bleu": 1}
     },
     {
         "id": 345,
@@ -4190,7 +4190,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"destroy": "highest_atq_adv", "rouge":  1}
+        "effects": {"destroy": "highest_atq_adv", "rouge": 1}
     },
     {
         "id": 346,
@@ -4202,7 +4202,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"damage": 4, "reduc":  [["sort", "prochain", "end_turn", "tous"], -1], "ciblage": ["tous", "tous", "choisi"],"bleu":  1}
+        "effects": {"damage": 4, "reduc": [["sort", "prochain", "end_turn", "tous"], -1], "ciblage": ["tous", "tous", "choisi"],"bleu": 1}
     },
     {
         "id": 347,
@@ -4214,7 +4214,7 @@
         "cost": 3,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre":  ["pioche", ["allié"], 1], "rale d'agonie":  ["pioche", ["allié"], 1]}
+        "effects": {"cri de guerre": ["pioche", ["allié"], 1], "rale d'agonie": ["pioche", ["allié"], 1]}
     },
     {
         "id": 348,
@@ -4226,7 +4226,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"boost":  ["serviteur", "allié", "tous", "inciblable", [1, 1]], "vert":  1}
+        "effects": {"boost": ["serviteur", "allié", "tous", "inciblable", [1, 1]], "vert": 1}
     },
     {
         "id": 349,
@@ -4238,7 +4238,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"provocation": 1, "cost_pv":  ["if_heal_this_turn", 0], "rouge": 1}
+        "effects": {"provocation": 1, "cost_pv": ["if_heal_this_turn", 0], "rouge": 1}
     },
     {
         "id": 350,
@@ -4250,7 +4250,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre": ["cadavre", ["destroy_serv", "deck", "allié"], 4], "vert":  1}
+        "effects": {"cri de guerre": ["cadavre", ["destroy_serv", "deck", "allié"], 4], "vert": 1}
     },
     {
         "id": 351,
@@ -4262,7 +4262,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"boost": ["main", "allié", "serviteur", 4, [2, 2]], "start_turn": ["transformation", ["Metal dissonant"]], "rouge":  1}
+        "effects": {"boost": ["main", "allié", "serviteur", 4, [2, 2]], "start_turn": ["transformation", ["Metal dissonant"]], "rouge": 1}
     },
     {
         "id": 352,
@@ -4274,7 +4274,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"boost": ["main", "allié", "serviteur", 2, [4, 4]], "start_turn": ["transformation", ["Metal harmonique"]], "rouge":  1}
+        "effects": {"boost": ["main", "allié", "serviteur", 2, [4, 4]], "start_turn": ["transformation", ["Metal harmonique"]], "rouge": 1}
     },
     {
         "id": 353,
@@ -4286,7 +4286,7 @@
         "cost": 3,
         "attack": 2,
         "health": 5,
-        "effects": {"cri de guerre":  ["boost", ["main", "allié", "serviteur", "tous", "spend_cadavre", 2], [2, 0]], "rouge":  1}
+        "effects": {"cri de guerre": ["boost", ["main", "allié", "serviteur", "tous", "spend_cadavre", 2], [2, 0]], "rouge": 1}
     },
     {
         "id": 354,
@@ -4298,7 +4298,7 @@
         "cost": 3,
         "attack": 4,
         "health": 3,
-        "effects": {"provocation": 1, "rale d'agonie":  ["invocation", ["allié", "conditional", "spend_cadavre", 3], "Ymirjar ressuscite"], "vert":  1}
+        "effects": {"provocation": 1, "rale d'agonie": ["invocation", ["allié", "conditional", "spend_cadavre", 3], "Ymirjar ressuscite"], "vert": 1}
     },
     {
         "id": 355,
@@ -4334,8 +4334,8 @@
         "cost": 3,
         "attack": 2,
         "health": 1,
-        "effects": {"cri de guerre":  ["damage", ["tous", "tous", "choisi"], 2],
-        "final":  ["damage", ["tous", "ennemi"], 2]}
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi"], 2],
+        "final": ["damage", ["tous", "ennemi"], 2]}
     },
     {
         "id": 358,
@@ -4347,7 +4347,7 @@
         "cost": 3,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre":  ["gel", ["tous", "ennemi", "aléatoire", "if_spell", 3], 0, 3]}
+        "effects": {"cri de guerre": ["gel", ["tous", "ennemi", "aléatoire", "if_spell", 3], 0, 3]}
     },
     {
         "id": 359,
@@ -4359,7 +4359,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"invocation": ["Zombie titubant", "Zombie titubant"],"vert":  1}
+        "effects": {"invocation": ["Zombie titubant", "Zombie titubant"],"vert": 1}
     },
     {
         "id": 360,
@@ -4371,7 +4371,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"reincarnation":  1}
+        "effects": {"reincarnation": 1}
     },
     {
         "id": 361,
@@ -4383,7 +4383,7 @@
         "cost": 3,
         "attack": 3,
         "health": 2,
-        "effects": {"aura":  ["cadavre", ["if_attack"], 2], "rouge":  1}
+        "effects": {"aura": ["cadavre", ["if_attack"], 2], "rouge": 1}
     },
     {
         "id": 362,
@@ -4395,7 +4395,7 @@
         "cost": 3,
         "attack": 2,
         "health": 3,
-        "effects": {"aura":  ["reduc", ["if_attack", "sort", "main", "aléatoire"], 1], "bleu":  1}
+        "effects": {"aura": ["reduc", ["if_attack", "sort", "main", "aléatoire"], 1], "bleu": 1}
     },
     {
         "id": 363,
@@ -4407,7 +4407,7 @@
         "cost": 3,
         "attack": 3,
         "health": 2,
-        "effects": {"rale d'agonie":  ["invocation", ["allié"], "Sang lie"], "rouge":  1, "stack":  0}
+        "effects": {"rale d'agonie": ["invocation", ["allié"], "Sang lie"], "rouge": 1, "stack": 0}
     },
     {
         "id": 364,
@@ -4419,7 +4419,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"vol de vie":  1}
+        "effects": {"vol de vie": 1}
     },
     {
         "id": 365,
@@ -4431,8 +4431,8 @@
         "cost": 4,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre":  ["rale d'agonie", ["serviteur", "ennemi", "tous"], ["invocation", ["ennemi"], "Zombie menacant"]],
-        "vert":  1, "legendaire":  1}
+        "effects": {"cri de guerre": ["rale d'agonie", ["serviteur", "ennemi", "tous"], ["invocation", ["ennemi"], "Zombie menacant"]],
+        "vert": 1, "legendaire": 1}
     },
     {
         "id": 366,
@@ -4444,7 +4444,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"provocation":  1}
+        "effects": {"provocation": 1}
     },
     {
         "id": 367,
@@ -4456,8 +4456,8 @@
         "cost": 4,
         "attack": 4,
         "health": 3,
-        "effects": {"rale d'agonie":  ["add_hand", ["allié", "copy", "sort", "givre", "tous"], ""],
-        "bleu":  1, "legendaire":  1}
+        "effects": {"rale d'agonie": ["add_hand", ["allié", "copy", "sort", "givre", "tous"], ""],
+        "bleu": 1, "legendaire": 1}
     },
     {
         "id": 368,
@@ -4469,7 +4469,7 @@
         "cost": 4,
         "attack": null,
         "health": null,
-        "effects": {"damage": 6, "vol de vie": 1, "ciblage": ["serviteur", "tous", "choisi"],"rouge":  1}
+        "effects": {"damage": 6, "vol de vie": 1, "ciblage": ["serviteur", "tous", "choisi"],"rouge": 1}
     },
     {
         "id": 369,
@@ -4481,7 +4481,7 @@
         "cost": 4,
         "attack": 1,
         "health": 3,
-        "effects": {"provocation": 1, "cri de guerre":  ["invocation", ["allié", "copy", 2], "Garde essaim nerubien"], "vert":  1}
+        "effects": {"provocation": 1, "cri de guerre": ["invocation", ["allié", "copy", 2], "Garde essaim nerubien"], "vert": 1}
     },
     {
         "id": 370,
@@ -4493,7 +4493,7 @@
         "cost": 4,
         "attack": null,
         "health": null,
-        "effects": {"invocation": ["Zombie menacant", "Zombie menacant"], "spend_cadavre": [4, "reincarnation"], "vert":  1}
+        "effects": {"invocation": ["Zombie menacant", "Zombie menacant"], "spend_cadavre": [4, "reincarnation"], "vert": 1}
     },
     {
         "id": 371,
@@ -4505,7 +4505,7 @@
         "cost": 4,
         "attack": 3,
         "health": 6,
-        "effects": {"anti_heal":  1, "bleu":  1}
+        "effects": {"anti_heal": 1, "bleu": 1}
     },
     {
         "id": 372,
@@ -4517,7 +4517,7 @@
         "cost": 4,
         "attack": 3,
         "health": 1,
-        "effects": {"bouclier divin":  1, "reincarnation":  1}
+        "effects": {"bouclier divin": 1, "reincarnation": 1}
     },
     {
         "id": 373,
@@ -4529,7 +4529,7 @@
         "cost": 4,
         "attack": null,
         "health": null,
-        "effects": {"damage":  [["tous", "ennemi"], 2], "pioche":  ["allié", 1], "bleu":  1}
+        "effects": {"damage": [["tous", "ennemi"], 2], "pioche": ["allié", 1], "bleu": 1}
     },
     {
         "id": 374,
@@ -4541,7 +4541,7 @@
         "cost": 4,
         "attack": 2,
         "health": 4,
-        "effects": {"reincarnation":  1, "aura": ["invocation", ["allié", "end_turn", "copy", "if_cadavre", 5], ""]}
+        "effects": {"reincarnation": 1, "aura": ["invocation", ["allié", "end_turn", "copy", "if_cadavre", 5], ""]}
     },
     {
         "id": 375,
@@ -4565,7 +4565,7 @@
         "cost": 4,
         "attack": 4,
         "health": 2,
-        "effects": {"cri de guerre": ["gel", ["serviteur", "ennemi", "aléatoire", "spend_cadavre", 3], 3], "bleu":  1}
+        "effects": {"cri de guerre": ["gel", ["serviteur", "ennemi", "aléatoire", "spend_cadavre", 3], 3], "bleu": 1}
     },
     {
         "id": 377,
@@ -4577,7 +4577,7 @@
         "cost": 4,
         "attack": null,
         "health": null,
-        "effects": {"boost":  ["serviteur", "allié", "tous", [3, 0], [1, 0]], "spend_cadavre": 5, "vert":  1}
+        "effects": {"boost": ["serviteur", "allié", "tous", [3, 0], [1, 0]], "spend_cadavre": 5, "vert": 1}
     },
     {
         "id": 378,
@@ -4602,7 +4602,7 @@
         "attack": 3,
         "health": 3,
         "effects": {"reincarnation": 1, "cri de guerre": ["damage", ["tous", "ennemi", "aléatoire", 1], 2],
-        "rale d'agonie": ["damage", ["tous", "ennemi", "aléatoire"], 2], "legendaire":  1}
+        "rale d'agonie": ["damage", ["tous", "ennemi", "aléatoire"], 2], "legendaire": 1}
     },
     {
         "id": 380,
@@ -4614,7 +4614,7 @@
         "cost": 5,
         "attack": null,
         "health": null,
-        "effects": {"invocation":  ["Goule ressuscitee", "until_cadavre", 5], "vert":  1}
+        "effects": {"invocation": ["Goule ressuscitee", "until_cadavre", 5], "vert": 1}
     },
     {
         "id": 381,
@@ -4626,7 +4626,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"ruée":  1}
+        "effects": {"ruée": 1}
     },
     {
         "id": 382,
@@ -4638,7 +4638,7 @@
         "cost": 5,
         "attack": 3,
         "health": 6,
-        "effects": {"vol de vie": 1, "aura": ["Banshee hurlante", [""], ""], "rouge":  1}
+        "effects": {"vol de vie": 1, "aura": ["Banshee hurlante", [""], ""], "rouge": 1}
     },
     {
         "id": 383,
@@ -4662,7 +4662,7 @@
         "cost": 5,
         "attack": null,
         "health": null,
-        "effects": {"damage":  [["serviteur", "tous", "if_cadavre"], 1], "repeat_if_cadavre_and_serv": 1, "rouge":  1}
+        "effects": {"damage": [["serviteur", "tous", "if_cadavre"], 1], "repeat_if_cadavre_and_serv": 1, "rouge": 1}
     },
     {
         "id": 385,
@@ -4674,7 +4674,7 @@
         "cost": 5,
         "attack": null,
         "health": null,
-        "effects": {"infection":  [["serviteur", "ennemi", "tous"], ["end_turn", "self_damage", "vol de vie", 2]], "rouge":  1}
+        "effects": {"infection": [["serviteur", "ennemi", "tous"], ["end_turn", "self_damage", "vol de vie", 2]], "rouge": 1}
     },
     {
         "id": 386,
@@ -4710,7 +4710,7 @@
         "cost": 5,
         "attack": 5,
         "health": 4,
-        "effects": {"cri de guerre": ["apply_gain_rale", ["serviteur", "allié", "mort", "if_rale_agonie", "if_cadavre", 5], 1], "vert":  1}
+        "effects": {"cri de guerre": ["apply_gain_rale", ["serviteur", "allié", "mort", "if_rale_agonie", "if_cadavre", 5], 1], "vert": 1}
     },
     {
         "id": 389,
@@ -4723,7 +4723,7 @@
         "attack": 3,
         "health": 5,
         "effects": {"rale d'agonie": ["add_hand", ["allié", "cost_pv"], "Porte mort saurcroc"],
-            "rouge":  1, "legendaire":  1, "provocation":  1}
+            "rouge": 1, "legendaire": 1, "provocation": 1}
     },
     {
         "id": 390,
@@ -4735,7 +4735,7 @@
         "cost": 5,
         "attack": 3,
         "health": 3,
-        "effects": {"cri de guerre":  ["invocation", ["allié"], ["Combattant possede", "Combattant possede"]], "vert":  1}
+        "effects": {"cri de guerre": ["invocation", ["allié"], ["Combattant possede", "Combattant possede"]], "vert": 1}
     },
     {
         "id": 391,
@@ -4747,7 +4747,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"ruée":  1, "reincarnation":  1}
+        "effects": {"ruée": 1, "reincarnation": 1}
     },
     {
         "id": 392,
@@ -4759,7 +4759,7 @@
         "cost": 5,
         "attack": 4,
         "health": 3,
-        "effects": {"cri de guerre":  ["invocation", ["allié"], ["Elementaire de frimas", "Elementaire de frimas"]], "bleu":  1}
+        "effects": {"cri de guerre": ["invocation", ["allié"], ["Elementaire de frimas", "Elementaire de frimas"]], "bleu": 1}
     },
     {
         "id": 393,
@@ -4783,7 +4783,7 @@
         "cost": 6,
         "attack": 3,
         "health": 6,
-        "effects": {"ruée": 1, "vol de vie": 1, "cleave":  1}
+        "effects": {"ruée": 1, "vol de vie": 1, "cleave": 1}
     },
     {
         "id": 395,
@@ -4795,7 +4795,7 @@
         "cost": 6,
         "attack": 3,
         "health": 6,
-        "effects": {"cri de guerre":  ["pioche", ["allié", "sort", "dmg_if_givre"], 2], "legendaire":  1, "bleu":  1}
+        "effects": {"cri de guerre": ["pioche", ["allié", "sort", "dmg_if_givre"], 2], "legendaire": 1, "bleu": 1}
     },
     {
         "id": 396,
@@ -4807,7 +4807,7 @@
         "cost": 6,
         "attack": 5,
         "health": 6,
-        "effects": {"provocation":  1, "vol de vie":  1, "aura":  ["attack", ["tous", "ennemi", "lowest_health", "end_turn"], 1],"rouge":  1}
+        "effects": {"provocation": 1, "vol de vie": 1, "aura": ["attack", ["tous", "ennemi", "lowest_health", "end_turn"], 1],"rouge": 1}
     },
     {
         "id": 397,
@@ -4819,7 +4819,7 @@
         "cost": 6,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre":  ["damage", ["tous", "ennemi", "spend_cadavre", "aléatoire", 5], 2], "bleu":  1}
+        "effects": {"cri de guerre": ["damage", ["tous", "ennemi", "spend_cadavre", "aléatoire", 5], 2], "bleu": 1}
     },
     {
         "id": 398,
@@ -4831,7 +4831,298 @@
         "cost": 6,
         "attack": 5,
         "health": 2,
-        "effects": {"vol de vie":  1, "rouge":  1}
+        "effects": {"vol de vie": 1, "rouge": 1}
+    },
+    {
+        "id": 399,
+        "name": "Alexandros Mograine",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 7,
+        "attack": 7,
+        "health": 7,
+        "effects": {"cri de guerre": ["damage", ["heros", "ennemi", "end_turn"], 3], "legendaire": 1, "rouge": 1}
+    },
+    {
+        "id": 400,
+        "name": "Deuillegivre",
+        "classe": "Chevalier de la mort",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 5,
+        "health": 3,
+        "effects": {"rale d'agonie": ["invocation", ["allié", "if_dead_target"], []], "legendaire": 1}
+    },
+    {
+        "id": 401,
+        "name": "Fureur du wyrm de givre",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 0,
+        "cost": 7,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 5, "gel": ["serviteur", "tous", "ennemi"], "ciblage": ["tous", "tous", "choisi"],
+            "invocation": ["Wyrm de givre"], "bleu": 1}
+    },
+    {
+        "id": 402,
+        "name": "Wyrm de givre",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Dragon"],
+        "decouvrable": 0,
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {}
+    },
+    {
+        "id": 403,
+        "name": "Le Recousu",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 4,
+        "health": 6,
+        "effects": {"cri de guerre": ["destroy", ["serviteur", "ennemi", "aléatoire", "main", "deck"], 1], "legendaire": 1, "rouge": 1}
+    },
+    {
+        "id": 404,
+        "name": "Sindragosa reine du givre",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Dragon"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 6,
+        "health": 6,
+        "effects": {"aura": ["destroy", ["serviteur", "ennemi", "if_gele", "alive"], 1], "colossal": [2, "Aile de sindragosa"],
+            "legendaire": 1, "rouge": 1, "bleu": 1}
+    },
+    {
+        "id": 405,
+        "name": "Aile de sindragosa",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Dragon"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"ruée": 1, "gel_attack": 1}
+    },
+    {
+        "id": 406,
+        "name": "Commandante de la garde d'os",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"cri de guerre": ["invocation", ["allié", "until_cadavre", 6], "Fantassin ressuscite"],"provocation": 1, "rouge": 1}
+    },
+    {
+        "id": 407,
+        "name": "Seigneur Gargamoelle",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 8,
+        "attack": 9,
+        "health": 7,
+        "effects": {"cri de guerre": ["invocation", ["allié", "until_cadavre", "boost", 100], "Golem ressuscite"], "legendaire": 1, "vert": 1}
+    },
+    {
+        "id": 408,
+        "name": "Golem ressuscite",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"ruée": 1}
+    },
+    {
+        "id": 409,
+        "name": "Tete de fer",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 5,
+        "health": 1,
+        "effects": {"rale d'agonie": ["invocation", ["allié"], "Sanglier noir"], "legendaire": 1, "vert": 1}
+    },
+    {
+        "id": 410,
+        "name": "Sanglier noir",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 0,
+        "cost": 9,
+        "attack": 9,
+        "health": 9,
+        "effects": {"charge": 1, "provocation": 1}
+    },
+    {
+        "id": 411,
+        "name": "Voleur d'ames",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 8,
+        "attack": 5,
+        "health": 5,
+        "effects": {"cri de guerre": ["destroy", ["serviteur", "tous", "tous", "gain_cadavre"], 1], "rouge": 1}
+    },
+    {
+        "id": 412,
+        "name": "Geant raccomode",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 9,
+        "attack": 8,
+        "health": 8,
+        "effects": {"reduc": ["self", "cadavres_spent"], "vert": 1}
+    },
+    {
+        "id": 413,
+        "name": "Le Fleau",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 9,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Mort-vivant", "until_full"], "vert": 1, "legendaire": 1}
+    },
+    {
+        "id": 414,
+        "name": "Vive explosion necrotique",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 10,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": ["cadavres_spent", 5], "invocation": ["cadavres_spent"], "ciblage": ["tous", "tous"], "vol de vie": 1,
+            "vert": 1, "rouge": 1, "bleu": 1, "legendaire": 1}
+    },
+    {
+        "id": 415,
+        "name": "Par le fiel et les flammes",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": ["Fiel"],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": ["ruée", [0, 0]], "final": ["boost", ["ruée", [1, 1]]], "ciblage": ["serviteur", "tous"]}
+    },
+    {
+        "id": 416,
+        "name": "Elimination des preuves",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"hero_attack": 3, "decouverte": ["hand_to_deck"]}
+    },
+    {
+        "id": 417,
+        "name": "Avant gout du chaos",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": ["Fiel"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 2, "decouverte": ["sort", "Fiel"], "ciblage": ["serviteur", "tous"]}
+    },
+    {
+        "id": 418,
+        "name": "Carcasse titubante",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 2,
+        "health": 3,
+        "effects": {"rale d'agonie": ["damage", ["heros", "allié"], 4], "ruée": 1}
+    },
+    {
+        "id": 419,
+        "name": "Coureur du cachet cramoisi",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"marginal": ["pioche", ["allié"], 1]}
+    },
+    {
+        "id": 420,
+        "name": "Dechainement de fiel",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": ["Fiel"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": [["tous", "ennemi"], 1], "soif de mana":  [6, "vol de vie", 1]}
+    },
+    {
+        "id": 421,
+        "name": "Demon belliqueux",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Démon"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"aura": ["boost", ["self", "heros_allié_attack"], [1, 0]]}
+    },
+    {
+        "id": 422,
+        "name": "Emprise du desastre",
+        "classe": "Chasseur de démons",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"rale d'agonie": ["add_hand", ["marginal", "aléatoire"], 1]}
     }
 ]
 

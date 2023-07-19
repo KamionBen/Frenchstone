@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Chevalier de la mort"), Player("OldIA", "Druide")]
+players = [Player("NewIA", "Chevalier de la mort"), Player("OldIA", "Chasseur de démons")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -19,9 +19,12 @@ def generate_legal_vector_test(state):
         if state.cards_chosen and len(state.cards_chosen[0]) == 4 and state.cards_chosen[0][3] == "choix mystere":
             legal_actions[254] = True
         return legal_actions
-
-    if state.cards_entrave:
+    elif state.cards_entrave:
         for i in range(251, 251 + len(state.cards_entrave[0])):
+            legal_actions[i] = True
+        return legal_actions
+    elif state.cards_hands_to_deck:
+        for i in range(251, 251 + len(state.cards_hands_to_deck[0])):
             legal_actions[i] = True
         return legal_actions
 
@@ -325,9 +328,10 @@ def calc_advantage_minmax(state):
             advantage -= 1.5 * servant.attack
         if "infection" in servant.effects:
             advantage += 2
-    advantage += 0.25 * (pow(adv.base_health - adv.health, 1.3) - pow(player.base_health - player.health, 1.3))
+    if player.health > 0 and adv.health > 0:
+        advantage += 0.25 * (30/adv.health - 30/player.health)
     advantage += player.attack
-    advantage += 0.02 * player.cadavres
+    advantage += 0.01 * player.cadavres
     advantage += 3 * len(player.lieux)
     if player.health <= 0:
         return -500

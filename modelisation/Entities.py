@@ -18,7 +18,7 @@ classes_heros_old = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Drui
                  "Chevalier de la mort"]
 classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
                  "Chevalier de la mort"]
-all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran"]
+all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"]
 
 def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
@@ -128,20 +128,18 @@ for i in range(7):
 class Plateau:
     def __init__(self, players=()):
         """ Décrit exhaustivement le plateau de jeu """
-        class_files = {'Chasseur': 'test_deck.csv',
-                       'Mage': 'test_deck.csv',
-                       'Paladin': 'test_deck.csv',
-                       'Démoniste': 'test_deck.csv',
-                       'Chasseur de démons': 'test_deck.csv',
-                       'Druide': 'test_deck.csv',
-                       'Voleur': 'test_deck.csv',
-                       'Guerrier': 'test_deck.csv',
-                       'Chevalier de la mort': 'dk_givre.csv',
-                       'Prêtre': 'test_deck.csv'
+        class_files = {'Chasseur': 'dk_sang.csv',
+                       'Mage': 'dk_sang.csv',
+                       'Paladin': 'dk_sang.csv',
+                       'Démoniste': 'dk_sang.csv',
+                       'Chasseur de démons': 'test_dh.csv',
+                       'Druide': 'dk_sang.csv',
+                       'Voleur': 'dk_sang.csv',
+                       'Guerrier': 'dk_sang.csv',
+                       'Chevalier de la mort': 'dk_sang.csv',
+                       'Prêtre': 'dk_sang.csv'
                        }
-        self.cards_chosen = []
-        self.cards_dragage = []
-        self.cards_entrave = []
+        self.cards_chosen, self.cards_dragage, self.cards_entrave, self.cards_hands_to_deck = [], [], [], []
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
 
@@ -218,6 +216,13 @@ class Plateau:
         """ Vérifie les serviteurs morts et les pdv des joueurs """
         dead_servants = []
         for player in self.players:
+            """ Geant des mers """
+            if [x for x in player.hand if x.name == "Geant des mers"]:
+                for geant in [x for x in player.hand if x.name == "Geant des mers"]:
+                    if player == self.players[0]:
+                        geant.cost = geant.base_cost - len(player.servants) - len(self.players[1].servants)
+                    else:
+                        geant.cost = geant.base_cost - len(player.servants) - len(self.players[0].servants)
             dead_servants_player = []
             if not "gardien de l'au dela" in [x.effects["aura"] for x in player.servants if "aura" in x.effects]:
                 cards_impregnation = [x for x in player.hand if "impregnation" in x.effects]
@@ -235,6 +240,7 @@ class Plateau:
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
                     player.all_dead_servants.append(servant)
+                    player.dead_this_turn.append(servant)
                     if len(player.all_dead_servants) > 3:
                         player.all_dead_servants = player.all_dead_servants[-3:]
                     dead_servants.append(servant)
@@ -262,6 +268,20 @@ class Plateau:
                             player.hand.add(new_card)
                             if new_card.name == "Golem pecheur impregne":
                                 new_card.effects["cri de guerre"][2] = [sum([x.base_attack for x in player.all_dead_servants]), sum([x.base_health for x in player.all_dead_servants])]
+            """ Répartition cadavres """
+            if player.cadavres_spent > sum(player.cadavres_repartis):
+                a_repartir = player.cadavres_spent - sum(player.cadavres_repartis)
+                bins = [0, 0, 0, 0]
+                for _ in range(a_repartir):
+                    bins[random.randrange(4)] += 1
+                player.cadavres_repartis = [player.cadavres_repartis[i] + bins[i] for i in range(4)]
+                if player.cadavres_repartis[3] > 5:
+                    a_repartir = player.cadavres_repartis[3] - 5
+                    player.cadavres_repartis[3] = 5
+                    bins = [0, 0, 0]
+                    for _ in range(a_repartir):
+                        bins[random.randrange(3)] += 1
+                    player.cadavres_repartis = [player.cadavres_repartis[i] + bins[i] for i in range(3)] + [player.cadavres_repartis[3]]
         return dead_servants, dead_servants_player
 
     def targets_hp(self):
@@ -412,9 +432,9 @@ class Player:
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge = 0
-        self.cadavres = 0
+        self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment = [], []
-        self.all_dead_servants = []
+        self.all_dead_servants, self.dead_this_turn = [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues = [], [], [], []
         self.oiseaux_libres, self.geolier = 0, 0
 
@@ -474,7 +494,7 @@ class Player:
         """ Mise à jour de fin de tour """
         self.attack, self.inter_attack = 0, 0
         self.damage_this_turn, self.my_turn = 0, 0
-        self.dead_undeads = []
+        self.dead_undeads, self.dead_this_turn = [], []
         self.serv_this_turn = CardGroup()
         self.augment = []
         if self.remaining_atk == 0 and self.gel == 1:
@@ -484,7 +504,6 @@ class Player:
                 self.effects.pop("inciblable")
             if "draw" in self.effects and "temp_turn" in self.effects["draw"]:
                 self.effects.pop("draw")
-
         if self.discount_next:
             for discount in self.discount_next:
                 if "end_turn" in discount:
@@ -552,11 +571,13 @@ class Player:
         for card in self.hand:
             card.cost = card.base_cost
             if "reduc" in card.effects:
-                if "self" in card.effects["reduc"] :
+                if "self" in card.effects["reduc"]:
                     if "len_hand" in card.effects["reduc"]:
-                        card.cost = card.base_cost - len(self.hand) + 1
+                        card.cost = max(0, card.base_cost - len(self.hand) + 1)
                     elif "total_mana_spend_spells" in card.effects["reduc"]:
-                        card.cost = card.base_cost - self.mana_spend_spells
+                        card.cost = max(0, card.base_cost - self.mana_spend_spells)
+                    elif "cadavres_spent" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.cadavres_spent)
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.weapon is not None:
             for corsaire in [x for x in self.hand if x.name == "Corsaire de l'effroi"]:
                 corsaire.cost = max(0, corsaire.base_cost - self.weapon.attack - self.attack)
@@ -863,7 +884,6 @@ class Card:
         self.attack = self.base_attack
         self.health = self.base_health
 
-
     def damage(self, nb):
         """ Removes nb from the card health """
         if self.name == "Bulleur" and nb == 1:
@@ -876,15 +896,12 @@ class Card:
             self.damage_taken = True if nb > 0 else False
             self.blessure += nb
 
-
     def heal(self, nb):
         """ Heal nb health to a given creatures """
         self.health += nb
         self.blessure = max(0, self.blessure - nb)
         if self.health > self.base_health:
-            self.health = self.base_health
-
-
+            self.health = self.base_healt
 
     def is_dead(self):
         """ Return True if the card health <= 0"""

@@ -4807,7 +4807,7 @@
         "cost": 6,
         "attack": 5,
         "health": 6,
-        "effects": {"provocation": 1, "vol de vie": 1, "aura": ["attack", ["tous", "ennemi", "lowest_health", "end_turn"], 1],"rouge": 1}
+        "effects": {"provocation": 1, "vol de vie": 1, "aura": ["attack", ["tous", "ennemi", "lowest_health", "end_turn"], 1], "rouge": 1}
     },
     {
         "id": 397,
@@ -5123,6 +5123,54 @@
         "attack": 1,
         "health": 2,
         "effects": {"rale d'agonie": ["add_hand", ["marginal", "aléatoire"], 1]}
+    },
+    {
+        "id": 423,
+        "name": "Festin d'ames",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", "dead_this_turn", 0]}
+    },
+    {
+        "id": 424,
+        "name": "Relique de l'extinction",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": [["serviteur", "ennemi", "aléatoire", "deux"], 1], "relique": 1}
+    },
+    {
+        "id": 425,
+        "name": "Etranger feroce",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"ruée": 1, "marginal": ["reduc", ["tous", "prochain", "", "marginal"], -1]}
+    },
+    {
+        "id": 426,
+        "name": "Etudes illidari",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["tous", "marginal", 1], "reduc": [["tous", "prochain", "", "marginal"], -1]}
     }
 ]
 

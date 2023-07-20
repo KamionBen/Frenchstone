@@ -873,8 +873,7 @@ class TourEnCours:
                 if "cout_hp" in carte.effects["cri de guerre"]:
                     player.cout_pouvoir_temp = 0
                 if "reduc" in carte.effects["cri de guerre"] and "prochain" in carte.effects["cri de guerre"][1]:
-                    player.discount_next.append(
-                        [carte.effects["cri de guerre"][1][0], carte.effects["cri de guerre"][1][3],
+                    player.discount_next.append([carte.effects["cri de guerre"][1][0], carte.effects["cri de guerre"][1][3],
                          carte.effects["cri de guerre"][2]])
                 if "augment" in carte.effects["cri de guerre"]:
                     if "ennemi" in carte.effects["cri de guerre"][1] and "temp_fullturn" in \
@@ -2129,6 +2128,12 @@ class TourEnCours:
                                     player.servants.add(get_card(servant.name, all_servants))
                             dead_servants, dead_servants_player = self.plt.update()
                         TourEnCours(self.plt).apply_effects(carte)
+                    elif "ennemi" in carte.effects["damage"][0] and "aléatoire" in carte.effects["damage"][0] and adv.servants:
+                        if "deux" in carte.effects["damage"][0] and "relique" in carte.effects:
+                            for _ in range(2):
+                                if [x for x in adv.servants.cards if not x.is_dead()]:
+                                    target = random.choice([x for x in adv.servants.cards if not x.is_dead()])
+                                    target.damage(carte.effects["damage"][1] + player.reliques - 1)
                 elif "tous" in carte.effects["damage"][0]:
                     if "except_self" in carte.effects["damage"][0]:
                         for entity in [x for x in [player, adv] + player.servants.cards + adv.servants.cards if x!= carte]:
@@ -2255,6 +2260,8 @@ class TourEnCours:
                                     card_drawn.cost -= carte.effects["reduc_if_cadavre"]
                                     card_drawn.base_cost -= carte.effects["reduc_if_cadavre"]
                     else:
+                        if "dead_this_turn" in carte.effects["pioche"]:
+                            carte.effects["pioche"] = ["allié", len(player.dead_this_turn)]
                         player.pick_multi(carte.effects["pioche"][1])
                         if "if_cadavre" in carte.effects and player.cadavres >= carte.effects["if_cadavre"]:
                             player.cadavres -= carte.effects["if_cadavre"]
@@ -2264,6 +2271,8 @@ class TourEnCours:
                 if "tous" in carte.effects["decouverte"]:
                     if "bleu" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, other="bleu")
+                    elif "marginal" in carte.effects["decouverte"]:
+                        self.plt.cards_chosen = self.choice_decouverte(carte, other="marginal")
             elif "propagation" in carte.effects and target is not None:
                 if "rale d'agonie" in carte.effects["propagation"]:
                     if target in player.servants and len(player.servants) > 1:
@@ -2744,6 +2753,8 @@ class TourEnCours:
                     [x for x in adv.servants if "counter" in x.effects["aura"][0]][0].effects.pop("counter")
                 else:
                     player.mana_spend_spells += carte.cost
+                    if "relique" in carte.effects:
+                        player.reliques += 1
                     self.apply_effects(carte, target)
                     if [x for x in player.hand if "cri de guerre" in x.effects and "if_spell" in x.effects["cri de guerre"][1]]:
                         for serv in [x for x in player.hand if "cri de guerre" in x.effects and "if_spell" in x.effects["cri de guerre"][1]]:
@@ -3029,6 +3040,8 @@ class TourEnCours:
                 group_filtered = [x for x in all_cards if x["decouvrable"] == 1 and x["name"] != carte.name and "bleu" in x["effects"]]
             elif other == "rouge":
                 group_filtered = [x for x in all_cards if x["decouvrable"] == 1 and x["name"] != carte.name and "rouge" in x["effects"]]
+            elif other == "marginal":
+                group_filtered = [x for x in all_cards if x["decouvrable"] == 1 and x["name"] != carte.name and "marginal" in x["effects"]]
             else:
                 group_filtered = [x for x in all_cards if  x["decouvrable"] == 1 and x["name"] != carte.name]
 
@@ -3099,8 +3112,30 @@ class TourEnCours:
         adv = self.plt.players[1]
         """ Effets de fin de tour """
         for servant in player.servants:
+            servant.damage_taken = False
             if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
-                if servant.name == "Cuisinier toque" and adv.damage_this_turn >= 3:
+                if "boost" in servant.effects["aura"] and "self" in servant.effects["aura"][1]:
+                    if "random_lose" in servant.effects["aura"][1]:
+                        if random.randint(0, 1) == 0:
+                            servant.attack -= 1
+                            servant.base_attack -= 1
+                        else:
+                            servant.health -= 1
+                            servant.base_health -= 1
+                    else:
+                        servant.attack += servant.effects["aura"][2][0]
+                        servant.base_attack += servant.effects["aura"][2][0]
+                        servant.health += servant.effects["aura"][2][1]
+                        servant.base_health += servant.effects["aura"][2][1]
+                elif "main" in servant.effects["aura"][1]:
+                    if "allié" in servant.effects["aura"][1] and "serviteur" in servant.effects["aura"][1]:
+                        if [x for x in player.hand if x.type == "Serviteur"]:
+                            target = random.choice([x for x in player.hand if x.type == "Serviteur"])
+                            target.attack += servant.effects["aura"][2][0]
+                            target.base_attack += servant.effects["aura"][2][0]
+                            target.health += servant.effects["aura"][2][1]
+                            target.base_health += servant.effects["aura"][2][1]
+                elif servant.name == "Cuisinier toque" and adv.damage_this_turn >= 3:
                     player.pick()
                 elif "add_deck" in servant.effects["aura"] and "random_spell_top" in servant.effects["aura"][1]:
                     try:
@@ -3116,6 +3151,8 @@ class TourEnCours:
                         elif "ennemi" in servant.effects["aura"][1]:
                             target = random.choice([adv] + adv.servants.cards)
                             target.damage(servant.effects["aura"][2])
+                    elif "heros" in servant.effects["aura"][1] and "allié" in servant.effects["aura"][1]:
+                        player.damage(servant.effects["aura"][2])
                 elif "attack" in servant.effects["aura"]:
                     if "ennemi" in servant.effects["aura"][1] and "lowest_health" in servant.effects["aura"][1]:
                         lowest_health = min([x.health for x in adv.servants.cards + [adv]])
@@ -3125,6 +3162,26 @@ class TourEnCours:
                     if "until_full" in servant.effects["aura"][1]:
                         while len(player.servants) + len(player.lieux) < 7:
                             player.servants.add(get_card(servant.effects["aura"][2], all_servants))
+                    elif "if_cadavre" in servant.effects["aura"][1] and player.cadavres >= servant.effects["aura"][1][-1] and len(player.servants) + len(player.lieux) < 7:
+                        player.cadavres -= servant.effects["aura"][1][-1]
+                        if "copy" in servant.effects["aura"][1]:
+                            invoked_servant = get_card(servant.name, all_servants)
+                            invoked_servant.attack = servant.attack
+                            invoked_servant.base_attack = servant.base_attack
+                            invoked_servant.health = servant.health
+                            invoked_servant.base_health = servant.base_health
+                            invoked_servant.effects = servant.effects.copy()
+                            player.servants.add(invoked_servant)
+                        else:
+                            player.servants.add(get_card(servant.effects["aura"][2], all_servants))
+            if servant.name == "Goule fragile":
+                servant.blessure = 1000
+            if "temp_turn" in servant.effects:
+                servant.attack -= servant.effects["temp_turn"][0]
+                servant.health -= servant.effects["temp_turn"][1]
+                servant.base_health -= servant.effects["temp_turn"][1]
+            if "gel" in servant.effects and servant.remaining_atk == 0:
+                servant.effects.pop("gel")
         for servant in adv.servants:
             if "aura" in servant.effects and "each_turn" in servant.effects["aura"][1]:
                 if "invocation" in servant.effects["aura"]:
@@ -3148,7 +3205,7 @@ class TourEnCours:
             if "end_turn" in player.effects and "damage" in player.effects["end_turn"]:
                 if "heros" in player.effects["end_turn"][1] and "ennemi" in player.effects["end_turn"][1]:
                     adv.damage(player.effects["end_turn"][2])
-        self.plt.tour_suivant()
+
 
 
 class Orchestrator:
@@ -3556,7 +3613,10 @@ class Orchestrator:
             if (action - 171) % 8 == 0:
                 target = adv
             else:
-                target = adv.servants[int((action - 171) % 8 - 1)]
+                try:
+                    target = adv.servants[int((action - 171) % 8 - 1)]
+                except:
+                    print(attacker, action, adv.servants)
             if generate_logs:
                 action_line["action"] = "attaquer"
                 action_line["attaquant"] = attacker.id if type(attacker) is Card else "Players"
@@ -3627,7 +3687,8 @@ class Orchestrator:
         aura_servants = [x for x in player.servants.cards + adv.servants.cards if
                          "aura" in x.effects and not x.is_dead() and "alive" in x.effects["aura"][1]]
         for creature in player.servants.cards + adv.servants.cards:
-            creature.total_temp_boost = [0, 0]
+            if not ("aura" in creature.effects and "boost" in creature.effects["aura"] and "self" in creature.effects["aura"][1]):
+                creature.total_temp_boost = [0, 0]
         if aura_servants:
             TourEnCours(plateau).apply_effects(get_card(-1, all_cards))
         for creature in player.servants.cards + adv.servants.cards:
@@ -3651,6 +3712,9 @@ class Orchestrator:
 
         player.apply_discount()
         player.apply_weapon()
+
+        if action == 0:
+            plateau.tour_suivant()
         return plateau, logs
 
     """ Génère un nombre donné de parties et créé les logs associés"""

@@ -436,7 +436,7 @@ class Player:
         self.discount_next, self.augment = [], []
         self.all_dead_servants, self.dead_this_turn = [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues = [], [], [], []
-        self.oiseaux_libres, self.geolier = 0, 0
+        self.oiseaux_libres, self.geolier, self.reliques = 0, 0, 0
 
         """ Héros choisi par le joueur """
         self.power = None
@@ -518,54 +518,6 @@ class Player:
             for augment in self.augment:
                 if "temp_fullturn" in augment:
                     self.augment.remove(augment)
-        for servant in self.servants:
-            servant.damage_taken = False
-            if servant.name == "Goule fragile":
-                servant.blessure = 1000
-            if "temp_turn" in servant.effects:
-                servant.attack -= servant.effects["temp_turn"][0]
-                servant.health -= servant.effects["temp_turn"][1]
-                servant.base_health -= servant.effects["temp_turn"][1]
-            if "gel" in servant.effects and servant.remaining_atk == 0:
-                servant.effects.pop("gel")
-            if "aura" in servant.effects and "end_turn" in servant.effects["aura"][1]:
-                if "boost" in servant.effects["aura"] and "self" in servant.effects["aura"][1]:
-                    if "random_lose" in servant.effects["aura"][1]:
-                        if random.randint(0, 1) == 0:
-                            servant.attack -= 1
-                            servant.base_attack -= 1
-                        else:
-                            servant.health -= 1
-                            servant.base_health -= 1
-                    else:
-                        servant.attack += servant.effects["aura"][2][0]
-                        servant.base_attack += servant.effects["aura"][2][0]
-                        servant.health += servant.effects["aura"][2][1]
-                        servant.base_health += servant.effects["aura"][2][1]
-                elif "damage" in servant.effects["aura"]:
-                    if "heros" in servant.effects["aura"][1] and "allié" in servant.effects["aura"][1]:
-                        self.damage(servant.effects["aura"][2])
-                elif "main" in servant.effects["aura"][1]:
-                    if "allié" in servant.effects["aura"][1] and "serviteur" in servant.effects["aura"][1]:
-                        if [x for x in self.hand if x.type == "Serviteur"]:
-                            target = random.choice([x for x in self.hand if x.type == "Serviteur"])
-                            target.attack += servant.effects["aura"][2][0]
-                            target.base_attack += servant.effects["aura"][2][0]
-                            target.health += servant.effects["aura"][2][1]
-                            target.base_health += servant.effects["aura"][2][1]
-                elif "invocation" in servant.effects["aura"]:
-                    if "if_cadavre" in servant.effects["aura"][1] and self.cadavres >= servant.effects["aura"][1][-1] and len(self.servants) + len(self.lieux) < 7:
-                        self.cadavres -= servant.effects["aura"][1][-1]
-                        if "copy" in servant.effects["aura"][1]:
-                            invoked_servant = get_card(servant.name, all_servants)
-                            invoked_servant.attack = servant.attack
-                            invoked_servant.base_attack = servant.base_attack
-                            invoked_servant.health = servant.health
-                            invoked_servant.base_health = servant.base_health
-                            invoked_servant.effects = servant.effects.copy()
-                            self.servants.add(invoked_servant)
-                        else:
-                            self.servants.add(get_card(servant.effects["aura"][2], all_servants))
 
     def apply_discount(self):
         for card in self.hand:
@@ -584,7 +536,7 @@ class Player:
         if self.discount_next:
             for discount in self.discount_next:
                 for card in self.hand:
-                    if card.type.lower() == discount[0]:
+                    if card.type.lower() == discount[0] or discount[0] == "tous":
                         if discount[1] != "" and discount[1] in card.genre and discount[2] < 0:
                             card.cost = max(0, card.cost + discount[2])
                             if discount not in card.discount:
@@ -595,6 +547,10 @@ class Player:
                                 card.discount.append(discount)
                         elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
                             card.cost = discount[2]
+                            if discount not in card.discount:
+                                card.discount.append(discount)
+                        elif discount[1] == "marginal" and "marginal" in card.effects and discount[2] < 0:
+                            card.cost = max(0, card.cost + discount[2])
                             if discount not in card.discount:
                                 card.discount.append(discount)
                         elif "tous" in discount[1]:
@@ -691,6 +647,7 @@ class Player:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
+        self.dead_this_turn = []
         if self.gel == 0:
             self.remaining_atk = 1
         else:
@@ -871,7 +828,7 @@ class Card:
             self.effects["ruée"] = 0
         if "aura" in self.effects:
             if "temp_fullturn" in self.effects["aura"][1]:
-                self.attack = self.base_attack
+                self.total_temp_boost = [0, 0]
         if "gel" in self.effects:
             self.remaining_atk = 0
         if "en sommeil" in self.effects:

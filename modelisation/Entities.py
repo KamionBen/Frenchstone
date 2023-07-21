@@ -436,7 +436,7 @@ class Player:
         self.discount_next, self.augment = [], []
         self.all_dead_servants, self.dead_this_turn = [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues = [], [], [], []
-        self.oiseaux_libres, self.geolier, self.reliques = 0, 0, 0
+        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique = 0, 0, 0, 0
 
         """ Héros choisi par le joueur """
         self.power = None

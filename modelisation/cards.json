@@ -5171,6 +5171,78 @@
         "attack": null,
         "health": null,
         "effects": {"decouverte": ["tous", "marginal", 1], "reduc": [["tous", "prochain", "", "marginal"], -1]}
+    },
+    {
+        "id": 427,
+        "name": "Aura d'immolation",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": ["Fiel"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": [["tous", "serviteur", "double"], 1]}
+    },
+    {
+        "id": 428,
+        "name": "Bibliomite",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 5,
+        "health": 4,
+        "effects": {"cri de guerre": ["découverte", ["hand_to_deck"], ""]}
+    },
+    {
+        "id": 429,
+        "name": "Caveau de reliques",
+        "classe": "Chasseur de démons",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 2,
+        "effects": {"use": ["double", ["relique"], ""]}
+    },
+    {
+        "id": 430,
+        "name": "Comportement predateur",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": ["Fiel"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 2, "ciblage":  ["tous", "choisi"], "reduc": ["if_naga", 0]}
+    },
+    {
+        "id": 431,
+        "name": "Exile maudit",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"aura": ["add_hand", ["allié", "conditional", "if_marginal", "alive"], "marginal"]}
+    },
+    {
+        "id": 432,
+        "name": "Fana des fossiles",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"aura": ["pioche", ["allié", "conditional", "heros_allié_attack", "alive", "sort", "Fiel"], 1]}
     }
 ]
 

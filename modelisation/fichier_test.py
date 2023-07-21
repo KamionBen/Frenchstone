@@ -293,24 +293,27 @@ def generate_legal_vector_test(state):
 
     """ Lieux """
     for i in range(len(player.lieux)):
-        if player.lieux[i].attack == 1 and "choisi" in player.lieux[i].effects["use"][1]:
-            if player.lieux[i].effects["use"][1][0] == "tous":
-                legal_actions[265 + 15 * i] = True
-                legal_actions[265 + 15 * i + 7] = True
-                for m in range(len(player.servants)):
-                    legal_actions[265 + 15 * i + m + 1] = True
-                for n in range(len(adv.servants)):
-                    if "camouflage" not in adv.servants[n].effects:
-                        legal_actions[265 + 15 * i + n + 8] = True
-            elif player.lieux[i].effects["use"][1][0] == "serviteur":
-                if player.lieux[i].effects["use"][1][1] == "allié":
-                    if "conditional" in player.lieux[i].effects["use"][1]:
-                        if "if_cadavre" in player.lieux[i].effects["use"][1] and player.cadavres >= player.lieux[i].effects["use"][1][-1]:
+        if player.lieux[i].attack == 1:
+            if "choisi" in player.lieux[i].effects["use"][1]:
+                if player.lieux[i].effects["use"][1][0] == "tous":
+                    legal_actions[265 + 15 * i] = True
+                    legal_actions[265 + 15 * i + 7] = True
+                    for m in range(len(player.servants)):
+                        legal_actions[265 + 15 * i + m + 1] = True
+                    for n in range(len(adv.servants)):
+                        if "camouflage" not in adv.servants[n].effects:
+                            legal_actions[265 + 15 * i + n + 8] = True
+                elif player.lieux[i].effects["use"][1][0] == "serviteur":
+                    if player.lieux[i].effects["use"][1][1] == "allié":
+                        if "conditional" in player.lieux[i].effects["use"][1]:
+                            if "if_cadavre" in player.lieux[i].effects["use"][1] and player.cadavres >= player.lieux[i].effects["use"][1][-1]:
+                                for m in range(len(player.servants)):
+                                    legal_actions[265 + 15 * i + m + 1] = True
+                        else:
                             for m in range(len(player.servants)):
                                 legal_actions[265 + 15 * i + m + 1] = True
-                    else:
-                        for m in range(len(player.servants)):
-                            legal_actions[265 + 15 * i + m + 1] = True
+            else:
+                legal_actions[265 + 15 * i] = True
     return legal_actions
 
 

@@ -2337,6 +2337,8 @@ class TourEnCours:
                             for creature in deadies:
                                 if len(player.servants) + len(player.lieux) < 7:
                                     self.invoke_servant(creature, 0)
+            elif "hero_atack" in carte.effects:
+                player.attack += carte.effects["hero_attack"]
             if "destroy" in carte.effects:
                 if target is not None:
                     target.blessure = 1000

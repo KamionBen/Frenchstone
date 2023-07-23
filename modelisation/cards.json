@@ -5243,6 +5243,18 @@
         "attack": 2,
         "health": 2,
         "effects": {"aura": ["pioche", ["allié", "conditional", "heros_allié_attack", "alive", "sort", "Fiel"], 1]}
+    },
+    {
+        "id": 433,
+        "name": "Frappe du chaos",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": ["Fiel"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"hero_attack": 2, "pioche": ["allié", 1]}
     }
 ]
 

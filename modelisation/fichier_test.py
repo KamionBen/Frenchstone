@@ -245,7 +245,7 @@ def generate_legal_vector_test(state):
             break
     """ Notre héros peut attaquer """
     if player.remaining_atk > 0 and player.attack > 0:
-        if not is_provoc:
+        if not is_provoc and player.remaining_atk != 0.5:
             legal_actions[171] = True
         for j in range(len(adv.servants)):
             if not is_provoc:
@@ -399,8 +399,13 @@ for i in range(4):
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')
     while plateau_depart.game_on:
-        max_reward, best_action = minimax(plateau_depart)
-        plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+        try:
+            max_reward, best_action = minimax(plateau_depart)
+            plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+        except:
+            max_reward, best_action = minimax(plateau_depart)
+            plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+            print("ça déconne ?")
         # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
         # print('----------------------------------------------')
         logs.append(pd.DataFrame(logs_inter))

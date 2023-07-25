@@ -171,7 +171,6 @@ class Plateau:
         """ Met à jour le plateau à la fin du tour d'un joueur """
         self.game_turn += 1
         player = self.players[0]
-        adv = self.players[1]
         """ Fin du tour"""
         player.end_turn()
         self.players.reverse()
@@ -210,6 +209,20 @@ class Plateau:
                         new_card = random.choice(potential_transform)
                         new_card.cost = new_cost
                         player.hand.add(new_card)
+        """ Transformation des serviteurs concernés """
+        if [x for x in player.hand if x.type == "Serviteur" and "transformation" in x.effects]:
+            for serv in [x for x in player.hand if x.type == "Serviteur" and "transformation" in x.effects]:
+                potential_transform = [get_card(x, all_servants) for x in serv.effects["transformation"]]
+                player.hand.cards = [random.choice(potential_transform) if x == serv else x for x in player.hand]
+        """ Le Geolier """
+        if player.geolier:
+            for servant in player.servants:
+                servant.effects["bouclier divin"] = 2
+                servant.effects["camouflage"] = 1
+        if adv.geolier:
+            for servant in adv.servants:
+                servant.effects["bouclier divin"] = 2
+                servant.effects["camouflage"] = 1
         player.apply_discount()
 
     def update(self):
@@ -437,6 +450,7 @@ class Player:
         self.all_dead_servants, self.dead_this_turn = [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues = [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique = 0, 0, 0, 0
+        self.copies_to_deck = 0
 
         """ Héros choisi par le joueur """
         self.power = None
@@ -613,7 +627,17 @@ class Player:
                     else:
                         self.servants.add(get_card(self.deck.cards[0].effects["invoked_drawn"], all_servants))
                         self.deck.remove(self.deck.cards[0])
+                    if [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
+                        for creature in [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
+                            creature.effects["en sommeil"][1] -= 1
+                            if creature.effects["en sommeil"][1] == 0:
+                                creature.effects.pop("en sommeil")
                 self.hand.add(self.deck.pick_one())
+                if [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
+                    for creature in [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
+                        creature.effects["en sommeil"][1] -= 1
+                        if creature.effects["en sommeil"][1] == 0:
+                            creature.effects.pop("en sommeil")
                 if "draw" in self.effects:
                     self.damage(self.effects["draw"][2])
             else:
@@ -684,7 +708,6 @@ class Player:
             invoked_servant.health = nb_heal
             invoked_servant.base_health = nb_heal
             self.servants.add(invoked_servant)
-
 
     def is_dead(self) -> bool:
         return self.health <= 0
@@ -802,6 +825,7 @@ class Card:
         self.remaining_atk = 0
         self.damage_taken, self.blessure = False, 0
         self.total_temp_boost = [0, 0]
+        self.cursed_player = None
 
     def generate_id(self):
         try:
@@ -829,12 +853,15 @@ class Card:
         if "aura" in self.effects:
             if "temp_fullturn" in self.effects["aura"][1]:
                 self.total_temp_boost = [0, 0]
+                self.attack = max(0, self.base_attack + self.total_temp_boost[0])
+                self.health = max(0, self.base_health + self.total_temp_boost[1] - self.blessure)
         if "gel" in self.effects:
             self.remaining_atk = 0
         if "en sommeil" in self.effects:
-            self.effects["en sommeil"] -= 1
-            if self.effects["en sommeil"] == 0:
-                self.effects.pop("en sommeil")
+            if type(self.effects["en sommeil"]) == int:
+                self.effects["en sommeil"] -= 1
+                if self.effects["en sommeil"] == 0:
+                    self.effects.pop("en sommeil")
 
     def reset_complete(self):
         self.cost = self.base_cost
@@ -850,7 +877,12 @@ class Card:
                 self.effects.pop("bouclier divin")
         else:
             self.health -= nb
-            self.damage_taken = True if nb > 0 else False
+            if nb > 0:
+                self.damage_taken = True
+                if "curse_link" in self.effects:
+                    self.cursed_player.damage(self.effects["curse_link"])
+            else:
+                self.damage_taken = False
             self.blessure += nb
 
     def heal(self, nb):
@@ -973,6 +1005,97 @@ def is_card_id(elt) -> bool:
         return False
 
 
+def generate_targets(state):
+    """ Gestion des actions légales """
+    legal_actions = [False] * 170
+    player = state.players[0]
+    adv = state.players[1]
+
+    """ Quelles cartes peut-on jouer ? Et qur quelles cibles le cas échéant ? """
+    for i in range(len(player.hand)):
+        if player.hand[i].type.lower() == "sort":
+            if "ciblage" in player.hand[i].effects:
+                if "serviteur" in player.hand[i].effects["ciblage"]:
+                    if "ennemi" in player.hand[i].effects["ciblage"]:
+                        for j in range(len(adv.servants)):
+                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                legal_actions[17 * i + j + 10] = True
+                    elif "tous" in player.hand[i].effects["ciblage"]:
+                        if "if_rale_agonie" in player.hand[i].effects["ciblage"]:
+                            for j in range(len(player.servants)):
+                                if "rale d'agonie" in player.servants[j].effects and "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    if "rale d'agonie" in adv.servants[j].effects:
+                                        legal_actions[17 * i + j + 10] = True
+                        elif "Mort-vivant" in player.hand[i].effects["ciblage"]:
+                            for j in range(len(player.servants)):
+                                if "Mort-vivant" in player.servants[j].genre and "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    if "Mort-vivant" in adv.servants[j].genre:
+                                        legal_actions[17 * i + j + 10] = True
+                        else:
+                            for j in range(len(player.servants)):
+                                if "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    legal_actions[17 * i + j + 10] = True
+                elif "tous" in player.hand[i].effects["ciblage"]:
+                    if "ennemi" in player.hand[i].effects["ciblage"]:
+                        legal_actions[17 * i + 9] = True
+                        for j in range(len(adv.servants)):
+                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                legal_actions[17 * i + j + 10] = True
+                    else:
+                        legal_actions[17 * i + 1] = True
+                        legal_actions[17 * i + 9] = True
+                        for j in range(len(player.servants)):
+                            if "inciblable" not in player.servants[j].effects:
+                                legal_actions[17 * i + j + 2] = True
+                        for j in range(len(adv.servants)):
+                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                legal_actions[17 * i + j + 10] = True
+            else:
+                legal_actions[17 * i] = True
+    return legal_actions
+
+
+def jouer_sort(self, carte, target=None):
+        """ Action de poser une carte depuis la main du joueur dont c'est le tour.
+        Le plateau est mis à jour en conséquence """
+        player = self.plt.players[0]
+        adv = self.plt.players[1]
+        if carte.cost <= player.mana:
+            if carte.type.lower() == "sort":
+                if "marginal" in carte.effects:
+                    if carte in [player.hand[0], player.hand[-1]]:
+                        carte.effects[carte.effects["marginal"][0]] = carte.effects["marginal"][1]
+                        print(carte.effects)
+                player.hand.remove(carte)
+                player.mana_spend(carte.cost)
+                if "counter" in [x.effects["aura"][0] for x in adv.servants if "aura" in x.effects] and "sort" in [x.effects["aura"][1] for x in adv.servants if "aura" in x.effects]:
+                    print("Sort contré")
+                    [x for x in adv.servants if "counter" in x.effects["aura"][0]][0].effects.pop("counter")
+                else:
+                    player.mana_spend_spells += carte.cost
+                    if "relique" in carte.effects:
+                        player.reliques += 1
+                        if player.double_relique == 1:
+                            self.apply_effects(carte, target)
+                            player.reliques += 1
+                            player.double_relique = 0
+                    self.apply_effects(carte, target)
+                    if [x for x in player.hand if "cri de guerre" in x.effects and "if_spell" in x.effects["cri de guerre"][1]]:
+                        for serv in [x for x in player.hand if "cri de guerre" in x.effects and "if_spell" in x.effects["cri de guerre"][1]]:
+                            serv.effects["cri de guerre"][1][-1] -= 1
+                            if serv.effects["cri de guerre"][1][-1] <= 0:
+                                serv.effects["cri de guerre"][2] = serv.effects["cri de guerre"][3]
+        else:
+            raise PermissionError("Carte plus chère que la mana du joueur")
 
 if __name__ == '__main__':
     pass

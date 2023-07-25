@@ -95,7 +95,7 @@ class CardSprite(pygame.sprite.Sprite):
                     self.description += [" Camouflage"]
                 if logline['reincarnation_'+on_board_id] >= 0:
                     self.description += [" Réincarnation"]
-                if logline['en_sommeil_'+on_board_id] > 0:
+                if logline['en_sommeil_'+on_board_id] != -99:
                     self.description += [" En sommeil"]
                 if logline['gel_'+on_board_id] == 1:
                     self.description += [" Gelé"]

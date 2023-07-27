@@ -29,6 +29,7 @@ cardsfile = "cards.json"
 all_cards = get_cards_data('cards.json')
 all_servants = [x for x in all_cards if x['type'] == "Serviteur"]
 all_spells = [x for x in all_cards if x['type'] == "Sort"]
+all_weapons = [x for x in all_cards if x['type'] == "Arme"]
 heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
           "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"],
           "Paladin": ["Uther"],
@@ -440,7 +441,7 @@ class Player:
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
-        self.serv_this_turn = CardGroup()
+        self.serv_this_turn, self.drawn_this_turn = CardGroup(), 0
         self.last_card = "" # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
@@ -484,6 +485,7 @@ class Player:
 
     def start_turn(self):
         """ Remise à zéro de début de tour """
+        self.reset()
         if len(self.deck) > 0:
             self.pick()
         else:
@@ -497,7 +499,6 @@ class Player:
         for lieu in self.lieux:
             lieu.attack = min(0.5 + lieu.attack, 1)
         self.damage(self.fatigue)
-        self.reset()
         self.mana_grow()
         self.mana_reset()
         self.power_reset()
@@ -544,6 +545,8 @@ class Player:
                         card.cost = max(0, card.base_cost - self.mana_spend_spells)
                     elif "cadavres_spent" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.cadavres_spent)
+            if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
+                card.cost = card.effects["marginal"][1]
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.weapon is not None:
             for corsaire in [x for x in self.hand if x.name == "Corsaire de l'effroi"]:
                 corsaire.cost = max(0, corsaire.base_cost - self.weapon.attack - self.attack)
@@ -601,6 +604,8 @@ class Player:
     def apply_weapon(self):
         if self.weapon is not None:
             self.attack = self.weapon.attack + self.inter_attack
+            if "vol de vie" in self.weapon.effects:
+                self.effects["vol de vie"] = 1
         else:
             self.attack = self.inter_attack
 
@@ -633,6 +638,7 @@ class Player:
                             if creature.effects["en sommeil"][1] == 0:
                                 creature.effects.pop("en sommeil")
                 self.hand.add(self.deck.pick_one())
+                self.drawn_this_turn += 1
                 if [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
                     for creature in [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
                         creature.effects["en sommeil"][1] -= 1
@@ -671,11 +677,13 @@ class Player:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
-        self.dead_this_turn = []
+        self.dead_this_turn, self.drawn_this_turn = [], 0
         if self.gel == 0:
             self.remaining_atk = 1
         else:
             self.remaining_atk = 0
+        if "vol de vie" in self.effects:
+            self.effects.pop("vol de vie")
         self.damage_this_turn = 0
         self.heal_this_turn = 0
         self.inter_attack = 0

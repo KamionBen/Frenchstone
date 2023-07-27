@@ -286,9 +286,9 @@ def generate_legal_vector_test(state):
                 if adv.servants[i] in targets and not list({"camouflage", "en sommeil", "inciblable"} and set(adv.servants[i].effects)):
                     legal_actions[244 + i] = True
 
-    """ Mot-clé échangeable """
+    """ Mot-clé échangeable ou forge """
     for i in range(len(player.hand)):
-        if player.mana >= 1 and "echangeable" in player.hand[i].effects:
+        if (player.mana >= 1 and "echangeable" in player.hand[i].effects) or (player.mana >= 2 and "forge" in player.hand[i].effects):
             legal_actions[255 + i] = True
 
     """ Lieux """
@@ -321,6 +321,8 @@ def calc_advantage_minmax(state):
     player = state.players[0]
     adv = state.players[1]
     advantage = (len(player.hand) - len(adv.hand)) + 0.8 * (len(player.hand) / max(1, len(adv.hand)))
+    if "forged" in [x.effects for x in player.hand]:
+        advantage += 2
     for servant in player.servants:
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
@@ -343,7 +345,10 @@ def calc_advantage_minmax(state):
 
     return round(advantage, 2)
 
+
 total_actions = 0
+
+
 def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=3):
 
     global total_actions
@@ -405,7 +410,6 @@ for i in range(4):
         except:
             max_reward, best_action = minimax(plateau_depart)
             plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
-            print("ça déconne ?")
         # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
         # print('----------------------------------------------')
         logs.append(pd.DataFrame(logs_inter))

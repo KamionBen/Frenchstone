@@ -5616,6 +5616,54 @@
         "attack": 3,
         "health": 6,
         "effects": {"aura": ["equip_arme", ["allié", "Chasseur de démons", "if_arme_destroyed"], 1]}
+    },
+    {
+        "id": 464,
+        "name": "Faux de la devoreuse d'ames",
+        "classe": "Chasseur de démons",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 2,
+        "effects": {"start_game": "Faux", "legendaire": 1}
+    },
+    {
+        "id": 465,
+        "name": "Ame liee",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["ames_liees"]}
+    },
+    {
+        "id": 466,
+        "name": "Fielerin l'oublie",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "left_right", "marginal", "reduc", 2], "several", 2], "legendaire": 1}
+    },
+    {
+        "id": 467,
+        "name": "Glaivetar",
+        "classe": "Chasseur de démons",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 2,
+        "effects": {"rale d'agonie": ["pioche", ["allié", "marginal_played"], 1]}
     }
 ]
 

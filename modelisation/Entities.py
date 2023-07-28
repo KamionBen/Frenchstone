@@ -449,7 +449,7 @@ class Player:
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment = [], []
         self.all_dead_servants, self.dead_this_turn = [], []
-        self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues = [], [], [], []
+        self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees = [], [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique = 0, 0, 0, 0
         self.copies_to_deck = 0
 
@@ -478,6 +478,13 @@ class Player:
         if self.classe == "Chasseur de démons":
             self.cout_pouvoir = 1
             self.cout_pouvoir_temp = 1
+            if "Faux de la devoreuse d'ames" in [x.name for x in self.deck if x.type == "Arme"]:
+                serv_to_consume = random.sample([x for x in self.deck if x.type == "Serviteur"], min(3, len([x for x in self.deck if x.type == "Serviteur"])))
+                for serviteur in serv_to_consume:
+                    self.deck.remove(serviteur)
+                    self.deck.add(get_card("Ame liee", all_spells))
+                    self.ames_liees.append(serviteur)
+                self.deck.shuffle()
         if "Prince Renathal" in [x.name for x in self.deck]:
             self.health = 35
             self.base_health = 35

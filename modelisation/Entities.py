@@ -98,6 +98,7 @@ for i in range(7):
     empty_action_line[f"voldevie_serv{i + 1}_j"] = -99
     empty_action_line[f"toxicite_serv{i + 1}_j"] = -99
     empty_action_line[f"furiedesvents_serv{i + 1}_j"] = -99
+    empty_action_line[f"titan_serv{i + 1}_j"] = -99
     empty_action_line[f"lieu{i + 1}_j"] = -99
     empty_action_line[f"atq_lieu{i + 1}_j"] = -99
     empty_action_line[f"pv_lieu{i + 1}_j"] = -99
@@ -117,6 +118,7 @@ for i in range(7):
     empty_action_line[f"voldevie_serv{i + 1}_adv"] = -99
     empty_action_line[f"toxicite_serv{i + 1}_adv"] = -99
     empty_action_line[f"furiedesvents_serv{i + 1}_adv"] = -99
+    empty_action_line[f"titan_serv{i + 1}_adv"] = -99
     empty_action_line[f"lieu{i + 1}_adv"] = -99
     empty_action_line[f"atq_lieu{i + 1}_adv"] = -99
     empty_action_line[f"pv_lieu{i + 1}_adv"] = -99
@@ -210,11 +212,6 @@ class Plateau:
                         new_card = random.choice(potential_transform)
                         new_card.cost = new_cost
                         player.hand.add(new_card)
-        """ Transformation des serviteurs concernés """
-        if [x for x in player.hand if x.type == "Serviteur" and "transformation" in x.effects]:
-            for serv in [x for x in player.hand if x.type == "Serviteur" and "transformation" in x.effects]:
-                potential_transform = [get_card(x, all_servants) for x in serv.effects["transformation"]]
-                player.hand.cards = [random.choice(potential_transform) if x == serv else x for x in player.hand]
         """ Le Geolier """
         if player.geolier:
             for servant in player.servants:
@@ -251,6 +248,8 @@ class Plateau:
                 if servant.is_dead():
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
+                    if "Démon" in servant.genre:
+                        player.dead_demons.append(servant)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
                     player.all_dead_servants.append(servant)
@@ -271,7 +270,10 @@ class Plateau:
                                 self.players[0].damage(1000)
             if cards_impregnation and dead_servants_player:
                 for card in cards_impregnation:
-                    card.effects["impregnation"][1] -= len(dead_servants_player)
+                    if "impregnation_demon" in card.effects["impregnation"]:
+                        card.effects["impregnation"][1] -= len([x for x in dead_servants_player if "Démon" in x.genre])
+                    else:
+                        card.effects["impregnation"][1] -= len(dead_servants_player)
                     if card.effects["impregnation"][1] <= 0:
                         if card.name == "Sire Denathrius":
                             card.effects["impregnation"][1] = 2
@@ -303,15 +305,18 @@ class Plateau:
         player = self.players[0]
         adv = self.players[1]
         targets = []
-        if player.classe in ["Mage", "Prêtre"]:
-            targets = [player] + [adv] + player.servants.cards + adv.servants.cards
-        elif player.classe == "Chasseur":
-            targets.append(adv)
-        elif player.classe in ["Paladin", "Chevalier de la mort"]:
-            if len(player.servants) + len(player.lieux) < 7:
+        if player.power is None:
+            if player.classe in ["Mage", "Prêtre"]:
+                targets = [player] + [adv] + player.servants.cards + adv.servants.cards
+            elif player.classe == "Chasseur":
+                targets.append(adv)
+            elif player.classe in ["Paladin", "Chevalier de la mort"]:
+                if len(player.servants) + len(player.lieux) < 7:
+                    targets.append(player)
+            else:
                 targets.append(player)
-        else:
-            targets.append(player)
+        elif player.power[0] == "Explosion demoniaque":
+            targets = [player] + [adv] + player.servants.cards + adv.servants.cards
         return targets
 
     def get_gamestate(self) -> dict:
@@ -385,6 +390,8 @@ class Plateau:
                 action_line[f"toxicite_serv{i + 1}_j"] = player.servants[i].effects["toxicite"]
             if "furie des vents" in player.servants[i].effects:
                 action_line[f"furiedesvents_serv{i + 1}_j"] = player.servants[i].effects["furie des vents"]
+            if "titan" in player.servants[i].effects:
+                action_line[f"titan_serv{i + 1}_j"] = player.servants[i].effects["titan"][-1]
             action_line[f"is_servant{i + 1}_{player.servants[i].name}_j"] = 1
         for i in range(len(adv.servants)):
             action_line[f"serv{i + 1}_adv"] = adv.servants[i].id
@@ -416,6 +423,8 @@ class Plateau:
                 action_line[f"toxicite_serv{i + 1}_adv"] = adv.servants[i].effects["toxicite"]
             if "furie des vents" in adv.servants[i].effects:
                 action_line[f"furiedesvents_serv{i + 1}_adv"] = adv.servants[i].effects["furie des vents"]
+            if "titan" in adv.servants[i].effects:
+                action_line[f"titan_serv{i + 1}_adv"] = adv.servants[i].effects["titan"][-1]
             action_line[f"is_servant{i + 1}_{adv.servants[i].name}_adv"] = 1
 
         for i in range(len(player.lieux)):
@@ -442,15 +451,15 @@ class Player:
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.drawn_this_turn = CardGroup(), 0
-        self.last_card = "" # la dernière carte jouée par le joueur
+        self.last_card, self.first_spell = "", None # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge = 0
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment = [], []
         self.all_dead_servants, self.dead_this_turn = [], []
-        self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees = [], [], [], [], []
-        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique = 0, 0, 0, 0
+        self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
+        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.weapons_played = 0, 0, 0, 0, 0
         self.copies_to_deck = 0
 
         """ Héros choisi par le joueur """
@@ -464,7 +473,7 @@ class Player:
         self.attack, self.inter_attack = 0, 0
         self.remaining_atk, self.has_attacked = 1, 0
         self.armor = 0
-        self.gel = 0
+        self.gel, self.curses, self.permanent_buff = 0, [], []
         self.health, self.base_health = 30, 30
         self.weapon = None
         self.effects = {}
@@ -526,6 +535,8 @@ class Player:
                 self.effects.pop("inciblable")
             if "draw" in self.effects and "temp_turn" in self.effects["draw"]:
                 self.effects.pop("draw")
+            if "insensible_attack" in self.effects:
+                self.effects.pop("insensible_attack")
         if self.discount_next:
             for discount in self.discount_next:
                 if "end_turn" in discount:
@@ -541,6 +552,10 @@ class Player:
                 if "temp_fullturn" in augment:
                     self.augment.remove(augment)
 
+    def end_action(self):
+        if len(self.hand) > 10:
+            self.hand.cards = self.hand.cards[:10]
+
     def apply_discount(self):
         for card in self.hand:
             card.cost = card.base_cost
@@ -552,6 +567,10 @@ class Player:
                         card.cost = max(0, card.base_cost - self.mana_spend_spells)
                     elif "cadavres_spent" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.cadavres_spent)
+                    elif "cards_drawn" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.drawn_this_turn)
+                    elif "weapons_played" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - 2 * self.weapons_played)
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
                 card.cost = card.effects["marginal"][1]
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.weapon is not None:
@@ -653,6 +672,10 @@ class Player:
                             creature.effects.pop("en sommeil")
                 if "draw" in self.effects:
                     self.damage(self.effects["draw"][2])
+                if "if_pioche" in [x.effects["aura"][1][-1] for x in self.servants if "aura" in x.effects]:
+                    for creature in [x for x in self.servants if "aura" in x.effects and x.effects["aura"][1][-1] == "if_pioche"]:
+                        if "invocation" in creature.effects["aura"] and len(self.servants) + len(self.lieux) < 7:
+                            self.servants.add(get_card(creature.effects["aura"][2], all_servants))
             else:
                 self.fatigue += 1
                 self.damage(self.fatigue)
@@ -684,16 +707,17 @@ class Player:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
-        self.dead_this_turn, self.drawn_this_turn = [], 0
+        self.first_spell = None
+        self.permanent_buff = ['jotun_ready' if x == 'jotun_used' else x for x in self.permanent_buff]
+        self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, []
         if self.gel == 0:
             self.remaining_atk = 1
         else:
             self.remaining_atk = 0
         if "vol de vie" in self.effects:
             self.effects.pop("vol de vie")
-        self.damage_this_turn = 0
-        self.heal_this_turn = 0
-        self.inter_attack = 0
+        self.damage_this_turn, self.heal_this_turn = 0, 0
+        self.inter_attack, self.has_attacked = 0, 0
         self.my_turn = 1
 
     def reset_complete(self):
@@ -855,6 +879,12 @@ class Card:
 
     def reset(self):
         """ Reset de début de tour """
+        if "titan" in self.effects:
+            if len(self.effects["titan"]) == 1:
+                self.effects.pop("titan")
+                self.effects.pop("ne peut pas attaquer")
+            elif self.effects["titan"][-1] == 0:
+                self.effects["titan"][-1] = 1
         if "ne peut pas attaquer" in self.effects:
             self.remaining_atk = 0
         else:
@@ -1022,7 +1052,7 @@ def is_card_id(elt) -> bool:
 
 def generate_targets(state):
     """ Gestion des actions légales """
-    legal_actions = [False] * 170
+    legal_actions = [False] * 250
     player = state.players[0]
     adv = state.players[1]
 

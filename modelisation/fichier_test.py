@@ -7,7 +7,7 @@ plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 def generate_legal_vector_test(state):
     """ Gestion des actions légales """
-    legal_actions = [False] * 315
+    legal_actions = [False] * 390
     player = state.players[0]
     adv = state.players[1]
     
@@ -27,6 +27,7 @@ def generate_legal_vector_test(state):
         for i in range(251, 251 + len(state.cards_hands_to_deck[0])):
             legal_actions[i] = True
         return legal_actions
+
 
     legal_actions[0] = True
     gamestate = state.get_gamestate()
@@ -239,10 +240,11 @@ def generate_legal_vector_test(state):
 
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     is_provoc = False
-    for j in range(len(adv.servants)):
-        if "provocation" in adv.servants[j].effects:
-            is_provoc = True
-            break
+    if not "ignore_taunt" in [x.effects["aura"][0] for x in player.servants if "aura" in x.effects]:
+        for j in range(len(adv.servants)):
+            if "provocation" in adv.servants[j].effects:
+                is_provoc = True
+                break
     """ Notre héros peut attaquer """
     if player.remaining_atk > 0 and player.attack > 0:
         if not is_provoc and player.remaining_atk != 0.5:
@@ -314,6 +316,12 @@ def generate_legal_vector_test(state):
                                 legal_actions[265 + 15 * i + m + 1] = True
             else:
                 legal_actions[265 + 15 * i] = True
+
+    """ Titans """
+    for i in range(len([x for x in player.servants if "titan" in x.effects and x.effects["titan"][-1] == 1])):
+        for j in range(len([x for x in player.servants if "titan" in x.effects][i].effects["titan"]) - 1):
+            legal_actions[370 + 3 * i + j] = True
+
     return legal_actions
 
 

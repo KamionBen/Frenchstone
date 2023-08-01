@@ -6101,5 +6101,41 @@
         "attack": 4,
         "health": 7,
         "effects": {"reduc": ["self", "weapons_played", 2], "provocation": 1, "vol de vie": 1}
+    },
+    {
+        "id": 504,
+        "name": "Faucheuse de flammes",
+        "classe": "Chasseur de démons",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 5,
+        "health": 3,
+        "effects": {"cleave": 1}
+    },
+    {
+        "id": 505,
+        "name": "Terreur mythique",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Démon", "Bête"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 3,
+        "health": 10,
+        "effects": {"aura": ["attack", ["serviteur", "ennemi", "tous", "end_turn"], 1], "vol de vie": 1}
+    },
+    {
+        "id": 506,
+        "name": "Vengeresse cogneuse",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Démon"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 5,
+        "health": 5,
+        "effects": {"reduc": ["self", "marginal_played", 1], "ruée": 1}
     }
 ]

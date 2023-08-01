@@ -3035,21 +3035,21 @@ class TourEnCours:
             if "toxicite" in cible.effects and "bouclier divin" not in attaquant.effects and "insensible_attack" not in attaquant.effects and type(cible) == Card:
                 attaquant.blessure = 1000
             if "vol de vie" in attaquant.effects and "bouclier divin" not in cible.effects and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                player.heal(attaquant.attack)
-                if "cleave" in attaquant.effects and type(cible) == Card:
-                    index_target = adv.servants.cards.index(cible)
-                    if index_target != 0:
-                        cible_gauche = adv.servants[index_target - 1]
-                        if "bouclier divin" not in cible_gauche.effects:
-                            player.heal(attaquant.attack)
-                    try:
-                        cible_droite = adv.servants[index_target + 1]
-                        if "bouclier divin" not in cible_droite.effects:
-                            player.heal(attaquant.attack)
-                    except:
-                        pass
+                player.heal(attaquant.attack) if cible in player.servants else adv.heal(cible.attack)
+            if "cleave" in attaquant.effects and type(cible) == Card:
+                index_target = adv.servants.cards.index(cible)
+                if index_target != 0:
+                    cible_gauche = adv.servants[index_target - 1]
+                    if "bouclier divin" not in cible_gauche.effects:
+                        player.heal(attaquant.attack)
+                try:
+                    cible_droite = adv.servants[index_target + 1]
+                    if "bouclier divin" not in cible_droite.effects:
+                        player.heal(attaquant.attack)
+                except:
+                    pass
             if "vol de vie" in cible.effects and "bouclier divin" not in attaquant.effects and not [x for x in adv.servants if "anti_heal" in x.effects] and "insensible_attack" not in attaquant.effects:
-                adv.heal(cible.attack)
+                adv.heal(cible.attack) if cible in adv.servants else player.heal(cible.attack)
             if [x.name for x in player.servants] and "Enchanteur" in [x.name for x in player.servants] and type(cible) == Card:
                 if "aura" in attaquant.effects and "Neptulon" in attaquant.effects["aura"] and [x for x in player.servants if x.name == "Main de neptulon"]:
                     for main_nept in [x for x in player.servants if x.name == "Main de neptulon"]:
@@ -3396,7 +3396,11 @@ class TourEnCours:
                     elif "heros" in servant.effects["aura"][1] and "allié" in servant.effects["aura"][1]:
                         player.damage(servant.effects["aura"][2])
                 elif "attack" in servant.effects["aura"]:
-                    if "ennemi" in servant.effects["aura"][1] and "lowest_health" in servant.effects["aura"][1]:
+                    if "serviteur" in servant.effects["aura"][1] and "ennemi" in servant.effects["aura"][1] and "tous" in servant.effects["aura"][1] and adv.servants.cards:
+                        for creature in adv.servants.cards:
+                            if not servant.is_dead():
+                                self.attaquer(creature, servant)
+                    elif "ennemi" in servant.effects["aura"][1] and "lowest_health" in servant.effects["aura"][1]:
                         lowest_health = min([x.health for x in adv.servants.cards + [adv]])
                         target = random.choice([x for x in adv.servants.cards + [adv] if x.health == lowest_health])
                         self.attaquer(servant, target)
@@ -3851,6 +3855,8 @@ class Orchestrator:
                             except:
                                 pass
             inter_cost = played_card.cost
+            if "marginal" in played_card.effects:
+                player.marginal_played += 1
             TourEnCours(plateau).jouer_carte(played_card, target)
             if len(played_card.genre) > 0 and played_card.genre[0] in all_genre_servants and len(player.genre_joues) < 10:
                 to_beat_score = len(player.genre_joues)

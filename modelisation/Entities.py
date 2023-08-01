@@ -459,7 +459,8 @@ class Player:
         self.discount_next, self.augment = [], []
         self.all_dead_servants, self.dead_this_turn = [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
-        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.weapons_played = 0, 0, 0, 0, 0
+        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, = 0, 0, 0, 0
+        self.weapons_played, self.marginal_played = 0, 0
         self.copies_to_deck = 0
 
         """ Héros choisi par le joueur """
@@ -571,6 +572,8 @@ class Player:
                         card.cost = max(0, card.base_cost - self.drawn_this_turn)
                     elif "weapons_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - 2 * self.weapons_played)
+                    elif "marginal_played" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.marginal_played)
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
                 card.cost = card.effects["marginal"][1]
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.weapon is not None:
@@ -632,6 +635,8 @@ class Player:
             self.attack = self.weapon.attack + self.inter_attack
             if "vol de vie" in self.weapon.effects:
                 self.effects["vol de vie"] = 1
+            if "cleave" in self.weapon.effects:
+                self.effects["cleave"] = 1
         else:
             self.attack = self.inter_attack
 
@@ -716,6 +721,8 @@ class Player:
             self.remaining_atk = 0
         if "vol de vie" in self.effects:
             self.effects.pop("vol de vie")
+        if "cleave" in self.effects:
+            self.effects.pop("cleave")
         self.damage_this_turn, self.heal_this_turn = 0, 0
         self.inter_attack, self.has_attacked = 0, 0
         self.my_turn = 1

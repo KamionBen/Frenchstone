@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Chevalier de la mort"), Player("OldIA", "Chasseur de démons")]
+players = [Player("NewIA", "Druide"), Player("OldIA", "Chasseur de démons")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -11,7 +11,7 @@ def generate_legal_vector_test(state):
     player = state.players[0]
     adv = state.players[1]
     
-    """ Découverte """
+    """ decouverte """
     if state.cards_chosen or state.cards_dragage:
         legal_actions[0] = False
         for i in range(251, 251 + len(state.cards_chosen[0]) if state.cards_chosen else 251 + len(state.cards_dragage[0])):
@@ -27,7 +27,9 @@ def generate_legal_vector_test(state):
         for i in range(251, 251 + len(state.cards_hands_to_deck[0])):
             legal_actions[i] = True
         return legal_actions
-
+    elif state.choix_des_armes is not None:
+        legal_actions[251], legal_actions[252] = True, True
+        return legal_actions
 
     legal_actions[0] = True
     gamestate = state.get_gamestate()

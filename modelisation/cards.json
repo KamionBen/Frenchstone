@@ -698,7 +698,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre": ["découverte", ["serviteur", "allié", "choisi", "genre"], ["serviteur", "genre"]]}
+        "effects": {"cri de guerre": ["decouverte", ["serviteur", "allié", "choisi", "genre"], ["serviteur", "genre"]]}
     },
     {
         "id": 57,
@@ -968,7 +968,7 @@
         "cost": 2,
         "attack": 1,
         "health": 3,
-        "effects": {"cri de guerre": ["découverte", [""], ["sort", "classe_adv"]]}
+        "effects": {"cri de guerre": ["decouverte", [""], ["sort", "classe_adv"]]}
     },
     {
         "id": 79,
@@ -992,7 +992,7 @@
         "cost": 2,
         "attack": 3,
         "health": 2,
-        "effects": {"cri de guerre": ["remontee", ["serviteur", "allié", "choisi"], 1]}
+        "effects": {"cri de guerre": ["sap", ["serviteur", "allié", "choisi"], 1]}
     },
     {
         "id": 81,
@@ -1294,7 +1294,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre": ["découverte", [""], ["sort", "secret", "aléatoire"]]}
+        "effects": {"cri de guerre": ["decouverte", [""], ["sort", "secret", "aléatoire"]]}
     },
     {
         "id": 106,
@@ -1534,7 +1534,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre": ["découverte", ["conditional", "serviteur", "allié", "Méca"], ["serviteur", "Méca"]]}
+        "effects": {"cri de guerre": ["decouverte", ["conditional", "serviteur", "allié", "Méca"], ["serviteur", "Méca"]]}
     },
     {
         "id": 126,
@@ -1595,7 +1595,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre": ["découverte", [""], ["deck_adv"]], "legendaire": 1}
+        "effects": {"cri de guerre": ["decouverte", [""], ["deck_adv"]], "legendaire": 1}
     },
     {
         "id": 131,
@@ -1679,7 +1679,7 @@
         "cost": 3,
         "attack": 3,
         "health": 4,
-        "effects": {"cri de guerre": ["découverte", [""], ["serviteur", "legendaire"]]}
+        "effects": {"cri de guerre": ["decouverte", [""], ["serviteur", "legendaire"]]}
     },
     {
         "id": 138,
@@ -1956,7 +1956,7 @@
         "cost": 3,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre": ["découverte", [""], ["sort", "choix mystere"]]}
+        "effects": {"cri de guerre": ["decouverte", [""], ["sort", "choix mystere"]]}
     },
     {
         "id": 161,
@@ -1980,7 +1980,7 @@
         "cost": 3,
         "attack": 2,
         "health": 4,
-        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_death_undead", "reduc", 2], ["sort"]]}
+        "effects": {"cri de guerre" : ["decouverte", ["conditional", "if_death_undead", "reduc", 2], ["sort"]]}
     },
     {
         "id": 163,
@@ -2220,7 +2220,7 @@
         "cost": 4,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre": ["découverte", ["ETC"], ["Bibliothecaire royal", "Rat deloyal", "Vipere rongerouille"]],
+        "effects": {"cri de guerre": ["decouverte", ["ETC"], ["Bibliothecaire royal", "Rat deloyal", "Vipere rongerouille"]],
         "legendaire": 1}
     },
     {
@@ -2571,7 +2571,7 @@
         "cost": 4,
         "attack": 4,
         "health": 5,
-        "effects": {"cri de guerre": ["découverte", ["conditional", "if_lieu", "allié"], ["deck"]]}
+        "effects": {"cri de guerre": ["decouverte", ["conditional", "if_lieu", "allié"], ["deck"]]}
     },
     {
         "id": 212,
@@ -2800,8 +2800,8 @@
         "cost": 5,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre": ["découverte", [""], ["sort"]],
-        "final": ["découverte", [""], ["sort", 2]]}
+        "effects": {"cri de guerre": ["decouverte", [""], ["sort"]],
+        "final": ["decouverte", [""], ["sort", 2]]}
     },
     {
         "id": 231,
@@ -2825,7 +2825,7 @@
         "cost": 5,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre": ["découverte", ["if_spell", 3], [], ["Anneau des marees", "Cor des anciens", "Xal'atath", "Pierre des marees"]],
+        "effects": {"cri de guerre": ["decouverte", ["if_spell", 3], [], ["Anneau des marees", "Cor des anciens", "Xal'atath", "Pierre des marees"]],
         "legendaire": 1}
     },
     {
@@ -3140,7 +3140,7 @@
         "cost": 6,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre": ["découverte", [""], ["adv_hand", "player_hand", 2]],"legendaire": 1}
+        "effects": {"cri de guerre": ["decouverte", [""], ["adv_hand", "player_hand", 2]],"legendaire": 1}
     },
     {
         "id": 259,
@@ -3986,7 +3986,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_death_undead"], ["tous", "vert"]], "vert": 1}
+        "effects": {"cri de guerre" : ["decouverte", ["conditional", "if_death_undead"], ["tous", "vert"]], "vert": 1}
     },
     {
         "id": 329,
@@ -4046,7 +4046,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre" : ["découverte", ["conditional", "if_cadavre", 1], ["tous", "rouge"]], "rouge": 1}
+        "effects": {"cri de guerre" : ["decouverte", ["conditional", "if_cadavre", 1], ["tous", "rouge"]], "rouge": 1}
     },
     {
         "id": 334,
@@ -5194,7 +5194,7 @@
         "cost": 2,
         "attack": 5,
         "health": 4,
-        "effects": {"cri de guerre": ["découverte", ["hand_to_deck"], ""]}
+        "effects": {"cri de guerre": ["decouverte", ["hand_to_deck"], ""]}
     },
     {
         "id": 429,
@@ -6137,5 +6137,175 @@
         "attack": 5,
         "health": 5,
         "effects": {"reduc": ["self", "marginal_played", 1], "ruée": 1}
+    },
+    {
+        "id": 507,
+        "name": "Xhilag des abysses",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Démon"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 3,
+        "health": 6,
+        "effects": {"aura": ["boost", ["Pedoncule oculaire de xhilag", "allié", "start_turn"], 1], "colossal": [4 , "Pedoncule oculaire de xhilag"],
+            "legendaire": 1}
+    },
+    {
+        "id": 508,
+        "name": "Pedoncule oculaire de xhilag",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Démon"],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": 1,
+        "health": 2,
+        "effects": {"aura": ["damage", ["tous", "ennemi", "aléatoire", "end_turn"], 2]}
+    },
+    {
+        "id": 509,
+        "name": "Artificier Xy'mox",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"cri de guerre": ["decouverte", ["allié", "relique", "play"], 1], "impregnation": ["Artificier Xy'mox impregne", 5],
+            "legendaire": 1}
+    },
+    {
+        "id": 510,
+        "name": "Artificier Xy'mox impregne",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"cri de guerre": ["play", ["allié"], ["Relique de l'extinction", "Relique des illusions", "Relique des dimensions"]], "legendaire": 1}
+    },
+    {
+        "id": 511,
+        "name": "Inquisiteur illidari",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Démon"],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"aura": ["attack", ["heros_allié_attack", "same_target", "alive"], ""], "ruée": 1}
+    },
+    {
+        "id": 512,
+        "name": "Annihileen brutal",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Démon"],
+        "decouvrable": 1,
+        "cost": 9,
+        "attack": 9,
+        "health": 9,
+        "effects": {"vengeance": 1, "ruée": 1, "provocation": 1}
+    },
+    {
+        "id": 513,
+        "name": "Forme aquatique",
+        "classe": "Druide",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"dragage": 1}
+    },
+    {
+        "id": 514,
+        "name": "Innervation",
+        "classe": "Druide",
+        "type": "Sort",
+        "genre": ["Nature"],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"add_mana" : 1}
+    },
+    {
+        "id": 515,
+        "name": "Traquenard",
+        "classe": "Druide",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"hero_attack": 2}
+    },
+    {
+        "id": 516,
+        "name": "Beignets",
+        "classe": "Druide",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"heal": 3, "ciblage": ["serviteur", "tous", "choisi", "voisin"], "refresh_mana": "surplus"}
+    },
+    {
+        "id": 517,
+        "name": "Esprit libre",
+        "classe": "Druide",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["hp_boost", ["armure", "allié"], 1], "rale d'agonie": ["hp_boost", ["armure", "allié"], 1]}
+    },
+    {
+        "id": 518,
+        "name": "Fletrissement",
+        "classe": "Druide",
+        "type": "Sort",
+        "genre": ["Nature"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"drain": ["serviteur", "allié", "Mort-vivant", [1, 1]], "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 519,
+        "name": "Flutiste paisible",
+        "classe": "Druide",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"choix des armes": [["pioche", ["allié", "serviteur", "Bête"], 1], ["decouverte", [], ["serviteur", "Bête"]]]}
+    },
+    {
+        "id": 520,
+        "name": "Gardien de varech assoupi",
+        "classe": "Druide",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 4,
+        "health": 4,
+        "effects": {"ruée": 1, "en sommeil": ["mana_spend_spells", 5]}
     }
 ]

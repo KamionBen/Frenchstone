@@ -135,14 +135,14 @@ class Plateau:
                        'Mage': 'dk_sang.csv',
                        'Paladin': 'dk_sang.csv',
                        'Démoniste': 'dk_sang.csv',
-                       'Chasseur de démons': 'test_dh.csv',
-                       'Druide': 'dk_sang.csv',
+                       'Chasseur de démons': 'dh_marginal.csv',
+                       'Druide': 'big_druid.csv',
                        'Voleur': 'dk_sang.csv',
                        'Guerrier': 'dk_sang.csv',
                        'Chevalier de la mort': 'dk_sang.csv',
                        'Prêtre': 'dk_sang.csv'
                        }
-        self.cards_chosen, self.cards_dragage, self.cards_entrave, self.cards_hands_to_deck = [], [], [], []
+        self.cards_chosen, self.cards_dragage, self.cards_entrave, self.cards_hands_to_deck, self.choix_des_armes = [], [], [], [], None
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
 
@@ -189,14 +189,21 @@ class Plateau:
                     if "tous" in servant.effects["aura"][1]:
                         for serv in player.servants.cards + adv.servants.cards:
                             serv.blessure = 1000
-                if "boost" in servant.effects["aura"] and "self" in servant.effects["aura"][1] and "random_lose" in servant.effects["aura"][1]:
-                    if random.randint(0, 1) == 0:
-                        servant.attack -= 1
-                        servant.base_attack -= 1
-                    else:
-                        servant.health -= 1
-                        servant.base_health -= 1
-                    self.update()
+                if "boost" in servant.effects["aura"]:
+                    if "self" in servant.effects["aura"][1] and "random_lose" in servant.effects["aura"][1]:
+                        if random.randint(0, 1) == 0:
+                            servant.attack -= 1
+                            servant.base_attack -= 1
+                        else:
+                            servant.health -= 1
+                            servant.base_health -= 1
+                        self.update()
+                    elif "Pedoncule oculaire de xhilag" and [x for x in player.servants if x.name == "Pedoncule oculaire de xhilag"]:
+                        for pedoncule in [x for x in player.servants if x.name == "Pedoncule oculaire de xhilag"]:
+                            try:
+                                pedoncule.effects["damage"][2] += 1
+                            except:
+                                pass
                 if "suicide" in servant.effects["aura"]:
                     servant.blessure = 1000
                 if "Thaddius" in servant.effects["aura"]:
@@ -465,11 +472,10 @@ class Player:
 
         """ Héros choisi par le joueur """
         self.power = None
-
+        self.hp_boost = {}
         self.dispo_pouvoir = True
         self.cout_pouvoir = 2
         self.cout_pouvoir_temp = 2
-        self.effet_pouvoir = None
 
         self.attack, self.inter_attack = 0, 0
         self.remaining_atk, self.has_attacked = 1, 0
@@ -869,7 +875,7 @@ class Card:
         
         """ Combat """
         self.remaining_atk = 0
-        self.damage_taken, self.blessure = False, 0
+        self.damage_taken, self.blessure, self.surplus = False, 0, 0
         self.total_temp_boost = [0, 0]
         self.cursed_player = None
 
@@ -942,7 +948,8 @@ class Card:
         self.health += nb
         self.blessure = max(0, self.blessure - nb)
         if self.health > self.base_health:
-            self.health = self.base_healt
+            self.surplus = self.health - self.base_health
+            self.health = self.base_health
 
     def is_dead(self):
         """ Return True if the card health <= 0"""

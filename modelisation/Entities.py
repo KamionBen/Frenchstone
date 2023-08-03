@@ -181,7 +181,12 @@ class Plateau:
         adv = self.players[1]
 
         """ Debut du tour """
-        player.start_turn()
+        if [x for x in player.hand if "eclosion" in x.effects]:
+            for card in [x for x in player.hand if "eclosion" in x.effects]:
+                card.effects["eclosion"][1] -= 1
+                if card.effects["eclosion"][1] <= 0:
+                    player.hand.remove(card)
+                    player.hand.add(get_card(card.effects["eclosion"][0], all_cards))
         """ Effets de début de tour """
         for servant in player.servants:
             if "aura" in servant.effects and "start_turn" in servant.effects["aura"][1]:
@@ -198,7 +203,8 @@ class Plateau:
                             servant.health -= 1
                             servant.base_health -= 1
                         self.update()
-                    elif "Pedoncule oculaire de xhilag" and [x for x in player.servants if x.name == "Pedoncule oculaire de xhilag"]:
+                    elif "Pedoncule oculaire de xhilag" and [x for x in player.servants if
+                                                             x.name == "Pedoncule oculaire de xhilag"]:
                         for pedoncule in [x for x in player.servants if x.name == "Pedoncule oculaire de xhilag"]:
                             try:
                                 pedoncule.effects["damage"][2] += 1
@@ -210,15 +216,16 @@ class Plateau:
                     servant.effects["aura"][2] = 1 if servant.effects["aura"][2] == 0 else 0
         if [x for x in player.hand if "start_turn" in x.effects]:
             for card in [x for x in player.hand if "start_turn" in x.effects]:
-                if "start_turn" in card.effects:
-                    """ Transformation des serviteurs concernés """
-                    if "transformation" in card.effects["start_turn"]:
-                        potential_transform = [get_card(x, all_cards) for x in card.effects["start_turn"][1]]
-                        player.hand.remove(card)
-                        new_cost = card.cost
-                        new_card = random.choice(potential_transform)
-                        new_card.cost = new_cost
-                        player.hand.add(new_card)
+                """ Transformation des serviteurs concernés """
+                if "transformation" in card.effects["start_turn"]:
+                    potential_transform = [get_card(x, all_cards) for x in card.effects["start_turn"][1]]
+                    player.hand.remove(card)
+                    new_cost = card.cost
+                    new_card = random.choice(potential_transform)
+                    new_card.cost = new_cost
+                    player.hand.add(new_card)
+        player.start_turn()
+
         """ Le Geolier """
         if player.geolier:
             for servant in player.servants:
@@ -463,7 +470,7 @@ class Player:
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge = 0
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
-        self.discount_next, self.augment = [], []
+        self.discount_next, self.augment, self.next_turn = [], [], []
         self.all_dead_servants, self.dead_this_turn = [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, = 0, 0, 0, 0
@@ -480,7 +487,7 @@ class Player:
         self.attack, self.inter_attack = 0, 0
         self.remaining_atk, self.has_attacked = 1, 0
         self.armor = 0
-        self.gel, self.curses, self.permanent_buff = 0, [], []
+        self.gel, self.curses, self.permanent_buff = 0, [], {}
         self.health, self.base_health = 30, 30
         self.weapon = None
         self.effects = {}
@@ -509,10 +516,14 @@ class Player:
     def start_turn(self):
         """ Remise à zéro de début de tour """
         self.reset()
-        if len(self.deck) > 0:
-            self.pick()
-        else:
-            self.fatigue += 1
+        if self.next_turn:
+            for element in self.next_turn:
+                if element[0] == "add_armor":
+                    self.armor += element[1]
+            self.next_turn = []
+        self.pick_multi(1)
+        if "pioche" in self.permanent_buff:
+            self.pick_multi(self.permanent_buff["pioche"])
         if "murmegivre" in self.effects:
             self.discount_next.append(["murmegivre"])
             if self.effects["murmegivre"] == 0:
@@ -719,7 +730,8 @@ class Player:
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
         self.first_spell = None
-        self.permanent_buff = ['jotun_ready' if x == 'jotun_used' else x for x in self.permanent_buff]
+        if "jotun" in self.permanent_buff:
+            self.permanent_buff["jotun"] = 1
         self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, []
         if self.gel == 0:
             self.remaining_atk = 1
@@ -874,7 +886,7 @@ class Card:
         self.health, self.base_health = kw["health"], kw["health"]
         
         """ Combat """
-        self.remaining_atk = 0
+        self.remaining_atk = -1
         self.damage_taken, self.blessure, self.surplus = False, 0, 0
         self.total_temp_boost = [0, 0]
         self.cursed_player = None
@@ -899,7 +911,7 @@ class Card:
             elif self.effects["titan"][-1] == 0:
                 self.effects["titan"][-1] = 1
         if "ne peut pas attaquer" in self.effects:
-            self.remaining_atk = 0
+            self.remaining_atk = -1
         else:
             self.remaining_atk = 1
         if "furie des vents" in self.effects:
@@ -914,7 +926,7 @@ class Card:
                 self.attack = max(0, self.base_attack + self.total_temp_boost[0])
                 self.health = max(0, self.base_health + self.total_temp_boost[1] - self.blessure)
         if "gel" in self.effects:
-            self.remaining_atk = 0
+            self.remaining_atk = -1
         if "en sommeil" in self.effects:
             if type(self.effects["en sommeil"]) == int:
                 self.effects["en sommeil"] -= 1

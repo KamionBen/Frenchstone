@@ -620,6 +620,10 @@ class Player:
                             card.cost = max(0, card.cost + discount[2])
                             if discount not in card.discount:
                                 card.discount.append(discount)
+                        else:
+                            card.cost = max(0, card.cost + discount[2])
+                            if discount not in card.discount:
+                                card.discount.append(discount)
                     elif discount[0] == "murmegivre":
                         card.cost = 0
                         if discount not in card.discount:

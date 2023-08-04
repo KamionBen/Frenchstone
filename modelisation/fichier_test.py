@@ -624,7 +624,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
     first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
     first_estimate[0] = base_advantage
     first_estimate = np.array(first_estimate)
-    if not (251 <= min(legal_actions) and max(legal_actions) >= 254):
+    if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
         if depth != 0:
             possible_new_states = possible_new_states[first_estimate.argsort()[-max(round(min(30, len(possible_new_states))/(pow(exploration_toll, depth))), 1):]]
         else:
@@ -651,7 +651,6 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
         total_actions = 0
 
     return alpha, best_action
-
 
 
 logs = []

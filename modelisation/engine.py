@@ -909,7 +909,7 @@ class TourEnCours:
                 if "reduc" in carte.effects["cri de guerre"]:
                     if "prochain" in carte.effects["cri de guerre"][1]:
                         player.discount_next.append([carte.effects["cri de guerre"][1][0], carte.effects["cri de guerre"][1][3],
-                         carte.effects["cri de guerre"][2]])
+                         carte.effects["cri de guerre"][2], carte.effects["cri de guerre"][1][2]])
                     if "left_card" in carte.effects["cri de guerre"][1] and player.hand.cards:
                         player.hand.cards[0].base_cost = max(0, player.hand.cards[0].base_cost - 1)
                     if "right_card" in carte.effects["cri de guerre"][1] and player.hand.cards:
@@ -1213,6 +1213,9 @@ class TourEnCours:
                                 invoked_servant.base_health = min(8, player.cadavres)
                                 player.cadavres -= min(8, player.cadavres)
                                 player.cadavres_spent += min(8, player.cadavres)
+                                self.invoke_servant(invoked_servant, 0)
+                            elif "if_death_undead" in carte.effects["cri de guerre"][1] and player.dead_undeads:
+                                invoked_servant = get_card(carte.effects["cri de guerre"][2], all_servants)
                                 self.invoke_servant(invoked_servant, 0)
                         elif "copy" in carte.effects["cri de guerre"][1]:
                             if "if_secret" in carte.effects["cri de guerre"][1] and player.secrets:
@@ -2490,7 +2493,7 @@ class TourEnCours:
                                 player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1])))
                         if "Nature" in carte.effects["add_hand"][0]:
                             for _ in range(carte.effects["add_hand"][1]):
-                                player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and "Nature" in x["genre"]])))
+                                player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and "Nature" in x["genre"] and x != carte])))
                     elif type(carte.effects["add_hand"][1]) == list:
                         for card in carte.effects["add_hand"][1]:
                             player.hand.add(get_card(card, all_cards))
@@ -3257,6 +3260,7 @@ class TourEnCours:
                 player.weapons_played += 1
                 self.apply_effects(carte)
         else:
+            print(carte, player.mana)
             raise PermissionError("Carte plus chère que la mana du joueur")
 
     def util_lieu(self, carte, target=None):
@@ -3721,6 +3725,9 @@ class TourEnCours:
                 if "self_damage" in servant.effects["infection"] and "vol de vie" in servant.effects["infection"]:
                     servant.damage(servant.effects["infection"][-1])
                     player.heal(servant.effects["infection"][-1])
+        if player.discount_next:
+            for discount in [x for x in player.discount_next if x[3] == "temp_turn"]:
+                player.discount_next.remove(discount)
         if "Rock en fusion" in [x.name for x in player.hand]:
             rock_en_fusion = [x for x in player.hand if x.name == "Rock en fusion"][0]
             player.hand.remove(rock_en_fusion)

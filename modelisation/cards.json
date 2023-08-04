@@ -6885,6 +6885,30 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"cri de guerre" : ["invocation", ["conditional", "if_death_undead"]]}
+        "effects": {"cri de guerre" : ["invocation", ["allié", "conditional", "if_death_undead"], "Glisseur nerubien"]}
+    },
+    {
+        "id": 569,
+        "name": "Glisseur nerubien",
+        "classe": "Druide",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {}
+    },
+    {
+        "id": 570,
+        "name": "Eclipse lunaire",
+        "classe": "Druide",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "reduc": [["sort", "prochain", "temp_turn", ""], -2], "ciblage": ["serviteur", "tous", "choisi"]}
     }
 ]

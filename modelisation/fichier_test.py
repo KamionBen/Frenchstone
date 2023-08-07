@@ -249,8 +249,7 @@ def generate_legal_vector_test(state):
             if player.hand[i].cost <= player.mana and "entrave" not in player.hand[i].effects:
                 if len(player.servants) + len(player.lieux) < 7 and player.hand[i].type == "Serviteur":
                     """ Serviteurs avec cris de guerre ciblés """
-                    if "cri de guerre" in player.hand[i].effects and "choisi" in \
-                            player.hand[i].effects["cri de guerre"][1]:
+                    if "cri de guerre" in player.hand[i].effects and "choisi" in player.hand[i].effects["cri de guerre"][1]:
                         if "serviteur" in player.hand[i].effects["cri de guerre"][1]:
                             if "allié" in player.hand[i].effects["cri de guerre"][1] and player.servants.cards:
                                 if "genre" in player.hand[i].effects["cri de guerre"][1]:
@@ -272,6 +271,10 @@ def generate_legal_vector_test(state):
                                 elif "if_rale_agonie" in player.hand[i].effects["cri de guerre"][1]:
                                     for j in range(len(player.servants)):
                                         if "rale d'agonie" in player.servants[j].effects:
+                                            legal_actions[17 * i + j + 3] = True
+                                elif "if_treant" in player.hand[i].effects["cri de guerre"][1]:
+                                    for j in range(len(player.servants)):
+                                        if player.servants[j].name == "Treant":
                                             legal_actions[17 * i + j + 3] = True
                                 else:
                                     for j in range(len(player.servants)):
@@ -559,6 +562,10 @@ def generate_legal_vector_test(state):
                             if "if_cadavre" in player.lieux[i].effects["use"][1] and player.cadavres >= player.lieux[i].effects["use"][1][-1]:
                                 for m in range(len(player.servants)):
                                     legal_actions[265 + 15 * i + m + 1] = True
+                            if "if_rale" in player.lieux[i].effects["use"][1]:
+                                for m in range(len(player.servants)):
+                                    if "rale d'agonie" in player.servants[m].effects:
+                                        legal_actions[265 + 15 * i + m + 1] = True
                         else:
                             for m in range(len(player.servants)):
                                 legal_actions[265 + 15 * i + m + 1] = True
@@ -576,7 +583,8 @@ def generate_legal_vector_test(state):
 def calc_advantage_minmax(state):
     player = state.players[0]
     adv = state.players[1]
-    advantage = 0.5 * (len(player.hand) - len(adv.hand))
+    advantage = 0.75 * (len(player.hand) - len(adv.hand))
+    advantage += 5 * (player.mana_max - adv.mana_max)
     if "forged" in [x.effects for x in player.hand]:
         advantage += 2
     if player.permanent_buff != {}:
@@ -585,16 +593,23 @@ def calc_advantage_minmax(state):
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage += 1.5 * servant.attack
+        if "en sommeil" in servant.effects:
+            remaining_turns = servant.effects["en sommeil"]
+            advantage -= (remaining_turns/(remaining_turns + 1)) * (1.5 * servant.attack + 1.5 * servant.health)
     for servant in adv.servants:
         advantage -= 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage -= 1.5 * servant.attack
         if "infection" in servant.effects:
             advantage += 2
+        if "en sommeil" in servant.effects:
+            remaining_turns = servant.effects["en sommeil"]
+            advantage += (remaining_turns/(remaining_turns + 1)) * (1.5 * servant.attack + 1.5 * servant.health)
     if player.health > 0 and adv.health > 0:
         advantage += 0.25 * (30/adv.health - 30/player.health)
-    advantage += 0.2 * player.armor
-    advantage += player.attack
+    if player.weapon is not None:
+        advantage += player.weapon.attack * player.weapon.health
+    advantage += 0.3 * player.armor
     advantage += 0.01 * player.cadavres
     advantage += 3 * len(player.lieux)
     if player.health <= 0:

@@ -78,6 +78,7 @@ for i in range(10):
     empty_action_line[f"atq_carte_en_main{i + 1}_j"] = -99
     empty_action_line[f"pv_carte_en_main{i + 1}_j"] = -99
     empty_action_line[f"impregnation_carte_en_main{i + 1}_j"] = -99
+    empty_action_line[f"eclosion_carte_en_main{i + 1}_j"] = -99
     for j in range(len(all_cards)):
         empty_action_line[f"is_carte{i + 1}_{all_cards[j]['name']}"] = -99
 for i in range(7):
@@ -181,12 +182,6 @@ class Plateau:
         adv = self.players[1]
 
         """ Debut du tour """
-        if [x for x in player.hand if "eclosion" in x.effects]:
-            for card in [x for x in player.hand if "eclosion" in x.effects]:
-                card.effects["eclosion"][1] -= 1
-                if card.effects["eclosion"][1] <= 0:
-                    player.hand.remove(card)
-                    player.hand.add(get_card(card.effects["eclosion"][0], all_cards))
         """ Effets de début de tour """
         for servant in player.servants:
             if "aura" in servant.effects and "start_turn" in servant.effects["aura"][1]:
@@ -370,6 +365,7 @@ class Plateau:
             action_line[f"atq_carte_en_main{i + 1}_j"] = player.hand[i].attack
             action_line[f"pv_carte_en_main{i + 1}_j"] = player.hand[i].health
             action_line[f"impregnation_carte_en_main{i + 1}_j"] = player.hand[i].effects["impregnation"][1] if "impregnation" in player.hand[i].effects else -99
+            action_line[f"eclosion_carte_en_main{i + 1}_j"] = player.hand[i].effects["eclosion"][1] if "eclosion" in player.hand[i].effects else -99
             action_line[f"is_carte{i + 1}_{player.hand[i].name}_j"] = 1
 
         """ SERVANTS """
@@ -465,12 +461,13 @@ class Player:
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.drawn_this_turn = CardGroup(), 0
-        self.last_card, self.first_spell = "", None # la dernière carte jouée par le joueur
+        self.last_card, self.first_spell, self.next_spell = "", None, [] # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge = 0
+        self.attached = []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
-        self.discount_next, self.augment, self.next_turn = [], [], []
+        self.discount_next, self.augment, self.next_turn, self.next_choix_des_armes = [], [], [], 0
         self.all_dead_servants, self.dead_this_turn = [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, = 0, 0, 0, 0
@@ -569,6 +566,9 @@ class Player:
             for augment in self.augment:
                 if "temp_fullturn" in augment:
                     self.augment.remove(augment)
+        if self.attached:
+            for effect in self.attached:
+                effect[-1] -= 1
 
     def end_action(self):
         if len(self.hand) > 10:
@@ -591,6 +591,8 @@ class Player:
                         card.cost = max(0, card.base_cost - 2 * self.weapons_played)
                     elif "marginal_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.marginal_played)
+                    elif "hero_attack" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.attack)
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
                 card.cost = card.effects["marginal"][1]
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.weapon is not None:
@@ -733,7 +735,7 @@ class Player:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
-        self.first_spell = None
+        self.first_spell, self.next_spell = None, []
         if "jotun" in self.permanent_buff:
             self.permanent_buff["jotun"] = 1
         self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, []

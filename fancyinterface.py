@@ -113,6 +113,8 @@ class CardSprite(pygame.sprite.Sprite):
                 try:
                     if logline['impregnation_'+on_board_id] != -99:
                         self.description += [" Imprégnation" + str(logline['impregnation_'+on_board_id])]
+                    if logline['eclosion_'+on_board_id] != -99:
+                        self.description += [" Éclosion" + str(logline['eclosion_'+on_board_id])]
                     self.cost = logline['cost_'+on_board_id]
                 except:
                     pass

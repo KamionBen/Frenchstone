@@ -261,6 +261,8 @@ class Plateau:
                         player.dead_demons.append(servant)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
+                    if servant.cost <= 2:
+                        player.dead_under2.append(servant)
                     player.all_dead_servants.append(servant)
                     player.dead_this_turn.append(servant)
                     if len(player.all_dead_servants) > 3:
@@ -460,7 +462,7 @@ class Player:
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
-        self.serv_this_turn, self.drawn_this_turn = CardGroup(), 0
+        self.serv_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn = CardGroup(), 0, 0, 0
         self.last_card, self.first_spell, self.next_spell = "", None, [] # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
@@ -468,9 +470,9 @@ class Player:
         self.attached = []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.next_choix_des_armes = [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn = [], []
+        self.all_dead_servants, self.dead_this_turn, self.dead_under2 = [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
-        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, = 0, 0, 0, 0
+        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked = 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played = 0, 0
         self.copies_to_deck = 0
 
@@ -587,10 +589,14 @@ class Player:
                         card.cost = max(0, card.base_cost - self.cadavres_spent)
                     elif "cards_drawn" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.drawn_this_turn)
+                    elif "armor" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.armor)
                     elif "weapons_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - 2 * self.weapons_played)
                     elif "marginal_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.marginal_played)
+                    elif "treants_invoked" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.treants_invoked)
                     elif "hero_attack" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.attack)
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
@@ -610,14 +616,16 @@ class Player:
                             card.cost = max(0, discount[2])
                             if discount not in card.discount:
                                 card.discount.append(discount)
-                        elif discount[1] == "secret" and "secret" in card.effects and discount[2] >= 0:
-                            card.cost = discount[2]
-                            if discount not in card.discount:
-                                card.discount.append(discount)
-                        elif discount[1] == "marginal" and "marginal" in card.effects and discount[2] < 0:
-                            card.cost = max(0, card.cost + discount[2])
-                            if discount not in card.discount:
-                                card.discount.append(discount)
+                        elif discount[1] == "secret":
+                            if "secret" in card.effects and discount[2] >= 0:
+                                card.cost = discount[2]
+                                if discount not in card.discount:
+                                    card.discount.append(discount)
+                        elif discount[1] == "marginal":
+                            if "marginal" in card.effects and discount[2] < 0:
+                                card.cost = max(0, card.cost + discount[2])
+                                if discount not in card.discount:
+                                    card.discount.append(discount)
                         elif "tous" in discount[1]:
                             card.cost = max(0, card.cost + discount[2])
                             if discount not in card.discount:
@@ -748,6 +756,7 @@ class Player:
         if "cleave" in self.effects:
             self.effects.pop("cleave")
         self.damage_this_turn, self.heal_this_turn = 0, 0
+        self.atk_this_turn, self.armor_this_turn = self.inter_attack, self.armor
         self.inter_attack, self.has_attacked = 0, 0
         self.my_turn = 1
 

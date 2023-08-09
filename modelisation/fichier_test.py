@@ -246,7 +246,8 @@ def generate_legal_vector_test(state):
             if "reduc" in player.hand[i].effects and "self" in player.hand[i].effects["reduc"]:
                 if "total_serv" in player.hand[i].effects["reduc"]:
                     player.hand[i].cost -= len(player.servants) + len(adv.servants)
-            if player.hand[i].cost <= player.mana and "entrave" not in player.hand[i].effects:
+            if ((player.hand[i].type == "Serviteur" and (player.hand[i].cost <= player.mana if "cost_armor" not in player.effects else player.hand[i].cost <= player.armor))\
+                    or (player.hand[i].type != "Serviteur" and player.hand[i].cost <= player.mana)) and "entrave" not in player.hand[i].effects:
                 if len(player.servants) + len(player.lieux) < 7 and player.hand[i].type == "Serviteur":
                     """ Serviteurs avec cris de guerre ciblés """
                     if "cri de guerre" in player.hand[i].effects and "choisi" in player.hand[i].effects["cri de guerre"][1]:
@@ -372,7 +373,6 @@ def generate_legal_vector_test(state):
                             if "ennemi" in player.hand[i].effects["cri de guerre"][1]:
                                 for j in range(len(adv.lieux)):
                                     legal_actions[17 * i + j + 11] = True
-
                     elif "final" in player.hand[i].effects and "choisi" in player.hand[i].effects["final"][1]:
                         if "serviteur" in player.hand[i].effects["final"][1]:
                             if "allié" in player.hand[i].effects["final"][1] and player.servants.cards:
@@ -380,7 +380,6 @@ def generate_legal_vector_test(state):
                                     legal_actions[17 * i + j + 3] = True
                             else:
                                 legal_actions[17 * i + 1] = True
-
                     # Serviteurs avec soif de mana ciblée
                     elif "soif de mana" in player.hand[i].effects and "choisi" in \
                             player.hand[i].effects["soif de mana"][1]:
@@ -583,12 +582,12 @@ def generate_legal_vector_test(state):
 def calc_advantage_minmax(state):
     player = state.players[0]
     adv = state.players[1]
-    advantage = 0.75 * (len(player.hand) - len(adv.hand))
+    advantage = 0.6 * (len(player.hand) - len(adv.hand))
     advantage += 5 * (player.mana_max - adv.mana_max)
     if "forged" in [x.effects for x in player.hand]:
         advantage += 2
     if player.permanent_buff != {}:
-        advantage += 4
+        advantage += 6
     for servant in player.servants:
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:

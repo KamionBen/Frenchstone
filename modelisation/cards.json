@@ -7812,5 +7812,45 @@
         "attack": 8,
         "health": 8,
         "effects": {"provocation": 1, "rale d'agonie": ["pioche", ["allié", "serviteur", "reduc", 8], 1], "legendaire": 1}
+    },
+    {
+        "id": 646,
+        "name": "Appel des esprits",
+        "classe": "Druide",
+        "type": "Sort",
+        "genre": ["Nature"],
+        "decouvrable": 1,
+        "cost": 10,
+        "attack": null,
+        "health": null,
+        "effects": {"play": ["sort", "aléatoire", "druide", 8]}
+    },
+    {
+        "id": 647,
+        "name": "Eonar la lieuse de vie",
+        "classe": "Druide",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 10,
+        "attack": 5,
+        "health": 7,
+        "effects": {"on_use": ["invocation", ["Ancien intemporel"]],
+            "titan": [["pioche", "until_full"],
+                ["heal", "heros", "until_full"],
+                ["mana_refresh", "until_full"], 1],
+            "ne peut pas attaquer": 1, "legendaire": 1}
+    },
+    {
+        "id": 648,
+        "name": "Ancien intemporel",
+        "classe": "Druide",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {"provocation": 1}
     }
 ]

@@ -2290,6 +2290,11 @@ class TourEnCours:
             if carte.name in ["Treant", "Treant taunt"] and not (carte.is_dead() or "rale_applied" in carte.effects):
                 player.treants_invoked += 1
         elif carte.type == "Serviteur" and "titan" in carte.effects and target is not None:
+            print(carte)
+            if "on_use" in carte.effects:
+                if "invocation" in carte.effects["on_use"]:
+                    for card in carte.effects["on_use"][1]:
+                        self.invoke_servant(get_card(card, all_servants), 0)
             if "decouverte" in target:
                 if "rale d'agonie" in target and "reduc" in target:
                     self.plt.cards_chosen = self.choice_decouverte(carte, type="serviteur", other="rale d'agonie", reduc=3)
@@ -2301,6 +2306,15 @@ class TourEnCours:
                 for serv in target[1]:
                     if len(player.servants) + len(player.lieux) < 7:
                         self.invoke_servant(get_card(serv, all_servants), 0)
+            elif "pioche" in target:
+                if "until_full" in target:
+                    player.pick_multi(10 - len(player.hand))
+            elif "heal" in target:
+                if "until_full" in target and "heros" in target:
+                    player.health = player.base_health
+            elif "mana_refresh" in target:
+                if "until_full" in target:
+                    player.mana = player.mana_max
         elif carte.type == "Sort":
             if "choix_des_armes" in carte.effects:
                 if not player.next_choix_des_armes:
@@ -2317,6 +2331,32 @@ class TourEnCours:
             if "soif de mana" in carte.effects and player.mana_max >= carte.effects["soif de mana"][0]:
                 carte.effects[carte.effects["soif de mana"][1]] = carte.effects["soif de mana"][2]
                 carte.effects.pop("soif de mana")
+            if "play" in carte.effects:
+                if "aléatoire" in carte.effects["play"] and "druide" in carte.effects["play"]:
+                    for _ in range(carte.effects["play"][-1]):
+                        played_card = Card(**random.choice([x for x in all_spells if x["classe"] == "Druide" and x["decouvrable"] == 1]))
+                        if "choix_des_armes" in carte.effects:
+                            choice = random.randint(0, 1)
+                            played_card.effects[played_card.effects["choix_des_armes"][choice][0]] = played_card.effects["choix_des_armes"][choice][1]
+                            played_card.effects.pop("choix_des_armes")
+                        player.hand.cards.insert(0, played_card)
+                        played_card.cost = 0
+                        possible_targets = generate_targets(self.plt)[0: 16]
+                        possible_targets_refined = [n for n in range(len(possible_targets)) if possible_targets[n]]
+                        if possible_targets_refined:
+                            target = random.choice(possible_targets_refined)
+                            if target == 0:
+                                target = None
+                            elif target == 1:
+                                target = player
+                            elif target < 9:
+                                target = player.servants[target - 2]
+                            elif target == 9:
+                                target = adv
+                            else:
+                                target = adv.servants[target - 10]
+                        if not ("ciblage" in played_card.effects and target is None):
+                            TourEnCours(self.plt).apply_effects(played_card, target)
             if "hero_attack" in carte.effects:
                 if type(carte.effects["hero_attack"]) == list:
                     if "conditional" in carte.effects["hero_attack"]:
@@ -2786,10 +2826,10 @@ class TourEnCours:
                             invoked_creature.health += player.reliques - 1
                             invoked_creature.base_health += player.reliques - 1
                         elif carte.name == "Croissance miraculeuse":
-                            invoked_creature.attack += len(player.hand) - 1
-                            invoked_creature.base_attack += len(player.hand) - 1
-                            invoked_creature.health += len(player.hand) - 1
-                            invoked_creature.base_health += len(player.hand) - 1
+                            invoked_creature.attack = min(10, len(player.hand))
+                            invoked_creature.base_attack = min(10, len(player.hand))
+                            invoked_creature.health = min(10, len(player.hand))
+                            invoked_creature.base_health = min(10, len(player.hand))
                 if "spend_cadavre" in carte.effects and player.cadavres >= carte.effects["spend_cadavre"][0]:
                     player.cadavres -= carte.effects["spend_cadavre"][0]
                     player.cadavres_spent += carte.effects["spend_cadavre"][0]

@@ -1098,7 +1098,7 @@ def generate_targets(state):
     adv = state.players[1]
 
     """ Quelles cartes peut-on jouer ? Et qur quelles cibles le cas échéant ? """
-    for i in range(len(player.hand)):
+    for i in range(min(len(player.hand), 10)):
         if player.hand[i].type.lower() == "sort":
             if "ciblage" in player.hand[i].effects:
                 if "serviteur" in player.hand[i].effects["ciblage"]:

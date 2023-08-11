@@ -7852,5 +7852,113 @@
         "attack": 5,
         "health": 5,
         "effects": {"provocation": 1}
+    },
+    {
+        "id": 649,
+        "name": "Aiguillon d'oursin",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"temp_buff": ["toxispell", "temp_turn"]}
+    },
+    {
+        "id": 650,
+        "name": "Ara orne de joyaux",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "aléatoire", "serviteur", "Bête"], ""]}
+    },
+    {
+        "id": 651,
+        "name": "Bravoure de jormungar",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": ["serviteur", "allié", "pietinement", [2, 0]], "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 652,
+        "name": "Chanteur deguise",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"aura": ["pioche", ["allié", "sort", "secret", "end_turn"], 1]}
+    },
+    {
+        "id": 653,
+        "name": "Cire a l'arc",
+        "classe": "Chasseur",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"aura": ["boost", ["heros", "if_attack", "insensible_attack"], 1]}
+    },
+    {
+        "id": 654,
+        "name": "Filet barbele",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 2, "ciblage": ["tous", "ennemi", "choisi"], "add_hand": [["if_naga"], ["Deuxieme filet"]]}
+    },
+    {
+        "id": 655,
+        "name": "Deuxieme filet",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 2, "ciblage": ["tous", "ennemi", "choisi"], "mandatory": 1}
+    },
+    {
+        "id": 656,
+        "name": "Invite timbre",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"rale d'agonie": ["invocation", ["allié"], "Chauve souris assoiffee"]}
+    },
+    {
+        "id": 657,
+        "name": "Chauve souris assoiffee",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {}
     }
 ]

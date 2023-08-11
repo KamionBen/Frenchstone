@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Druide"), Player("OldIA", "Chevalier de la mort")]
+players = [Player("NewIA", "Chasseur"), Player("OldIA", "Chevalier de la mort")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -548,33 +548,33 @@ def generate_legal_vector_test(state):
         if player.lieux[i].attack == 1:
             if "choisi" in player.lieux[i].effects["use"][1]:
                 if player.lieux[i].effects["use"][1][0] == "tous":
-                    legal_actions[265 + 15 * i] = True
-                    legal_actions[265 + 15 * i + 7] = True
+                    legal_actions[265 + 16 * i] = True
+                    legal_actions[265 + 16 * i + 8] = True
                     for m in range(len(player.servants)):
-                        legal_actions[265 + 15 * i + m + 1] = True
+                        legal_actions[265 + 16 * i + m + 1] = True
                     for n in range(len(adv.servants)):
                         if "camouflage" not in adv.servants[n].effects:
-                            legal_actions[265 + 15 * i + n + 8] = True
+                            legal_actions[265 + 16 * i + n + 8] = True
                 elif player.lieux[i].effects["use"][1][0] == "serviteur":
                     if player.lieux[i].effects["use"][1][1] == "allié":
                         if "conditional" in player.lieux[i].effects["use"][1]:
                             if "if_cadavre" in player.lieux[i].effects["use"][1] and player.cadavres >= player.lieux[i].effects["use"][1][-1]:
                                 for m in range(len(player.servants)):
-                                    legal_actions[265 + 15 * i + m + 1] = True
+                                    legal_actions[265 + 16 * i + m + 1] = True
                             if "if_rale" in player.lieux[i].effects["use"][1]:
                                 for m in range(len(player.servants)):
                                     if "rale d'agonie" in player.servants[m].effects:
-                                        legal_actions[265 + 15 * i + m + 1] = True
+                                        legal_actions[265 + 16 * i + m + 1] = True
                         else:
                             for m in range(len(player.servants)):
-                                legal_actions[265 + 15 * i + m + 1] = True
+                                legal_actions[265 + 16 * i + m + 1] = True
             else:
-                legal_actions[265 + 15 * i] = True
+                legal_actions[265 + 16 * i] = True
 
     """ Titans """
     for i in range(len([x for x in player.servants if "titan" in x.effects and x.effects["titan"][-1] == 1])):
         for j in range(len([x for x in player.servants if "titan" in x.effects][i].effects["titan"]) - 1):
-            legal_actions[370 + 3 * i + j] = True
+            legal_actions[377 + 3 * i + j] = True
 
     return legal_actions
 

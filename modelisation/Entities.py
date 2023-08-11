@@ -132,7 +132,7 @@ for i in range(7):
 class Plateau:
     def __init__(self, players=()):
         """ Décrit exhaustivement le plateau de jeu """
-        class_files = {'Chasseur': 'dk_sang.csv',
+        class_files = {'Chasseur': 'chasseur.csv',
                        'Mage': 'dk_sang.csv',
                        'Paladin': 'dk_sang.csv',
                        'Démoniste': 'dk_sang.csv',
@@ -182,55 +182,7 @@ class Plateau:
         adv = self.players[1]
 
         """ Debut du tour """
-        """ Effets de début de tour """
-        for servant in player.servants:
-            if "aura" in servant.effects and "start_turn" in servant.effects["aura"][1]:
-                if "serviteur" in servant.effects["aura"][1] and "destroy" in servant.effects["aura"]:
-                    if "tous" in servant.effects["aura"][1]:
-                        for serv in player.servants.cards + adv.servants.cards:
-                            serv.blessure = 1000
-                if "boost" in servant.effects["aura"]:
-                    if "self" in servant.effects["aura"][1] and "random_lose" in servant.effects["aura"][1]:
-                        if random.randint(0, 1) == 0:
-                            servant.attack -= 1
-                            servant.base_attack -= 1
-                        else:
-                            servant.health -= 1
-                            servant.base_health -= 1
-                        self.update()
-                    elif "Pedoncule oculaire de xhilag" and [x for x in player.servants if
-                                                             x.name == "Pedoncule oculaire de xhilag"]:
-                        for pedoncule in [x for x in player.servants if x.name == "Pedoncule oculaire de xhilag"]:
-                            try:
-                                pedoncule.effects["damage"][2] += 1
-                            except:
-                                pass
-                if "suicide" in servant.effects["aura"]:
-                    servant.blessure = 1000
-                if "Thaddius" in servant.effects["aura"]:
-                    servant.effects["aura"][2] = 1 if servant.effects["aura"][2] == 0 else 0
-        if [x for x in player.hand if "start_turn" in x.effects]:
-            for card in [x for x in player.hand if "start_turn" in x.effects]:
-                """ Transformation des serviteurs concernés """
-                if "transformation" in card.effects["start_turn"]:
-                    potential_transform = [get_card(x, all_cards) for x in card.effects["start_turn"][1]]
-                    player.hand.remove(card)
-                    new_cost = card.cost
-                    new_card = random.choice(potential_transform)
-                    new_card.cost = new_cost
-                    player.hand.add(new_card)
         player.start_turn()
-
-        """ Le Geolier """
-        if player.geolier:
-            for servant in player.servants:
-                servant.effects["bouclier divin"] = 2
-                servant.effects["camouflage"] = 1
-        if adv.geolier:
-            for servant in adv.servants:
-                servant.effects["bouclier divin"] = 2
-                servant.effects["camouflage"] = 1
-        player.apply_discount()
 
     def update(self):
         """ Vérifie les serviteurs morts et les pdv des joueurs """
@@ -732,7 +684,7 @@ class Player:
     def set_deck(self, file):
         self.deck = import_deck(file)
         
-    def damage(self, nb):
+    def damage(self, nb, toxic=False):
         nb_armor = nb * (self.armor >= nb) + self.armor * (self.armor < nb)
         self.armor -= nb_armor
         self.health -= (nb - nb_armor)
@@ -953,22 +905,28 @@ class Card:
         self.attack = self.base_attack
         self.health = self.base_health
 
-    def damage(self, nb):
+    def damage(self, nb, toxic=False):
         """ Removes nb from the card health """
         if self.name == "Bulleur" and nb == 1:
             self.health = 0
         if "bouclier divin" in self.effects and nb != 0:
+            if toxic:
+                toxic = False
             if self.effects["bouclier divin"] != 2:
                 self.effects.pop("bouclier divin")
         else:
-            self.health -= nb
+            if toxic:
+                self.health -= 1000
+                self.blessure += 1000
+            else:
+                self.health -= nb
+                self.blessure += nb
             if nb > 0:
                 self.damage_taken = True
                 if "curse_link" in self.effects:
                     self.cursed_player.damage(self.effects["curse_link"])
             else:
                 self.damage_taken = False
-            self.blessure += nb
 
     def heal(self, nb):
         """ Heal nb health to a given creatures """

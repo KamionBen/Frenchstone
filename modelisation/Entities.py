@@ -101,6 +101,7 @@ for i in range(7):
     empty_action_line[f"furiedesvents_serv{i + 1}_j"] = -99
     empty_action_line[f"titan_serv{i + 1}_j"] = -99
     empty_action_line[f"lieu{i + 1}_j"] = -99
+    empty_action_line[f"secret{i + 1}_j"] = -99
     empty_action_line[f"atq_lieu{i + 1}_j"] = -99
     empty_action_line[f"pv_lieu{i + 1}_j"] = -99
     empty_action_line[f"serv{i + 1}_adv"] = -99
@@ -121,6 +122,7 @@ for i in range(7):
     empty_action_line[f"furiedesvents_serv{i + 1}_adv"] = -99
     empty_action_line[f"titan_serv{i + 1}_adv"] = -99
     empty_action_line[f"lieu{i + 1}_adv"] = -99
+    empty_action_line[f"secret{i + 1}_adv"] = -99
     empty_action_line[f"atq_lieu{i + 1}_adv"] = -99
     empty_action_line[f"pv_lieu{i + 1}_adv"] = -99
     for j in range(len(all_servants)):
@@ -400,6 +402,11 @@ class Plateau:
             action_line[f"atq_lieu{i + 1}_adv"] = adv.lieux[i].attack
             action_line[f"pv_lieu{i + 1}_adv"] = adv.lieux[i].health
 
+        for i in range(len(player.secrets)):
+            action_line[f"secret{i + 1}_j"] = player.secrets[i].name
+        for i in range(len(adv.secrets)):
+            action_line[f"secret{i + 1}_adv"] = adv.secrets[i].name
+
         return action_line
 
 
@@ -418,10 +425,10 @@ class Player:
         self.last_card, self.first_spell, self.next_spell = "", None, [] # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
-        self.surcharge = 0
+        self.surcharge, self.randomade = 0, 0
         self.attached = []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
-        self.discount_next, self.augment, self.next_turn, self.next_choix_des_armes = [], [], [], 0
+        self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
         self.all_dead_servants, self.dead_this_turn, self.dead_under2 = [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked = 0, 0, 0, 0, 0

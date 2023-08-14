@@ -182,6 +182,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.hand = pygame.sprite.Group()
         self.servant = pygame.sprite.Group()
         self.lieux = pygame.sprite.Group()
+        self.secrets = []
 
         """ State """
         self.is_playing = False
@@ -246,6 +247,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         lieux = [logline[f"lieu{i+1}_{role}"] for i in range(7)]
         self.lieux = pygame.sprite.Group(*[CardSprite(e) for e in lieux if e != -99])
         self.lieux.update(logline)
+        self.secrets = [logline[f"secret{i + 1}_{role}"] for i in range(7)]
 
         """ Update sprite """
         self.image.fill(self.color)
@@ -274,13 +276,14 @@ class PlayerSprite(pygame.sprite.Sprite):
         durabilite = default_font[20].render("dur : " + str(self.durabilite), True, 'white')
         armor = default_font[32].render(str(self.armor), True, 'white')
         cadavres = default_font[20].render("cad : " + str(self.cadavres), True, 'white')
+        secrets = [default_font[20].render("secrets : " + str(x), True, 'white') for x in self.secrets if x != -99]
         if self.pv < self.pv_max:
             color = 'red'
         else:
             color = 'white'
         pv = default_font[32].render(str(self.pv), True, color)
 
-        height = {'top': (10, 40, 70), 'bottom': (300, 270, 240)}
+        height = {'top': (10, 40, 70, 100), 'bottom': (300, 270, 240, 160)}
 
         self.image.blit(pseudo, (950 - pseudo.get_width()/2, height[self.position][0]))
         self.image.blit(mana, (950 - mana.get_width() / 2, height[self.position][1]))
@@ -289,6 +292,8 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.image.blit(pv, (950 - pv.get_width() / 2, height[self.position][2]))
         self.image.blit(armor, (1050 - armor.get_width() / 2, height[self.position][2]))
         self.image.blit(cadavres, (1030 - atq.get_width() / 2, height[self.position][1]))
+        for i in range(len(secrets)):
+            self.image.blit(secrets[i], (830, height[self.position][3] - 15 * i * (self.position == "top") + 15 * i * (self.position == "bottom")))
 
         """ Servants """
         gap = 5

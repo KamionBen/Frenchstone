@@ -584,6 +584,7 @@ def calc_advantage_minmax(state):
     adv = state.players[1]
     advantage = 0.6 * (len(player.hand) - len(adv.hand))
     advantage += 5 * (player.mana_max - adv.mana_max)
+    advantage += 2 * (len(player.secrets) - len(adv.secrets))
     if "forged" in [x.effects for x in player.hand]:
         advantage += 2
     if player.permanent_buff != {}:

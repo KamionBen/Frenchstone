@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Chasseur"), Player("OldIA", "Chevalier de la mort")]
+players = [Player("NewIA", "Chasseur"), Player("OldIA", "Druide")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -492,7 +492,7 @@ def generate_legal_vector_test(state):
     is_provoc = False
     if not "ignore_taunt" in [x.effects["aura"][0] for x in player.servants if "aura" in x.effects]:
         for j in range(len(adv.servants)):
-            if "provocation" in adv.servants[j].effects:
+            if "provocation" in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
                 is_provoc = True
                 break
     """ Notre héros peut attaquer """
@@ -504,7 +504,7 @@ def generate_legal_vector_test(state):
                 if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
                     legal_actions[171 + j + 1] = True
             else:
-                if "provocation" in adv.servants[j].effects:
+                if "provocation" in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
                     legal_actions[171 + j + 1] = True
 
     """ Nos serviteurs peuvent attaquer """

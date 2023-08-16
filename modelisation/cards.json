@@ -565,8 +565,7 @@
         "cost": 1,
         "attack": 4,
         "health": 1,
-        "effects": {"en sommeil": 1,
-        "ruée": 1}
+        "effects": {"en sommeil": 1, "ruée": 1, "insensible": 1}
     },
     {
         "id": 46,
@@ -812,7 +811,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"dégats des sorts": 1}
+        "effects": {"degats des sorts": 1}
     },
     {
         "id": 66,
@@ -956,7 +955,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"dégats des sorts": 1}
+        "effects": {"degats des sorts": 1}
     },
     {
         "id": 78,
@@ -1342,7 +1341,7 @@
         "cost": 3,
         "attack": 2,
         "health": 2,
-        "effects": {"dégats des sorts": 2, "cri de guerre": ["boost", ["heros", "ennemi", "temp_turn"], "inciblable"]}
+        "effects": {"degats des sorts": 2, "cri de guerre": ["boost", ["heros", "ennemi", "temp_turn"], "inciblable"]}
     },
     {
         "id": 110,
@@ -1691,7 +1690,7 @@
         "cost": 3,
         "attack": 2,
         "health": 4,
-        "effects": {"en sommeil": 1, "ruée": 1, "toxicite": 1}
+        "effects": {"en sommeil": 1, "ruée": 1, "toxicite": 1, "insensible": 1}
     },
     {
         "id": 139,
@@ -2655,7 +2654,7 @@
         "cost": 5,
         "attack": 4,
         "health": 5,
-        "effects": {"dégats des sorts": 1, "cri de guerre": ["pioche", ["allié"], 1]}
+        "effects": {"degats des sorts": 1, "cri de guerre": ["pioche", ["allié"], 1]}
     },
     {
         "id": 219,
@@ -2776,7 +2775,7 @@
         "cost": 5,
         "attack": 6,
         "health": 4,
-        "effects": {"en sommeil": 1, "ruée": 1, "insensible_attack": 1}
+        "effects": {"en sommeil": 1, "ruée": 1, "insensible_attack": 1, "insensible": 1}
     },
     {
         "id": 229,
@@ -5338,7 +5337,7 @@
         "cost": 2,
         "attack": 5,
         "health": 4,
-        "effects": {"ruée": 1, "en sommeil":  ["pioche", 4]}
+        "effects": {"ruée": 1, "en sommeil":  ["pioche", 4], "insensible": 1}
     },
     {
         "id": 441,
@@ -6318,7 +6317,7 @@
         "cost": 1,
         "attack": 4,
         "health": 4,
-        "effects": {"ruée": 1, "en sommeil": ["mana_spend_spells", 5]}
+        "effects": {"ruée": 1, "en sommeil": ["mana_spend_spells", 5], "insensible": 1}
     },
     {
         "id": 522,
@@ -8104,5 +8103,221 @@
         "attack": null,
         "health": null,
         "effects": {"boost": [["allié"], [2, 3]], "ciblage": ["serviteur", "tous", "choisi"], "echangeable": "rush_serv_allié"}
+    },
+    {
+        "id": 670,
+        "name": "Braconniere d'esprit",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre": ["invocation", ["allié"], ["graine"]]}
+    },
+    {
+        "id": 671,
+        "name": "Graine sauvage du renard",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 3,
+        "health": 1,
+        "effects": {"ruée": 1, "en sommeil": 1, "graine": 1, "insensible": 1}
+    },
+    {
+        "id": 672,
+        "name": "Graine sauvage de l'ours",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": 2,
+        "health": 4,
+        "effects": {"provocation": 1, "en sommeil": 2, "graine": 1, "insensible": 1}
+    },
+    {
+        "id": 673,
+        "name": "Graine sauvage du cerf",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {"awaken": ["equip_weapon", ["allié"], "Arc en bois de cerf"], "en sommeil": 3, "graine": 1, "insensible": 1}
+    },
+    {
+        "id": 674,
+        "name": "Arc en bois de cerf",
+        "classe": "Chasseur",
+        "type": "Arme",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 2,
+        "effects": {}
+    },
+    {
+        "id": 675,
+        "name": "Cab o tron",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre": ["dragage", ["invocation", "if_cost1"], 1]}
+    },
+    {
+        "id": 676,
+        "name": "Carquois arcanique",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["in_deck", "sort", "spell_damage", "if_arcanes", 1]}
+    },
+    {
+        "id": 677,
+        "name": "Chenil du chateau",
+        "classe": "Chasseur",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 3,
+        "effects": {"use": ["boost", ["serviteur", "allié", "choisi", "ruée", "if_bete"], [2, 0]]}
+    },
+    {
+        "id": 678,
+        "name": "Crocs frenetiques",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Chauve souris assoiffee", "Chauve souris assoiffee"], "impregnation": ["Crocs frenetiques impregne", 3]}
+    },
+    {
+        "id": 679,
+        "name": "Crocs frenetiques impregne",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Chauve souris assoiffee", "Chauve souris assoiffee"], "boosted_invoked": [1, 2]}
+    },
+    {
+        "id": 680,
+        "name": "Des zombeilles",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["attack+invoke", ["Zombeille", "Zombeille", "Zombeille", "Zombeille"], "ciblage"], "trigger": "if_serv_played"}
+    },
+    {
+        "id": 681,
+        "name": "Zombeille",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {}
+    },
+    {
+        "id": 682,
+        "name": "Dompteur du fleau",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre": ["decouverte", ["allié"], ["serviteur", "Bête", "custom"]]}
+    },
+    {
+        "id": 683,
+        "name": "Fleche invoquee",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 2, "ciblage": ["serviteur", "tous", "choisi"], "soif de mana":  [6, "damage", [2, "pioche_damage"]]}
+    },
+    {
+        "id": 684,
+        "name": "Manoeuvre d'urgence",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["invocation", ["copy"]], "trigger": "if_serv_dies"}
+    },
+    {
+        "id": 685,
+        "name": "Message cache",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["invocation", ["aléatoire", "cost3"]], "trigger": "if_zero_mana"}
+    },
+    {
+        "id": 686,
+        "name": "Monstre errant",
+        "classe": "Chasseur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["invocation", ["aléatoire", "cost3"]], "trigger": "if_hero_attacked"}
+    },
+    {
+        "id": 689,
+        "name": "Montee en fleche",
+        "classe": "Chasseur",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"aura": ["damage", ["ennemi", "tous", "lowest_health", "aléatoire", "conditional", "if_spell"], 1]}
     }
 ]

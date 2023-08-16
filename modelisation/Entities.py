@@ -422,14 +422,14 @@ class Player:
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn = CardGroup(), 0, 0, 0
-        self.last_card, self.first_spell, self.next_spell = "", None, [] # la dernière carte jouée par le joueur
+        self.last_card, self.first_spell, self.next_spell = get_card(-1, all_cards), None, [] # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade = 0, 0
         self.attached = []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn, self.dead_under2 = [], [], []
+        self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon = [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked = 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played = 0, 0
@@ -442,7 +442,7 @@ class Player:
         self.cout_pouvoir = 2
         self.cout_pouvoir_temp = 2
 
-        self.attack, self.inter_attack = 0, 0
+        self.attack, self.inter_attack, self.spell_damage = 0, 0, 0
         self.remaining_atk, self.has_attacked = 1, 0
         self.armor = 0
         self.gel, self.curses, self.permanent_buff = 0, [], {}
@@ -494,7 +494,6 @@ class Player:
         self.mana_grow()
         self.mana_reset()
         self.power_reset()
-        self.servants.reset()
         self.apply_weapon()
 
     def end_turn(self):
@@ -534,6 +533,8 @@ class Player:
     def end_action(self):
         if len(self.hand) > 10:
             self.hand.cards = self.hand.cards[:10]
+        if [x for x in self.servants if "degats des sorts" in x.effects]:
+            self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects])
 
     def apply_discount(self):
         for card in self.hand:
@@ -621,6 +622,7 @@ class Player:
                     creature.effects["cost_pv"][1] = 1
 
     def apply_weapon(self):
+        self.dead_weapon = []
         if self.weapon is not None:
             self.attack = self.weapon.attack + self.inter_attack
             if "vol de vie" in self.weapon.effects:
@@ -901,11 +903,6 @@ class Card:
                 self.health = max(0, self.base_health + self.total_temp_boost[1] - self.blessure)
         if "gel" in self.effects:
             self.remaining_atk = -1
-        if "en sommeil" in self.effects:
-            if type(self.effects["en sommeil"]) == int:
-                self.effects["en sommeil"] -= 1
-                if self.effects["en sommeil"] == 0:
-                    self.effects.pop("en sommeil")
 
     def reset_complete(self):
         self.cost = self.base_cost

@@ -427,7 +427,7 @@ def generate_legal_vector_test(state):
                     # Serviteurs avec magnétisme
                     if "magnetisme" in player.hand[i].effects:
                         for j in range(len(player.servants)):
-                            if "Méca" in player.servants[j].genre:
+                            if ("Méca" in player.servants[j].genre) or ("Méca" in player.servants[j].genre and player.hand[i].name == "Parasite degoulinant"):
                                 legal_actions[17 * i + j + 3] = True
                 elif player.hand[i].type.lower() == "sort":
                     if "ciblage" in player.hand[i].effects:
@@ -585,8 +585,8 @@ def calc_advantage_minmax(state):
     advantage = 0.6 * (len(player.hand) - len(adv.hand))
     advantage += 5 * (player.mana_max - adv.mana_max)
     advantage += 2 * (len(player.secrets) - len(adv.secrets))
-    if "forged" in [x.effects for x in player.hand]:
-        advantage += 2
+    if "forged" in [set(x.effects) for x in player.hand]:
+        advantage += 2.5
     if player.permanent_buff != {}:
         advantage += 6
     for servant in player.servants:

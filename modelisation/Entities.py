@@ -421,7 +421,7 @@ class Player:
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
-        self.serv_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn = CardGroup(), 0, 0, 0
+        self.serv_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn = CardGroup(), 0, 0, 0, 0
         self.last_card, self.first_spell, self.next_spell = get_card(-1, all_cards), None, [] # la dernière carte jouée par le joueur
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
@@ -499,7 +499,7 @@ class Player:
     def end_turn(self):
         """ Mise à jour de fin de tour """
         self.attack, self.inter_attack = 0, 0
-        self.damage_this_turn, self.my_turn = 0, 0
+        self.damage_this_turn, self.my_turn, self.cards_this_turn = 0, 0, 0
         self.dead_undeads, self.dead_this_turn = [], []
         self.serv_this_turn = CardGroup()
         self.augment = []
@@ -535,6 +535,7 @@ class Player:
             self.hand.cards = self.hand.cards[:10]
         if [x for x in self.servants if "degats des sorts" in x.effects]:
             self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects])
+
 
     def apply_discount(self):
         for card in self.hand:

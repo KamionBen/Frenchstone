@@ -443,7 +443,7 @@ class Player:
         self.cout_pouvoir_temp = 2
 
         self.attack, self.inter_attack, self.spell_damage = 0, 0, 0
-        self.remaining_atk, self.has_attacked = 1, 0
+        self.remaining_atk, self.has_attacked, self.total_attacks = 1, 0, 0
         self.armor = 0
         self.gel, self.curses, self.permanent_buff = 0, [], {}
         self.health, self.base_health = 30, 30
@@ -536,7 +536,6 @@ class Player:
         if [x for x in self.servants if "degats des sorts" in x.effects]:
             self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects])
 
-
     def apply_discount(self):
         for card in self.hand:
             card.cost = card.base_cost
@@ -609,7 +608,7 @@ class Player:
             reduction = [x for x in self.servants if "aura" in x.effects and "Thaddius" in x.effects["aura"]][0].effects["aura"][2]
             for card in self.hand:
                 if reduction == card.cost % 2:
-                    card.cost = 1
+                    card.cost = max(0, card.cost - 4)
         if [x for x in self.hand if "cost_pv" in x.effects]:
             for creature in [x for x in self.hand if "cost_pv" in x.effects]:
                 if "if_heal_this_turn" in creature.effects["cost_pv"]:

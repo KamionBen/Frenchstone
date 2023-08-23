@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Chasseur"), Player("OldIA", "Druide")]
+players = [Player("NewIA", "Mage"), Player("OldIA", "Druide")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 

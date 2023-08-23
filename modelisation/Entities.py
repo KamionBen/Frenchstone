@@ -135,7 +135,7 @@ class Plateau:
     def __init__(self, players=()):
         """ Décrit exhaustivement le plateau de jeu """
         class_files = {'Chasseur': 'chasseur.csv',
-                       'Mage': 'dk_sang.csv',
+                       'Mage': 'mage_rainbow.csv',
                        'Paladin': 'dk_sang.csv',
                        'Démoniste': 'dk_sang.csv',
                        'Chasseur de démons': 'dh_marginal.csv',
@@ -217,6 +217,8 @@ class Plateau:
                         player.dead_rale.append(servant)
                     if servant.cost <= 2:
                         player.dead_under2.append(servant)
+                    elif servant.cost >= 5 and "Bête" in servant.genre:
+                        player.dead_beast_sup5.append(servant)
                     player.all_dead_servants.append(servant)
                     player.dead_this_turn.append(servant)
                     if len(player.all_dead_servants) > 3:
@@ -237,6 +239,8 @@ class Plateau:
                 for card in cards_impregnation:
                     if "impregnation_demon" in card.effects["impregnation"]:
                         card.effects["impregnation"][1] -= len([x for x in dead_servants_player if "Démon" in x.genre])
+                    if "impregnation_bête" in card.effects["impregnation"]:
+                        card.effects["impregnation"][1] -= len([x for x in dead_servants_player if "Bête" in x.genre])
                     else:
                         card.effects["impregnation"][1] -= len(dead_servants_player)
                     if card.effects["impregnation"][1] <= 0:
@@ -422,17 +426,17 @@ class Player:
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn = CardGroup(), 0, 0, 0, 0
-        self.last_card, self.first_spell, self.next_spell = get_card(-1, all_cards), None, [] # la dernière carte jouée par le joueur
+        self.last_card, self.first_spell, self.next_spell = get_card(-1, all_cards), None, []
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade = 0, 0
-        self.attached = []
+        self.attached, self.decouverte = [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon = [], [], [], []
+        self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5 = [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked = 0, 0, 0, 0, 0
-        self.weapons_played, self.marginal_played = 0, 0
+        self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
         self.copies_to_deck = 0
 
         """ Héros choisi par le joueur """
@@ -559,6 +563,8 @@ class Player:
                         card.cost = max(0, card.base_cost - self.treants_invoked)
                     elif "hero_attack" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.attack)
+                    elif "secrets_declenches" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.secrets_declenches)
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
                 card.cost = card.effects["marginal"][1]
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.weapon is not None:

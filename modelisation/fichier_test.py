@@ -593,22 +593,26 @@ def calc_advantage_minmax(state):
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage += 1.5 * servant.attack
+        if "gel" in servant.effects:
+            advantage -= servant.attack
         if "en sommeil" in servant.effects:
-            remaining_turns = servant.effects["en sommeil"]
+            remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
             advantage -= (remaining_turns/(remaining_turns + 1)) * (1.5 * servant.attack + 1.5 * servant.health)
     for servant in adv.servants:
         advantage -= 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage -= 1.5 * servant.attack
+        if "gel" in servant.effects:
+            advantage += servant.attack
         if "infection" in servant.effects:
             advantage += 2
         if "en sommeil" in servant.effects:
-            remaining_turns = servant.effects["en sommeil"]
+            remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
             advantage += (remaining_turns/(remaining_turns + 1)) * (1.5 * servant.attack + 1.5 * servant.health)
     if player.health > 0 and adv.health > 0:
         advantage += 0.25 * (30/adv.health - 30/player.health)
     if player.weapon is not None:
-        advantage += player.weapon.attack * player.weapon.health
+        advantage += max(1, player.weapon.attack) * player.weapon.health
     advantage += 0.3 * player.armor
     advantage += 0.01 * player.cadavres
     advantage += 3 * len(player.lieux)

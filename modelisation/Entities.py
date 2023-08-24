@@ -434,7 +434,7 @@ class Player:
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
         self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5 = [], [], [], [], []
-        self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons = [], [], [], [], [], []
+        self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked = 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
         self.copies_to_deck = 0
@@ -449,7 +449,7 @@ class Player:
         self.attack, self.inter_attack, self.spell_damage = 0, 0, 0
         self.remaining_atk, self.has_attacked, self.total_attacks = 1, 0, 0
         self.armor = 0
-        self.gel, self.curses, self.permanent_buff = 0, [], {}
+        self.curses, self.permanent_buff = [], {}
         self.health, self.base_health = 30, 30
         self.weapon = None
         self.effects = {}
@@ -507,8 +507,8 @@ class Player:
         self.dead_undeads, self.dead_this_turn = [], []
         self.serv_this_turn = CardGroup()
         self.augment = []
-        if self.remaining_atk == 0 and self.gel == 1:
-            self.gel = 0
+        if self.remaining_atk == 0 and "gel" in self.effects:
+            self.effects.pop("gel")
         if self.effects:
             if "inciblable" in self.effects and "temp_turn" in self.effects["inciblable"]:
                 self.effects.pop("inciblable")
@@ -539,6 +539,8 @@ class Player:
             self.hand.cards = self.hand.cards[:10]
         if [x for x in self.servants if "degats des sorts" in x.effects]:
             self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects])
+        if self.weapon is not None and self.weapon.is_dead():
+            self.weapon = None
 
     def apply_discount(self):
         for card in self.hand:
@@ -574,10 +576,11 @@ class Player:
             for discount in self.discount_next:
                 for card in self.hand:
                     if card.type.lower() == discount[0] or discount[0] == "tous":
-                        if discount[1] != "" and discount[1] in card.genre and discount[2] < 0:
-                            card.cost = max(0, card.cost + discount[2])
-                            if discount not in card.discount:
-                                card.discount.append(discount)
+                        if discount[1] != "" and discount[2] < 0:
+                            if discount[1] in card.genre:
+                                card.cost = max(0, card.cost + discount[2])
+                                if discount not in card.discount:
+                                    card.discount.append(discount)
                         elif discount[2] >= 0:
                             card.cost = max(0, discount[2])
                             if discount not in card.discount:
@@ -615,6 +618,11 @@ class Player:
             for card in self.hand:
                 if reduction == card.cost % 2:
                     card.cost = max(0, card.cost - 4)
+        if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"]]:
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Arcanes" in x.effects["aura"][1]]:
+                if [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
+                    for spell in [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
+                        spell.cost = max(0, spell.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Arcanes" in x.effects["aura"][1]]))
         if [x for x in self.hand if "cost_pv" in x.effects]:
             for creature in [x for x in self.hand if "cost_pv" in x.effects]:
                 if "if_heal_this_turn" in creature.effects["cost_pv"]:
@@ -714,10 +722,10 @@ class Player:
         if "jotun" in self.permanent_buff:
             self.permanent_buff["jotun"] = 1
         self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, []
-        if self.gel == 0:
-            self.remaining_atk = 1
-        else:
+        if "gel" in self.effects:
             self.remaining_atk = 0
+        else:
+            self.remaining_atk = 1
         if "vol de vie" in self.effects:
             self.effects.pop("vol de vie")
         if "cleave" in self.effects:
@@ -869,7 +877,7 @@ class Card:
         
         """ Combat """
         self.remaining_atk = -1
-        self.damage_taken, self.blessure, self.surplus = False, 0, 0
+        self.damage_taken, self.blessure, self.surplus, self.has_attacked = False, 0, 0, False
         self.total_temp_boost = [0, 0]
         self.cursed_player = None
 
@@ -886,6 +894,7 @@ class Card:
 
     def reset(self):
         """ Reset de début de tour """
+        self.has_attacked = False
         if "titan" in self.effects:
             if len(self.effects["titan"]) == 1:
                 self.effects.pop("titan")

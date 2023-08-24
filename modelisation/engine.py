@@ -1943,6 +1943,17 @@ class TourEnCours:
                                         added_card = Card(**random.choice([x for x in all_spells if x["classe"] == "Mage" and "Arcanes" in x["genre"]]))
                                         added_card.effects["brulure"] = 1
                                         adv.hand.add(added_card)
+                        elif "copy" in carte.effects["rale d'agonie"][1] and "highest_spell" in carte.effects["rale d'agonie"][1]:
+                            if ("allié" in carte.effects["rale d'agonie"][1] and carte in player.servants) or ("ennemi" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
+                                if [x for x in player.hand if x.type == "Sort"]:
+                                    highest_spell = max([x.cost for x in player.hand if x.type == "Sort"])
+                                    highest_spell = random.choice([x.name for x in player.hand if x.type == "Sort" and x.cost == highest_spell])
+                                    player.hand.add(get_card(highest_spell, all_spells))
+                            elif ("ennemi" in carte.effects["rale d'agonie"][1] and carte in player.servants) or ("allié" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
+                                if [x for x in adv.hand if x.type == "Sort"]:
+                                    highest_spell = max([x.cost for x in adv.hand if x.type == "Sort"])
+                                    highest_spell = random.choice([x.name for x in adv.hand if x.type == "Sort" and x.cost == highest_spell])
+                                    adv.hand.add(get_card(highest_spell, all_spells))
                     if "weapon" in carte.effects["rale d'agonie"][1]:
                         if "ennemi" in carte.effects["rale d'agonie"][1]:
                             try:
@@ -2321,6 +2332,17 @@ class TourEnCours:
                                         added_card = Card(**random.choice([x for x in all_spells if x["classe"] == "Mage" and "Arcanes" in x["genre"]]))
                                         added_card.effects["brulure"] = 1
                                         adv.hand.add(added_card)
+                        elif "copy" in carte.effects["rale d'agonie2"][1] and "highest_spell" in carte.effects["rale d'agonie2"][1]:
+                            if ("allié" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or ("ennemi" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
+                                if [x for x in player.hand if x.type == "Sort"]:
+                                    highest_spell = max([x.cost for x in player.hand if x.type == "Sort"])
+                                    highest_spell = random.choice([x.name for x in player.hand if x.type == "Sort" and x.cost == highest_spell])
+                                    player.hand.add(get_card(highest_spell, all_spells))
+                            elif ("ennemi" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or ("allié" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
+                                if [x for x in adv.hand if x.type == "Sort"]:
+                                    highest_spell = max([x.cost for x in adv.hand if x.type == "Sort"])
+                                    highest_spell = random.choice([x.name for x in adv.hand if x.type == "Sort" and x.cost == highest_spell])
+                                    adv.hand.add(get_card(highest_spell, all_spells))
                     if "weapon" in carte.effects["rale d'agonie2"][1]:
                         if "ennemi" in carte.effects["rale d'agonie2"][1]:
                             try:
@@ -2878,6 +2900,8 @@ class TourEnCours:
                             player.hand.add(get_card(card, all_cards))
                 elif type(carte.effects["add_hand"]) == str:
                     player.hand.add(get_card(carte.effects["add_hand"], all_cards))
+                elif "end_turn" in carte.effects["add_hand"]:
+                    player.end_turn_cards.append(carte.effects["add_hand"][-1])
                 elif "aléatoire" in carte.effects["add_hand"]:
                     if "Élémentaire" in carte.effects["add_hand"] and "123" in carte.effects["add_hand"]:
                         for i in range(3):
@@ -3187,8 +3211,11 @@ class TourEnCours:
                 elif "sort" in carte.effects["decouverte"]:
                     if "Fiel" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", genre="Fiel")
-                    elif "reduc" in carte.effects["decouverte"] and "temp_turn" in carte.effects["decouverte"]:
-                        self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", other="temp_turn", reduc=carte.effects["decouverte"][-1])
+                    elif "reduc" in carte.effects["decouverte"]:
+                        if "temp_turn" in carte.effects["decouverte"]:
+                            self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", other="temp_turn", reduc=carte.effects["decouverte"][-1])
+                        elif "permanent" in carte.effects["decouverte"]:
+                            self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", reduc=carte.effects["decouverte"][-1])
                     elif "in_deck" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([x for x in player.deck if x.type == "Sort"]))
                     elif "secret" in carte.effects["decouverte"]:
@@ -3196,7 +3223,9 @@ class TourEnCours:
                     elif "not_used_ecole" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", other="not_used_ecole")
                     elif "cost_under3" in carte.effects["decouverte"]:
-                        self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", other="cost_under3")
+                        self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", other="institutrice")
+                    elif "already_played" in carte.effects["decouverte"]:
+                        self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([get_card(x, all_spells) for x in player.spells_played]))
                     else:
                         self.plt.cards_chosen = self.choice_decouverte(carte, type="sort")
                 elif "serviteur" in carte.effects["decouverte"]:
@@ -3738,7 +3767,7 @@ class TourEnCours:
                 if "insensible_attack" in player.weapon.effects["aura"][1]:
                     player.effects["insensible_attack"] = 1
             elif "invocation" in player.weapon.effects["aura"]:
-                if "if_spell" in player.weapon.effects["aura"][1] and carte.type == "Sort" and carte.cost != 0:
+                if "if_spell" in player.weapon.effects["aura"][1] and carte.type == "Sort" and carte.cost != 0 and player.weapon.health > 0:
                     player.weapon.health -= 1
                     invoked_servant = get_card(player.weapon.effects["aura"][-1], all_servants)
                     invoked_servant.attack = carte.cost
@@ -3799,6 +3828,7 @@ class TourEnCours:
                 if carte.genre and carte.genre[0] not in player.ecoles_jouees:
                     player.ecoles_jouees.append(carte.genre[0])
                 self.apply_effects(carte, target)
+                player.spells_played.append(carte.name)
                 if "double" in player.next_spell:
                     player.next_spell.remove("double")
                     self.apply_effects(carte, target)
@@ -3849,6 +3879,10 @@ class TourEnCours:
                 if [x for x in player.hand if "cri de guerre" in x.effects and "if_nature" in x.effects["cri de guerre"][1]] and "Nature" in carte.genre:
                     for serv in [x for x in player.hand if "cri de guerre" in x.effects and "if_nature" in x.effects["cri de guerre"][1]]:
                         serv.effects["cri de guerre"][2] = serv.effects["cri de guerre"][3]
+                if [x for x in player.hand if x.type == "Serviteur" and "if_spell" in x.effects]:
+                    for creature in [x for x in player.hand if x.type == "Serviteur" and "if_spell" in x.effects]:
+                        creature.effects["cri de guerre"] = creature.effects["if_spell"]
+                        creature.effects.pop("if_spell")
             if adv.secrets and "if_spell_played" in [x.effects["trigger"] for x in adv.secrets]:
                 for secret in adv.secrets:
                     if secret.effects["trigger"] == "if_spell_played":
@@ -4628,6 +4662,10 @@ class TourEnCours:
                 player.effects.pop("cost_armor")
             if "toxispell" in player.effects and player.effects["toxispell"] == "temp_turn":
                 player.effects.pop("toxispell")
+        if player.end_turn_cards:
+            for card in player.end_turn_cards:
+                player.hand.add(get_card(card, all_cards))
+            player.end_turn_cards = []
 
     def debut_du_tour(self):
         player = self.plt.players[0]

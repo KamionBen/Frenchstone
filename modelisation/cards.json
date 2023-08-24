@@ -9440,5 +9440,77 @@
         "attack": null,
         "health": null,
         "effects": {"decouverte": ["sort", "institutrice", "swap_cost"], "second_time": 1}
+    },
+    {
+        "id": 783,
+        "name": "Maxitude a l'infini",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["sort", "reduc", "permanent", 1], "legendaire": 1, "final": ["add_hand", ["end_turn", "Maxitude a l'infini"]]}
+    },
+    {
+        "id": 784,
+        "name": "Retour dans le temps",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["sort", "already_played"]}
+    },
+    {
+        "id": 785,
+        "name": "Ricochet de sort",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"if_spell": ["decouverte", ["allié"], ["sort"]]}
+    },
+    {
+        "id": 786,
+        "name": "Repartiteur audio",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 3,
+        "health": 2,
+        "effects": {"rale d'agonie": ["add_hand", ["allié", "sort", "copy", "highest_spell"], ""]}
+    },
+    {
+        "id": 787,
+        "name": "Toucher gele",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "ciblage": ["tous", "tous", "choisi"], "impregnation": ["Toucher gele impregne", 3]}
+    },
+    {
+        "id": 788,
+        "name": "Toucher gele impregne",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "ciblage": ["tous", "tous", "choisi"], "add_hand": "Toucher gele"}
     }
 ]

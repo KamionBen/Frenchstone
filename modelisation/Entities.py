@@ -430,7 +430,7 @@ class Player:
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade = 0, 0
-        self.attached, self.decouverte = [], []
+        self.attached, self.decouverte, self.end_turn_cards, self.spells_played = [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
         self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5 = [], [], [], [], []
@@ -718,7 +718,7 @@ class Player:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
-        self.first_spell, self.next_spell = None, []
+        self.first_spell, self.next_spell, self.end_turn_cards = None, [], []
         if "jotun" in self.permanent_buff:
             self.permanent_buff["jotun"] = 1
         self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, []

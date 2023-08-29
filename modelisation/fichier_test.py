@@ -554,7 +554,7 @@ def generate_legal_vector_test(state):
                         legal_actions[265 + 16 * i + m + 1] = True
                     for n in range(len(adv.servants)):
                         if "camouflage" not in adv.servants[n].effects:
-                            legal_actions[265 + 16 * i + n + 8] = True
+                            legal_actions[265 + 16 * i + n + 9] = True
                 elif player.lieux[i].effects["use"][1][0] == "serviteur":
                     if player.lieux[i].effects["use"][1][1] == "allié":
                         if "conditional" in player.lieux[i].effects["use"][1]:
@@ -568,6 +568,12 @@ def generate_legal_vector_test(state):
                         else:
                             for m in range(len(player.servants)):
                                 legal_actions[265 + 16 * i + m + 1] = True
+                    elif player.lieux[i].effects["use"][1][1] == "tous":
+                        for m in range(len(player.servants)):
+                            legal_actions[265 + 16 * i + m + 1] = True
+                        for n in range(len(adv.servants)):
+                            if "camouflage" not in adv.servants[n].effects:
+                                legal_actions[265 + 16 * i + n + 9] = True
             else:
                 legal_actions[265 + 16 * i] = True
 
@@ -584,17 +590,19 @@ def calc_advantage_minmax(state):
     adv = state.players[1]
     advantage = 0.6 * (len(player.hand) - len(adv.hand))
     advantage += 5 * (player.mana_max - adv.mana_max)
-    advantage += 2 * (len(player.secrets) - len(adv.secrets))
+    advantage += 3 * (len(player.secrets) - len(adv.secrets))
     if "forged" in [set(x.effects) for x in player.hand]:
         advantage += 2.5
     if player.permanent_buff != {}:
-        advantage += 6
+        advantage += 3
     for servant in player.servants:
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage += 1.5 * servant.attack
         if "gel" in servant.effects:
             advantage -= servant.attack
+        if "fragile" in servant.effects:
+            advantage -= servant.health - 1
         if "en sommeil" in servant.effects:
             remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
             advantage -= (remaining_turns/(remaining_turns + 1)) * (1.5 * servant.attack + 1.5 * servant.health)
@@ -604,6 +612,8 @@ def calc_advantage_minmax(state):
             advantage -= 1.5 * servant.attack
         if "gel" in servant.effects:
             advantage += servant.attack
+        if "fragile" in servant.effects:
+            advantage += servant.health - 1
         if "infection" in servant.effects:
             advantage += 2
         if "en sommeil" in servant.effects:

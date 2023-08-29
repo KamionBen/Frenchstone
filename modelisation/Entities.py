@@ -435,9 +435,9 @@ class Player:
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
         self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5 = [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
-        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked = 0, 0, 0, 0, 0
+        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere = 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
-        self.copies_to_deck = 0
+        self.copies_to_deck, self.spell_before = 0, False
 
         """ Héros choisi par le joueur """
         self.power = None
@@ -449,7 +449,7 @@ class Player:
         self.attack, self.inter_attack, self.spell_damage = 0, 0, 0
         self.remaining_atk, self.has_attacked, self.total_attacks = 1, 0, 0
         self.armor = 0
-        self.curses, self.permanent_buff = [], {}
+        self.curses, self.permanent_buff = {}, {}
         self.health, self.base_health = 30, 30
         self.weapon = None
         self.effects = {}
@@ -577,7 +577,7 @@ class Player:
                 for card in self.hand:
                     if card.type.lower() == discount[0] or discount[0] == "tous":
                         if discount[1] != "" and discount[2] < 0:
-                            if discount[1] in card.genre:
+                            if discount[1] in card.genre or discount[1] == "tous":
                                 card.cost = max(0, card.cost + discount[2])
                                 if discount not in card.discount:
                                     card.discount.append(discount)
@@ -708,6 +708,8 @@ class Player:
         self.deck = import_deck(file)
         
     def damage(self, nb, toxic=False):
+        if "alibi solide" in self.permanent_buff:
+            nb = 1
         nb_armor = nb * (self.armor >= nb) + self.armor * (self.armor < nb)
         self.armor -= nb_armor
         self.health -= (nb - nb_armor)
@@ -721,7 +723,7 @@ class Player:
         self.first_spell, self.next_spell, self.end_turn_cards = None, [], []
         if "jotun" in self.permanent_buff:
             self.permanent_buff["jotun"] = 1
-        self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, []
+        self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, {}
         if "gel" in self.effects:
             self.remaining_atk = 0
         else:
@@ -933,8 +935,10 @@ class Card:
                 toxic = False
             if self.effects["bouclier divin"] != 2:
                 self.effects.pop("bouclier divin")
+        if "enchanteur" in self.effects:
+            nb *= 2
         else:
-            if toxic:
+            if toxic or ("holotech" in self.effects and nb == 1) or ("fragile" in self.effects):
                 self.health -= 1000
                 self.blessure += 1000
             else:
@@ -943,6 +947,7 @@ class Card:
             if nb > 0:
                 self.damage_taken = True
                 if "curse_link" in self.effects:
+                    print(self.effects, self.cursed_player)
                     self.cursed_player.damage(self.effects["curse_link"])
             else:
                 self.damage_taken = False

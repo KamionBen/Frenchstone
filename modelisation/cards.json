@@ -1437,7 +1437,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"aura" : ["double_dmg", ["serviteur", "ennemi", "tous"], 1]}
+        "effects": {"aura" : ["modif_damage", ["serviteur", "ennemi", "enchanteur"], 1]}
     },
     {
         "id": 118,
@@ -2849,7 +2849,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"add_hand": [["allié", "serviteur", "colossal", "aléatoire"], ["fix_cost", 1]]}
+        "effects": {"add_hand": [["allié"], ["serviteur", "colossal", "aléatoire", "fix_cost", 1]]}
     },
     {
         "id": 235,
@@ -3537,7 +3537,7 @@
         "cost": 9,
         "attack": null,
         "health": null,
-        "effects": {"add_hand": [["allié", "sort", "aléatoire", "until_full"]], "reduc": ["self", "len_hand"], "legendaire": 1}
+        "effects": {"add_hand": [["allié"], ["sort", "aléatoire", "until_full"]], "reduc": ["self", "len_hand"], "legendaire": 1}
     },
     {
         "id": 292,
@@ -4117,7 +4117,7 @@
         "cost": 2,
         "attack": 2,
         "health": 3,
-        "effects": {"aura": ["damage", ["ennemi", "tous", "aléatoire", 2, "conditional", "if_spell"], 1], "bleu": 1}
+        "effects": {"aura": ["damage", ["ennemi", "tous", "aléatoire", "conditional", "if_spell", "disjoint", 2], 1], "bleu": 1}
     },
     {
         "id": 340,
@@ -4201,7 +4201,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"damage": 4, "reduc": [["sort", "prochain", "end_turn", "tous"], -1], "ciblage": ["tous", "tous", "choisi"],"bleu": 1}
+        "effects": {"damage": 4, "reduc": [["sort", "prochain", "end_turn", "tous"], -1], "ciblage": ["tous", "tous", "choisi"], "bleu": 1}
     },
     {
         "id": 347,
@@ -6715,7 +6715,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"choix_des_armes": [["add_hand", [["allié", "sort", "Nature"], 2]], ["reduc", ["main", "sort", "permanent", 1]]]}
+        "effects": {"choix_des_armes": [["add_hand", [["allié"], ["sort", "aléatoire", "Nature", 2]]], ["reduc", ["main", "sort", "permanent", 1]]]}
     },
     {
         "id": 555,
@@ -6727,7 +6727,7 @@
         "cost": 2,
         "attack": null,
         "health": null,
-        "effects": {"add_hand" : [["allié", "sort", "Nature"], 2], "reduc": ["main", "sort", "permanent", 1]}
+        "effects": {"add_hand" : [["allié"], ["sort", "aléatoire", "Nature", 2]], "reduc": ["main", "sort", "permanent", 1]}
     },
     {
         "id": 556,
@@ -9283,7 +9283,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"add_hand": ["Élémentaire", "aléatoire", "123"]}
+        "effects": {"add_hand": [["allié"], ["serviteur", "Élémentaire", "aléatoire", "123"]]}
     },
     {
         "id": 770,
@@ -9512,5 +9512,425 @@
         "attack": null,
         "health": null,
         "effects": {"damage": 3, "ciblage": ["tous", "tous", "choisi"], "add_hand": "Toucher gele"}
+    },
+    {
+        "id": 789,
+        "name": "Vulcanomancie",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"rale d'agonie": ["damage", ["serviteur", "tous", "tous"], 3], "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 790,
+        "name": "Elementaire prismatique",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 3,
+        "effects": {"cri de guerre": ["decouverte", ["allié"], ["sort", "reduc", "permanent", 1]]}
+    },
+    {
+        "id": 791,
+        "name": "Alibi solide",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"permanent_buff": ["alibi solide", ["héros", "allié"], 1]}
+    },
+    {
+        "id": 792,
+        "name": "Barriere de glace",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["add_armor", ["ennemi", 8]], "trigger": "if_hero_attacked"}
+    },
+    {
+        "id": 793,
+        "name": "Contresort",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": "counter", "trigger": "if_spell_played"}
+    },
+    {
+        "id": 794,
+        "name": "Faconneur d'energie",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre": ["spell_transformation", ["allié", "tous", "addcost_2"], ""]}
+    },
+    {
+        "id": 795,
+        "name": "Holotechnicien",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"aura" : ["modif_damage", ["serviteur", "tous", "holotech"], 1]}
+    },
+    {
+        "id": 796,
+        "name": "Intelligence des arcanes",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", 2]}
+    },
+    {
+        "id": 797,
+        "name": "Jeu de lumiere",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": [["tous", "ennemi", "aléatoire", "jeu_lumiere"], 2]}
+    },
+    {
+        "id": 798,
+        "name": "Jeune recrue spectrale",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 1,
+        "health": 4,
+        "effects": {"aura": ["damage", ["serviteur", "ennemi", "tous", "conditional", "if_spell"], 1]}
+    },
+    {
+        "id": 799,
+        "name": "Luna l'astronome",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 4,
+        "effects": {"aura": ["pioche", ["conditional", "if_right_played"], 1], "legendaire": 1}
+    },
+    {
+        "id": 800,
+        "name": "Meca requin",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {"aura": ["damage", ["ennemi", "tous", "aléatoire", "conditional", "if_meca", 3], 1]}
+    },
+    {
+        "id": 801,
+        "name": "Metamoprhose meduse",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"mutation": "Meduse", "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 802,
+        "name": "Meduse",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 4,
+        "health": 1 ,
+        "effects": {"degats des sorts": 2}
+    },
+    {
+        "id": 803,
+        "name": "Nettoyeur d'azshara",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre": ["add_deck", ["allié"], ["Nettoyeur englouti"], "end_deck"]}
+    },
+    {
+        "id": 804,
+        "name": "Nettoyeur englouti",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "aléatoire", "serviteur", "Méca", 3], []]}
+    },
+    {
+        "id": 805,
+        "name": "Objection",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": "counter", "trigger": "if_serv_played"}
+    },
+    {
+        "id": 806,
+        "name": "Porte des grands fonds",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", "serviteur", "Méca", 1], "reduc": ["permanent", "main", "serviteur", "Méca", 1]}
+    },
+    {
+        "id": 807,
+        "name": "Remix du distrib o bot",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"transformation": ["Distrib o bot glacant", "Distrib o bot livreur", "Distrib o bot genereux", "Distrib o bot mystere"]}
+    },
+    {
+        "id": 808,
+        "name": "Distrib o bot glacant",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "sort", "givre", "aléatoire", 2], []], "start_turn": ["transformation", ["Distrib o bot livreur", "Distrib o bot genereux", "Distrib o bot mystere"]]}
+    },
+    {
+        "id": 809,
+        "name": "Distrib o bot livreur",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "serviteur", "Méca", "aléatoire", 2], []], "start_turn": ["transformation", ["Distrib o bot glacant", "Distrib o bot genereux", "Distrib o bot mystere"]]}
+    },
+    {
+        "id": 810,
+        "name": "Distrib o bot genereux",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["add_hand", ["allié"], ["La piece", "La piece"]], "start_turn": ["transformation", ["Distrib o bot glacant", "Distrib o bot livreur", "Distrib o bot mystere"]]}
+    },
+    {
+        "id": 811,
+        "name": "Distrib o bot mystere",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "sort", "secret", "mage", "aléatoire", 2], []], "start_turn": ["transformation", ["Distrib o bot livreur", "Distrib o bot genereux", "Distrib o bot glacant"]]}
+    },
+    {
+        "id": 812,
+        "name": "Rune en fusion",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "add_hand": [["allié"], ["sort", "aléatoire", 1]], "ciblage": ["tous", "ennemi", "choisi"], "forge": "Rune en fusion forge"}
+    },
+    {
+        "id": 813,
+        "name": "Rune en fusion forge",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": ["double", 3], "add_hand": [["allié"], ["sort", "aléatoire", 2]], "ciblage": ["tous", "ennemi", "choisi"]}
+    },
+    {
+        "id": 814,
+        "name": "Runes explosives",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["damage", ["surplus", 6], "ciblage"], "trigger": "if_serv_played"}
+    },
+    {
+        "id": 815,
+        "name": "Reverberations",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"copy": ["debuff", "fragile"], "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 816,
+        "name": "Sanctum noctevoile",
+        "classe": "Mage",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 1,
+        "health": 2,
+        "effects": {"use": ["gel+invocation", ["serviteur", "tous", "choisi"], "Squelette instable"]}
+    },
+    {
+        "id": 817,
+        "name": "Tisse tornade",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Naga", "Élémentaire"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {"cri de guerre": ["decouverte", ["conditional", "if_spell_before"], ["serviteur", "Élémentaire"]]}
+    },
+    {
+        "id": 818,
+        "name": "Tranche arcane",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 2,
+        "effects": {"rale d'agonie": ["add_hand", ["allié"], ["Eclair des arcanes", "Eclair des arcanes"]]}
+    },
+    {
+        "id": 819,
+        "name": "Violoniste endiable",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Démon"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "sort", "feu", "mage", "démoniste", "aléatoire", 1], []]}
+    },
+    {
+        "id": 820,
+        "name": "Visage vengeur",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["attack+invoke", ["copy", "heros", "ennemi"]], "trigger": "if_hero_attacked_byserv"}
+    },
+    {
+        "id": 821,
+        "name": "Affaire glacee",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Squelette instable", "Squelette instable"], "add_armor": 4}
+    },
+    {
+        "id": 822,
+        "name": "Barmaid bavarde",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 4,
+        "effects": {"aura": ["damage", ["tous", "ennemi", "end_turn", "conditional", "if_secret"], 2]}
+    },
+    {
+        "id": 823,
+        "name": "Boule de feu",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 6, "ciblage": ["tous", "tous", "choisi"]}
     }
 ]

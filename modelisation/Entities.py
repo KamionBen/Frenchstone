@@ -425,7 +425,7 @@ class Player:
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
-        self.serv_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn = CardGroup(), 0, 0, 0, 0
+        self.serv_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, 0
         self.last_card, self.first_spell, self.next_spell = get_card(-1, all_cards), None, []
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
@@ -437,7 +437,7 @@ class Player:
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere = 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
-        self.copies_to_deck, self.spell_before = 0, False
+        self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
         """ Héros choisi par le joueur """
         self.power = None
@@ -538,7 +538,7 @@ class Player:
         if len(self.hand) > 10:
             self.hand.cards = self.hand.cards[:10]
         if [x for x in self.servants if "degats des sorts" in x.effects]:
-            self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects])
+            self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects and not x.is_dead()])
         if self.weapon is not None and self.weapon.is_dead():
             self.weapon = None
 
@@ -732,7 +732,8 @@ class Player:
             self.effects.pop("vol de vie")
         if "cleave" in self.effects:
             self.effects.pop("cleave")
-        self.damage_this_turn, self.heal_this_turn = 0, 0
+        self.elem_before = self.elem_this_turn
+        self.damage_this_turn, self.heal_this_turn, self.elem_this_turn = 0, 0, 0
         self.atk_this_turn, self.armor_this_turn = self.inter_attack, self.armor
         self.inter_attack, self.has_attacked = 0, 0
         self.my_turn = 1

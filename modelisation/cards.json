@@ -9932,5 +9932,103 @@
         "attack": null,
         "health": null,
         "effects": {"damage": 6, "ciblage": ["tous", "tous", "choisi"]}
+    },
+    {
+        "id": 824,
+        "name": "Clavieriste soliste",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 2,
+        "health": 4,
+        "effects": {"cri de guerre": ["invocation", ["allié", "conditional", "if_alone"], ["Amplificateur de clavier", "Amplificateur de clavier"]]}
+    },
+    {
+        "id": 825,
+        "name": "Amplificateur de clavier",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"degats des sorts": 1}
+    },
+    {
+        "id": 826,
+        "name": "Commandante Sivara",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 3,
+        "health": 5,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "if_spell", 3], [], []],
+        "legendaire": 1}
+    },
+    {
+        "id": 827,
+        "name": "Creation curieuse",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre": ["damage", ["serviteur", "ennemi", "tous", "nb_ecoles"], 1]}
+    },
+    {
+        "id": 828,
+        "name": "Dechirer la realite",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": [["allié"], ["sort", "mage", "aléatoire", "reduc", 2]]}
+    },
+    {
+        "id": 829,
+        "name": "Gladiateur dechaine",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 4,
+        "effects": {"cri de guerre": ["pioche", ["allié", "nb_elem_prec"], 1]}
+    },
+    {
+        "id": 830,
+        "name": "Monter le volume",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Arcanes"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", "sort", "in_deck", 3], "final": ["decouverte", ["spells_drawn"]]}
+    },
+    {
+        "id": 831,
+        "name": "Orion intendant du manoir",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 3,
+        "health": 5,
+        "effects": {"aura": ["boost", ["self", "conditional", "if_secret_revealed", "launch_secret"], [2, 2]],
+        "legendaire": 1}
     }
 ]

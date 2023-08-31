@@ -105,6 +105,8 @@ class CardSprite(pygame.sprite.Sprite):
                     self.description += [" Vol de vie"]
                 if logline['toxicite_'+on_board_id] == 1:
                     self.description += [" Toxicité"]
+                if logline['spelldamage_'+on_board_id] != -99:
+                    self.description += [f" Dégats des sorts : {logline['spelldamage_'+on_board_id]}"]
                 if logline['furiedesvents_'+on_board_id] == 1:
                     self.description += [" Furie des vents"]
                 if logline['titan_'+on_board_id] >= 0:

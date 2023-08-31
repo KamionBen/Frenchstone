@@ -98,6 +98,7 @@ for i in range(7):
     empty_action_line[f"inciblable_serv{i + 1}_j"] = -99
     empty_action_line[f"voldevie_serv{i + 1}_j"] = -99
     empty_action_line[f"toxicite_serv{i + 1}_j"] = -99
+    empty_action_line[f"spelldamage_serv{i + 1}_j"] = -99
     empty_action_line[f"furiedesvents_serv{i + 1}_j"] = -99
     empty_action_line[f"titan_serv{i + 1}_j"] = -99
     empty_action_line[f"lieu{i + 1}_j"] = -99
@@ -119,6 +120,7 @@ for i in range(7):
     empty_action_line[f"inciblable_serv{i + 1}_adv"] = -99
     empty_action_line[f"voldevie_serv{i + 1}_adv"] = -99
     empty_action_line[f"toxicite_serv{i + 1}_adv"] = -99
+    empty_action_line[f"spelldamage_serv{i + 1}_adv"] = -99
     empty_action_line[f"furiedesvents_serv{i + 1}_adv"] = -99
     empty_action_line[f"titan_serv{i + 1}_adv"] = -99
     empty_action_line[f"lieu{i + 1}_adv"] = -99
@@ -358,6 +360,8 @@ class Plateau:
                 action_line[f"voldevie_serv{i + 1}_j"] = player.servants[i].effects["vol de vie"]
             if "toxicite" in player.servants[i].effects:
                 action_line[f"toxicite_serv{i + 1}_j"] = player.servants[i].effects["toxicite"]
+            if "degats des sorts" in player.servants[i].effects:
+                action_line[f"spelldamage_serv{i + 1}_j"] = player.servants[i].effects["degats des sorts"]
             if "furie des vents" in player.servants[i].effects:
                 action_line[f"furiedesvents_serv{i + 1}_j"] = player.servants[i].effects["furie des vents"]
             if "titan" in player.servants[i].effects:
@@ -391,6 +395,8 @@ class Plateau:
                 action_line[f"voldevie_serv{i + 1}_adv"] = adv.servants[i].effects["vol de vie"]
             if "toxicite" in adv.servants[i].effects:
                 action_line[f"toxicite_serv{i + 1}_adv"] = adv.servants[i].effects["toxicite"]
+            if "degats des sorts" in adv.servants[i].effects:
+                action_line[f"spelldamage_serv{i + 1}_adv"] = adv.servants[i].effects["degats des sorts"]
             if "furie des vents" in adv.servants[i].effects:
                 action_line[f"furiedesvents_serv{i + 1}_adv"] = adv.servants[i].effects["furie des vents"]
             if "titan" in adv.servants[i].effects:
@@ -567,6 +573,10 @@ class Player:
                         card.cost = max(0, card.base_cost - self.attack)
                     elif "secrets_declenches" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.secrets_declenches)
+                    elif "secrets_possessed" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - 3 * len(self.secrets))
+                    elif "ecoles_played" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - len(self.ecoles_jouees))
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
                 card.cost = card.effects["marginal"][1]
         if "Corsaire de l'effroi" in [x.name for x in self.hand] and self.weapon is not None:
@@ -778,6 +788,7 @@ class CardGroup:
         """ Permet de faire des opérations sur un groupe de cartes """
         self.cards = list(cards)
         self.carddict = {c.id: c for c in self.cards}
+        self.aegwynn = False
 
     def reset(self):
         for card in self.cards:
@@ -785,8 +796,17 @@ class CardGroup:
 
     def add(self, new_card):
         if type(new_card) == Card:
+            if new_card.type == "Serviteur" and self.aegwynn:
+                if "degats des sorts" in new_card.effects:
+                    new_card.effects["degats des sorts"] += 2
+                else:
+                    new_card.effects["degats des sorts"] = 2
+                if "rale d'agonie" in new_card.effects:
+                    new_card.effects["rale d'agonie2"] = get_card("Aegwynn la gardienne", all_servants).effects["rale d'agonie"]
+                else:
+                    new_card.effects["rale d'agonie"] = get_card("Aegwynn la gardienne", all_servants).effects["rale d'agonie"]
+                self.aegwynn = False
             self.cards.append(new_card)
-
 
     def remove(self, card):
         if type(card) == Card:
@@ -948,8 +968,10 @@ class Card:
             if nb > 0:
                 self.damage_taken = True
                 if "curse_link" in self.effects:
-                    print(self.effects, self.cursed_player)
-                    self.cursed_player.damage(self.effects["curse_link"])
+                    try:
+                        self.cursed_player.damage(self.effects["curse_link"])
+                    except:
+                        pass
             else:
                 self.damage_taken = False
 

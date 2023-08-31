@@ -3262,6 +3262,12 @@ class TourEnCours:
                         for creature in [x for x in player.servants if "Mort-vivant" in x.genre]:
                             creature.blessure = 1000
                             creature.effects["reinvoke"] = 1
+            elif "remove" in carte.effects:
+                if target is not None:
+                    if target in player.servants:
+                        player.servants.remove(target)
+                    else:
+                        adv.servants.remove(target)
             if "reduc" in carte.effects and not "self" in carte.effects["reduc"]:
                 if "permanent" in carte.effects["reduc"] and "main" in carte.effects["reduc"]:
                     if "sort" in carte.effects["reduc"]:
@@ -3729,6 +3735,14 @@ class TourEnCours:
             if "add_armor" in servant.effects["aura"]:
                 if "if_spell" in servant.effects["aura"][1] and carte.type == "Sort":
                     player.armor += carte.cost
+            if "refresh_mana" in servant.effects["aura"]:
+                if "conditional"in servant.effects["aura"][1]:
+                    if "if_naga" in servant.effects["aura"][1] and "Naga" in carte.genre and servant.effects["aura"][2] == 1 and carte != servant:
+                        player.mana = min(player.mana_max, player.mana + servant.effects["aura"][-1])
+                        servant.effects["aura"][2] = 0
+                    elif "if_spell" in servant.effects["aura"][1] and carte.type == "Sort" and servant.effects["aura"][2] == 0:
+                        player.mana = min(player.mana_max, player.mana + servant.effects["aura"][-1])
+                        servant.effects["aura"][2] = 1
             if servant.effects["aura"] == "eleveuse de faucons":
                 if carte.type == "Serviteur" and not carte.is_dead() and carte != servant and not "invoked" in carte.effects:
                     if not ("titan" in carte.effects and carte.effects["titan"][-1] == 0):
@@ -3834,7 +3848,6 @@ class TourEnCours:
                             servant.total_temp_boost[0] = servant.effects["aura"][2][0]
                             servant.total_temp_boost[1] = servant.effects["aura"][2][1]
                         elif "if_secret_revealed" in servant.effects["aura"][1] and carte in adv.secrets and not "secret" in carte.effects:
-                            print(servant, servant.attack, adv.secrets)
                             servant.attack += servant.effects["aura"][2][0]
                             servant.base_attack += servant.effects["aura"][2][0]
                             servant.health += servant.effects["aura"][2][1]
@@ -3843,8 +3856,6 @@ class TourEnCours:
                                 already_secrets = [x.name for x in adv.secrets]
                                 secret_to_launch = random.choice([x["name"] for x in all_spells if "secret" in x["effects"] and x["name"] not in already_secrets])
                                 adv.secrets.add(get_card(secret_to_launch, all_spells))
-                            print(servant, servant.attack, adv.secrets)
-                            print('-------------------------------------------------')
             if "destroy" in servant.effects["aura"]:
                 if "if_gele" in servant.effects["aura"][1] and player.servants:
                     for creature in player.servants.cards:
@@ -3962,7 +3973,10 @@ class TourEnCours:
                 if "counter" in [x.effects["aura"][0] for x in adv.servants if "aura" in x.effects] and "sort" in [x.effects["aura"][1] for x in adv.servants if "aura" in x.effects]:
                     [x for x in adv.servants if "counter" in x.effects["aura"][0]][0].effects.pop("counter")
                 else:
-                    adv.secrets.remove([x for x in adv.secrets if x.effects["trigger"] == "if_spell_played" and x.effects["secret"] == "counter"][0])
+                    secret = [x for x in adv.secrets if x.effects["trigger"] == "if_spell_played" and x.effects["secret"] == "counter"][0]
+                    secret.effects.pop("secret")
+                    self.apply_effects(secret, target)
+                    adv.secrets.remove(secret)
                     adv.secrets_declenches += 1
             else:
                 player.mana_spend_spells += carte.cost
@@ -4091,7 +4105,11 @@ class TourEnCours:
                     if "counter" in [x.effects["aura"][0] for x in adv.servants if "aura" in x.effects] and "serviteur" in [x.effects["aura"][1] for x in adv.servants if "aura" in x.effects]:
                         [x for x in adv.servants if "counter" in x.effects["aura"][0]][0].effects.pop("counter")
                     else:
-                        adv.secrets.remove([x for x in adv.secrets if x.effects["trigger"] == "if_serv_played" and x.effects["secret"] == "counter"][0])
+                        secret = [x for x in adv.secrets if
+                                  x.effects["trigger"] == "if_serv_played" and x.effects["secret"] == "counter"][0]
+                        secret.effects.pop("secret")
+                        self.apply_effects(secret, target)
+                        adv.secrets.remove(secret)
                         adv.secrets_declenches += 1
                 else:
                     player.servants.add(carte)

@@ -10030,5 +10030,41 @@
         "health": 5,
         "effects": {"aura": ["boost", ["self", "conditional", "if_secret_revealed", "launch_secret"], [2, 2]],
         "legendaire": 1}
+    },
+    {
+        "id": 832,
+        "name": "Perpetuite",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": null,
+        "health": null,
+        "effects": {"remove": 1, "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 833,
+        "name": "Sirene fouette bile",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 2,
+        "health": 5,
+        "effects": {"aura": ["refresh_mana", ["allié", "conditional", "if_naga", "if_spell"], 1, 2]}
+    },
+    {
+        "id": 834,
+        "name": "Tout doit disparaitre",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": null,
+        "health": null,
+        "effects": {"echangeable": 1, "damage": [["serviteur", "tous"], 3]}
     }
 ]

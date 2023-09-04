@@ -157,7 +157,7 @@ class Plateau:
 
         for player in self.players:
             player.set_deck(class_files[player.classe])
-            player.initial_deck = player.deck
+            player.initial_deck = deepcopy(player.deck)
 
         """ Mélange des decks et tirage de la main de départ """
         for player in self.players:
@@ -213,6 +213,8 @@ class Plateau:
                 if servant.is_dead():
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
+                        if servant.name == "Squelette instable":
+                            player.dead_squelette += 1
                     if "Démon" in servant.genre:
                         player.dead_demons.append(servant)
                     if "rale d'agonie" in servant.effects:
@@ -436,12 +438,12 @@ class Player:
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade = 0, 0
-        self.attached, self.decouverte, self.end_turn_cards, self.spells_played = [], [], [], []
+        self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells = [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
         self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5 = [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
-        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere = 0, 0, 0, 0, 0, 0
+        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
@@ -543,8 +545,11 @@ class Player:
     def end_action(self):
         if len(self.hand) > 10:
             self.hand.cards = self.hand.cards[:10]
+        self.spell_damage = 0
         if [x for x in self.servants if "degats des sorts" in x.effects]:
             self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects and not x.is_dead()])
+        if [x for x in self.servants if "aura" in x.effects and "degats des sorts" in x.effects["aura"] and "ecoles_jouees" in x.effects["aura"][1]]:
+            self.spell_damage += 1 + len(self.ecoles_jouees)
         if self.weapon is not None and self.weapon.is_dead():
             self.weapon = None
 
@@ -644,6 +649,9 @@ class Player:
                 else:
                     creature.cost = 0
                     creature.effects["cost_pv"][1] = 1
+        if [x for x in self.hand if "temp_augment" in x.effects]:
+            for card in [x for x in self.hand if "temp_augment" in x.effects]:
+                card.cost = card.base_cost + card.effects["temp_augment"]
 
     def apply_weapon(self):
         self.dead_weapon = []

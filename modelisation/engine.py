@@ -960,8 +960,13 @@ class TourEnCours:
                         if "allié" in carte.effects["cri de guerre"][1] and "sort" in carte.effects["cri de guerre"][1]:
                             if [x for x in player.hand if x.type == "Sort"]:
                                 for spell in [x for x in player.hand if x.type == "Sort"]:
-                                    spell.cost = max(0, spell.cost - carte.effects["cri de guerre"][2])
-                                    spell.base_cost = max(0, spell.base_cost - carte.effects["cri de guerre"][2])
+                                    if "milouse" in carte.effects["cri de guerre"][1]:
+                                        spell.cost = 0
+                                        spell.base_cost = 0
+                                        spell.effects["milouse"] = 1
+                                    else:
+                                        spell.cost = max(0, spell.cost - carte.effects["cri de guerre"][2])
+                                        spell.base_cost = max(0, spell.base_cost - carte.effects["cri de guerre"][2])
                 if "augment" in carte.effects["cri de guerre"]:
                     if "ennemi" in carte.effects["cri de guerre"][1] and "temp_fullturn" in \
                             carte.effects["cri de guerre"][1]:
@@ -3233,8 +3238,8 @@ class TourEnCours:
                 elif "aléatoire" in carte.effects["invocation"]:
                     if "cost3" in carte.effects["invocation"]:
                         carte.effects["invocation"] = [random.choice([x["name"] for x in all_servants if x["cost"] == 3 and x["decouvrable"] == 1])]
-                    elif "cost5" in carte.effects["invocation"]:
-                        carte.effects["invocation"] = [random.choice([x["name"] for x in all_servants if x["cost"] == 5 and x["decouvrable"] == 1])]
+                    elif "cost6" in carte.effects["invocation"]:
+                        carte.effects["invocation"] = [random.choice([x["name"] for x in all_servants if x["cost"] == 6 and x["decouvrable"] == 1])]
                     elif "graine" in carte.effects["invocation"]:
                         if "double" in carte.effects["invocation"]:
                             carte.effects["invocation"] = random.sample([x["name"] for x in all_servants if "graine" in x["effects"]], 2)
@@ -4178,6 +4183,8 @@ class TourEnCours:
                     for creature in [x for x in player.hand if x.type == "Serviteur" and "if_spell" in x.effects]:
                         creature.effects["cri de guerre"] = creature.effects["if_spell"]
                         creature.effects.pop("if_spell")
+            if "milouse" in carte.effects:
+                player.milouse += 1
             if adv.secrets and "if_spell_played" in [x.effects["trigger"] for x in adv.secrets]:
                 for secret in adv.secrets:
                     if secret.effects["trigger"] == "if_spell_played":
@@ -4765,8 +4772,10 @@ class TourEnCours:
             elif player.last_card.name == "Fideles compagnons":
                 player.hand.remove(cards[choice])
                 self.invoke_servant(cards[choice], 0)
-                if player.mana_max >= 10:
-                    self.invoke_servant(get_card(cards[choice].name, all_servants), 0)
+                if player.mana_max >= 10 and [x for x in player.hand if "Bête" in x.genre]:
+                    beast_to_invoke = random.choice([x for x in player.hand if "Bête" in x.genre])
+                    player.hand.remove(beast_to_invoke)
+                    self.invoke_servant(beast_to_invoke, 0)
             elif player.last_card.name == "Alchimiste suspecte":
                 adv.decouverte = [[get_card(x.name, all_spells) for x in cards], cards[choice]]
                 player.last_card = get_card(-1, all_cards)
@@ -4938,6 +4947,8 @@ class TourEnCours:
                     player.hand.cards = [get_card(card.effects["eclosion"][0], all_cards) if x == card else x for x in player.hand.cards]
             if "brulure" in card.effects:
                 card.effects.pop("brulure")
+                player.hand.remove(card)
+            if "fragile" in card.effects:
                 player.hand.remove(card)
         for servant in adv.servants:
             if "aura" in servant.effects and "each_turn" in servant.effects["aura"][1]:

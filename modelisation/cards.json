@@ -8124,7 +8124,7 @@
         "genre": ["Mort-vivant", "Bête"],
         "decouvrable": 0,
         "cost": 1,
-        "attack": 3,
+        "attack": 2,
         "health": 1,
         "effects": {"ruée": 1, "en sommeil": 1, "graine": 1, "insensible": 1}
     },
@@ -8386,7 +8386,7 @@
         "classe": "Chasseur",
         "type": "Sort",
         "genre": [],
-        "decouvrable": 1,
+        "decouvrable": 0,
         "cost": 2,
         "attack": null,
         "health": null,
@@ -8675,8 +8675,8 @@
         "type": "Serviteur",
         "genre": [],
         "decouvrable": 1,
-        "cost": 3,
-        "attack": 3,
+        "cost": 4,
+        "attack": 4,
         "health": 4,
         "effects": {"cri de guerre": ["spell_damage", ["main", "deck", "allié", "if_arcanes"], 1]}
     },
@@ -10281,7 +10281,7 @@
         "cost": 7,
         "attack": null,
         "health": null,
-        "effects": {"damage": 5, "invocation": ["allié", "serviteur", "aléatoire", "cost5"], "ciblage": ["tous", "tous", "choisi"]}
+        "effects": {"damage": 6, "invocation": ["allié", "serviteur", "aléatoire", "cost6"], "ciblage": ["tous", "tous", "choisi"]}
     },
     {
         "id": 852,
@@ -10354,5 +10354,53 @@
         "attack": 5,
         "health": 7,
         "effects": {"cri de guerre":  ["rommath", [], []], "legendaire": 1}
+    },
+    {
+        "id": 858,
+        "name": "DJ tempete de mana",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 10,
+        "attack": 8,
+        "health": 8,
+        "effects": {"cri de guerre":  ["reduc", ["main", "allié", "sort", "milouse"], 0], "legendaire": 1}
+    },
+    {
+        "id": 859,
+        "name": "Explosion pyrotechnique",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 1,
+        "cost": 10,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 10, "ciblage": ["tous", "tous", "choisi"]}
+    },
+    {
+        "id": 860,
+        "name": "Maki divin",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"heal": 2, "ciblage": ["tous", "tous", "choisi"], "add_hand": "Maki divin fragile"}
+    },
+    {
+        "id": 861,
+        "name": "Maki divin fragile",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"heal": 2, "ciblage": ["tous", "tous", "choisi"], "add_hand": "Maki divin fragile", "fragile": 1}
     }
 ]

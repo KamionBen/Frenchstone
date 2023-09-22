@@ -811,6 +811,8 @@ class TourEnCours:
                                     adv.effects["draw"] = ["damage", "temp_turn", 2]
                                 elif "end_turn" in carte.effects["cri de guerre"][1]:
                                     player.effects["end_turn"] = ["damage", ["heros", "ennemi"], carte.effects["cri de guerre"][2]]
+                            if "allié" in carte.effects["cri de guerre"][1]:
+                                player.damage(carte.effects["cri de guerre"][2])
                         elif carte.effects["cri de guerre"][1][0] == "buveuse de vie":
                             adv.damage(3)
                             if not [x for x in adv.servants if "anti_heal" in x.effects]:
@@ -1388,6 +1390,7 @@ class TourEnCours:
                                     for invoked_servant in carte.effects["cri de guerre"][2]:
                                         self.invoke_servant(get_card(invoked_servant, all_servants), 0)
                             elif "until_cadavre" in carte.effects["cri de guerre"][1] and player.cadavres > 0:
+                                print(carte, carte.effects)
                                 invoked_servant = get_card(carte.effects["cri de guerre"][2], all_servants)
                                 invoked_servant.attack = min(8, player.cadavres)
                                 invoked_servant.base_attack = min(8, player.cadavres)
@@ -1704,6 +1707,8 @@ class TourEnCours:
                 target.health += carte.health
                 target.base_health += carte.base_health
                 target.effects = target.effects | carte.effects
+                if "rale d'agonie" in target.effects and "magnetised" in target.effects["rale d'agonie"][1]:
+                    target.effects["rale d'agonie"][2].append(carte.name)
                 player.servants.remove(carte)
             if "reincarnation" in carte.effects and (carte.is_dead() or "rale_applied" in carte.effects):
                 if carte.effects["reincarnation"]:
@@ -3443,6 +3448,8 @@ class TourEnCours:
                 elif "serviteur" in carte.effects["decouverte"]:
                     if "in_deck" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([x for x in player.deck if x.type == "Serviteur"]))
+                    elif "dragon" in carte.effects["decouverte"]:
+                        self.plt.cards_chosen = self.choice_decouverte(carte, genre="Dragon")
                 elif "hand_to_deck" in carte.effects["decouverte"] and player.hand.cards:
                     self.plt.cards_hands_to_deck = [CardGroup(random.sample(player.hand.cards, min(3, len(player.hand.cards))))]
                 elif "institutrice" in carte.effects["decouverte"]:
@@ -3487,7 +3494,7 @@ class TourEnCours:
                                 adv.permanent_buff["pioche"] = 1
             elif "attach_hero" in carte.effects:
                 for element in carte.effects["attach_hero"]:
-                    if len(player.attached) + len(player.secrets) < 5:
+                    if len(player.attached) + len(player.secrets) < 5 and element[0] not in [x[0] for x in player.attached]:
                         player.attached.append(element)
             elif "secret" in carte.effects:
                 if len(player.attached) + len(player.secrets) < 5 and carte.name not in [x.name for x in player.secrets]:
@@ -4102,7 +4109,7 @@ class TourEnCours:
             if ("counter" in [x.effects["aura"][0] for x in adv.servants if "aura" in x.effects] and "sort" in [x.effects["aura"][1] for x in adv.servants if "aura" in x.effects]) \
                     or (adv.secrets and "counter" in [x.effects["secret"] for x in adv.secrets if x.effects["trigger"] == "if_spell_played"]):
                 if "counter" in [x.effects["aura"][0] for x in adv.servants if "aura" in x.effects] and "sort" in [x.effects["aura"][1] for x in adv.servants if "aura" in x.effects]:
-                    [x for x in adv.servants if "counter" in x.effects["aura"][0]][0].effects.pop("counter")
+                    [x for x in adv.servants if "aura" in x.effects and "counter" in x.effects["aura"][0]][0].effects.pop("counter")
                 else:
                     secret = [x for x in adv.secrets if x.effects["trigger"] == "if_spell_played" and x.effects["secret"] == "counter"][0]
                     secret.effects.pop("secret")
@@ -5001,7 +5008,9 @@ class TourEnCours:
         """ Effet de début de tour"""
         if [x for x in player.attached if x[-1] == 0]:
             for effect in [x for x in player.attached if x[-1] == 0]:
-                self.apply_effects(get_card(effect[0], all_cards))
+                player.attached.remove(effect)
+                if effect[0] in ["Melodie des anciens", "Danse des geants"]:
+                    self.apply_effects(get_card(effect[0], all_cards))
         player.servants.reset()
         for servant in player.servants:
             if "aura" in servant.effects and "start_turn" in servant.effects["aura"][1]:

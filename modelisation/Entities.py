@@ -138,7 +138,7 @@ class Plateau:
         """ Décrit exhaustivement le plateau de jeu """
         class_files = {'Chasseur': 'chasseur.csv',
                        'Mage': 'mage_rainbow.csv',
-                       'Paladin': 'dk_sang.csv',
+                       'Paladin': 'paladin_pur.csv',
                        'Démoniste': 'dk_sang.csv',
                        'Chasseur de démons': 'dh_marginal.csv',
                        'Druide': 'big_druid.csv',
@@ -640,6 +640,10 @@ class Player:
                 if [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
                     for spell in [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
                         spell.cost = max(0, spell.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Arcanes" in x.effects["aura"][1]]))
+        if [x for x in self.attached if x[0] == "Aura de l'inventeur"]:
+            if [x for x in self.hand if "Méca" in x.genre]:
+                for meca in [x for x in self.hand if "Méca" in x.genre]:
+                    meca.cost -= 1
         if [x for x in self.hand if "cost_pv" in x.effects]:
             for creature in [x for x in self.hand if "cost_pv" in x.effects]:
                 if "if_heal_this_turn" in creature.effects["cost_pv"]:
@@ -961,13 +965,13 @@ class Card:
         """ Removes nb from the card health """
         if self.name == "Bulleur" and nb == 1:
             self.health = 0
+        if "enchanteur" in self.effects:
+            nb *= 2
         if "bouclier divin" in self.effects and nb != 0:
             if toxic:
                 toxic = False
             if self.effects["bouclier divin"] != 2:
                 self.effects.pop("bouclier divin")
-        if "enchanteur" in self.effects:
-            nb *= 2
         else:
             if toxic or ("holotech" in self.effects and nb == 1) or ("fragile" in self.effects):
                 self.health -= 1000
@@ -1138,6 +1142,16 @@ def generate_targets(state):
                                 if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                     if "Mort-vivant" in adv.servants[j].genre:
                                         legal_actions[17 * i + j + 10] = True
+                        elif "if_recrue" in player.hand[i].effects["ciblage"]:
+                            for j in range(len(player.servants)):
+                                if player.servants[j].name == "Recrue de la main d'argent" and "inciblable" not in \
+                                        player.servants[j].effects:
+                                    legal_actions[17 * i + j + 3] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
+                                        adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    if adv.servants[j].name == "Recrue de la main d'argent":
+                                        legal_actions[17 * i + j + 11] = True
                         else:
                             for j in range(len(player.servants)):
                                 if "inciblable" not in player.servants[j].effects:

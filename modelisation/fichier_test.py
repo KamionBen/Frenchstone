@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Mage"), Player("OldIA", "Druide")]
+players = [Player("NewIA", "Paladin"), Player("OldIA", "Druide")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -457,6 +457,15 @@ def generate_legal_vector_test(state):
                                                 adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                             if "Mort-vivant" in adv.servants[j].genre:
                                                 legal_actions[17 * i + j + 11] = True
+                                elif "if_recrue" in player.hand[i].effects["ciblage"]:
+                                    for j in range(len(player.servants)):
+                                        if player.servants[j].name == "Recrue de la main d'argent" and "inciblable" not in player.servants[j].effects:
+                                            legal_actions[17 * i + j + 3] = True
+                                    for j in range(len(adv.servants)):
+                                        if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
+                                                adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                            if adv.servants[j].name == "Recrue de la main d'argent":
+                                                legal_actions[17 * i + j + 11] = True
                                 else:
                                     for j in range(len(player.servants)):
                                         if "inciblable" not in player.servants[j].effects:
@@ -590,7 +599,7 @@ def calc_advantage_minmax(state):
     adv = state.players[1]
     advantage = 0.6 * (len(player.hand) - len(adv.hand))
     advantage += 5 * (player.mana_max - adv.mana_max)
-    advantage += 3 * (len(player.secrets) - len(adv.secrets))
+    advantage += 3 * (len(player.secrets) + len(player.attached) - len(adv.secrets) - len(adv.attached))
     if "forged" in [set(x.effects) for x in player.hand]:
         advantage += 2.5
     if player.permanent_buff != {}:

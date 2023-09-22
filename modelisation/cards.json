@@ -10402,5 +10402,101 @@
         "attack": null,
         "health": null,
         "effects": {"heal": 2, "ciblage": ["tous", "tous", "choisi"], "add_hand": "Maki divin fragile", "fragile": 1}
+    },
+    {
+        "id": 862,
+        "name": "Promotion",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": [[3, 3, "provocation"]], "ciblage": ["serviteur", "tous", "conditional", "if_recrue", "choisi"]}
+    },
+    {
+        "id": 863,
+        "name": "Protectrice vertueuse",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"provocation": 1, "bouclier divin": 1}
+    },
+    {
+        "id": 864,
+        "name": "Reparo-bot X-21",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"rale d'agonie": ["add_hand", ["allié", "magnetised"], []]}
+    },
+    {
+        "id": 865,
+        "name": "Soldate sanguine",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"cri de guerre": ["damage", ["heros", "allié"], 2], "bouclier divin": 1}
+    },
+    {
+        "id": 866,
+        "name": "Sous-cheffe immorale",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"rale d'agonie": ["add_hand", ["allié"], ["Recrue de la main d'argent", "Recrue de la main d'argent"]]}
+    },
+    {
+        "id": 867,
+        "name": "Vol de bronze",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["serviteur", "dragon"], "soif de mana": [7, "invocation", ["Defenseur de bronze"]]}
+    },
+    {
+        "id": 868,
+        "name": "Defenseur de bronze",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Dragon"],
+        "decouvrable": 0,
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {"provocation": 1}
+    },
+    {
+        "id": 869,
+        "name": "Aura de l'inventeur",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"attach_hero": [["Aura de l'inventeur", 1, 2]]}
     }
 ]

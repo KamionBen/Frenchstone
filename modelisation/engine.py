@@ -601,9 +601,14 @@ class TourEnCours:
                                     target.base_attack += carte.attack
                                     target.health += carte.health
                                     target.base_health += carte.health
-                                if "atq_serv" in carte.effects["cri de guerre"][1]:
+                                elif "atq_serv" in carte.effects["cri de guerre"][1]:
                                     target.attack += carte.attack
                                     target.base_attack += carte.attack
+                                elif "fixed_stats" in carte.effects["cri de guerre"][1]:
+                                    target.attack = carte.effects["cri de guerre"][2][0]
+                                    target.base_attack = carte.effects["cri de guerre"][2][0]
+                                    target.health = carte.effects["cri de guerre"][2][0]
+                                    target.base_health = carte.effects["cri de guerre"][2][1]
                                 else:
                                     target.attack += carte.effects["cri de guerre"][2][0]
                                     target.base_attack += carte.effects["cri de guerre"][2][0]
@@ -2668,6 +2673,8 @@ class TourEnCours:
                         target.remaining_atk = 1 if target.remaining_atk == -1 else target.remaining_atk
                     if "provocation" in carte.effects["boost"][0]:
                         target.effects["provocation"] = 1
+                    if "suppr_bouclier" in carte.effects["boost"][0]:
+                        target.effects.pop("bouclier divin")
                     if "pietinement" in carte.effects["boost"][0]:
                         target.effects["pietinement"] = 1
                     if "en sommeil" in carte.effects["boost"][0]:
@@ -2720,6 +2727,8 @@ class TourEnCours:
                         if "if_cadavre" in carte.effects and player.cadavres >= carte.effects["if_cadavre"]:
                             player.health += carte.effects["boost"][3][1]
                             player.base_health += carte.effects["boost"][3][1]
+                        if "temp_vol de vie" in carte.effects["boost"][2]:
+                            player.effects["vol de vie"] = 1
                     elif "serviteur" in carte.effects["boost"] and "allié" in carte.effects["boost"]:
                         if "tous" in carte.effects["boost"] and player.servants.cards:
                             if "spend_cadavre" in carte.effects and player.cadavres >= carte.effects["spend_cadavre"]:
@@ -3123,11 +3132,18 @@ class TourEnCours:
                                     drawn_card.base_cost -= carte.effects["pioche"][1][-1]
                     elif "serviteur" in carte.effects["pioche"]:
                         if "Méca" in carte.effects["pioche"]:
-                            for _ in range(carte.effects["pioche"][-1]):
-                                if [x for x in player.deck.cards if x.type == "Serviteur" and "Méca" in x.genre]:
-                                    drawn_card = random.choice([x for x in player.deck.cards if x.type == "Serviteur"  and "Méca" in x.genre])
-                                    player.deck.remove(drawn_card)
-                                    player.hand.add(drawn_card)
+                            if "end_deck" in carte.effects["pioche"]:
+                                for i in range(min(carte.effects["pioche"][-1], len(player.deck))):
+                                    if "Méca" in player.deck.cards[-(i+1)].genre:
+                                        card_to_draw = player.deck.cards[-(i+1)]
+                                        player.deck.remove(card_to_draw)
+                                        player.hand.add(card_to_draw)
+                            else:
+                                for _ in range(carte.effects["pioche"][-1]):
+                                    if [x for x in player.deck.cards if x.type == "Serviteur" and "Méca" in x.genre]:
+                                        drawn_card = random.choice([x for x in player.deck.cards if x.type == "Serviteur"  and "Méca" in x.genre])
+                                        player.deck.remove(drawn_card)
+                                        player.hand.add(drawn_card)
                     elif "choix_des_armes" in carte.effects["pioche"]:
                         for _ in range(carte.effects["pioche"][-1]):
                             if [x for x in player.deck.cards if "choix_des_armes" in x.effects]:
@@ -3171,6 +3187,8 @@ class TourEnCours:
                             if "relique" in carte.effects:
                                 for card in player.hand.cards[-carte.effects["pioche"][-1]:]:
                                     card.base_cost = max(0, card.base_cost - player.reliques)
+                    if "shuffle" in carte.effects["pioche"]:
+                        player.deck.shuffle()
             elif "propagation" in carte.effects and target is not None:
                 if "rale d'agonie" in carte.effects["propagation"]:
                     if target in player.servants and len(player.servants) > 1:
@@ -3449,7 +3467,7 @@ class TourEnCours:
                     if "in_deck" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([x for x in player.deck if x.type == "Serviteur"]))
                     elif "dragon" in carte.effects["decouverte"]:
-                        self.plt.cards_chosen = self.choice_decouverte(carte, genre="Dragon")
+                        self.plt.cards_chosen = self.choice_decouverte(carte, type="serviteur", genre=["Dragon"])
                 elif "hand_to_deck" in carte.effects["decouverte"] and player.hand.cards:
                     self.plt.cards_hands_to_deck = [CardGroup(random.sample(player.hand.cards, min(3, len(player.hand.cards))))]
                 elif "institutrice" in carte.effects["decouverte"]:
@@ -4991,6 +5009,8 @@ class TourEnCours:
                     adv.damage(player.effects["end_turn"][2])
             if "cost_armor" in player.effects:
                 player.effects.pop("cost_armor")
+            if "vol de vie" in player.effects:
+                player.effects.pop("vol de vie")
             if "toxispell" in player.effects and player.effects["toxispell"] == "temp_turn":
                 player.effects.pop("toxispell")
         if player.end_turn_cards:
@@ -5060,7 +5080,8 @@ class TourEnCours:
                     new_card = random.choice(potential_transform)
                     new_card.cost = new_cost
                     player.hand.add(new_card)
-
+        if [x for x in adv.attached if x[0] == "Aura de resistance"]:
+            player.augment.append(["sort", "temp_fullturn", 1])
         """ Le Geolier """
         if player.geolier:
             for servant in player.servants:

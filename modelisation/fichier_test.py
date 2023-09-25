@@ -305,15 +305,8 @@ def generate_legal_vector_test(state):
                                                 adv.servants[j].effects:
                                             legal_actions[17 * i + j + 11] = True
                                 else:
-                                    if "if_attack_greater" in player.hand[i].effects["cri de guerre"][1] and [x for x in
-                                                                                                              player.servants.cards + adv.servants.cards
-                                                                                                              if
-                                                                                                              x.attack >=
-                                                                                                              player.hand[
-                                                                                                                  i].effects[
-                                                                                                                  "cri de guerre"][
-                                                                                                                  1][
-                                                                                                                  5]]:
+                                    if "if_attack_greater" in player.hand[i].effects["cri de guerre"][1] \
+                                            and [x for x in player.servants.cards + adv.servants.cards if x.attack >= player.hand[i].effects["cri de guerre"][1][5]]:
                                         for j in range(len(player.servants)):
                                             if player.servants[j].attack >= player.hand[i].effects["cri de guerre"][1][
                                                 5] and player.servants[j] != player.hand[i]:
@@ -321,10 +314,15 @@ def generate_legal_vector_test(state):
                                         for j in range(len(adv.servants)):
                                             if adv.servants[j].attack >= player.hand[i].effects["cri de guerre"][1][5]:
                                                 legal_actions[17 * i + j + 11] = True
+                                    elif "if_pur" in player.hand[i].effects["cri de guerre"][1] and not [x for x in player.deck if x.classe == "Neutre"]:
+                                        for j in range(len(player.servants)):
+                                            legal_actions[17 * i + j + 3] = True
+                                        for j in range(len(adv.servants)):
+                                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
+                                                    adv.servants[j].effects:
+                                                legal_actions[17 * i + j + 11] = True
                                     else:
                                         legal_actions[17 * i + 1] = True
-
-
                             else:
                                 legal_actions[17 * i + 1] = True
                         elif "tous" in player.hand[i].effects["cri de guerre"][1]:
@@ -436,6 +434,16 @@ def generate_legal_vector_test(state):
                                 for j in range(len(adv.servants)):
                                     if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                         legal_actions[17 * i + j + 11] = True
+                            elif "allié" in player.hand[i].effects["ciblage"]:
+                                if "conditional" in player.hand[i].effects["ciblage"]:
+                                    if "if_bouclier_divin" in player.hand[i].effects["ciblage"] and [x for x in player.servants if "bouclier divin" in x.effects]:
+                                        for j in range(len(player.servants)):
+                                            if "inciblable" not in player.servants[j].effects and "bouclier divin" in player.servants[j].effects:
+                                                legal_actions[17 * i + j + 3] = True
+                                else:
+                                    for j in range(len(player.servants)):
+                                        if "inciblable" not in player.servants[j].effects:
+                                            legal_actions[17 * i + j + 3] = True
                             elif "tous" in player.hand[i].effects["ciblage"]:
                                 if "if_rale_agonie" in player.hand[i].effects["ciblage"]:
                                     for j in range(len(player.servants)):
@@ -602,6 +610,8 @@ def calc_advantage_minmax(state):
     advantage += 3 * (len(player.secrets) + len(player.attached) - len(adv.secrets) - len(adv.attached))
     if "forged" in [set(x.effects) for x in player.hand]:
         advantage += 2.5
+    if "fragile" in [set(x.effects) for x in player.hand]:
+        advantage -= 0.5
     if player.permanent_buff != {}:
         advantage += 3
     for servant in player.servants:

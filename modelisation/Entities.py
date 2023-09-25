@@ -1125,6 +1125,17 @@ def generate_targets(state):
                         for j in range(len(adv.servants)):
                             if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                 legal_actions[17 * i + j + 10] = True
+                    elif "allié" in player.hand[i].effects["ciblage"]:
+                        if "conditional" in player.hand[i].effects["ciblage"]:
+                            if "if_bouclier_divin" in player.hand[i].effects["ciblage"] and [x for x in player.servants if "bouclier divin" in x.effects]:
+                                for j in range(len(player.servants)):
+                                    if "inciblable" not in player.servants[j].effects and "bouclier divin" in \
+                                            player.servants[j].effects:
+                                        legal_actions[17 * i + j + 2] = True
+                        else:
+                            for j in range(len(player.servants)):
+                                if "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
                     elif "tous" in player.hand[i].effects["ciblage"]:
                         if "if_rale_agonie" in player.hand[i].effects["ciblage"]:
                             for j in range(len(player.servants)):

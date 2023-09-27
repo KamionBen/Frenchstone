@@ -3549,7 +3549,7 @@
         "cost": 9,
         "attack": 4,
         "health": 12,
-        "effects": {"cri de guerre": ["pioche", ["allié", "sort"], "until_full"], "legendaire": 1}
+        "effects": {"cri de guerre": ["pioche", ["allié", "sort", "until_full"], "until_full"], "legendaire": 1}
     },
     {
         "id": 293,
@@ -10570,5 +10570,113 @@
         "attack": 5,
         "health": 5,
         "effects": {}
+    },
+    {
+        "id": 876,
+        "name": "Grande salle",
+        "classe": "Paladin",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 3,
+        "effects": {"use": ["boost", ["serviteur", "tous", "choisi", "fixed_stats"], [3, 3]]}
+    },
+    {
+        "id": 877,
+        "name": "Kotori Lumelame",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"aura": ["play", ["serviteur", "allié", "if_spell", "if_sacré"], 1], "legendaire": 1}
+    },
+    {
+        "id": 878,
+        "name": "Liadrin matriarche de sang",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 3,
+        "health": 2,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "conditional", "if_inf_atq"], [0, 0, "ruée", "bouclier divin"]], "legendaire": 1}
+    },
+    {
+        "id": 879,
+        "name": "Main d'adal",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", 1], "boost": [[2, 1]], "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 880,
+        "name": "Nobli-o-bot",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"magnetisme": 1, "aura": ["boost", ["serviteur", "allié", "main", "aléatoire", "if_attack"], [1, 1]]}
+    },
+    {
+        "id": 881,
+        "name": "Outilleur des dessoudeurs",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "main", "tous"], [1, 1]]}
+    },
+    {
+        "id": 882,
+        "name": "Peur bleue",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"augment": ["serviteur", "ennemi", "temp_fullturn", 5]}
+    },
+    {
+        "id": 883,
+        "name": "Piste de danse",
+        "classe": "Paladin",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 2,
+        "effects": {"use": ["ruée", ["serviteur", "allié", "tous"], 1]}
+    },
+    {
+        "id": 884,
+        "name": "Pour quel'thalas",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"hero_attack": 2, "boost": [[3, 0]], "ciblage": ["serviteur", "tous", "choisi"]}
     }
 ]

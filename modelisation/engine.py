@@ -609,6 +609,7 @@ class TourEnCours:
                                     target.base_attack = carte.effects["cri de guerre"][2][0]
                                     target.health = carte.effects["cri de guerre"][2][0]
                                     target.base_health = carte.effects["cri de guerre"][2][1]
+                                    target.blessure = 0
                                 else:
                                     target.attack += carte.effects["cri de guerre"][2][0]
                                     target.base_attack += carte.effects["cri de guerre"][2][0]
@@ -3557,6 +3558,10 @@ class TourEnCours:
                 target.effects["reincarnation"] = 1
                 player.cadavres -= carte.effects["use"][1][-1]
                 player.cadavres_spent += carte.effects["use"][1][-1]
+            elif "ruée" in carte.effects["use"]:
+                for serv in player.servants:
+                    serv.effects["ruée"] = 1
+                    serv.remaining_atk = 1 if serv.remaining_atk == -1 else serv.remaining_atk
             elif "rale d'agonie" in carte.effects["use"] and target is not None:
                 creature = target
                 creature.effects["rale_applied"] = 1
@@ -3569,10 +3574,17 @@ class TourEnCours:
                 if "relique" in carte.effects["use"][1]:
                     player.double_relique = 1
             elif "boost" in carte.effects["use"] and target is not None:
-                target.attack += carte.effects["use"][-1][0]
-                target.base_attack += carte.effects["use"][-1][0]
-                target.health += carte.effects["use"][-1][1]
-                target.base_health += carte.effects["use"][-1][1]
+                if "fixed_stats" in carte.effects["use"][1]:
+                    target.attack = carte.effects["use"][-1][0]
+                    target.base_attack = carte.effects["use"][-1][0]
+                    target.health = carte.effects["use"][-1][1]
+                    target.base_health = carte.effects["use"][-1][1]
+                    target.blessure = 0
+                else:
+                    target.attack += carte.effects["use"][-1][0]
+                    target.base_attack += carte.effects["use"][-1][0]
+                    target.health += carte.effects["use"][-1][1]
+                    target.base_health += carte.effects["use"][-1][1]
                 if "if_bete" in carte.effects["use"][1] and "ruée" in carte.effects["use"][1] and "Bête" in target.genre:
                     target.effects["ruée"] = 1
             elif "gel+invocation" in carte.effects["use"] and target is not None:
@@ -3679,6 +3691,9 @@ class TourEnCours:
                                 for creature in player.servants.cards:
                                     creature.attack += servant.effects["aura"][2][0]
                                     creature.base_attack += servant.effects["aura"][2][0]
+                            elif "if_inf_atq" in servant.effects["aura"][1] and carte.type == "Serviteur" and not carte.is_dead() and carte.attack < servant.attack:
+                                carte.effects["bouclier divin"] = 1
+                                carte.effects["ruée"] = 1
                     elif "tous" in servant.effects["aura"][1]:
                         if "alive" in servant.effects["aura"][1]:
                             if "choisi" in servant.effects["aura"][1]:
@@ -3835,6 +3850,20 @@ class TourEnCours:
                         lowest_health = min([x.health for x in adv.servants.cards + [adv]])
                         target = random.choice([x for x in adv.servants.cards + [adv] if x.health == lowest_health])
                         self.attaquer(servant, target)
+            if "play" in servant.effects["aura"]:
+                if "if_spell" in servant.effects["aura"][1] and carte.type == "Sort":
+                    if "if_sacré" in servant.effects["aura"][1] and carte.genre == "Sacré" and len([x for x in player.servants if not "en sommeil" in x.effects]) > 1:
+                        played_card = get_card(carte.name, all_spells)
+                        player.hand.cards.insert(0, played_card)
+                        played_card.cost = 0
+                        possible_targets = generate_targets(self.plt)[0: 16]
+                        player.hand.remove(played_card)
+                        possible_targets_refined = [n for n in range(len(possible_targets)) if possible_targets[n] and 2 <= n < 9 and player.servants[n + 2] != servant]
+                        if possible_targets_refined:
+                            target = random.choice(possible_targets_refined)
+                            target = player.servants[target - 2]
+                        if not ("ciblage" in played_card.effects and target is None):
+                            TourEnCours(self.plt).apply_effects(played_card, target)
             if "replacement" in servant.effects["aura"]:
                 if carte.type == "Serviteur" and carte.is_dead():
                     player.servants.remove(servant)
@@ -4414,8 +4443,6 @@ class TourEnCours:
 
             """ Attaque """
             if not attaquant.is_dead() and attaquant in player.servants.cards + adv.servants.cards + [player] + [adv]:
-                if "vol de vie" in attaquant.effects and "bouclier divin" not in cible.effects and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                    player.heal(attaquant.attack) if attaquant in player.servants else adv.heal(attaquant.attack)
                 if "gel_attack" in attaquant.effects and "bouclier divin" not in cible.effects and "insensible_attack" not in cible.effects:
                     cible.effects["gel"] = 1
                 if "pietinement" in attaquant.effects and "bouclier divin" not in cible.effects:
@@ -4460,6 +4487,8 @@ class TourEnCours:
                 if not "insensible_attack" in attaquant.effects:
                     if not ("aura" in attaquant.effects and "Neptulon" in attaquant.effects["aura"] and [x for x in player.servants if x.name == "Main de neptulon"]):
                         attaquant.damage(cible.attack, toxic=True if "toxicite" in cible.effects else False)
+                if "vol de vie" in attaquant.effects and "bouclier divin" not in cible.effects and not [x for x in adv.servants if "anti_heal" in x.effects]:
+                    player.heal(attaquant.attack) if attaquant in player.servants.cards + [player] else adv.heal(attaquant.attack)
                 attaquant.remaining_atk -= 1
                 if "furie des vents" in attaquant.effects and attaquant.effects["furie des vents"] == 1:
                     attaquant.effects["furie des vents"] = 0
@@ -4499,6 +4528,12 @@ class TourEnCours:
                                         card.base_attack += attaquant.effects["aura"][2][0]
                                         card.health += attaquant.effects["aura"][2][1]
                                         card.base_health += attaquant.effects["aura"][2][1]
+                                elif "aléatoire" in attaquant.effects["aura"][1] and [x for x in player.hand if x.type == "Serviteur"]:
+                                    card = random.choice([x for x in player.hand if x.type == "Serviteur"])
+                                    card.attack += attaquant.effects["aura"][2][0]
+                                    card.base_attack += attaquant.effects["aura"][2][0]
+                                    card.health += attaquant.effects["aura"][2][1]
+                                    card.base_health += attaquant.effects["aura"][2][1]
                                 else:
                                     for card in [x for x in player.hand if x.type == "Serviteur"]:
                                         card.attack += attaquant.effects["aura"][2][0]

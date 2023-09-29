@@ -1,7 +1,7 @@
 import time
 from engine import *
 
-players = [Player("NewIA", "Paladin"), Player("OldIA", "Druide")]
+players = [Player("NewIA", "Paladin"), Player("OldIA", "Chevalier de la mort")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -608,12 +608,11 @@ def calc_advantage_minmax(state):
     advantage = 0.6 * (len(player.hand) - len(adv.hand))
     advantage += 5 * (player.mana_max - adv.mana_max)
     advantage += 3 * (len(player.secrets) + len(player.attached) - len(adv.secrets) - len(adv.attached))
+    advantage += 4 * len(player.permanent_buff)
     if "forged" in [set(x.effects) for x in player.hand]:
         advantage += 2.5
     if "fragile" in [set(x.effects) for x in player.hand]:
         advantage -= 0.5
-    if player.permanent_buff != {}:
-        advantage += 3
     for servant in player.servants:
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:

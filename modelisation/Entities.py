@@ -553,6 +553,11 @@ class Player:
         if self.weapon is not None and self.weapon.is_dead():
             self.weapon = None
 
+        """ Ruées et charges """
+        if [x for x in self.servants if "ruée" in x.effects or "charge" in x.effects]:
+            for serv in [x for x in self.servants if "ruée" in x.effects or "charge" in x.effects]:
+                serv.remaining_atk = 1 if serv.remaining_atk == -1 else serv.remaining_atk
+
     def apply_discount(self):
         for card in self.hand:
             card.cost = card.base_cost
@@ -734,6 +739,9 @@ class Player:
     def damage(self, nb, toxic=False):
         if "alibi solide" in self.permanent_buff:
             nb = 1
+        if "bouclier divin" in self.effects:
+            nb = 0
+            self.effects.pop("bouclier divin")
         nb_armor = nb * (self.armor >= nb) + self.armor * (self.armor < nb)
         self.armor -= nb_armor
         self.health -= (nb - nb_armor)

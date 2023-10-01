@@ -443,7 +443,7 @@ class Player:
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
         self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5 = [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
-        self.oiseaux_libres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0
+        self.oiseaux_libres,self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
@@ -557,6 +557,11 @@ class Player:
         if [x for x in self.servants if "ruée" in x.effects or "charge" in x.effects]:
             for serv in [x for x in self.servants if "ruée" in x.effects or "charge" in x.effects]:
                 serv.remaining_atk = 1 if serv.remaining_atk == -1 else serv.remaining_atk
+        if [x for x in self.servants if "lost_shield" in x.effects]:
+            for serv in [x for x in self.servants if "lost_shield" in x.effects]:
+                serv.effects.pop("lost_shield")
+                if [x for x in self.servants if "aura" in x.effects and "lose_bouclier_divin" in x.effects["aura"][1]]:
+                    self.pick_multi(1)
 
     def apply_discount(self):
         for card in self.hand:
@@ -980,6 +985,7 @@ class Card:
                 toxic = False
             if self.effects["bouclier divin"] != 2:
                 self.effects.pop("bouclier divin")
+                self.effects["lost_shield"] = 1
         else:
             if toxic or ("holotech" in self.effects and nb == 1) or ("fragile" in self.effects):
                 self.health -= 1000

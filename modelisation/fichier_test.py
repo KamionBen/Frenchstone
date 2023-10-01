@@ -1,8 +1,11 @@
 import time
 from engine import *
+import matplotlib.pyplot as plt
+from statistics import mean
+import gc
 
 players = [Player("NewIA", "Paladin"), Player("OldIA", "Chevalier de la mort")]
-plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
+plateau_depart = Plateau(players)
 
 
 def generate_legal_vector_test(state):
@@ -654,28 +657,52 @@ def calc_advantage_minmax(state):
 
 total_actions = 0
 
+all_time1, all_time2, all_time3, all_time4, all_time5, all_time6, all_time7, all_time8, all_time_total = [], [], [], [], [], [], [], [], []
+avg_time1, avg_time2, avg_time3, avg_time4, avg_time5, avg_time6, avg_time7, avg_time8, avg_time_total = [], [], [], [], [], [], [], [], []
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=3):
 
-    global total_actions
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=2):
+
+    step0 = time.perf_counter()
+    gc.disable()
+    global total_actions, all_time1, all_time2, all_time3, all_time4, all_time5, all_time6, all_time7, all_time8, all_time_total
     base_advantage = calc_advantage_minmax(state)
-    legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
+    step1 = time.perf_counter()
+    legal_actions = generate_legal_vector_test(state)
+    step2 = time.perf_counter()
     legal_actions = [i for i in range(len(legal_actions)) if legal_actions[i]]
+    step3 = time.perf_counter()
     state_saved = pickle.dumps(state, -1)
-
+    step4 = time.perf_counter()
     possible_new_states = np.array([
         (action, Orchestrator().tour_ia_minmax(pickle.loads(state_saved), [], action, False)[0]) for action
         in legal_actions
     ])
 
+    step5 = time.perf_counter()
+
     first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
+    step6 = time.perf_counter()
     first_estimate[0] = base_advantage
     first_estimate = np.array(first_estimate)
+    step7 = time.perf_counter()
     if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
         if depth != 0:
             possible_new_states = possible_new_states[first_estimate.argsort()[-max(round(min(30, len(possible_new_states))/(pow(exploration_toll, depth))), 1):]]
         else:
             possible_new_states = possible_new_states[first_estimate.argsort()[-min(25, len(possible_new_states)):]]
+    gc.enable()
+    step8 = time.perf_counter()
+
+    all_time1.append(step1 - step0)
+    all_time2.append(step2 - step1)
+    all_time3.append(step3 - step2)
+    all_time4.append(step4 - step3)
+    all_time5.append(step5 - step4)
+    all_time6.append(step6 - step5)
+    all_time7.append(step7 - step6)
+    all_time8.append(step8 - step7)
+    all_time_total.append(step8 - step0)
 
     for new_state in possible_new_states:
         total_actions += 1
@@ -694,15 +721,24 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
                 break
 
     if depth == 0:
+        avg_time1.append(mean(all_time1))
+        avg_time2.append(mean(all_time2))
+        avg_time3.append(mean(all_time3))
+        avg_time4.append(mean(all_time4))
+        avg_time5.append(mean(all_time5))
+        avg_time6.append(mean(all_time6))
+        avg_time7.append(mean(all_time7))
+        avg_time8.append(mean(all_time8))
+        avg_time_total.append(mean(all_time_total))
+        all_time1, all_time2, all_time3, all_time4, all_time5, all_time6, all_time7, all_time8, all_time_total = [], [], [], [], [], [], [], [], []
         print(f"Total actions : {total_actions}")
         total_actions = 0
-
     return alpha, best_action
 
 
 logs = []
 beginning = time.perf_counter()
-for i in range(3):
+for i in range(1):
     print(i)
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')
@@ -718,12 +754,21 @@ for i in range(3):
             plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
         # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
         # print('----------------------------------------------')
-        logs.append(pd.DataFrame(logs_inter))
+        # logs.append(pd.DataFrame(logs_inter))
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 end = time.perf_counter()
 logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)
-print(end - beginning)
-
+print(f"Temps total : {round(end - beginning, 1)}s")
+print("Temps moyens par étape : ")
+print("Étape 1 : ", "{:.2e}".format(mean(avg_time1)), " s")
+print("Étape 2 : ", "{:.2e}".format(mean(avg_time2)), " s")
+print("Étape 3 : ", "{:.2e}".format(mean(avg_time3)), " s")
+print("Étape 4 : ", "{:.2e}".format(mean(avg_time4)), " s")
+print("Étape 5 : ", "{:.2e}".format(mean(avg_time5)), " s")
+print("Étape 6 : ", "{:.2e}".format(mean(avg_time6)), " s")
+print("Étape 7 : ", "{:.2e}".format(mean(avg_time7)), " s")
+print("Étape 8 : ", "{:.2e}".format(mean(avg_time8)), " s")
+print("Total : ", "{:.2e}".format(mean(avg_time_total)), " s")
 """ Sauvegarde des logs"""
 os.remove('logs_games.pickle')
 with open('logs_games.pickle', 'wb') as f:

@@ -20,6 +20,7 @@ classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide",
                  "Chevalier de la mort"]
 all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"]
 
+
 def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
         return json.load(jsonfile)
@@ -150,14 +151,12 @@ class Plateau:
         self.cards_chosen, self.cards_dragage, self.cards_entrave, self.cards_hands_to_deck, self.choix_des_armes = [], [], [], [], None
         if players == ():
             self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
-
         else:
             self.players = list(players)
-        Card.created = {}
 
         for player in self.players:
-            player.set_deck(class_files[player.classe])
-            player.initial_deck = deepcopy(player.deck)
+            player.deck = import_deck(class_files[player.classe])
+            player.initial_deck = pickle.loads(pickle.dumps(player.deck))
 
         """ Mélange des decks et tirage de la main de départ """
         for player in self.players:
@@ -171,19 +170,16 @@ class Plateau:
         self.players[0].start_turn()
 
         """ Tour de jeu """
-        self.game_turn = 0  # Décompte des tours
         self.game_on = True
         self.winner = None
 
     def tour_suivant(self):
         """ Met à jour le plateau à la fin du tour d'un joueur """
-        self.game_turn += 1
         player = self.players[0]
         """ Fin du tour"""
         player.end_turn()
         self.players.reverse()
         player = self.players[0]
-        adv = self.players[1]
 
         """ Debut du tour """
         player.start_turn()
@@ -423,11 +419,10 @@ class Plateau:
 
 
 class Player:
-    def __init__(self, name, classe, ia=True):
+    def __init__(self, name, classe):
         """ Profil de l'utilisateur ou de l'IA"""
         self.name = name
         self.classe = classe
-        self.ia = ia
 
         # Cartes
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
@@ -463,11 +458,10 @@ class Player:
         self.effects = {}
 
         self.fatigue, self.damage_this_turn, self.heal_this_turn = 0, 0, 0
-        self.my_turn = 0
+        self.my_turn = False
 
     def start_game(self):
         self.deck.shuffle()
-        self.reset_complete()
         if self.classe == "Chasseur de démons":
             self.cout_pouvoir = 1
             self.cout_pouvoir_temp = 1
@@ -505,13 +499,12 @@ class Player:
         self.damage(self.fatigue)
         self.mana_grow()
         self.mana_reset()
-        self.power_reset()
         self.apply_weapon()
 
     def end_turn(self):
         """ Mise à jour de fin de tour """
         self.attack, self.inter_attack = 0, 0
-        self.damage_this_turn, self.my_turn, self.cards_this_turn = 0, 0, 0
+        self.damage_this_turn, self.my_turn, self.cards_this_turn = 0, False, 0
         self.dead_undeads, self.dead_this_turn = [], []
         self.serv_this_turn = CardGroup()
         self.augment = []
@@ -690,9 +683,6 @@ class Player:
         self.mana = self.mana_max - self.surcharge
         self.surcharge = 0
 
-    def power_reset(self):
-        self.dispo_pouvoir = True
-
     def pick(self):
         """ Prendre la première carte du deck et l'ajouter à sa main """
         if len(self.hand) < 10:
@@ -737,9 +727,6 @@ class Player:
             if type(nb) == str:
                 print(nb)
             self.pick()
-
-    def set_deck(self, file):
-        self.deck = import_deck(file)
         
     def damage(self, nb, toxic=False):
         if "alibi solide" in self.permanent_buff:
@@ -751,7 +738,7 @@ class Player:
         self.armor -= nb_armor
         self.health -= (nb - nb_armor)
         self.damage_this_turn += nb
-        if nb - nb_armor and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn == 1:
+        if nb - nb_armor and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn:
             self.weapon.effects["stack"] += 1
 
     def reset(self):
@@ -773,27 +760,13 @@ class Player:
         self.damage_this_turn, self.heal_this_turn, self.elem_this_turn = 0, 0, 0
         self.atk_this_turn, self.armor_this_turn = self.inter_attack, self.armor
         self.inter_attack, self.has_attacked = 0, 0
-        self.my_turn = 1
-
-    def reset_complete(self):
-        """ Le reset de début de partie """
-        self.dispo_pouvoir = True
-        self.cout_pouvoir = 2
-        self.effet_pouvoir = None
-
-        self.attack = 0
-        self.armor = 0
-        self.gel = 0
-        self.health, self.base_health = 30, 30
-        self.weapon = None
-
-        self.fatigue, self.damage_this_turn = 0, 0
+        self.my_turn = True
 
     def heal(self, nb):
         nb_heal = min(nb, self.base_health - self.health)
         self.health += nb_heal
         self.heal_this_turn += nb_heal
-        if nb_heal and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn == 1:
+        if nb_heal and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn:
             self.weapon.effects["stack"] += 1
         if nb_heal > 0 and [x for x in self.servants if "aura" in x.effects and "Banshee hurlante" in x.effects["aura"]] and len(self.servants) + len(self.lieux) < 7:
             invoked_servant = get_card("Fanshee", all_servants)
@@ -1038,7 +1011,9 @@ class Weapon:
         self.attack = 0
         self.health = 0
 
+
 """ FUNCTIONS """
+
 
 def import_deck(file: str, data='cards.json') -> CardGroup:
     """
@@ -1063,10 +1038,7 @@ def import_deck(file: str, data='cards.json') -> CardGroup:
                     break
             if found is False:
                 print(f"\033[91mERREUR : La carte {name} n'a pas été trouvée dans le fichier cards.json\033[0m")
-    if len(deck) == 0:
-        raise ImportError("Le deck est vide")
-    else:
-        return deck
+    return deck
 
 
 def get_card(key: Union[int, str], cardpool: list) -> Card:

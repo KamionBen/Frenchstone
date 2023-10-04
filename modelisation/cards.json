@@ -11232,5 +11232,65 @@
         "attack": null,
         "health": null,
         "effects": {"invocation": ["Recrue de la main d'argent", "Recrue de la main d'argent", "Recrue de la main d'argent", "Recrue de la main d'argent", "Recrue de la main d'argent"]}
+    },
+    {
+        "id": 931,
+        "name": "Disciple d'amitus",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 4,
+        "health": 5,
+        "effects": {"aura": ["invocation", ["allié", "end_turn", 1], "Golem terrestre"]}
+    },
+    {
+        "id": 932,
+        "name": "Disco harmonique",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["serviteur", "cost", 5], "start_turn": ["transformation", ["Disco dissonant"]]}
+    },
+    {
+        "id": 933,
+        "name": "Disco dissonant",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 0,
+        "cost": 5,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["serviteur", "cost", 1], "start_turn": ["transformation", ["Disco harmonique"]]}
+    },
+    {
+        "id": 934,
+        "name": "Gardien d'ambre",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Dragon"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 4,
+        "health": 6,
+        "effects": {"cri de guerre": ["heal", ["tous", "tous", "choisi"], 8]}
+    },
+    {
+        "id": 935,
+        "name": "Kangor roi de la danse",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 3,
+        "health": 3,
+        "effects": {"vol de vie": 1, "rale d'agonie": ["swap", ["serviteur", "allié", "main", "aléatoire", "vol de vie"], 1], "legendaire": 1}
     }
 ]

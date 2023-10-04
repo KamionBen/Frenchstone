@@ -438,7 +438,7 @@ class Player:
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
         self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5 = [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
-        self.oiseaux_libres,self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
+        self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
@@ -975,6 +975,12 @@ class Card:
                         pass
             else:
                 self.damage_taken = False
+
+    def boost(self, atk, hp, other=[]):
+        self.attack += atk
+        self.base_attack += atk
+        self.health += hp
+        self.base_health += hp
 
     def heal(self, nb):
         """ Heal nb health to a given creatures """

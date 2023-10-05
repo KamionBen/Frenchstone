@@ -215,6 +215,8 @@ class Plateau:
                         player.dead_demons.append(servant)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
+                    if servant.classe == player.classe:
+                        player.dead_class.append(servant)
                     if servant.cost <= 2:
                         player.dead_under2.append(servant)
                     elif servant.cost >= 5 and "Bête" in servant.genre:
@@ -436,7 +438,7 @@ class Player:
         self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells = [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5 = [], [], [], [], []
+        self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5, self.dead_class = [], [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
@@ -976,11 +978,20 @@ class Card:
             else:
                 self.damage_taken = False
 
-    def boost(self, atk, hp, other=[]):
-        self.attack += atk
-        self.base_attack += atk
-        self.health += hp
-        self.base_health += hp
+    def boost(self, atk, hp, fixed_stats = False, other=None):
+        if not fixed_stats:
+            self.attack += atk
+            self.base_attack += atk
+            self.health += hp
+            self.base_health += hp
+        else:
+            self.attack = atk
+            self.base_attack = atk
+            self.health = hp
+            self.base_health = hp
+        if other is not None:
+            for key in other:
+                self.effects[key] = other[key]
 
     def heal(self, nb):
         """ Heal nb health to a given creatures """

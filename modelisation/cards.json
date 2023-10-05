@@ -11292,5 +11292,29 @@
         "attack": 3,
         "health": 3,
         "effects": {"vol de vie": 1, "rale d'agonie": ["swap", ["serviteur", "allié", "main", "aléatoire", "vol de vie"], 1], "legendaire": 1}
+    },
+    {
+        "id": 936,
+        "name": "Larmes de tyr",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": null,
+        "health": null,
+        "effects": {"resurrect": ["serviteur", "allié", "class", "aléatoire", 3], "forge": "Larmes de tyr forge"}
+    },
+    {
+        "id": 937,
+        "name": "Larmes de tyr forge",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 0,
+        "cost": 5,
+        "attack": null,
+        "health": null,
+        "effects": {"resurrect": ["serviteur", "allié", "class", "aléatoire", 4], "forged": 1}
     }
 ]

@@ -215,6 +215,8 @@ class Plateau:
                         player.dead_demons.append(servant)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
+                    if 2 <= servant.cost <= 4 and servant.classe == "Paladin":
+                        player.dead_234_paladin.append(servant)
                     if servant.classe == player.classe:
                         player.dead_class.append(servant)
                     if servant.cost <= 2:
@@ -435,10 +437,10 @@ class Player:
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade, self.milouse = 0, 0, 0
-        self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells = [], [], [], [], []
+        self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells, self.poofed = [], [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5, self.dead_class = [], [], [], [], [], []
+        self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5, self.dead_class, self.dead_234_paladin = [], [], [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
@@ -672,6 +674,8 @@ class Player:
                 self.effects["vol de vie"] = 1
             if "cleave" in self.weapon.effects:
                 self.effects["cleave"] = 1
+            if "furie des vents" in self.weapon.effects and ("furie des vents" not in self.effects or (self.effects["furie des vents"] == 0 and self.remaining_atk == 0)):
+                self.effects["furie des vents"] = 1
         else:
             self.attack = self.inter_attack
 
@@ -955,6 +959,8 @@ class Card:
             self.health = 0
         if "enchanteur" in self.effects:
             nb *= 2
+        if "solide" in self.effects:
+            nb = min(2, nb)
         if "bouclier divin" in self.effects and nb != 0:
             if toxic:
                 toxic = False
@@ -989,6 +995,7 @@ class Card:
             self.base_attack = atk
             self.health = hp
             self.base_health = hp
+            self.blessure = 0
         if other is not None:
             for key in other:
                 self.effects[key] = other[key]

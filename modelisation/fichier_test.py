@@ -558,7 +558,7 @@ def generate_legal_vector_test(state):
 
     """ Mot-clé échangeable ou forge """
     for i in range(len(player.hand)):
-        if (player.mana >= 1 and "echangeable" in player.hand[i].effects) or (player.mana >= 2 and "forge" in player.hand[i].effects):
+        if (player.mana >= 1 and "echangeable" in player.hand[i].effects and len(player.deck) != 0) or (player.mana >= 2 and "forge" in player.hand[i].effects):
             legal_actions[255 + i] = True
 
     """ Lieux """

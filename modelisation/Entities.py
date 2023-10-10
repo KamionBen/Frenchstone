@@ -443,7 +443,7 @@ class Player:
         self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5, self.dead_class, self.dead_234_paladin = [], [], [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
-        self.weapons_played, self.marginal_played, self.secrets_declenches = 0, 0, 0
+        self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played = 0, 0, 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
         """ Héros choisi par le joueur """
@@ -589,6 +589,10 @@ class Player:
                         card.cost = max(0, card.base_cost - 3 * len(self.secrets))
                     elif "ecoles_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - len(self.ecoles_jouees))
+                    elif "sacre_spent" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.sacre_spent)
+                    elif "paladin_played" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.paladin_played)
             if "milouse" in card.effects:
                 card.cost = card.base_cost + self.milouse
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:

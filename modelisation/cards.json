@@ -5193,7 +5193,7 @@
         "cost": 2,
         "attack": 5,
         "health": 4,
-        "effects": {"cri de guerre": ["decouverte", ["hand_to_deck"], ""]}
+        "effects": {"cri de guerre": ["decouverte", ["hand_to_deck"], [""]]}
     },
     {
         "id": 429,
@@ -6172,7 +6172,7 @@
         "cost": 8,
         "attack": 8,
         "health": 8,
-        "effects": {"cri de guerre": ["decouverte", ["allié", "relique", "play"], 1], "impregnation": ["Artificier Xy'mox impregne", 5],
+        "effects": {"cri de guerre": ["decouverte", ["allié", "relique", "play"], []], "impregnation": ["Artificier Xy'mox impregne", 5],
             "legendaire": 1}
     },
     {
@@ -8690,7 +8690,7 @@
         "cost": 3,
         "attack": 4,
         "health": 2,
-        "effects": {"cri de guerre": ["decouverte", ["sort", "secret", "play", "conditional", "if_alone"], ""]}
+        "effects": {"cri de guerre": ["decouverte", ["sort", "secret", "play", "conditional", "if_alone"], [""]]}
     },
     {
         "id": 721,
@@ -11488,5 +11488,127 @@
         "attack": 4,
         "health": 8,
         "effects": {"provocation": 1}
+    },
+    {
+        "id": 952,
+        "name": "La comtesse",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 7,
+        "health": 7,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "conditional", "if_pur"], ["Invitation legendaire", "Invitation legendaire", "Invitation legendaire"]],
+        "legendaire": 1}
+    },
+    {
+        "id": 953,
+        "name": "Invitation legendaire",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["allié", "serviteur", "legendaire", "reduc", 100]}
+    },
+    {
+        "id": 954,
+        "name": "Leviathan",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 4,
+        "health": 5,
+        "effects": {"colossal": [1, "Griffe du leviathan"], "aura" : ["dragage", ["allié", "conditional", "if_attack"], 1],
+            "ruée": 1, "bouclier divin": 1, "legendaire": 1}
+    },
+    {
+        "id": 955,
+        "name": "Griffe du leviathan",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 4,
+        "health": 2,
+        "effects": {"aura" : ["pioche", ["allié", "conditional", "if_attack"], 1], "ruée": 1, "bouclier divin": 1}
+    },
+    {
+        "id": 956,
+        "name": "Tirion fordring",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"provocation": 1, "bouclier divin": 1, "rale d'agonie": ["equip_arme", ["heros", "allié"], "Porte cendres"],"legendaire": 1}
+    },
+    {
+        "id": 957,
+        "name": "Porte cendres",
+        "classe": "Paladin",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 5,
+        "attack": 5,
+        "health": 3,
+        "effects": {}
+    },
+    {
+        "id": 958,
+        "name": "Ennui o troupe",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 9,
+        "attack": 3,
+        "health": 6,
+        "effects": {"provocation": 1, "bouclier divin": 1, "rale d'agonie": ["invocation", ["allié"], ["Ennuy o tron", "Ennuy o tron", "Ennuy o tron"]]}
+    },
+    {
+        "id": 959,
+        "name": "Lignes de front",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 9,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["tous", "from_deck", "until_full"]}
+    },
+    {
+        "id": 960,
+        "name": "Grace des jardins",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 10,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": [["bouclier divin"], [5, 5]], "ciblage": ["serviteur", "tous", "choisi"], "reduc": ["self", "sacre_spent"]}
+    },
+    {
+        "id": 961,
+        "name": "Raie de lumiere",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Élémentaire", "Bête"],
+        "decouvrable": 1,
+        "cost": 10,
+        "attack": 5,
+        "health": 5,
+        "effects": {"provocation": 1, "reduc": ["self", "paladin_played"]}
     }
 ]

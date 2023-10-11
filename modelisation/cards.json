@@ -11610,5 +11610,17 @@
         "attack": 5,
         "health": 5,
         "effects": {"provocation": 1, "reduc": ["self", "paladin_played"]}
+    },
+    {
+        "id": 962,
+        "name": "Allies immortels",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"temp_buff": ["allies immortels", "temp_turn"]}
     }
 ]

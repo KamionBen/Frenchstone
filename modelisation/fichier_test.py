@@ -2,7 +2,7 @@ import time
 from engine import *
 import gc
 
-players = [Player("NewIA", "Paladin"), Player("OldIA", "Chevalier de la mort")]
+players = [Player("NewIA", "Prêtre"), Player("OldIA", "Chevalier de la mort")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -618,6 +618,8 @@ def calc_advantage_minmax(state):
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage += 1.5 * servant.attack
+        if "reincarnation" in servant.effects:
+            advantage += servant.attack
         if "gel" in servant.effects:
             advantage -= servant.attack
         if "fragile" in servant.effects:
@@ -629,6 +631,8 @@ def calc_advantage_minmax(state):
         advantage -= 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
             advantage -= 1.5 * servant.attack
+        if "reincarnation" in servant.effects:
+            advantage -= servant.attack
         if "gel" in servant.effects:
             advantage += servant.attack
         if "fragile" in servant.effects:

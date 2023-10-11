@@ -4520,6 +4520,8 @@ class TourEnCours:
                     player.serv_this_turn.add(carte)
                 if "Élémentaire" in carte.genre:
                     player.elem_this_turn += 1
+                if "Mort-vivant" in carte.genre and "allies immortels" in player.effects:
+                    carte.effects["reincarnation"] = 1
                 if "cost_pv" in carte.effects and carte.effects["cost_pv"][1] == 1:
                     player.damage(carte.base_cost)
                     if "croise sanglant" in player.permanent_buff:
@@ -5261,8 +5263,9 @@ class TourEnCours:
                 player.effects.pop("cost_armor")
             if "vol de vie" in player.effects:
                 player.effects.pop("vol de vie")
-            if "toxispell" in player.effects and player.effects["toxispell"] == "temp_turn":
-                player.effects.pop("toxispell")
+            if [x for x in player.effects if player.effects[x] == "temp_turn"]:
+                for effect in [x for x in player.effects if player.effects[x] == "temp_turn"]:
+                    player.effects.pop(effect)
         if "Gardien du temps" in player.permanent_buff:
             player.permanent_buff["Gardien du temps"] -= 1
             if player.permanent_buff["Gardien du temps"] == 0:

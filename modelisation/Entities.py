@@ -146,7 +146,7 @@ class Plateau:
                        'Voleur': 'dk_sang.csv',
                        'Guerrier': 'dk_sang.csv',
                        'Chevalier de la mort': 'dk_sang.csv',
-                       'Prêtre': 'dk_sang.csv'
+                       'Prêtre': 'shadow_priest.csv'
                        }
         self.cards_chosen, self.cards_dragage, self.cards_entrave, self.cards_hands_to_deck, self.choix_des_armes = [], [], [], [], None
         if players == ():

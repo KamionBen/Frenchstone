@@ -9180,7 +9180,7 @@
     {
         "id": 761,
         "name": "Alchimiste suspecte",
-        "classe": "Chasseur",
+        "classe": "Mage",
         "type": "Serviteur",
         "genre": [],
         "decouvrable": 1,
@@ -9192,7 +9192,7 @@
     {
         "id": 762,
         "name": "Artificier des arcanes",
-        "classe": "Chasseur",
+        "classe": "Mage",
         "type": "Serviteur",
         "genre": ["Élémentaire"],
         "decouvrable": 1,
@@ -11622,5 +11622,113 @@
         "attack": null,
         "health": null,
         "effects": {"temp_buff": ["allies immortels", "temp_turn"]}
+    },
+    {
+        "id": 963,
+        "name": "Illumination",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"dragage": ["allies immortels", "temp_turn"]}
+    },
+    {
+        "id": 964,
+        "name": "Accusation de vol",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"ciblage": ["serviteur", "tous", "choisi"], "infection": ["destroyed", "conditional", "if_copied_played"]}
+    },
+    {
+        "id": 965,
+        "name": "Acouphene",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"ciblage": ["serviteur", "tous", "choisi"], "silence": 1, "combo": ["damage", 2]}
+    },
+    {
+        "id": 966,
+        "name": "Adjuratrice psychique",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "from_adv_deck", "copy"], 1]}
+    },
+    {
+        "id": 967,
+        "name": "Adoration de l'idole",
+        "classe": "Prêtre",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 0,
+        "health": 2,
+        "effects": {"aura": ["hp_boost", ["reduc", "lose_dur"], 0]}
+    },
+    {
+        "id": 968,
+        "name": "Appariteur suspect",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"cri de guerre": ["decouverte", ["allié"] , ["serviteur", "legendaire"]]}
+    },
+    {
+        "id": 969,
+        "name": "Armee de la mort",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"resurrect": ["serviteur", "allié", "aléatoire", "under3_cost"]}
+    },
+    {
+        "id": 970,
+        "name": "Automate astral",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"aura": ["boost", ["self", "automates"], [0, 0]]}
+    },
+    {
+        "id": 971,
+        "name": "Beignets",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"heal": 3, "ciblage": ["serviteur", "tous", "choisi", "voisin"], "refresh_mana": "surplus"}
     }
 ]

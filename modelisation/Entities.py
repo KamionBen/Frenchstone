@@ -215,14 +215,6 @@ class Plateau:
                         player.dead_demons.append(servant)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
-                    if 2 <= servant.cost <= 4 and servant.classe == "Paladin":
-                        player.dead_234_paladin.append(servant)
-                    if servant.classe == player.classe:
-                        player.dead_class.append(servant)
-                    if servant.cost <= 2:
-                        player.dead_under2.append(servant)
-                    elif servant.cost >= 5 and "Bête" in servant.genre:
-                        player.dead_beast_sup5.append(servant)
                     player.all_dead_servants.append(servant)
                     player.dead_this_turn.append(servant)
                     if len(player.all_dead_servants) > 3:
@@ -440,10 +432,10 @@ class Player:
         self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells, self.poofed = [], [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn, self.dead_under2, self.dead_weapon, self.dead_beast_sup5, self.dead_class, self.dead_234_paladin = [], [], [], [], [], [], []
+        self.all_dead_servants, self.dead_this_turn, = [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
-        self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played = 0, 0, 0, 0, 0
+        self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates = 0, 0, 0, 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
         """ Héros choisi par le joueur """
@@ -754,7 +746,7 @@ class Player:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
-        self.first_spell, self.next_spell, self.end_turn_cards = None, [], []
+        self.first_spell, self.next_spell, self.end_turn_cards, self.last_card = None, [], [], get_card(-1, all_cards)
         if "jotun" in self.permanent_buff:
             self.permanent_buff["jotun"] = 1
         self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, {}

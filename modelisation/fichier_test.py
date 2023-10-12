@@ -646,6 +646,8 @@ def calc_advantage_minmax(state):
         advantage += 0.25 * (30/adv.health - 30/player.health)
     if player.weapon is not None:
         advantage += max(1, player.weapon.attack) * player.weapon.health
+    if player.deck and player.deck[0].base_cost < get_card(player.deck[0].name, all_cards).base_cost:
+        advantage += get_card(player.deck[0].name, all_cards) - player.deck[0].base_cost
     advantage += 0.3 * player.armor
     advantage += 0.01 * player.cadavres
     advantage += 3 * len(player.lieux)

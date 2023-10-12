@@ -11730,5 +11730,89 @@
         "attack": null,
         "health": null,
         "effects": {"heal": 3, "ciblage": ["serviteur", "tous", "choisi", "voisin"], "refresh_mana": "surplus"}
+    },
+    {
+        "id": 972,
+        "name": "Chatiment sacre",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 973,
+        "name": "Clerc cramoisi",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"aura": ["pioche", ["heros", "allié", "if_surplus", "alive"], 1]}
+    },
+    {
+        "id": 974,
+        "name": "Fan club",
+        "classe": "Prêtre",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"use": ["heal", ["tous", "allié"], 3]}
+    },
+    {
+        "id": 975,
+        "name": "Incandescence mentale",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": ["hero_if_dead_3", 2], "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 976,
+        "name": "Kvaldir touche par l'ombre",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"cri de guerre": ["permanent_buff", [""], "kvaldir"]}
+    },
+    {
+        "id": 977,
+        "name": "La lumiere brule",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": ["atk_serv"], "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 978,
+        "name": "Murmures des profondeurs",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"silence": 1, "damage": [["tous", "ennemi", "aléatoire", "atk_serv"], 1], "ciblage": ["serviteur", "allié", "choisi"]}
     }
 ]

@@ -760,7 +760,7 @@ class TourEnCours:
                                 cible_droite.damage(carte.effects["cri de guerre"][1][-1], toxic=True if "toxicite" in carte.effects else False)
                             except:
                                 pass
-                        if "self_Players" in carte.effects["cri de guerre"][1]:
+                        if "self_heros" in carte.effects["cri de guerre"][1]:
                             player.damage(carte.effects["cri de guerre"][2])
                     else:
                         if carte.effects["cri de guerre"][1][0] == "tous":
@@ -813,13 +813,21 @@ class TourEnCours:
                                     player.effects["end_turn"] = ["damage", ["heros", "ennemi"], carte.effects["cri de guerre"][2]]
                             if "allié" in carte.effects["cri de guerre"][1]:
                                 if "soifdemana_heal_7" in carte.effects["cri de guerre"][1] and player.mana_max >= 7:
-                                    player.heal(carte.effects["cri de guerre"][2])
+                                    if "kvaldir" in player.permanent_buff:
+                                        player.damage(carte.effects["cri de guerre"][2])
+                                        player.permanent_buff.pop("kvaldir")
+                                    else:
+                                        player.heal(carte.effects["cri de guerre"][2])
                                 else:
                                     player.damage(carte.effects["cri de guerre"][2])
                         elif carte.effects["cri de guerre"][1][0] == "buveuse de vie":
                             adv.damage(3)
                             if not [x for x in adv.servants if "anti_heal" in x.effects]:
-                                player.heal(3)
+                                if "kvaldir" in player.permanent_buff:
+                                    player.damage(3)
+                                    player.permanent_buff.pop("kvaldir")
+                                else:
+                                    player.heal(3)
                 elif "camouflage" in carte.effects["cri de guerre"]:
                     if target is not None:
                         if type(target) == Card:
@@ -990,24 +998,41 @@ class TourEnCours:
                                         spell.effects["damage"][-1] += 1
                 elif "heal" in carte.effects["cri de guerre"]:
                     if target is not None and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                        target.heal(carte.effects["cri de guerre"][2])
+                        if "kvaldir" in player.permanent_buff:
+                            target.damage(carte.effects["cri de guerre"][2])
+                            player.permanent_buff.pop("kvaldir")
+                        else:
+                            target.heal(carte.effects["cri de guerre"][2])
                     else:
                         if "tous" in carte.effects["cri de guerre"][1]:
                             if "allié" in carte.effects["cri de guerre"][1] and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                                for entity in [player] + player.servants.cards:
-                                    entity.heal(carte.effects["cri de guerre"][2])
+                                if "kvaldir" in player.permanent_buff:
+                                    for entity in [player] + player.servants.cards:
+                                        entity.damage(carte.effects["cri de guerre"][2])
+                                    player.permanent_buff.pop("kvaldir")
+                                else:
+                                    for entity in [player] + player.servants.cards:
+                                        entity.heal(carte.effects["cri de guerre"][2])
                     if "suicide" in carte.effects["cri de guerre"][1]:
                         player.servants.remove(carte)
                 elif "heal+pioche" in carte.effects["cri de guerre"]:
                     if target is not None and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                        target.heal(carte.effects["cri de guerre"][2])
+                        if "kvaldir" in player.permanent_buff:
+                            target.damage(carte.effects["cri de guerre"][2])
+                            player.permanent_buff.pop("kvaldir")
+                        else:
+                            target.heal(carte.effects["cri de guerre"][2])
                     player.pick_multi(carte.effects["cri de guerre"][3])
                 elif "alextrasza" in carte.effects["cri de guerre"] and target is not None:
                     if target in [adv] + adv.servants.cards:
                         target.damage(carte.effects["cri de guerre"][2], toxic=True if "toxicite" in carte.effects else False)
                     else:
                         if not [x for x in adv.servants if "anti_heal" in x.effects]:
-                            target.heal(carte.effects["cri de guerre"][2])
+                            if "kvaldir" in player.permanent_buff:
+                                target.damage(carte.effects["cri de guerre"][2])
+                                player.permanent_buff.pop("kvaldir")
+                            else:
+                                target.heal(carte.effects["cri de guerre"][2])
                 elif "ne peut pas attaquer" in carte.effects["cri de guerre"] and target is not None:
                     if target is not None:
                         if type(target) == Card:
@@ -1674,6 +1699,8 @@ class TourEnCours:
                         player.permanent_buff["lothraxion"] = 1
                     elif carte.effects["cri de guerre"][2] == "croise sanglant":
                         player.permanent_buff["croise sanglant"] = 1
+                    elif carte.effects["cri de guerre"][2] == "kvaldir":
+                        player.permanent_buff["kvaldir"] = 1
                 elif "hp_boost" in carte.effects["cri de guerre"]:
                     if "armure" in carte.effects["cri de guerre"][1]:
                         if "armure" in player.hp_boost:
@@ -1762,8 +1789,13 @@ class TourEnCours:
                 elif "heal" in carte.effects["soif de mana"]:
                     if "tous" in carte.effects["soif de mana"][1]:
                         if "allié" in carte.effects["soif de mana"][1] and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                            for entity in [player] + player.servants.cards:
-                                entity.heal(carte.effects["soif de mana"][2])
+                            if "kvaldir" in player.permanent_buff:
+                                for entity in [player] + player.servants.cards:
+                                    entity.damage(carte.effects["soif de mana"][2])
+                                player.permanent_buff.pop("kvaldir")
+                            else:
+                                for entity in [player] + player.servants.cards:
+                                    entity.heal(carte.effects["soif de mana"][2])
                 elif "boost" in carte.effects["soif de mana"]:
                     if "self" in carte.effects["soif de mana"][1]:
                         if "bouclier divin" in carte.effects["soif de mana"][1]:
@@ -1775,9 +1807,9 @@ class TourEnCours:
                             "ennemi" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
                         if "Mort-vivant" in carte.effects["rale d'agonie"][1]:
                             target = random.choice(
-                                [x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre and x.name != carte.name]) \
+                                [x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre and x != carte]) \
                                 if len(
-                                [x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre and x.name != carte.name]) != 0 else None
+                                [x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre and x != carte]) != 0 else None
                         elif carte.effects["rale d'agonie"][2] == "nbre_tentacules":
                             nbre_tentacules = len([x for x in adv.servants if x.name == "Tentacule d'ozumat"])
                             if nbre_tentacules == 0 or not player.servants.cards:
@@ -1871,7 +1903,11 @@ class TourEnCours:
                             elif ("ennemi" in carte.effects["rale d'agonie"][1] and carte in player.servants) or ("allié" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
                                 adv.hand.aegwynn = True
                 if "heal" in carte.effects["rale d'agonie"] and target is not None and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                    target.heal(carte.effects["rale d'agonie"][2])
+                    if "kvaldir" in player.permanent_buff:
+                        target.damage(carte.effects["rale d'agonie"][2])
+                        player.permanent_buff.pop("kvaldir")
+                    else:
+                        target.heal(carte.effects["rale d'agonie"][2])
                 if "rebond" in carte.effects["rale d'agonie"] and target is not None and type(target) == Card:
                     if "rale d'agonie" in target.effects:
                         target.effects["rale d'agonie2"] = carte.effects["rale d'agonie"]
@@ -2231,9 +2267,9 @@ class TourEnCours:
                             "ennemi" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
                         if "Mort-vivant" in carte.effects["rale d'agonie2"][1]:
                             target = random.choice(
-                                [x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre and x.name != carte.name]) \
+                                [x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre and x != carte]) \
                                 if len(
-                                [x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre and x.name != carte.name]) != 0 else None
+                                [x for x in self.plt.players[0].servants if "Mort-vivant" in x.genre and x != carte]) != 0 else None
                         elif carte.effects["rale d'agonie2"][2] == "nbre_tentacules":
                             nbre_tentacules = len([x for x in adv.servants if x.name == "Tentacule d'ozumat"])
                             if nbre_tentacules == 0 or not player.servants.cards:
@@ -2322,7 +2358,11 @@ class TourEnCours:
                             elif ("ennemi" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or ("allié" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
                                 adv.hand.aegwynn = True
                 if "heal" in carte.effects["rale d'agonie2"] and target is not None and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                    target.heal(carte.effects["rale d'agonie2"][2])
+                    if "kvaldir" in player.permanent_buff:
+                        target.damage(carte.effects["rale d'agonie2"][2])
+                        player.permanent_buff.pop("kvaldir")
+                    else:
+                        target.heal(carte.effects["rale d'agonie2"][2])
                 if "rebond" in carte.effects["rale d'agonie2"] and target is not None and type(target) == Card:
                     if "rale d'agonie" in target.effects:
                         target.effects["rale d'agonie2"] = carte.effects["rale d'agonie2"]
@@ -2961,9 +3001,25 @@ class TourEnCours:
                             carte.effects["damage"] = carte.effects["damage"][-1]
                             if "bouclier divin" not in target.effects and "insensible" not in target.effects:
                                 player.damage(carte.effects["damage"] + player.spell_damage - target.health)
+                        elif "hero_if_dead_3" in carte.effects["damage"]:
+                            carte.effects["damage"] = carte.effects["damage"][-1]
+                            if "bouclier divin" not in target.effects and "insensible" not in target.effects and target.health <= carte.effects["damage"]:
+                                adv.damage(3 + player.spell_damage)
+                        elif carte.effects["damage"][0] == list:
+                            if "aléatoire" in carte.effects["damage"][0] and "atk_serv" in carte.effects["damage"][0]:
+                                nb_pioupiou = target.attack
+                                for _ in range(nb_pioupiou):
+                                    if [x for x in adv.servants.cards if not x.is_dead() and not "en sommeil" in x.effects]:
+                                        cible = random.choice([x for x in adv.servants.cards if not x.is_dead() and not "en sommeil" in x.effects])
+                                        cible.damage(carte.effects["damage"][1] + player.spell_damage, toxic=True if "toxicite" in carte.effects else False)
+                                        print(target.attack, cible, cible.health)
+                                        print('------------------------------------------')
+                        elif "atk_serv" in carte.effects["damage"]:
+                            carte.effects["damage"] = target.attack
                     elif carte.effects["damage"] == "hero_attack":
                         carte.effects["damage"] = player.attack
-                    target.damage(carte.effects["damage"] + player.spell_damage, toxic=True if "toxicite" in carte.effects else False)
+                    if type(carte.effects["damage"]) != list:
+                        target.damage(carte.effects["damage"] + player.spell_damage, toxic=True if "toxicite" in carte.effects else False)
                     if "cleave" in carte.effects:
                         if target in adv.servants:
                             index_target = adv.servants.cards.index(target)
@@ -3131,30 +3187,48 @@ class TourEnCours:
                             target.boost(carte.effects["drain"][-1][0], carte.effects["drain"][-1][1])
             if "heal" in carte.effects:
                 if target is not None:
-                    target.heal(carte.effects["heal"])
+                    if "kvaldir" in player.permanent_buff:
+                        target.damage(carte.effects["heal"])
+                    else:
+                        target.heal(carte.effects["heal"])
+                    
                     if "voisin" in carte.effects["ciblage"]:
                         if target in player.servants:
                             index_target = player.servants.cards.index(target)
                             try:
                                 if index_target != 0:
-                                    player.servants.cards[index_target - 1].heal(carte.effects["heal"])
+                                    if "kvaldir" in player.permanent_buff:
+                                        player.servants.cards[index_target - 1].damage(carte.effects["heal"])
+                                    else:
+                                        player.servants.cards[index_target - 1].heal(carte.effects["heal"])
                             except:
                                 pass
                             try:
-                                player.servants.cards[index_target + 1].heal(carte.effects["heal"])
+                                if "kvaldir" in player.permanent_buff:
+                                    player.servants.cards[index_target + 1].damage(carte.effects["heal"])
+                                else:
+                                    player.servants.cards[index_target + 1].heal(carte.effects["heal"])
                             except:
                                 pass
                         else:
                             index_target = adv.servants.cards.index(target)
                             try:
                                 if index_target != 0:
-                                    adv.servants.cards[index_target - 1].heal(carte.effects["heal"])
+                                    if "kvaldir" in player.permanent_buff:
+                                        adv.servants.cards[index_target - 1].damage(carte.effects["heal"])
+                                    else:
+                                        adv.servants.cards[index_target - 1].heal(carte.effects["heal"])
                             except:
                                 pass
                             try:
-                                adv.servants.cards[index_target + 1].heal(carte.effects["heal"])
+                                if "kvaldir" in player.permanent_buff:
+                                    adv.servants.cards[index_target + 1].damage(carte.effects["heal"])
+                                else:
+                                    adv.servants.cards[index_target + 1].heal(carte.effects["heal"])
                             except:
                                 pass
+                    if "kvaldir" in player.permanent_buff:
+                        player.permanent_buff.pop("kvaldir")
             if "add_armor" in carte.effects:
                 if type(carte.effects["add_armor"]) == list and "ennemi" in carte.effects["add_armor"]:
                     adv.armor += carte.effects["add_armor"][-1]
@@ -3515,6 +3589,8 @@ class TourEnCours:
                         carte.effects["invocation"] = [carte.effects["invocation"][0]] * min(7, len(player.ecoles_jouees))
                 for creature in carte.effects["invocation"]:
                     if len(adv.servants) + len(adv.lieux) < 7:
+                        if creature == "conditional":
+                            print(carte, carte.effects)
                         invoked_creature = get_card(creature, all_servants)
                         if "trigger" in carte.effects:
                             if carte.name == "Manoeuvre d'urgence":
@@ -3810,6 +3886,14 @@ class TourEnCours:
             elif "gel+invocation" in carte.effects["use"] and target is not None:
                 target.effects["gel"] = 1
                 self.invoke_servant(get_card(carte.effects["use"][2], all_servants), player)
+            elif "heal" in carte.effects["use"]:
+                if "tous" in carte.effects["use"][1] and "allié" in carte.effects["use"][1] and not [x for x in adv.servants if "anti_heal" in x.effects]:
+                    if "kvaldir" in player.permanent_buff:
+                        for entity in [player] + player.servants.cards:
+                            entity.damage(carte.effects["use"][2])
+                    else:
+                        for entity in [player] + player.servants.cards:
+                            entity.heal(carte.effects["use"][2])
         elif carte.type == "Arme":
             if "cri de guerre" in carte.effects:
                 if "gel" in carte.effects["cri de guerre"]:
@@ -4016,6 +4100,9 @@ class TourEnCours:
                         player.pick_multi(servant.effects["aura"][2])
                     elif "if_dead_undead" in servant.effects["aura"][1] and carte.type == "Serviteur" and carte.is_dead() and "Mort-vivant" in carte.genre and carte in player.servants:
                         player.pick_multi(servant.effects["aura"][2])
+                    elif "if_surplus" in servant.effects["aura"][1] and servant.surplus > 0:
+                        player.pick_multi(servant.effects["aura"][2])
+                        servant.surplus = 0
             if "add_hand" in servant.effects["aura"]:
                 if "conditional" in servant.effects["aura"][1]:
                     if "if_spell" in servant.effects["aura"][1] and carte.type == "Sort":
@@ -4802,7 +4889,11 @@ class TourEnCours:
                                 if "damage" in attaquant.weapon.effects["aura"] and "heros" in attaquant.weapon.effects["aura"][1] and "ennemi" in attaquant.weapon.effects["aura"][1]:
                                     adv.damage(attaquant.weapon.effects["aura"][2])
                                 elif "heal" in attaquant.weapon.effects["aura"] and "heros" in attaquant.weapon.effects["aura"][1] and "allié" in attaquant.weapon.effects["aura"][1]:
-                                    player.heal(attaquant.weapon.effects["aura"][2])
+                                    if "kvaldir" in player.permanent_buff:
+                                        player.heal(attaquant.weapon.effects["aura"][2])
+                                        player.permanent_buff.pop("kvaldir")
+                                    else:
+                                        player.heal(attaquant.weapon.effects["aura"][2])
                                 elif "cadavre" in attaquant.weapon.effects["aura"]:
                                     if cible.is_dead():
                                         player.cadavres += attaquant.weapon.effects["aura"][2]
@@ -4888,7 +4979,11 @@ class TourEnCours:
                     else:
                         cible.fatigue += 1
                 elif classe == "Prêtre" and not [x for x in adv.servants if "anti_heal" in x.effects]:
-                    cible.heal(2)
+                    if "kvaldir" in player.permanent_buff:
+                        cible.damage(2)
+                        player.permanent_buff.pop("kvaldir")
+                    else:
+                        cible.heal(2)
                 elif classe == "Chasseur de démons":
                     cible.inter_attack += 1
                     if "attack" in player.hp_boost:

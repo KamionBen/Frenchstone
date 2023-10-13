@@ -7922,7 +7922,7 @@
         "cost": 1,
         "attack": null,
         "health": null,
-        "effects": {"damage": 2, "ciblage": ["tous", "ennemi", "choisi"], "add_hand": [["if_naga"], ["Deuxieme filet"]]}
+        "effects": {"damage": 2, "ciblage": ["tous", "ennemi", "choisi"], "add_hand": ["if_naga", ["Deuxieme filet"]]}
     },
     {
         "id": 655,
@@ -11814,5 +11814,89 @@
         "attack": null,
         "health": null,
         "effects": {"silence": 1, "damage": [["tous", "ennemi", "aléatoire", "atk_serv"], 1], "ciblage": ["serviteur", "allié", "choisi"]}
+    },
+    {
+        "id": 979,
+        "name": "Perruque serpentine",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": [[1, 2]], "add_hand": ["if_naga", ["Perruque serpentine"]], "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 980,
+        "name": "Pretresse Valishj",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {"cri de guerre": ["refresh_mana", ["allié", "spells_this_turn"], 0]}
+    },
+    {
+        "id": 981,
+        "name": "Sectateur forgecristal",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["boost", ["self", "conditional", "if_ombre_hand"], [1, 1]]}
+    },
+    {
+        "id": 982,
+        "name": "Soins rapides",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"heal": 5, "ciblage": ["tous", "tous", "choisi"]}
+    },
+    {
+        "id": 983,
+        "name": "Eclat des naaru",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"silence": ["serviteur", "tous", "ennemi"], "echangeable": 1}
+    },
+    {
+        "id": 984,
+        "name": "Accord de puissance synchro",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": [["allié"], "copy_target"], "ciblage": ["serviteur", "tous", "choisi"], "final": ["add_hand", [["allié", "boosted", [1, 2]], "copy_target"]]}
+    },
+    {
+        "id": 985,
+        "name": "Ascendante de l'ombre",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "aléatoire", "end_turn"], [1, 1]]}
     }
 ]

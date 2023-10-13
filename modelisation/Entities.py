@@ -134,6 +134,8 @@ for i in range(7):
 
 
 """ CLASSES """
+
+
 class Plateau:
     def __init__(self, players=()):
         """ Décrit exhaustivement le plateau de jeu """
@@ -424,7 +426,7 @@ class Player:
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
         self.hand = CardGroup()  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
-        self.serv_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, 0
+        self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, 0, 0
         self.last_card, self.first_spell, self.next_spell = get_card(-1, all_cards), None, []
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
@@ -502,7 +504,7 @@ class Player:
         self.attack, self.inter_attack = 0, 0
         self.damage_this_turn, self.my_turn, self.cards_this_turn = 0, False, 0
         self.dead_undeads, self.dead_this_turn = [], []
-        self.serv_this_turn = CardGroup()
+        self.serv_this_turn, self.spell_this_turn = CardGroup(), 0
         self.augment = []
         if self.remaining_atk == 0 and "gel" in self.effects:
             self.effects.pop("gel")
@@ -1229,13 +1231,6 @@ def jouer_sort(self, carte, target=None):
         else:
             raise PermissionError("Carte plus chère que la mana du joueur")
 
+
 if __name__ == '__main__':
     pass
-
-
-
-
-
-
-
-

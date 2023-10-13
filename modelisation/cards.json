@@ -11837,7 +11837,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"cri de guerre": ["refresh_mana", ["allié", "spells_this_turn"], 0]}
+        "effects": {"cri de guerre": ["refresh_mana", ["allié", "spells_this_turn"], 0], "legendaire": 1}
     },
     {
         "id": 981,
@@ -11898,5 +11898,114 @@
         "attack": 2,
         "health": 3,
         "effects": {"aura": ["boost", ["serviteur", "allié", "aléatoire", "end_turn"], [1, 1]]}
+    },
+    {
+        "id": 986,
+        "name": "Beau gosse",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["heal", ["serviteur", "allié", "tous", "boost_if_surplus"], 3]}
+    },
+    {
+        "id": 987,
+        "name": "Championne sacree",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 4,
+        "effects": {"aura": ["boost", ["self", "conditional", "if_surplus", "alive"], [2, 0]]}
+    },
+    {
+        "id": 988,
+        "name": "Fan",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"choix_des_armes": [["add_hand", ["allié"], ["Fan attaque"]], ["add_hand", ["allié"], ["Fan defense"]]],
+        "cri de guerre": ["suicide", ["self", "remove"], 1]}
+    },
+    {
+        "id": 989,
+        "name": "Fan attaque",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 0,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "ruée"], [2, 0]], "mandatory": 1}
+    },
+    {
+        "id": 990,
+        "name": "Fan defense",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 0,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre": ["boost", ["serviteur", "allié", "choisi", "vol de vie"], [0, 2]], "mandatory": 1}
+    },
+    {
+        "id": 991,
+        "name": "Faux disciple",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {"cri de guerre": ["decouverte", [""], ["serviteur", "legendaire", "prêtre"]]}
+    },
+    {
+        "id": 992,
+        "name": "Garde de la reine",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre": ["boost", ["self", "spells_this_turn"], [0, 0]]}
+    },
+    {
+        "id": 993,
+        "name": "Geode de mana",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"aura": ["invocation", ["conditional", "if_surplus", "alive"], "Cristal"]}
+    },
+    {
+        "id": 994,
+        "name": "Cristal",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": 2,
+        "health": 2,
+        "effects": {}
     }
 ]

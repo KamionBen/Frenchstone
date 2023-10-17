@@ -12151,5 +12151,29 @@
         "attack": 1,
         "health": 3,
         "effects": {"use": ["boost", ["serviteur", "tous", "choisi", "pioche", 1], [2, 1]]}
+    },
+    {
+        "id": 1007,
+        "name": "Cauchemar obsedant",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {"rale d'agonie": ["haunt", ["main", "allié", "aléatoire"], "Soldat hante"]}
+    },
+    {
+        "id": 1008,
+        "name": "Soldat hante",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {}
     }
 ]

@@ -2202,6 +2202,15 @@ class TourEnCours:
                         elif ("ennemi" in carte.effects["rale d'agonie"][1] and carte in player.servants) or ("allié" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
                             for card in carte.effects["rale d'agonie"][2]:
                                 adv.hand.add(get_card(card, all_cards))
+                if "haunt" in carte.effects["rale d'agonie"]:
+                    if ("allié" in carte.effects["rale d'agonie"][1] and carte in player.servants) or ("ennemi" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
+                        if player.hand.cards:
+                            haunted_card = random.choice(player.hand.cards)
+                            haunted_card.effects["haunted"] = carte.effects["rale d'agonie"][2]
+                    elif ("ennemi" in carte.effects["rale d'agonie"][1] and carte in player.servants) or ("allié" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
+                        if adv.hand.cards:
+                            haunted_card = random.choice(adv.hand.cards)
+                            haunted_card.effects["haunted"] = carte.effects["rale d'agonie"][2]
                 if "add_deck" in carte.effects["rale d'agonie"]:
                     if ("allié" in carte.effects["rale d'agonie"][1] and carte in player.servants) or ("ennemi" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
                         for card in carte.effects["rale d'agonie"][2]:
@@ -2684,6 +2693,15 @@ class TourEnCours:
                         elif ("ennemi" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or ("allié" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
                             for card in carte.effects["rale d'agonie2"][2]:
                                 adv.hand.add(get_card(card, all_cards))
+                if "haunt" in carte.effects["rale d'agonie2"]:
+                    if ("allié" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or ("ennemi" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
+                        if player.hand.cards:
+                            haunted_card = random.choice(player.hand.cards)
+                            haunted_card.effects["haunted"] = carte.effects["rale d'agonie2"][2]
+                    elif ("ennemi" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or ("allié" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
+                        if adv.hand.cards:
+                            haunted_card = random.choice(adv.hand.cards)
+                            haunted_card.effects["haunted"] = carte.effects["rale d'agonie2"][2]
                 if "add_deck" in carte.effects["rale d'agonie2"]:
                     if ("allié" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or (
                             "ennemi" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
@@ -4540,6 +4558,8 @@ class TourEnCours:
                 player.pick()
         if "combo" in carte.effects and player.last_card.name != "":
             carte.effects[carte.effects["combo"][0]] = carte.effects["combo"][1]
+        if "haunted" in carte.effects:
+            self.invoke_servant(get_card(carte.effects["haunted"], all_servants), player)
 
         """ Carte jouée """
         if carte.type.lower() == "sort":
@@ -4564,7 +4584,7 @@ class TourEnCours:
                     or (adv.secrets and "counter" in [x.effects["secret"] for x in adv.secrets if x.effects["trigger"] == "if_spell_played"]):
                 if "counter" in [x.effects["aura"][0] for x in adv.servants if "aura" in x.effects] and "sort" in [x.effects["aura"][1] for x in adv.servants if "aura" in x.effects]:
                     print([x for x in adv.servants if "aura" in x.effects and "counter" in x.effects["aura"][0]][0].effects)
-                    [x for x in adv.servants if "aura" in x.effects and "counter" in x.effects["aura"][0]][0].effects.pop("counter")
+                    [x for x in adv.servants if "aura" in x.effects and "counter" in x.effects["aura"][0]][0].effects.pop("aura")
                 else:
                     secret = [x for x in adv.secrets if x.effects["trigger"] == "if_spell_played" and x.effects["secret"] == "counter"][0]
                     secret.effects.pop("secret")

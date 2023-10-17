@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 from modelisation.Entities import *
 
-CARD_POOL = get_cards_data("modelisation/cards.json")
+CARD_POOL = get_cards_data("cards.json")
 
 
 class ScrollLog(pygame.sprite.Sprite):
@@ -318,7 +318,7 @@ class FancyInterface:
         pygame.init()
         self.screen = pygame.display.set_mode(resolution)
         pygame.display.set_caption('FrenchStone')
-        pygame.display.set_icon(pygame.image.load('images/icon.png'))
+        pygame.display.set_icon(pygame.image.load('../images/icon.png'))
         self.clock = pygame.time.Clock()
 
         global default_font
@@ -417,7 +417,7 @@ class FancyInterface:
 
 
 if __name__ == '__main__':
-    fi = FancyInterface('modelisation/logs_games.pickle', debug=False)
+    fi = FancyInterface('logs_games.pickle', debug=False)
     fi.run()
 
 

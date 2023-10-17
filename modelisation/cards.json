@@ -12175,5 +12175,113 @@
         "attack": 4,
         "health": 3,
         "effects": {}
+    },
+    {
+        "id": 1009,
+        "name": "Esprit de l'ombre",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {"rale d'agonie": ["damage", ["heros", "ennemi"], 3]}
+    },
+    {
+        "id": 1010,
+        "name": "Grace du patriarche",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"heal": ["decouverte", "if_surplus", 8], "ciblage": ["tous", "tous", "choisi"]}
+    },
+    {
+        "id": 1011,
+        "name": "Messagere de la lumiere",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre": ["heal", ["tous", "allié", "if_sacré"], 0, 6]}
+    },
+    {
+        "id": 1012,
+        "name": "Moissonneur de l'envie",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {"aura": ["add_hand", ["conditional", "if_copied_card", "allié", "steal", "alive"], 1], "legendaire": 1}
+    },
+    {
+        "id": 1013,
+        "name": "Nova sacree",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"heal": ["tous", "allié", 2], "damage": [["serviteur", "ennemi", "tous"], 2]}
+    },
+    {
+        "id": 1014,
+        "name": "Plagiarizarrr",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Pirate"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "topdeck_adv", "copy"], ""]}
+    },
+    {
+        "id": 1015,
+        "name": "Pelagos",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 1,
+        "health": 6,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "conditional", "if_targeted_spell", "max_hp_atk"], [0, 0]], "legendaire": 1}
+    },
+    {
+        "id": 1016,
+        "name": "Suivante",
+        "classe": "Prêtre",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 2,
+        "effects": {"cri de guerre": ["pioche", ["allié", "if_spell", 3], 0, 3]}
+    },
+    {
+        "id": 1017,
+        "name": "Usurpation d'identite",
+        "classe": "Prêtre",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["adv_hand", "continue_deck"]}
     }
 ]

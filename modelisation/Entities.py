@@ -26,7 +26,8 @@ def get_cards_data(file: str) -> list:
         return json.load(jsonfile)
 
 
-cardsfile = "cards.json"
+# cardsfile = "cards.json"
+
 all_cards = get_cards_data('cards.json')
 all_servants = [x for x in all_cards if x['type'] == "Serviteur"]
 all_spells = [x for x in all_cards if x['type'] == "Sort"]
@@ -430,7 +431,7 @@ class Player:
         self.last_card, self.first_spell, self.next_spell = get_card(-1, all_cards), None, []
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
-        self.surcharge, self.randomade, self.milouse = 0, 0, 0
+        self.surcharge, self.randomade, self.milouse, self.surplus = 0, 0, 0, 0
         self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells, self.poofed = [], [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
@@ -501,7 +502,7 @@ class Player:
 
     def end_turn(self):
         """ Mise à jour de fin de tour """
-        self.attack, self.inter_attack = 0, 0
+        self.attack, self.inter_attack, self.surplus = 0, 0, 0
         self.damage_this_turn, self.my_turn, self.cards_this_turn = 0, False, 0
         self.dead_undeads, self.dead_this_turn = [], []
         self.serv_this_turn, self.spell_this_turn = CardGroup(), 0
@@ -770,6 +771,8 @@ class Player:
         nb_heal = min(nb, self.base_health - self.health)
         self.health += nb_heal
         self.heal_this_turn += nb_heal
+        if nb > nb_heal:
+            self.surplus = nb - nb_heal
         if nb_heal and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn:
             self.weapon.effects["stack"] += 1
         if nb_heal > 0 and [x for x in self.servants if "aura" in x.effects and "Banshee hurlante" in x.effects["aura"]] and len(self.servants) + len(self.lieux) < 7:

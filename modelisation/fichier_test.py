@@ -475,6 +475,15 @@ def generate_legal_vector_test(state):
                                                 adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                             if adv.servants[j].name == "Recrue de la main d'argent":
                                                 legal_actions[17 * i + j + 11] = True
+                                elif "if_atk_sup5" in player.hand[i].effects["ciblage"]:
+                                    for j in range(len(player.servants)):
+                                        if player.servants[j].attack >= 5 and "inciblable" not in player.servants[j].effects:
+                                            legal_actions[17 * i + j + 3] = True
+                                    for j in range(len(adv.servants)):
+                                        if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
+                                                adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                            if adv.servants[j].attack >= 5:
+                                                legal_actions[17 * i + j + 11] = True
                                 else:
                                     for j in range(len(player.servants)):
                                         if "inciblable" not in player.servants[j].effects:

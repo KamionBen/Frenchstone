@@ -972,8 +972,8 @@ class TourEnCours:
                     if "right_card" in carte.effects["cri de guerre"][1] and player.hand.cards:
                         player.hand.cards[-1].base_cost = max(0, player.hand.cards[-1].base_cost - 1)
                     if "main" in carte.effects["cri de guerre"][1]:
-                        if "allié" in carte.effects["cri de guerre"][1] and "sort" in carte.effects["cri de guerre"][1]:
-                            if [x for x in player.hand if x.type == "Sort"]:
+                        if "allié" in carte.effects["cri de guerre"][1]:
+                            if "sort" in carte.effects["cri de guerre"][1] and [x for x in player.hand if x.type == "Sort"]:
                                 for spell in [x for x in player.hand if x.type == "Sort"]:
                                     if "milouse" in carte.effects["cri de guerre"][1]:
                                         spell.cost = 0
@@ -982,6 +982,10 @@ class TourEnCours:
                                     else:
                                         spell.cost = max(0, spell.cost - carte.effects["cri de guerre"][2])
                                         spell.base_cost = max(0, spell.base_cost - carte.effects["cri de guerre"][2])
+                            elif "copied_cards" in carte.effects["cri de guerre"][1] and [x for x in player.hand if "copied" in x.effects]:
+                                for card in [x for x in player.hand if "copied" in x.effects]:
+                                    card.cost = max(0, card.cost - carte.effects["cri de guerre"][2])
+                                    card.base_cost = max(0, card.base_cost - carte.effects["cri de guerre"][2])
                 elif "augment" in carte.effects["cri de guerre"]:
                     if "ennemi" in carte.effects["cri de guerre"][1] and "temp_fullturn" in \
                             carte.effects["cri de guerre"][1]:
@@ -1168,15 +1172,14 @@ class TourEnCours:
                                     elif "copy" in carte.effects["cri de guerre"][1]:
                                         if "from_adv_deck" in carte.effects["cri de guerre"][1]:
                                             if adv.deck.cards:
-                                                copied_card = random.choice([x for x in adv.deck])
-                                                card_to_draw = get_card(copied_card.name, all_cards)
-                                                card_to_draw.attack, card_to_draw.base_attack = copied_card.attack, copied_card.base_attack
-                                                card_to_draw.health, card_to_draw.base_health = copied_card.health, copied_card.base_health
-                                                card_to_draw.effects = copied_card.effects.copy()
+                                                card_to_draw = copy_card(random.choice([x for x in adv.deck]))
                                                 card_to_draw.effects["copied"] = 1
+                                            else:
+                                                card_to_draw = None
                                     else:
                                         card_to_draw = get_card(carte.effects["cri de guerre"][2], all_cards)
-                                    player.hand.add(card_to_draw)
+                                    if card_to_draw is not None:
+                                        player.hand.add(card_to_draw)
                                     if "porteur d'invitation" in [x.effects for x in player.servants] and get_card(carte.effects["cri de guerre"][2],
                                                                            all_cards).classe not in ["Neutre", player.classe]:
                                         player.hand.add(card_to_draw)
@@ -1475,10 +1478,7 @@ class TourEnCours:
                                         self.invoke_servant(get_card(crea, all_servants), player)
                         elif "copy" in carte.effects["cri de guerre"][1]:
                             if "if_secret" in carte.effects["cri de guerre"][1] and player.secrets:
-                                invoked_servant = get_card(carte.effects["cri de guerre"][2], all_servants)
-                                invoked_servant.attack, invoked_servant.base_attack = carte.attack, carte.base_attack
-                                invoked_servant.health, invoked_servant.base_health = carte.health, carte.base_health
-                                invoked_servant.effects = carte.effects.copy()
+                                invoked_servant = copy_card(carte.effects["cri de guerre"][2])
                                 self.invoke_servant(invoked_servant, player)
                             else:
                                 for nb_copy in range(carte.effects["cri de guerre"][1][-1]):
@@ -1572,13 +1572,9 @@ class TourEnCours:
                     new_servant.health, new_servant.base_health = 3, 3
                     player.servants.add(new_servant)
                 elif "boosted_copy" in carte.effects["cri de guerre"] and target is not None and len(player.servants) + len(player.lieux) < 7:
-                    copy_card = get_card(target.name, all_servants)
-                    copy_card.attack, copy_card.base_attack = target.attack, target.base_attack
-                    copy_card.health, copy_card.base_health, copy_card.blessure = target.health, target.base_health, target.blessure
-                    copy_card.effects = deepcopy(target.effects)
-                    copy_card.effects["ruée"], copy_card.effects["bouclier divin"], copy_card.effects["furie des vents"] = 1, 1, 1
-                    copy_card.remaining_atk = 1
-                    self.invoke_servant(copy_card, player)
+                    card_to_invoke = copy_card(target)
+                    card_to_invoke.remaining_atk = 1
+                    self.invoke_servant(card_to_invoke, player)
                 elif "duplicate" in carte.effects["cri de guerre"]:
                     if "main" in carte.effects["cri de guerre"][1]:
                         hand = player.hand.cards.copy()
@@ -2184,6 +2180,21 @@ class TourEnCours:
                             card_to_add = get_card(carte.effects["rale d'agonie"][2], all_servants)
                             card_to_add.effects["cost_pv"] = ["", 1]
                             adv.hand.add(card_to_add)
+                    elif "copy" in carte.effects["rale d'agonie"][1]:
+                        if ("allié" in carte.effects["rale d'agonie"][1] and carte in player.servants) or (
+                                "ennemi" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
+                            if "from_adv_deck" in carte.effects["rale d'agonie"][1]:
+                                if adv.deck.cards:
+                                    card_to_draw = copy_card(random.choice([x for x in adv.deck]))
+                                    card_to_draw.effects["copied"] = 1
+                                    player.hand.add(card_to_draw)
+                        elif ("ennemi" in carte.effects["rale d'agonie"][1] and carte in player.servants) or (
+                                "allié" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
+                            if "from_adv_deck" in carte.effects["rale d'agonie"][1]:
+                                if player.deck.cards:
+                                    card_to_draw = copy_card(random.choice([x for x in player.deck]))
+                                    card_to_draw.effects["copied"] = 1
+                                    adv.hand.add(card_to_draw)
                     else:
                         if ("allié" in carte.effects["rale d'agonie"][1] and carte in player.servants) or ("ennemi" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
                             for card in carte.effects["rale d'agonie"][2]:
@@ -2274,8 +2285,8 @@ class TourEnCours:
                             "allié" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
                         adv.permanent_buff["regis"] = 1
                 if "swap" in carte.effects["rale d'agonie"] and target is not None:
-                    copy_card = get_card(carte.name, all_servants)
-                    player.hand.add(copy_card)
+                    swapped_card = get_card(carte.name, all_servants)
+                    player.hand.add(swapped_card)
                     if ("allié" in carte.effects["rale d'agonie"][1] and carte in player.servants) or (
                             "ennemi" in carte.effects["rale d'agonie"][1] and carte in adv.servants):
                         target.effects["vol de vie"] = 1
@@ -2651,6 +2662,21 @@ class TourEnCours:
                             card_to_add = get_card(carte.effects["rale d'agonie2"][2], all_servants)
                             card_to_add.effects["cost_pv"] = ["", 1]
                             adv.hand.add(card_to_add)
+                    elif "copy" in carte.effects["rale d'agonie2"][1]:
+                        if ("allié" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or (
+                                "ennemi" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
+                            if "from_adv_deck" in carte.effects["rale d'agonie2"][1]:
+                                if adv.deck.cards:
+                                    card_to_draw = copy_card(random.choice([x for x in adv.deck]))
+                                    card_to_draw.effects["copied"] = 1
+                                    player.hand.add(card_to_draw)
+                        elif ("ennemi" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or (
+                                "allié" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
+                            if "from_adv_deck" in carte.effects["rale d'agonie2"][1]:
+                                if player.deck.cards:
+                                    card_to_draw = copy_card(random.choice([x for x in player.deck]))
+                                    card_to_draw.effects["copied"] = 1
+                                    adv.hand.add(card_to_draw)
                     else:
                         if ("allié" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or ("ennemi" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
                             for card in carte.effects["rale d'agonie2"][2]:
@@ -2743,8 +2769,8 @@ class TourEnCours:
                             "allié" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
                         adv.permanent_buff["regis"] = 1
                 if "swap" in carte.effects["rale d'agonie2"] and target is not None:
-                    copy_card = get_card(carte.name, all_servants)
-                    player.hand.add(copy_card)
+                    swapped_card = get_card(carte.name, all_servants)
+                    player.hand.add(swapped_card)
                     if ("allié" in carte.effects["rale d'agonie2"][1] and carte in player.servants) or (
                             "ennemi" in carte.effects["rale d'agonie2"][1] and carte in adv.servants):
                         target.effects["vol de vie"] = 1
@@ -2913,6 +2939,8 @@ class TourEnCours:
                         target.effects["ruée"] = 1
                     if "provocation" in carte.effects["boost"][0]:
                         target.effects["provocation"] = 1
+                    if "inciblable" in carte.effects["boost"][0]:
+                        target.effects["inciblable"] = 1
                     if "bouclier divin" in carte.effects["boost"][0]:
                         target.effects["bouclier divin"] = 1
                     if "suppr_bouclier" in carte.effects["boost"][0]:
@@ -2927,6 +2955,8 @@ class TourEnCours:
                         for serv in player.servants.cards + adv.servants.cards:
                             if serv != target:
                                 serv.damage(target.attack, toxic=True if "toxicite" in target.effects else False)
+                    if "dead_neg_atk" in carte.effects["boost"] and target.attack <= 0:
+                        target.blessure = 1000
                 else:
                     if "deck" in carte.effects["boost"] and "allié" in carte.effects["boost"]:
                         if "serviteur" in carte.effects["boost"] and [x for x in player.deck if x.type == "Serviteur"]:
@@ -3046,6 +3076,11 @@ class TourEnCours:
                                         cible.damage(carte.effects["damage"][1] + player.spell_damage, toxic=True if "toxicite" in carte.effects else False)
                         elif "atk_serv" in carte.effects["damage"]:
                             carte.effects["damage"] = target.attack
+                        elif "allié_or_adv" in carte.effects["damage"]:
+                            if target in [adv] + adv.servants.cards:
+                                target.damage(carte.effects["damage"][-1] + player.spell_damage, toxic=True if "toxicite" in carte.effects else False)
+                            else:
+                                target.heal(carte.effects["damage"][1])
                     elif carte.effects["damage"] == "hero_attack":
                         carte.effects["damage"] = player.attack
                     if type(carte.effects["damage"]) != list:
@@ -3395,6 +3430,15 @@ class TourEnCours:
                 if type(carte.effects["return_hand"]) == list and "add_cost" in carte.effects["return_hand"]:
                     basic_card.cost += carte.effects["return_hand"][-1]
                     basic_card.base_cost += carte.effects["return_hand"][-1]
+            elif "transformation_main" in carte.effects:
+                if "allié" in carte.effects["transformation_main"]:
+                    if "serviteur" in carte.effects["transformation_main"]:
+                        for serv in [x for x in player.hand if x.type == "Serviteur"]:
+                            index_serv = player.hand.cards.index(serv)
+                            new_serv = Card(**random.choice([x for x in all_servants if x["decouvrable"] == 1 and x["cost"] == min(10, serv.cost + 3)]))
+                            new_serv.cost = serv.cost
+                            new_serv.base_cost = serv.base_cost
+                            player.hand.cards[index_serv] = new_serv
             if "add_deck" in carte.effects:
                 if "allié" in carte.effects["add_deck"][0]:
                     if "sort" in carte.effects["add_deck"][0]:
@@ -3660,14 +3704,7 @@ class TourEnCours:
                     player.cadavres -= carte.effects["spend_cadavre"][0]
                     player.cadavres_spent += carte.effects["spend_cadavre"][0]
             elif "copy" in carte.effects and target is not None:
-                to_invoke = get_card(target.name, all_servants)
-                to_invoke.attack = target.attack
-                to_invoke.base_attack = target.base_attack
-                to_invoke.health = target.health
-                to_invoke.blessure = target.blessure
-                to_invoke.base_health = target.base_health
-                to_invoke.effects = target.effects
-                to_invoke.remaining_atk = 0
+                to_invoke = copy_card(target)
                 if "debuff" in carte.effects["copy"]:
                     if "fragile" in carte.effects["copy"]:
                         to_invoke.effects["fragile"] = 1
@@ -3811,8 +3848,6 @@ class TourEnCours:
                 elif "ames_liees" in carte.effects["decouverte"]:
                     self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup(player.ames_liees))
                 elif "in_deck" in carte.effects["decouverte"] and player.deck.cards:
-                    if "sort" in carte.effects["decouverte"] and [x for x in player.deck if x.type == "Sort"]:
-                        self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([x for x in player.deck.cards if x.type == "Sort"]))
                     if "Bête" in carte.effects["decouverte"]:
                         if [x for x in player.deck if x.type == "Serviteur" and "Bête" in x.genre]:
                             self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([x for x in player.deck if x.type == "Serviteur" and "Bête" in x.genre]))
@@ -3920,6 +3955,8 @@ class TourEnCours:
                     target.boost(carte.effects["use"][-1][0], carte.effects["use"][-1][1])
                 if "if_bete" in carte.effects["use"][1] and "ruée" in carte.effects["use"][1] and "Bête" in target.genre:
                     target.effects["ruée"] = 1
+                if "pioche" in carte.effects["use"][1]:
+                    player.pick_multi(carte.effects["use"][1][-1])
             elif "gel+invocation" in carte.effects["use"] and target is not None:
                 target.effects["gel"] = 1
                 self.invoke_servant(get_card(carte.effects["use"][2], all_servants), player)
@@ -4145,6 +4182,8 @@ class TourEnCours:
                         servant.surplus = 0
             if "invocation" in servant.effects["aura"]:
                 if "if_surplus" in servant.effects["aura"][1] and servant.surplus > 0:
+                    if "egal_surplus" in servant.effects["aura"][1]:
+                        servant.effects["aura"][2] = random.choice([x["name"] for x in all_servants if x["cost"] == servant.surplus])
                     servant.surplus = 0
                     self.invoke_servant(get_card(servant.effects["aura"][2], all_servants), player)
             if "add_hand" in servant.effects["aura"]:
@@ -5177,9 +5216,14 @@ class TourEnCours:
                     elif type(cards[choice].effects["damage"]) == list:
                         cards[choice].effects["damage"][-1] += 1
                 else:
-                    player.hand.add(cards[choice])
-                    if cards[choice] in player.deck:
-                        player.deck.remove(cards[choice])
+                    if player.last_card.name in ["Eleveur selectif", "Protocole de la creation", "Protocole de la creation forge", "Epanouissement dans l'ombre"]:
+                        player.hand.add(copy_card(cards[choice]))
+                        if player.last_card.name == "Protocole de la creation forge":
+                            player.hand.add(copy_card(cards[choice]))
+                    else:
+                        player.hand.add(cards[choice])
+                        if cards[choice] in player.deck:
+                            player.deck.remove(cards[choice])
                     if "porteur d'invitation" in [x.effects for x in player.servants] and Card(**cards[choice]).classe not in ["Neutre",
                                                                                                     self.plt.players[
                                                                                                         0].classe]:
@@ -5385,13 +5429,7 @@ class TourEnCours:
                     elif "if_cadavre" in servant.effects["aura"][1] and player.cadavres >= servant.effects["aura"][1][-1] and len(player.servants) + len(player.lieux) < 7:
                         player.cadavres -= servant.effects["aura"][1][-1]
                         if "copy" in servant.effects["aura"][1]:
-                            invoked_servant = get_card(servant.name, all_servants)
-                            invoked_servant.attack = servant.attack
-                            invoked_servant.base_attack = servant.base_attack
-                            invoked_servant.health = servant.health
-                            invoked_servant.base_health = servant.base_health
-                            invoked_servant.effects = servant.effects.copy()
-                            player.servants.add(invoked_servant)
+                            player.servants.add(copy_card(servant))
                         else:
                             player.servants.add(get_card(servant.effects["aura"][2], all_servants))
                     else:

@@ -1089,6 +1089,15 @@ def get_card(key: Union[int, str], cardpool: list) -> Card:
         raise KeyError(f"Impossible de trouver {key}")
 
 
+def copy_card(card):
+    copied_card = get_card(card.name, all_cards)
+    copied_card.attack, copied_card.base_attack = card.attack, card.base_attack
+    copied_card.health, copied_card.base_health = card.health, card.base_health
+    copied_card.cost, copied_card.base_cost = card.cost, card.base_cost
+    copied_card.effects = card.effects.copy()
+    return copied_card
+
+
 def int_to_id(baseid: int, nb: int) -> str:
     if type(baseid) is int and type(nb) is int:
         if baseid < 10:

@@ -212,12 +212,15 @@ class Plateau:
                 if servant.is_dead():
                     if "Mort-vivant" in servant.genre:
                         player.dead_undeads.append(servant)
+                        player.dead_zombies.append(servant.name)
                         if servant.name == "Squelette instable":
                             player.dead_squelette += 1
                     if "Démon" in servant.genre:
                         player.dead_demons.append(servant)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
+                    if servant.id not in [x.id for x in player.initial_deck if x.type == "Serviteur"]:
+                        player.dead_indirect.append(servant.name)
                     player.all_dead_servants.append(servant)
                     player.dead_this_turn.append(servant)
                     if len(player.all_dead_servants) > 3:
@@ -283,7 +286,7 @@ class Plateau:
                     targets.append(player)
             else:
                 targets.append(player)
-        elif player.power[0] == "Explosion demoniaque":
+        elif player.power[0] in ["Explosion demoniaque", "Pretre ombre"]:
             targets = [player] + [adv] + player.servants.cards + adv.servants.cards
         return targets
 
@@ -435,7 +438,7 @@ class Player:
         self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells, self.poofed = [], [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn, = [], []
+        self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect = [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates = 0, 0, 0, 0, 0, 0
@@ -474,6 +477,8 @@ class Player:
         if "Prince Renathal" in [x.name for x in self.deck]:
             self.health = 35
             self.base_health = 35
+        if "Sombre eveque benedictus" in [x.name for x in self.deck] and not [x for x in self.deck if x.type == "Sort" and "Ombre" not in x.genre]:
+            self.power = ["Pretre ombre"]
         self.pick_multi(3)
 
     def start_turn(self):
@@ -588,6 +593,9 @@ class Player:
                         card.cost = max(0, card.base_cost - self.sacre_spent)
                     elif "paladin_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.paladin_played)
+                    elif "if_death_undead" in card.effects["reduc"] and self.dead_undeads:
+                        if "fixed_cost" in card.effects["reduc"]:
+                            card.cost = card.effects["reduc"][-1]
             if "milouse" in card.effects:
                 card.cost = card.base_cost + self.milouse
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
@@ -664,6 +672,9 @@ class Player:
         if [x for x in self.hand if "temp_augment" in x.effects]:
             for card in [x for x in self.hand if "temp_augment" in x.effects]:
                 card.cost = card.base_cost + card.effects["temp_augment"]
+        if "eternel amour" in self.permanent_buff and self.permanent_buff["eternel amour"] == 1:
+            for card in [x for x in self.hand if x.type == "Sort"]:
+                card.cost = max(0, card.cost - 2)
 
     def apply_weapon(self):
         self.dead_weapon = []
@@ -985,7 +996,7 @@ class Card:
             else:
                 self.damage_taken = False
 
-    def boost(self, atk, hp, fixed_stats = False, other=None):
+    def boost(self, atk, hp, fixed_stats=False, other=None):
         if not fixed_stats:
             self.attack += atk
             self.base_attack += atk
@@ -1097,6 +1108,7 @@ def copy_card(card):
     copied_card.attack, copied_card.base_attack = card.attack, card.base_attack
     copied_card.health, copied_card.base_health = card.health, card.base_health
     copied_card.cost, copied_card.base_cost = card.cost, card.base_cost
+    copied_card.blessure = card.blessure
     copied_card.effects = card.effects.copy()
     return copied_card
 

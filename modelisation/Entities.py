@@ -146,7 +146,7 @@ class Plateau:
                        'Démoniste': 'dk_sang.csv',
                        'Chasseur de démons': 'dh_marginal.csv',
                        'Druide': 'big_druid.csv',
-                       'Voleur': 'dk_sang.csv',
+                       'Voleur': 'voleur_secrets.csv',
                        'Guerrier': 'dk_sang.csv',
                        'Chevalier de la mort': 'dk_sang.csv',
                        'Prêtre': 'shadow_priest.csv'
@@ -428,10 +428,10 @@ class Player:
 
         # Cartes
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
-        self.hand = CardGroup()  # La main du joueur
+        self.hand, self.cards_played = CardGroup(), []  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, 0, 0
-        self.last_card, self.first_spell, self.next_spell = get_card(-1, all_cards), None, []
+        self.last_card, self.first_spell, self.next_spell, self.otherclass_played = get_card(-1, all_cards), None, [], False
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade, self.milouse, self.surplus = 0, 0, 0, 0
@@ -760,7 +760,7 @@ class Player:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
-        self.first_spell, self.next_spell, self.end_turn_cards, self.last_card = None, [], [], get_card(-1, all_cards)
+        self.first_spell, self.next_spell, self.end_turn_cards, self.last_card, self.otherclass_played = None, [], [], get_card(-1, all_cards), False
         if "jotun" in self.permanent_buff:
             self.permanent_buff["jotun"] = 1
         self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, {}

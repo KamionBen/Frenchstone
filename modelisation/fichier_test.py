@@ -2,7 +2,7 @@ import time
 from engine import *
 import gc
 
-players = [Player("NewIA", "Prêtre"), Player("OldIA", "Chevalier de la mort")]
+players = [Player("NewIA", "Voleur"), Player("OldIA", "Chevalier de la mort")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -441,7 +441,7 @@ def generate_legal_vector_test(state):
                         for j in range(len(player.servants)):
                             if ("Méca" in player.servants[j].genre) or ("Méca" in player.servants[j].genre and player.hand[i].name == "Parasite degoulinant"):
                                 legal_actions[17 * i + j + 3] = True
-                elif player.hand[i].type.lower() == "sort":
+                elif player.hand[i].type.lower() == "sort" and "unplayable" not in player.hand[i].effects:
                     if "ciblage" in player.hand[i].effects:
                         if "serviteur" in player.hand[i].effects["ciblage"]:
                             if "ennemi" in player.hand[i].effects["ciblage"]:
@@ -501,6 +501,15 @@ def generate_legal_vector_test(state):
                                         if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
                                                 adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                             if adv.servants[j].attack >= 5:
+                                                legal_actions[17 * i + j + 11] = True
+                                elif "if_indemne" in player.hand[i].effects["ciblage"]:
+                                    for j in range(len(player.servants)):
+                                        if player.servants[j].blessure == 0 and "inciblable" not in player.servants[j].effects:
+                                            legal_actions[17 * i + j + 3] = True
+                                    for j in range(len(adv.servants)):
+                                        if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
+                                                adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                            if adv.servants[j].blessure == 0:
                                                 legal_actions[17 * i + j + 11] = True
                                 else:
                                     for j in range(len(player.servants)):

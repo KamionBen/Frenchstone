@@ -659,8 +659,8 @@ def calc_advantage_minmax(state):
             card_advantage += 2.5
         if "fragile" in card.effects:
             card_advantage -= 0.5 * card.cost
-        advantage += 2 * card_advantage
-    advantage -= 0.6 * len(adv.hand)
+        advantage += 2.5 * card_advantage
+    advantage -= 0.8 * len(adv.hand)
 
     """ Deck """
     if player.deck and player.deck[0].base_cost < get_card(player.deck[0].name, all_cards).base_cost:
@@ -705,8 +705,8 @@ def calc_advantage_minmax(state):
 
     """ Health """
     if player.health > 0 and adv.health > 0:
-        advantage += 0.25 * (30/adv.health - 30/player.health)
-    advantage += 0.3 * player.armor
+        advantage += 0.35 * (30/adv.health - 30/player.health)
+    advantage += 0.4 * player.armor
 
     """ Others """
     advantage += 3 * (len(player.secrets) + len(player.attached) - len(adv.secrets) - len(adv.attached))

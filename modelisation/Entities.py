@@ -554,7 +554,7 @@ class Player:
                 if decoctions[0].name == "Decoction visqueuse":
                     mixed_decoction.effects["invocation"] = ["allié", "cost3", "aléatoire", 2]
                 elif decoctions[0].name == "Terrible decoction":
-                    mixed_decoction.effects["invocation"] = ["serviteur", "ennemi", "aléatoire", 2]
+                    mixed_decoction.effects["destroy"] = ["serviteur", "ennemi", "aléatoire", 2]
                 elif decoctions[0].name == "Decoction bouillonnante":
                     mixed_decoction.effects["damage"] = ["double", 3]
                 elif decoctions[0].name == "Decoction vaporeuse":
@@ -564,6 +564,7 @@ class Player:
             for decoction in [x for x in self.hand if "decoction" in x.effects]:
                 self.hand.remove(decoction)
             self.hand.add(mixed_decoction)
+            [x for x in all_cards if x["name"] == "Decoction melangee"][0]["effects"] = mixed_decoction.effects
         self.spell_damage = 0
         if [x for x in self.servants if "degats des sorts" in x.effects]:
             self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects and not x.is_dead()])

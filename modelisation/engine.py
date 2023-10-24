@@ -1191,6 +1191,8 @@ class TourEnCours:
                                                 card_to_draw = None
                                     elif "decoction" in carte.effects["cri de guerre"][1]:
                                         card_to_draw = Card(**random.choice([x for x in all_spells if "decoction" in x["effects"]]))
+                                    elif "other_class" in carte.effects["cri de guerre"][1]:
+                                        card_to_draw = Card(**random.choice([x for x in all_cards if x["decouvrable"] == 1 and x["classe"] not in [carte.classe,"Neutre"]]))
                                     else:
                                         card_to_draw = get_card(carte.effects["cri de guerre"][2], all_cards)
                                     if not card_to_draw:
@@ -3121,6 +3123,10 @@ class TourEnCours:
                                                 cible.boost(carte.effects["boost"][-1][0], carte.effects["boost"][-1][1])
                                             else:
                                                 cible.damage(2 + player.spell_damage, toxic=True if "toxicite" in carte.effects else False)
+                    elif "arme" in carte.effects["boost"]:
+                        if "allié" in carte.effects["boost"] and player.weapon is not None:
+                            player.weapon.attack += carte.effects["boost"][-1][0]
+                            player.weapon.health += carte.effects["boost"][-1][1]
             if "silence" in carte.effects:
                 if target is not None:
                     target.base_attack = get_card(target.name, all_servants).base_attack
@@ -3578,7 +3584,7 @@ class TourEnCours:
                 elif "end_turn" in carte.effects["add_hand"]:
                     player.end_turn_cards.append(carte.effects["add_hand"][-1])
             elif "return_hand" in carte.effects and target is not None:
-                basic_card = copy_card(target)
+                basic_card = get_card(target.name, all_servants)
                 if target in player.servants:
                     player.servants.remove(target)
                     player.hand.add(basic_card)
@@ -3590,8 +3596,8 @@ class TourEnCours:
                         basic_card.cost += carte.effects["return_hand"][-1]
                         basic_card.base_cost += carte.effects["return_hand"][-1]
                     elif "reduc" in carte.effects["return_hand"]:
-                        basic_card.cost = max(0, copy_card(carte).cost - carte.effects["return_hand"][-1])
-                        basic_card.base_cost = max(0, copy_card(carte).base_cost - carte.effects["return_hand"][-1])
+                        basic_card.cost = max(0, basic_card.cost - carte.effects["return_hand"][-1])
+                        basic_card.base_cost = max(0, basic_card.base_cost - carte.effects["return_hand"][-1])
                     elif "invocation" in carte.effects["return_hand"]:
                         to_invoke = get_card(carte.effects["return_hand"][-1], all_servants)
                         if "same_stats" in carte.effects["return_hand"]:
@@ -3676,13 +3682,15 @@ class TourEnCours:
                                     player.deck.remove(drawn_card)
                                     player.hand.add(drawn_card)
                         for _ in range(carte.effects["pioche"][-1]):
-                            spells_drawn = []
                             if [x for x in player.deck.cards if x.type == "Sort"]:
                                 drawn_card = random.choice([x for x in player.deck.cards if x.type == "Sort"])
                                 player.deck.remove(drawn_card)
                                 player.hand.add(drawn_card)
                                 if "decouverte" in carte.effects and "spells_drawn" in carte.effects["decouverte"]:
                                     carte.effects["decouverte"].append(drawn_card.name)
+                                if "fragile_copy" in carte.effects["pioche"]:
+                                    fragile_copy = copy_card(drawn_card)
+                                    fragile_copy.effects["fragile"] = 1
                     else:
                         if "dead_this_turn" in carte.effects["pioche"]:
                             carte.effects["pioche"] = ["allié", len(player.dead_this_turn)]
@@ -4025,7 +4033,8 @@ class TourEnCours:
                                 for spell in [x for x in player.hand if x.type == "Serviteur" and "Méca" in x.genre]:
                                     spell.base_cost = max(0, spell.base_cost - carte.effects["reduc"][-1])
                 else:
-                    player.discount_next.append([carte.effects["reduc"][0][0], carte.effects["reduc"][0][3], carte.effects["reduc"][1], carte.effects["reduc"][0][2]])
+                    if [carte.effects["reduc"][0][0], carte.effects["reduc"][0][3], carte.effects["reduc"][1], carte.effects["reduc"][0][2]] not in player.discount_next:
+                        player.discount_next.append([carte.effects["reduc"][0][0], carte.effects["reduc"][0][3], carte.effects["reduc"][1], carte.effects["reduc"][0][2]])
             elif "augment" in carte.effects:
                 if "ennemi" in carte.effects["augment"]:
                     adv.augment.append([carte.effects["augment"][0], carte.effects["augment"][2], carte.effects["augment"][3]])
@@ -4126,6 +4135,10 @@ class TourEnCours:
                                 player.permanent_buff["pioche"] = 1
                         elif "alibi solide" in carte.effects["permanent_buff"]:
                             player.permanent_buff["alibi solide"] = 1
+                        elif "enchanteur" in carte.effects["permanent_buff"]:
+                            player.permanent_buff["enchanteur"] = 1
+                            for creature in adv.servants.cards + player.servants.cards:
+                                creature.effects["enchanteur"] = 1
                         elif "groove stellaire" in carte.effects["permanent_buff"]:
                             player.permanent_buff["groove stellaire"] = 1
                             player.effects["bouclier divin"] = 1
@@ -5350,6 +5363,8 @@ class TourEnCours:
                                     player.hand.add(card_to_hand)
                             elif "attack" in servant.effects["aura"] and not cible.is_dead():
                                 self.attaquer(servant, cible)
+                            elif "invocation" in servant.effects["aura"] and len(player.servants) + len(player.lieux) < 7:
+                                self.invoke_servant(get_card(servant.effects["aura"][-1], all_servants), player)
                 attaquant.has_attacked = 1
         else:
             raise TypeError
@@ -5859,6 +5874,8 @@ class TourEnCours:
                 serv.effects.pop("cost_pv")
         if "eternel amour" in player.permanent_buff and player.spell_this_turn == 0:
             player.permanent_buff.pop("eternel amour")
+        if "enchanteur" in player.permanent_buff:
+            player.permanent_buff.pop("enchanteur")
         if player.end_turn_cards:
             for card in player.end_turn_cards:
                 player.hand.add(get_card(card, all_cards))
@@ -6533,7 +6550,7 @@ class Orchestrator:
         for creature in player.servants.cards + adv.servants.cards:
             if not ("aura" in creature.effects and "boost" in creature.effects["aura"] and "self" in creature.effects["aura"][1]):
                 creature.total_temp_boost = [0, 0]
-            if "enchanteur" in creature.effects and not "enchanteur" in adv.curses:
+            if "enchanteur" in creature.effects and not "enchanteur" in adv.curses and not "enchanteur" in player.permanent_buff:
                 creature.effects.pop("enchanteur")
             if "holotech" in creature.effects and not "holotech" in adv.curses:
                 creature.effects.pop("holotech")

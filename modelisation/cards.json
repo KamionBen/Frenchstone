@@ -12986,5 +12986,77 @@
         "attack": null,
         "health": null,
         "effects": {"decouverte": ["adv_already_played"]}
+    },
+    {
+        "id": 1076,
+        "name": "Decocteur",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "decoction"], 1]}
+    },
+    {
+        "id": 1077,
+        "name": "Decoction visqueuse",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["allié", "cost3", "aléatoire"], "decoction": 1}
+    },
+    {
+        "id": 1078,
+        "name": "Terrible decoction",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"destroy": ["serviteur", "ennemi", "aléatoire", 1], "decoction": 1}
+    },
+    {
+        "id": 1079,
+        "name": "Decoction bouillonnante",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "ciblage": ["tous", "tous", "choisi"], "decoction": 1}
+    },
+    {
+        "id": 1079,
+        "name": "Decoction vaporeuse",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": [["allié"], ["aléatoire", "other_class", "reduc", 3]], "decoction": 1}
+    },
+    {
+        "id": 1080,
+        "name": "Decoction brillante",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", 2], "decoction": 1}
     }
 ]

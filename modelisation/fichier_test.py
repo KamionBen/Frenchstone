@@ -642,14 +642,31 @@ def generate_legal_vector_test(state):
 def calc_advantage_minmax(state):
     player = state.players[0]
     adv = state.players[1]
-    advantage = 0.6 * (len(player.hand) - len(adv.hand))
-    advantage += 5 * (player.mana_max - adv.mana_max)
-    advantage += 3 * (len(player.secrets) + len(player.attached) - len(adv.secrets) - len(adv.attached))
-    advantage += 4 * len(player.permanent_buff)
-    if "forged" in [set(x.effects) for x in player.hand]:
-        advantage += 2.5
-    if "fragile" in [set(x.effects) for x in player.hand]:
-        advantage -= 0.5
+    advantage = 0
+
+    """ Hand """
+    for card in player.hand:
+        intrinsec_value = max(0.6, 0.6 + 0.25 * card.intrinsec_cost)
+        card_advantage = intrinsec_value * max(0.6, card.intrinsec_cost) / max(0.6, card.cost)
+        if card.cost <= player.mana_max + 1:
+            card_advantage = card_advantage * (0.5 + (0.5 * max(0.6, card.cost) / player.mana_max))
+        else:
+            card_advantage = card_advantage * (0.1 + (0.7 * player.mana_max / card.cost))
+        if card.type == "Serviteur":
+            card_advantage = card_advantage * max(0.5, card.base_attack) / max(0.5, card.intrinsec_attack)
+            card_advantage = card_advantage * max(0.5, card.base_health) / max(0.5, card.intrinsec_health)
+        if "forged" in card.effects:
+            card_advantage += 2.5
+        if "fragile" in card.effects:
+            card_advantage -= 0.5 * card.cost
+        advantage += 2 * card_advantage
+    advantage -= 0.6 * len(adv.hand)
+
+    """ Deck """
+    if player.deck and player.deck[0].base_cost < get_card(player.deck[0].name, all_cards).base_cost:
+        advantage += get_card(player.deck[0].name, all_cards).base_cost - player.deck[0].base_cost
+
+    """ Board """
     for servant in player.servants:
         advantage += 1.5 * servant.attack + 1.5 * servant.health
         if "bouclier divin" in servant.effects:
@@ -678,15 +695,26 @@ def calc_advantage_minmax(state):
         if "en sommeil" in servant.effects:
             remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
             advantage += (remaining_turns/(remaining_turns + 1)) * (1.5 * servant.attack + 1.5 * servant.health)
-    if player.health > 0 and adv.health > 0:
-        advantage += 0.25 * (30/adv.health - 30/player.health)
+
+    """ Weapon """
     if player.weapon is not None:
         advantage += max(1, player.weapon.attack) * player.weapon.health
-    if player.deck and player.deck[0].base_cost < get_card(player.deck[0].name, all_cards).base_cost:
-        advantage += get_card(player.deck[0].name, all_cards).base_cost - player.deck[0].base_cost
+
+    """ Mana """
+    advantage += 5 * (player.mana_max - adv.mana_max)
+
+    """ Health """
+    if player.health > 0 and adv.health > 0:
+        advantage += 0.25 * (30/adv.health - 30/player.health)
     advantage += 0.3 * player.armor
+
+    """ Others """
+    advantage += 3 * (len(player.secrets) + len(player.attached) - len(adv.secrets) - len(adv.attached))
+    advantage += 4 * len(player.permanent_buff)
     advantage += 0.01 * player.cadavres
     advantage += 3 * len(player.lieux)
+
+    """ End """
     if player.health <= 0:
         return -500
     elif adv.health <= 0:

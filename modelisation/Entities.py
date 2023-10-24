@@ -542,6 +542,28 @@ class Player:
     def end_action(self):
         if len(self.hand) > 10:
             self.hand.cards = self.hand.cards[:10]
+        if len([x for x in self.hand if "decoction" in x.effects]) > 1:
+            decoctions = [x for x in self.hand if "decoction" in x.effects]
+            mixed_decoction = copy_card(decoctions[0])
+            if decoctions[0].name != decoctions[1].name:
+                mixed_decoction.name = "Decoction melangee"
+                mixed_decoction.effects.pop("decoction")
+                mixed_decoction.effects.update(decoctions[1].effects)
+                mixed_decoction.effects.pop("decoction")
+            else:
+                if decoctions[0].name == "Decoction visqueuse":
+                    mixed_decoction.effects["invocation"] = ["allié", "cost3", "aléatoire", 2]
+                elif decoctions[0].name == "Terrible decoction":
+                    mixed_decoction.effects["invocation"] = ["serviteur", "ennemi", "aléatoire", 2]
+                elif decoctions[0].name == "Decoction bouillonnante":
+                    mixed_decoction.effects["damage"] = ["double", 3]
+                elif decoctions[0].name == "Decoction vaporeuse":
+                    mixed_decoction.effects["add_hand"] = [["allié"], ["aléatoire", "other_class", "double", "reduc", 3]]
+                elif decoctions[0].name == "Decoction brillante":
+                    mixed_decoction.effects["pioche"] = ["allié", 4]
+            for decoction in [x for x in self.hand if "decoction" in x.effects]:
+                self.hand.remove(decoction)
+            self.hand.add(mixed_decoction)
         self.spell_damage = 0
         if [x for x in self.servants if "degats des sorts" in x.effects]:
             self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects and not x.is_dead()])
@@ -915,6 +937,7 @@ class Card:
         self.cost, self.base_cost, self.discount = kw["cost"], kw["cost"], []
         self.attack, self.base_attack = kw["attack"], kw["attack"]
         self.health, self.base_health = kw["health"], kw["health"]
+        self.intrinsec_attack, self.intrinsec_health, self.intrinsec_cost = kw["attack"], kw["health"], kw["cost"]
         
         """ Combat """
         self.remaining_atk = -1
@@ -1104,7 +1127,10 @@ def get_card(key: Union[int, str], cardpool: list) -> Card:
 
 
 def copy_card(card):
-    copied_card = get_card(card.name, all_cards)
+    try:
+        copied_card = get_card(card.name, all_cards)
+    except:
+        copied_card = get_card(-1, all_cards)
     copied_card.attack, copied_card.base_attack = card.attack, card.base_attack
     copied_card.health, copied_card.base_health = card.health, card.base_health
     copied_card.cost, copied_card.base_cost = card.cost, card.base_cost

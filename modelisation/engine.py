@@ -1189,6 +1189,8 @@ class TourEnCours:
                                                 card_to_draw.effects["copied"] = 1
                                             else:
                                                 card_to_draw = None
+                                    elif "decoction" in carte.effects["cri de guerre"][1]:
+                                        card_to_draw = Card(**random.choice([x for x in all_spells if "decoction" in x["effects"]]))
                                     else:
                                         card_to_draw = get_card(carte.effects["cri de guerre"][2], all_cards)
                                     if not card_to_draw:
@@ -3220,6 +3222,8 @@ class TourEnCours:
                     elif "if_killed" in carte.effects and target.is_dead():
                         carte.effects[carte.effects["if_killed"][0]] = carte.effects["if_killed"][1]
                         carte.effects.pop("if_killed")
+                    if carte.name == "Decoction melangee":
+                        target = None
                 elif "ciblage" in carte.effects:
                     pass
                 elif "serviteur" in carte.effects["damage"][0]:
@@ -3546,6 +3550,19 @@ class TourEnCours:
                                 else:
                                     for _ in range(carte.effects["add_hand"][1][-1]):
                                         player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and x["name"] != carte.name])))
+                            else:
+                                if "other_class" in carte.effects["add_hand"][1]:
+                                    card_to_add = Card(**random.choice([x for x in all_cards if x["decouvrable"] == 1 and x["classe"] not in [carte.classe, "Neutre"]]))
+                                    if "reduc" in carte.effects["add_hand"][1]:
+                                        card_to_add.cost = max(0, card_to_add.cost - 3)
+                                        card_to_add.base_cost = max(0, card_to_add.base_cost - 3)
+                                        player.hand.add(card_to_add)
+                                    if "double" in carte.effects["add_hand"][1]:
+                                        card_to_add = Card(**random.choice([x for x in all_cards if x["decouvrable"] == 1 and x["classe"] not in [carte.classe, "Neutre"]]))
+                                        if "reduc" in carte.effects["add_hand"][1]:
+                                            card_to_add.cost = max(0, card_to_add.cost - 3)
+                                            card_to_add.base_cost = max(0, card_to_add.base_cost - 3)
+                                            player.hand.add(card_to_add)
                         elif type(carte.effects["add_hand"][1]) == list:
                             for card in carte.effects["add_hand"][1]:
                                 try:
@@ -3772,6 +3789,8 @@ class TourEnCours:
                 elif "aléatoire" in carte.effects["invocation"]:
                     if "cost3" in carte.effects["invocation"]:
                         carte.effects["invocation"] = [random.choice([x["name"] for x in all_servants if x["cost"] == 3 and x["decouvrable"] == 1])]
+                        if carte.effects["invocation"][-1] == 2:
+                            carte.effects["invocation"].append(random.choice([x["name"] for x in all_servants if x["cost"] == 3 and x["decouvrable"] == 1]))
                     elif "cost6" in carte.effects["invocation"]:
                         carte.effects["invocation"] = [random.choice([x["name"] for x in all_servants if x["cost"] == 6 and x["decouvrable"] == 1])]
                     elif "graine" in carte.effects["invocation"]:
@@ -3977,6 +3996,11 @@ class TourEnCours:
                                     if [x for x in adv.deck if x.name == servant.name]:
                                         for crea in [x for x in adv.deck if x.name == servant.name]:
                                             adv.deck.remove(crea)
+                    elif "aléatoire" in carte.effects["destroy"]:
+                        if "ennemi" in carte.effects["destroy"] and adv.servants.cards:
+                            cibles = random.sample(adv.servants.cards, min(len(adv.servants.cards), carte.effects["destroy"][-1]))
+                            for cible in cibles:
+                                cible.blessure = 1000
             elif "destroy+invoke" in carte.effects:
                 if "serviteur" in carte.effects["destroy+invoke"] and "allié" in carte.effects["destroy+invoke"] and "tous" in carte.effects["destroy+invoke"]:
                     if "Mort-vivant" in carte.effects["destroy+invoke"] and [x for x in player.servants if "Mort-vivant" in x.genre]:
@@ -5077,7 +5101,7 @@ class TourEnCours:
                     player.hand.cards.insert(index_card, transformed_card)
         if carte.classe == "Paladin":
             player.paladin_played += 1
-        if carte.classe != player.classe and not player.otherclass_played:
+        if carte.classe not in [player.classe, "Neutre"] and not player.otherclass_played:
             player.otherclass_played = True
         player.cards_played.append(carte.name)
 

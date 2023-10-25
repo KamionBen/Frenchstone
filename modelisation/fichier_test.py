@@ -646,19 +646,15 @@ def calc_advantage_minmax(state):
 
     """ Hand """
     for card in player.hand:
-        intrinsec_value = max(0.6, 0.6 + 0.25 * card.intrinsec_cost)
+        intrinsec_value = 0.6 + 0.05 * card.intrinsec_cost
         card_advantage = intrinsec_value * max(0.6, card.intrinsec_cost) / max(0.6, card.cost)
-        if card.cost <= player.mana_max + 1:
-            card_advantage = card_advantage * (0.5 + (0.5 * max(0.6, card.cost) / player.mana_max))
-        else:
-            card_advantage = card_advantage * (0.1 + (0.7 * player.mana_max / card.cost))
         if card.type == "Serviteur":
             card_advantage = card_advantage * max(0.5, card.base_attack) / max(0.5, card.intrinsec_attack)
             card_advantage = card_advantage * max(0.5, card.base_health) / max(0.5, card.intrinsec_health)
         if "forged" in card.effects:
             card_advantage += 2.5
         if "fragile" in card.effects:
-            card_advantage -= 0.5 * card.cost
+            card_advantage -= 0.5 * intrinsec_value
         advantage += 2.5 * card_advantage
     advantage -= 0.8 * len(adv.hand)
 

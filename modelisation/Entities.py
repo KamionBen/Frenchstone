@@ -157,6 +157,8 @@ class Plateau:
         else:
             self.players = list(players)
 
+        Card.created = {}
+
         for player in self.players:
             player.deck = import_deck(class_files[player.classe])
             player.initial_deck = pickle.loads(pickle.dumps(player.deck))
@@ -631,19 +633,24 @@ class Player:
                 for card in self.hand:
                     if card.type.lower() == discount[0] or discount[0] == "tous":
                         if discount[1] != "" and discount[2] < 0:
-                            if discount[1] in card.genre or discount[1] == "tous":
+                            if discount[1] in card.genre or discount[1] == "tous" or (discount[1] == "rale d'agonie" and "rale d'agonie" in card.effects):
                                 card.cost = max(0, card.cost + discount[2])
+                                if discount not in card.discount:
+                                    card.discount.append(discount)
+                        elif discount[1] == "secret":
+                            if "secret" in card.effects and discount[2] >= 0:
+                                card.cost = discount[2]
+                                if discount not in card.discount:
+                                    card.discount.append(discount)
+                        elif discount[1] == "decoction":
+                            if "decoction" in card.effects or card.name == "Decoction melangee" and discount[2] >= 0:
+                                card.cost = discount[2]
                                 if discount not in card.discount:
                                     card.discount.append(discount)
                         elif discount[2] >= 0:
                             card.cost = max(0, discount[2])
                             if discount not in card.discount:
                                 card.discount.append(discount)
-                        elif discount[1] == "secret":
-                            if "secret" in card.effects and discount[2] >= 0:
-                                card.cost = discount[2]
-                                if discount not in card.discount:
-                                    card.discount.append(discount)
                         elif discount[1] == "marginal":
                             if "marginal" in card.effects and discount[2] < 0:
                                 card.cost = max(0, card.cost + discount[2])

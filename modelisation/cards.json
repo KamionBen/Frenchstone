@@ -2775,7 +2775,7 @@
         "cost": 5,
         "attack": 6,
         "health": 4,
-        "effects": {"en sommeil": 1, "ruée": 1, "insensible_attack": 1, "insensible": 1}
+        "effects": {"en sommeil": 1, "ruée": 1, "insensible_attack": 1}
     },
     {
         "id": 229,
@@ -8114,7 +8114,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"cri de guerre": ["invocation", ["allié"], ["graine"]]}
+        "effects": {"cri de guerre": ["invocation", ["allié", "graine"], 1]}
     },
     {
         "id": 671,
@@ -12713,7 +12713,7 @@
         "classe": "Prêtre",
         "type": "Sort",
         "genre": ["Ombre"],
-        "decouvrable": 1,
+        "decouvrable": 0,
         "cost": 3,
         "attack": null,
         "health": null,
@@ -13190,5 +13190,173 @@
         "attack": null,
         "health": null,
         "effects": {"dragage": 1, "combo": ["pioche", ["allié", 1]]}
+    },
+    {
+        "id": 1092,
+        "name": "Transfert d'equipement",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", "return_deck_lr", 3]}
+    },
+    {
+        "id": 1093,
+        "name": "Trainard brise",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"cri de guerre": ["reduc", ["serviteur", "prochain", "", "rale d'agonie", "destroy_next_rale"], -1]}
+    },
+    {
+        "id": 1094,
+        "name": "Accusation de meurtre",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"ciblage": ["serviteur", "tous", "choisi"], "infection": ["destroyed", "conditional", "if_other_destroyed"]}
+    },
+    {
+        "id": 1095,
+        "name": "Bingo",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": [["allié"], ["sort", "aléatoire", "other_class", "cost_sup5", 2]]}
+    },
+    {
+        "id": 1096,
+        "name": "Ceinture a potions",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["sort", "decoction"], "second_time": 1}
+    },
+    {
+        "id": 1097,
+        "name": "Creation de kaja'mite",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 3,
+        "health": 2,
+        "effects": {"cri de guerre": ["decouverte", ["allié"], ["sort", "cost_under3", "aléatoire", "other_class"]]}
+    },
+    {
+        "id": 1098,
+        "name": "Disc jockey",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Méca", "Bête"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 4,
+        "health": 1,
+        "effects": {"combo": ["cri de guerre", ["add_hand", ["allié", "aléatoire", "combo"], 1]]}
+    },
+    {
+        "id": 1099,
+        "name": "Double jeu",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["pioche", ["ennemi", 2]], "trigger": "if_nomana_adv"}
+    },
+    {
+        "id": 1100,
+        "name": "Embuscade",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["invocation", ["Embusque roue"]], "trigger": "if_serv_played"}
+    },
+    {
+        "id": 1101,
+        "name": "Embusque roue",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"toxicite": 1}
+    },
+    {
+        "id": 1102,
+        "name": "Embusquee occultee",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 2,
+        "effects": {"camouflage": 1, "insensible_attack": 1, "boost_attack": 3}
+    },
+    {
+        "id": 1103,
+        "name": "Empetre jusqu'au cou",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["invocation", ["Vermine des tombeaux"]], "trigger": "if_spell_played"}
+    },
+    {
+        "id": 1104,
+        "name": "Vermine des tombeaux",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"camouflage": 1}
+    },
+    {
+        "id": 1105,
+        "name": "Goulchimiste",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 3,
+        "health": 2,
+        "effects": {"cri de guerre": ["reduc", ["sort", "prochain", "", "decoction"], 0]}
     }
 ]

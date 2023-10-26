@@ -1,8 +1,10 @@
 import time
 from engine import *
 import gc
+from statistics import mean
+from scipy.stats import rankdata
 
-players = [Player("NewIA", "Voleur"), Player("OldIA", "Chevalier de la mort")]
+players = [Player("NewIA", "Voleur", "tempo"), Player("OldIA", "Chevalier de la mort", "controle")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 
@@ -639,82 +641,143 @@ def generate_legal_vector_test(state):
     return legal_actions
 
 
+def calc_advantage_serv(servant, player, adv, serv_adv=False):
+    serv_advantage = 1.25 * servant.attack + 1.25 * servant.health
+    if "bouclier divin" in servant.effects:
+        serv_advantage += 1.25 * servant.attack
+    if "camouflage" in servant.effects:
+        serv_advantage *= 1.25
+    if "provocation" in servant.effects:
+        serv_advantage += servant.health / player.health
+    if "reincarnation" in servant.effects:
+        serv_advantage += 1.25 * servant.attack
+    if "gel" in servant.effects:
+        serv_advantage -= servant.attack
+    if "fragile" in servant.effects:
+        serv_advantage /= 3
+    if "frail" in servant.effects:
+        serv_advantage /= 3
+    if "en sommeil" in servant.effects:
+        remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
+        serv_advantage -= (remaining_turns / (remaining_turns + 1)) * (1.25 * servant.attack + 1.25 * servant.health)
+
+    if not serv_adv:
+        """ Potentiel value trade adverse """
+        if [x for x in adv.servants if calc_advantage_serv(x, adv, player, serv_adv=True) < calc_advantage_serv(servant, player, adv, serv_adv=True)]:
+            for adv_serv in [x for x in adv.servants if calc_advantage_serv(x, adv, player, serv_adv=True) < calc_advantage_serv(servant, player, adv, serv_adv=True)]:
+                adv_serv_copy, servant_copy = deepcopy(adv_serv), deepcopy(servant)
+                servant_copy.damage(adv_serv_copy.attack, toxic=True if "toxicite" in adv_serv_copy.effects else False)
+                if servant_copy.is_dead():
+                    serv_advantage = min(serv_advantage, calc_advantage_serv(adv_serv, adv, player, serv_adv=True))
+
+        """ Potentiel d'être tué par le HP adverse """
+        if servant.health == 1 and "bouclier divin" not in servant.effects and "camouflage" not in servant.effects:
+            if adv.classe in ["Chasseur de démons", "Mage", "Druide", "Chevalier de la mort", "Voleur"]:
+                serv_advantage = min(serv_advantage, 2)
+    return serv_advantage
+
+
+def calc_advantage_card_hand(card, player):
+    if card.cost <= player.mana_max:
+        card_advantage = 1.5 + (0.1 * card.intrinsec_cost)
+    else:
+        card_advantage = 2 + (0.12 * card.intrinsec_cost)
+    if not card.discount:
+        card_advantage = card_advantage + 0.75 * (card.intrinsec_cost - card.cost)
+    if card.type == "Serviteur":
+        card_advantage = card_advantage * max(0.5, card.base_attack) / max(0.5, card.intrinsec_attack)
+        card_advantage = card_advantage * max(0.5, card.base_health) / max(0.5, card.intrinsec_health)
+    if "forged" in card.effects:
+        card_advantage += 1.5
+    if "fragile" in card.effects:
+        card_advantage = card_advantage / 3
+    return card_advantage
+
+
 def calc_advantage_minmax(state):
     player = state.players[0]
     adv = state.players[1]
-    advantage = 0
+    coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1, 1, 1, 1, 1, 1, 30, 30, 1
 
-    """ Hand """
-    for card in player.hand:
-        intrinsec_value = 0.6 + 0.05 * card.intrinsec_cost
-        card_advantage = intrinsec_value * max(0.6, card.intrinsec_cost) / max(0.6, card.cost)
-        if card.type == "Serviteur":
-            card_advantage = card_advantage * max(0.5, card.base_attack) / max(0.5, card.intrinsec_attack)
-            card_advantage = card_advantage * max(0.5, card.base_health) / max(0.5, card.intrinsec_health)
-        if "forged" in card.effects:
-            card_advantage += 2.5
-        if "fragile" in card.effects:
-            card_advantage -= 0.5 * intrinsec_value
-        advantage += 2.5 * card_advantage
-    advantage -= 0.8 * len(adv.hand)
+    if player.style == "aggro":
+        if adv.style == "aggro":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.3, 0.1, 3, 3, 1.5, 0.2, 35, 50, 0.8
+        elif adv.style == "tempo":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.2, 0.05, 3, 2, 1.75, 0.1, 60, 25, 1
+        elif adv.style == "controle":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.75, 0, 1.75, 0.85, 1.5, 0.25, 15, 75, 1.5
+    elif player.style == "tempo":
+        if adv.style == "aggro":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.75, 0.05, 1.3, 3, 1.5, 0.2, 60, 45, 1.25
+        elif adv.style == "tempo":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.8, 0.25, 1.5, 1.5, 1.4, 0.25, 50, 35, 1.25
+        elif adv.style == "controle":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.2, 1, 0.85, 0.75, 1.5, 0.25, 15, 30, 1.5
+    elif player.style == "controle":
+        if adv.style == "aggro":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1, 0.25, 0.5, 3, 1, 1, 65, 10, 1.5
+        elif adv.style == "tempo":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.25, 1, 0.5, 2.25, 1, 1.5, 50, 20, 1.5
+        elif adv.style == "controle":
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 3, 3, 0.3, 0.5, 1, 3, 10, 10, 2
 
-    """ Deck """
-    if player.deck and player.deck[0].base_cost < get_card(player.deck[0].name, all_cards).base_cost:
-        advantage += get_card(player.deck[0].name, all_cards).base_cost - player.deck[0].base_cost
 
-    """ Board """
-    for servant in player.servants:
-        advantage += 1.5 * servant.attack + 1.5 * servant.health
-        if "bouclier divin" in servant.effects:
-            advantage += 1.5 * servant.attack
-        if "reincarnation" in servant.effects:
-            advantage += servant.attack
-        if "gel" in servant.effects:
-            advantage -= servant.attack
-        if "fragile" in servant.effects:
-            advantage -= servant.health - 1
-        if "en sommeil" in servant.effects:
-            remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
-            advantage -= (remaining_turns/(remaining_turns + 1)) * (1.5 * servant.attack + 1.5 * servant.health)
-    for servant in adv.servants:
-        advantage -= 1.5 * servant.attack + 1.5 * servant.health
-        if "bouclier divin" in servant.effects:
-            advantage -= 1.5 * servant.attack
-        if "reincarnation" in servant.effects:
-            advantage -= servant.attack
-        if "gel" in servant.effects:
-            advantage += servant.attack
-        if "fragile" in servant.effects:
-            advantage += servant.health - 1
-        if "infection" in servant.effects:
-            advantage += 2
-        if "en sommeil" in servant.effects:
-            remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
-            advantage += (remaining_turns/(remaining_turns + 1)) * (1.5 * servant.attack + 1.5 * servant.health)
-
-    """ Weapon """
-    if player.weapon is not None:
-        advantage += max(1, player.weapon.attack) * player.weapon.health
-
-    """ Mana """
-    advantage += 5 * (player.mana_max - adv.mana_max)
-
-    """ Health """
-    if player.health > 0 and adv.health > 0:
-        advantage += 0.35 * (30/adv.health - 30/player.health)
-    advantage += 0.4 * player.armor
-
-    """ Others """
-    advantage += 3 * (len(player.secrets) + len(player.attached) - len(adv.secrets) - len(adv.attached))
-    advantage += 4 * len(player.permanent_buff)
-    advantage += 0.01 * player.cadavres
-    advantage += 3 * len(player.lieux)
 
     """ End """
     if player.health <= 0:
         return -500
     elif adv.health <= 0:
         return 500
+
+    """ Hand """
+    discounts = [x.intrinsec_cost - x.cost for x in player.hand if x.discount]
+    hand_advantage = sum([calc_advantage_card_hand(card, player) for card in player.hand])
+    if discounts:
+        hand_advantage += 0.5 * mean(discounts)
+    hand_advantage -= 1.5 * len(adv.hand)
+    hand_advantage *= coef_hand
+
+    """ Deck """
+    deck_advantage = 0.1 * (len(player.deck) - len(adv.deck))
+    if player.deck and player.deck[0].base_cost < player.deck[0].intrinsec_cost:
+        deck_advantage += player.deck[0].intrinsec_cost - player.deck[0].base_cost
+    deck_advantage *= coef_deck
+
+    """ Board """
+    board_advantage_j, board_advantage_adv = 0, 0
+    board_advantage_j += sum([calc_advantage_serv(servant, player, adv) for servant in player.servants])
+    board_advantage_j *= coef_board_j
+    board_advantage_adv += sum([calc_advantage_serv(servant, player, adv, serv_adv=True) for servant in adv.servants])
+    board_advantage_adv *= coef_board_adv
+
+    """ Weapon """
+    weapon_advantage = 0
+    if player.weapon is not None:
+        weapon_advantage += max(1, player.weapon.attack) * player.weapon.health
+    weapon_advantage *= coef_weapon
+
+    """ Mana """
+    mana_advantage = 0
+    mana_advantage += 5 * (player.mana_max - adv.mana_max)
+    mana_advantage *= coef_mana
+
+    """ Health """
+    health_advantage = 3 * (coef_health_adv/adv.health - coef_health_j/player.health)
+    health_advantage += 3.1 * (player.armor - adv.armor)
+
+    """ Others """
+    other_advantage = 0
+    # Secrets
+    other_advantage += 2.5 * (sum([x.intrinsec_cost for x in player.secrets]) - sum([x.intrinsec_cost for x in adv.secrets]))
+    # Lieux
+    other_advantage += 2.5 * (sum([(x.attack * x.intrinsec_cost/x.intrinsec_attack) for x in player.lieux]) - sum([(x.attack * x.intrinsec_cost/x.intrinsec_attack) for x in adv.lieux]))
+    # Autres
+    other_advantage += 3 * (len(player.attached) - len(adv.attached))
+    other_advantage += 4 * len(player.permanent_buff)
+    other_advantage += 0.01 * player.cadavres
+    other_advantage *= coef_other
+
+    advantage = hand_advantage + deck_advantage + board_advantage_j + board_advantage_adv + weapon_advantage + mana_advantage + health_advantage + other_advantage
 
     return round(advantage, 2)
 
@@ -735,15 +798,19 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
         (action, Orchestrator().tour_ia_minmax(pickle.loads(state_saved), [], action, False)[0]) for action
         in legal_actions
     ])
+
     first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
+    first_estimate_duplicates = [idx for idx, item in enumerate(first_estimate) if item in first_estimate[:idx]]
     first_estimate[0] = base_advantage
-    first_estimate = np.array(first_estimate)
+    first_estimate_sorted = np.array(first_estimate).argsort()
+    first_estimate_sorted1 = first_estimate_sorted[~np.in1d(first_estimate_sorted, first_estimate_duplicates)]
+    to_simulate = -max(round(min(30, len(possible_new_states))/(pow(exploration_toll, depth))), 1)
 
     if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
         if depth != 0:
-            possible_new_states = possible_new_states[first_estimate.argsort()[-max(round(min(30, len(possible_new_states))/(pow(exploration_toll, depth))), 1):]]
+            possible_new_states = possible_new_states[first_estimate_sorted1[to_simulate:]]
         else:
-            possible_new_states = possible_new_states[first_estimate.argsort()[-min(25, len(possible_new_states)):]]
+            possible_new_states = possible_new_states[first_estimate_sorted1[-min(25, len(possible_new_states)):]]
 
     gc.enable()
 
@@ -761,6 +828,10 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
         if alpha > previous_reward and depth == 0:
             best_action = new_state[0]
             if alpha == 500:
+                if type(best_action) == list:
+                    best_action.append(new_state[0])
+                else:
+                    best_action = [new_state[0]]
                 break
 
     if depth == 0:
@@ -781,10 +852,18 @@ for i in range(3):
     while plateau_depart.game_on:
         try:
             max_reward, best_action = minimax(plateau_depart)
-            plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+            if type(best_action) == list:
+                for action in best_action:
+                    plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action)
+            else:
+                plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
         except:
             max_reward, best_action = minimax(plateau_depart)
-            plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+            if type(best_action) == list:
+                for action in best_action:
+                    plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+            else:
+                plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
         # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
         # print('----------------------------------------------')
         logs.append(pd.DataFrame(logs_inter))

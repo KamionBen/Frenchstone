@@ -153,7 +153,7 @@ class Plateau:
                        }
         self.cards_chosen, self.cards_dragage, self.cards_entrave, self.cards_hands_to_deck, self.choix_des_armes = [], [], [], [], None
         if players == ():
-            self.players = [Player("Smaguy", 'Chasseur'), Player("Rupert", 'Mage')]
+            self.players = [Player("Smaguy", 'Chasseur', ""), Player("Rupert", 'Mage', "")]
         else:
             self.players = list(players)
 
@@ -423,10 +423,11 @@ class Plateau:
 
 
 class Player:
-    def __init__(self, name, classe):
+    def __init__(self, name, classe, style_deck):
         """ Profil de l'utilisateur ou de l'IA"""
         self.name = name
         self.classe = classe
+        self.style = style_deck
 
         # Cartes
         self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
@@ -546,12 +547,11 @@ class Player:
             self.hand.cards = self.hand.cards[:10]
         if len([x for x in self.hand if "decoction" in x.effects]) > 1:
             decoctions = [x for x in self.hand if "decoction" in x.effects]
-            mixed_decoction = copy_card(decoctions[0])
+            mixed_decoction = get_card("Decoction melangee", all_spells)
+            mixed_decoction.effects = decoctions[0].effects.copy()
             if decoctions[0].name != decoctions[1].name:
-                mixed_decoction.name = "Decoction melangee"
                 mixed_decoction.effects.pop("decoction")
                 mixed_decoction.effects.update(decoctions[1].effects)
-                mixed_decoction.effects.pop("decoction")
             else:
                 if decoctions[0].name == "Decoction visqueuse":
                     mixed_decoction.effects["invocation"] = ["allié", "cost3", "aléatoire", 2]
@@ -563,6 +563,8 @@ class Player:
                     mixed_decoction.effects["add_hand"] = [["allié"], ["aléatoire", "other_class", "double", "reduc", 3]]
                 elif decoctions[0].name == "Decoction brillante":
                     mixed_decoction.effects["pioche"] = ["allié", 4]
+            mixed_decoction.effects.pop("decoction")
+            mixed_decoction.cost, mixed_decoction.base_cost = 3, 3
             for decoction in [x for x in self.hand if "decoction" in x.effects]:
                 self.hand.remove(decoction)
             self.hand.add(mixed_decoction)

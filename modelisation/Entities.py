@@ -4,8 +4,7 @@ from os import path
 from random import shuffle, choice
 from typing import Union
 import random
-from copy import deepcopy
-import pickle
+import pickle, time
 
 """ CONSTANTS """
 dict_actions = {
@@ -900,16 +899,6 @@ class CardGroup:
         else:
             raise TypeError
 
-    def get(self, cid):
-        """ Renvoie une carte en particulier """
-        if is_card_id(cid):
-            if cid in self.carddict:
-                return self.carddict[cid]
-            else:
-                return KeyError
-        else:
-            raise TypeError
-
     def choice(self):
         """ Retire une carte au hasard """
         if len(self.cards) == 0:
@@ -930,7 +919,7 @@ class Card:
         """ Classe généraliste pour les cartes à jouer """
         """ Description """
         self.name = kw["name"]
-        self.effects = deepcopy(kw["effects"])
+        self.effects = kw["effects"]
         self.genre = kw["genre"]
         if cid is None:
             # Génération d'un id de carte
@@ -962,9 +951,6 @@ class Card:
         except:
             x = 0
         return x
-
-    def get_effects(self):
-        return list(self.effects.values())
 
     def reset(self):
         """ Reset de début de tour """
@@ -1068,10 +1054,6 @@ class Card:
         else:
             return False
 
-    def data(self) -> str:
-        return f"id:{self.id} - {self.name} - Classe : {self.classe} - Type : {self.type} - Genre : {self.genre} - " \
-               f"Coût = {self.cost} - Attaque = {self.attack} - Santé = {self.health}"
-
 
 class Weapon:
     def __init__(self, name):
@@ -1129,8 +1111,6 @@ def get_card(key: Union[int, str], cardpool: list) -> Card:
             for elt in cardpool:
                 if elt['name'].lower() == key.lower():
                     return Card(**elt)
-    else:
-        raise TypeError
 
     if found is False:
         raise KeyError(f"Impossible de trouver {key}")
@@ -1140,42 +1120,13 @@ def copy_card(card):
     try:
         copied_card = get_card(card.name, all_cards)
     except:
-        copied_card = get_card(-1, all_cards)
+        copied_card = get_card("", all_cards)
     copied_card.attack, copied_card.base_attack = card.attack, card.base_attack
     copied_card.health, copied_card.base_health = card.health, card.base_health
     copied_card.cost, copied_card.base_cost = card.cost, card.base_cost
     copied_card.blessure = card.blessure
     copied_card.effects = card.effects.copy()
     return copied_card
-
-
-def int_to_id(baseid: int, nb: int) -> str:
-    if type(baseid) is int and type(nb) is int:
-        if baseid < 10:
-            return f"000{baseid}-{nb}"
-        elif baseid < 100:
-            return f"00{baseid}-{nb}"
-        elif baseid < 1000:
-            return f"0{baseid}-{nb}"
-        else:
-            return f"{baseid}-{nb}"
-    else:
-        raise TypeError
-
-
-def is_card_id(elt) -> bool:
-    """ Renvoie vrai si elt est au format int-int """
-    try:
-        parse = elt.split('-')
-        cid = int(parse[0])
-        number = int(parse[1])
-        return True
-    except ValueError:
-        return False
-    except IndexError:
-        return False
-    except AttributeError:
-        return False
 
 
 def generate_targets(state):

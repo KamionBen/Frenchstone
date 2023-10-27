@@ -1,3 +1,4 @@
+import time
 from abc import ABC
 
 import pandas as pd
@@ -6,10 +7,6 @@ from Entities import *
 import random
 import os
 from operator import itemgetter
-from tf_agents.trajectories import time_step as ts
-import tensorflow as tf
-from tf_agents.specs import array_spec
-from tf_agents.environments import py_environment, tf_py_environment
 
 
 # def generate_column_state_old(classes_Player):
@@ -543,7 +540,6 @@ from tf_agents.environments import py_environment, tf_py_environment
 #
 # new_env = Frenchstone()
 # new_env = tf_py_environment.TFPyEnvironment(new_env)
-
 
 class TourEnCours:
     """Classe prenant en entrée un plateau de jeu et permettant d'effectuer toutes les actions possibles dessus."""
@@ -2971,7 +2967,7 @@ class TourEnCours:
                 if "equip_weapon" in carte.effects["cri de guerre"]:
                     if player.weapon is not None:
                         player.weapon.health = 0
-                        player.dead_weapon = deepcopy(player.weapon)
+                        player.dead_weapon = copy_card(player.weapon)
                     player.weapon = get_card(carte.effects["cri de guerre"][2], all_weapons)
         elif carte.type == "Sort":
             if "choix_des_armes" in carte.effects:
@@ -4053,8 +4049,8 @@ class TourEnCours:
                 if target is not None:
                     player.servants.remove(target)
                     to_invoke = get_card(carte.effects["destroy+invoke"][-1], all_servants)
+                    to_invoke.effects["rale d'agonie"][-1] = [target.name]
                     self.invoke_servant(to_invoke, adv)
-                    to_invoke.effects["rale d'agonie"][-1].append(target.name)
                 else:
                     if "serviteur" in carte.effects["destroy+invoke"] and "allié" in carte.effects["destroy+invoke"] and "tous" in carte.effects["destroy+invoke"]:
                         if "Mort-vivant" in carte.effects["destroy+invoke"] and [x for x in player.servants if "Mort-vivant" in x.genre]:
@@ -4531,6 +4527,10 @@ class TourEnCours:
                         if "sort" in servant.effects["aura"][1] and "ombre" in servant.effects["aura"][1] and "pretre" in servant.effects["aura"][1]:
                             player.hand.add(Card(**random.choice([x for x in all_spells if "Ombre" in x["genre"] and x["classe"] == "Prêtre"])))
                             adv.damage(servant.effects["aura"][2])
+                    elif "if_serv_death" in servant.effects["aura"][1] and carte.type == "Serviteur" and carte.is_dead() and carte != servant:
+                        if "decoction" in servant.effects["aura"][1]:
+                            to_add = Card(**random.choice([x for x in all_spells if "decoction" in x["effects"]]))
+                            player.hand.add(to_add)
             if "decouverte" in servant.effects["aura"]:
                 if "conditional" in servant.effects["aura"][1]:
                     if "if_secret_played" in servant.effects["aura"][1] and "secret" in carte.effects:
@@ -4626,14 +4626,14 @@ class TourEnCours:
                         adv.augment.remove([servant.effects["aura"][1][0], servant.effects["aura"][1][3], servant.effects["aura"][2]])
             if "deck_swap" in servant.effects["aura"]:
                 if servant.effects["aura"][1] == 1:
-                    inter_deck = deepcopy(player.deck)
-                    player.deck = deepcopy(adv.deck)
+                    inter_deck = pickle.load(pickle.dumps(player.deck, -1))
+                    player.deck = pickle.load(pickle.dumps(adv.deck, -1))
                     adv.deck = inter_deck
                     servant.effects["aura"][1] = 0
                 else:
                     if servant.is_dead():
-                        inter_deck = deepcopy(player.deck)
-                        player.deck = deepcopy(adv.deck)
+                        inter_deck = pickle.load(pickle.dumps(player.deck, -1))
+                        player.deck = pickle.load(pickle.dumps(adv.deck, -1))
                         adv.deck = inter_deck
             if "modif_damage" in servant.effects["aura"]:
                 if "ennemi" in servant.effects["aura"][1]:
@@ -4794,6 +4794,10 @@ class TourEnCours:
                         if "sort" in servant.effects["aura"][1] and "ombre" in servant.effects["aura"][1] and "pretre" in servant.effects["aura"][1]:
                             adv.hand.add(Card(**random.choice([x for x in all_spells if "Ombre" in x["genre"] and x["classe"] == "Prêtre"])))
                             player.damage(servant.effects["aura"][2])
+                    elif "if_serv_death" in servant.effects["aura"][1] and carte.type == "Serviteur" and carte.is_dead() and carte != servant:
+                        if "decoction" in servant.effects["aura"][1]:
+                            to_add = Card(**random.choice([x for x in all_spells if "decoction" in x["effects"]]))
+                            adv.hand.add(to_add)
             if "replacement" in servant.effects["aura"]:
                 if carte.type == "Serviteur" and carte.is_dead():
                     adv.servants.remove(servant)
@@ -4824,8 +4828,7 @@ class TourEnCours:
         for card in ally_aura_hand:
             if "temp_copy" in card.effects["aura"]:
                 if "last_spell" in card.effects["aura"] and carte.type == "Sort":
-                    card.genre = carte.genre
-                    card.effects = deepcopy(carte.effects)
+                    card.genre = copy_card(carte)
                     card.effects["aura"] = ["temp_copy", ["allié", "last_spell"]]
             if "transformation" in card.effects["aura"]:
                 if "if_feu" in card.effects["aura"][1] and carte.type == "Sort" and "Feu" in carte.genre:
@@ -4925,6 +4928,7 @@ class TourEnCours:
                     adv.secrets.remove(secret)
                     adv.secrets_declenches += 1
             else:
+                t0 = time.perf_counter()
                 player.mana_spend_spells += carte.cost
                 if "relique" in carte.effects:
                     player.reliques += 1
@@ -4935,7 +4939,7 @@ class TourEnCours:
                 elif carte.name == "Jeu de lumiere":
                     player.jeu_lumiere += 1
                 if player.first_spell is None:
-                    player.first_spell = deepcopy(carte)
+                    player.first_spell = carte.name
                 if carte.genre and carte.genre[0] not in player.ecoles_jouees:
                     player.ecoles_jouees.append(carte.genre[0])
                 if "Sacré" in carte.genre:
@@ -4949,7 +4953,7 @@ class TourEnCours:
                 if [x for x in player.servants if "aura" in x.effects and not x.is_dead() and "double_spell_arcanes" in x.effects["aura"]] and "Arcanes" in carte.genre:
                     self.apply_effects(carte, target)
                 if "jotun" in player.permanent_buff and player.first_spell is not None and player.permanent_buff["jotun"] == 1:
-                    played_card = player.first_spell
+                    played_card = get_card(player.first_spell, all_spells)
                     player.hand.cards.insert(0, played_card)
                     if "marginal" in played_card.effects:
                         played_card.effects.pop("marginal")
@@ -5104,7 +5108,7 @@ class TourEnCours:
                     carte.blessure = 1000
                 if adv.secrets and "if_serv_played" in [x.effects["trigger"] for x in adv.secrets] and "en sommeil" not in carte.effects:
                     for secret in adv.secrets:
-                        if secret.effects["trigger"] == "if_serv_played":
+                        if secret.effects["trigger"] == "if_serv_played" and carte in player.servants:
                             if "ciblage" in secret.effects["secret"]:
                                 target = carte
                                 secret.effects["secret"].remove("ciblage")
@@ -6047,6 +6051,7 @@ class TourEnCours:
         if player.decouverte:
             self.plt.cards_chosen = self.choice_decouverte(get_card(-1, all_cards), card_group=CardGroup(player.decouverte[0]))
 
+
 class Orchestrator:
 
     # def tour_oldia_model(self, plateau, logs, policy):
@@ -6381,9 +6386,9 @@ class Orchestrator:
                 for creature in adv.servants:
                     creature.effects["solide"] = 1
                 adv.curses.pop("amitus")
-
         """ Initialisation du vecteur d'état représentant le plateau"""
-        action_line = plateau.get_gamestate()
+        if generate_logs:
+            action_line = plateau.get_gamestate()
         if action == 0:
             if generate_logs:
                 action_line["action"] = "passer_tour"
@@ -6688,10 +6693,11 @@ class Orchestrator:
         adv.end_action()
         player.apply_discount()
         player.apply_weapon()
-
         if action == 0:
             plateau.tour_suivant()
             TourEnCours(plateau).debut_du_tour()
+
+
         return plateau, logs
 
     """ Génère un nombre donné de parties et créé les logs associés"""
@@ -6962,6 +6968,7 @@ class Orchestrator:
     #     os.remove('plateau_init1.pickle')
     #     os.remove('plateau_init2.pickle')
     #     return logs_hs, scores
+
 
 
 if __name__ == '__main__':

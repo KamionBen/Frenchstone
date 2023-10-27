@@ -13298,5 +13298,17 @@
         "attack": 0,
         "health": 4,
         "effects": {"rale d'agonie": ["add_hand", ["ennemi"], []]}
+    },
+    {
+        "id": 1112,
+        "name": "Maitre des potions putricide",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 1,
+        "health": 4,
+        "effects": {"aura": ["add_hand", ["decoction", "conditional", "if_serv_death"], 1], "legendaire": 1}
     }
 ]

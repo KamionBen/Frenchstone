@@ -2,10 +2,25 @@ import time
 from engine import *
 import gc
 from statistics import mean
-from scipy.stats import rankdata
+import math
+import matplotlib.pyplot as plt
 
 players = [Player("NewIA", "Voleur", "tempo"), Player("OldIA", "Chevalier de la mort", "controle")]
 plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
+
+
+def deadly_attack(adv, serv):
+    if "bouclier_divin" in serv.effects:
+        return False
+    else:
+        toxic = True if "toxicite" in adv.effects else False
+        if toxic and not "bouclier_divin" in serv.effects:
+            return True
+        else:
+            if adv.attack >= serv.health:
+                return True
+            else:
+                return False
 
 
 def generate_legal_vector_test(state):
@@ -645,7 +660,11 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
     serv_advantage = 1.25 * servant.attack + 1.25 * servant.health
     if "bouclier divin" in servant.effects:
         serv_advantage += 1.25 * servant.attack
+    if "rale d'agonie" in servant.effects:
+        serv_advantage *= 1.25
     if "camouflage" in servant.effects:
+        serv_advantage *= 1.25
+    if "toxicite" in servant.effects:
         serv_advantage *= 1.25
     if "provocation" in servant.effects:
         serv_advantage += servant.health / player.health
@@ -665,15 +684,14 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
         """ Potentiel value trade adverse """
         if [x for x in adv.servants if calc_advantage_serv(x, adv, player, serv_adv=True) < calc_advantage_serv(servant, player, adv, serv_adv=True)]:
             for adv_serv in [x for x in adv.servants if calc_advantage_serv(x, adv, player, serv_adv=True) < calc_advantage_serv(servant, player, adv, serv_adv=True)]:
-                adv_serv_copy, servant_copy = deepcopy(adv_serv), deepcopy(servant)
-                servant_copy.damage(adv_serv_copy.attack, toxic=True if "toxicite" in adv_serv_copy.effects else False)
-                if servant_copy.is_dead():
+                if deadly_attack(adv_serv, servant):
                     serv_advantage = min(serv_advantage, calc_advantage_serv(adv_serv, adv, player, serv_adv=True))
-
         """ Potentiel d'être tué par le HP adverse """
         if servant.health == 1 and "bouclier divin" not in servant.effects and "camouflage" not in servant.effects:
             if adv.classe in ["Chasseur de démons", "Mage", "Druide", "Chevalier de la mort", "Voleur"]:
                 serv_advantage = min(serv_advantage, 2)
+            t3 = time.perf_counter()
+
     return serv_advantage
 
 
@@ -687,6 +705,9 @@ def calc_advantage_card_hand(card, player):
     if card.type == "Serviteur":
         card_advantage = card_advantage * max(0.5, card.base_attack) / max(0.5, card.intrinsec_attack)
         card_advantage = card_advantage * max(0.5, card.base_health) / max(0.5, card.intrinsec_health)
+    elif card.type == "Sort":
+        if "decouverte" in card.effects or "add_hand" in card.effects or "add_deck" in card.effects or "pioche" in card.effects or "dragage" in card.effects:
+            card_advantage /= 2
     if "forged" in card.effects:
         card_advantage += 1.5
     if "fragile" in card.effects:
@@ -701,33 +722,35 @@ def calc_advantage_minmax(state):
 
     if player.style == "aggro":
         if adv.style == "aggro":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.3, 0.1, 3, 3, 1.5, 0.2, 35, 50, 0.8
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.3, 0.1, 3, 3, 1, 0.2, 1, 3, 0.8
         elif adv.style == "tempo":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.2, 0.05, 3, 2, 1.75, 0.1, 60, 25, 1
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.2, 0.05, 3, 2, 1, 0.1, 0.5, 3.5, 1
         elif adv.style == "controle":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.75, 0, 1.75, 0.85, 1.5, 0.25, 15, 75, 1.5
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.75, 0, 1.75, 0.85, 1, 0.25, 0.25, 4, 1.5
     elif player.style == "tempo":
         if adv.style == "aggro":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.75, 0.05, 1.3, 3, 1.5, 0.2, 60, 45, 1.25
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.75, 0.05, 1.3, 3, 1, 0.2, 2, 1.5, 1.25
         elif adv.style == "tempo":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.8, 0.25, 1.5, 1.5, 1.4, 0.25, 50, 35, 1.25
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.8, 0.25, 1.5, 1.5, 1, 0.25, 1.5, 1.5, 1.25
         elif adv.style == "controle":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.2, 1, 0.85, 0.75, 1.5, 0.25, 15, 30, 1.5
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.2, 1, 0.85, 0.75, 1, 0.25, 0.75, 1.3, 1.5
     elif player.style == "controle":
         if adv.style == "aggro":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1, 0.25, 0.5, 3, 1, 1, 65, 10, 1.5
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1, 0.25, 0.5, 3, 1, 1, 3, 0.25, 1.5
         elif adv.style == "tempo":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.25, 1, 0.5, 2.25, 1, 1.5, 50, 20, 1.5
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.25, 1, 0.5, 2.25, 1, 1.5, 2, 0.75, 1.5
         elif adv.style == "controle":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 3, 3, 0.3, 0.5, 1, 3, 10, 10, 2
-
-
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 3, 3, 0.3, 0.5, 1, 3, 0.5, 0.5, 2
 
     """ End """
     if player.health <= 0:
         return -500
     elif adv.health <= 0:
         return 500
+
+    """ Lethal on board adverse """
+    if adv.servants and sum([x.attack for x in adv.servants]) >= player.health and not [x for x in player.servants if "provocation" in x.effects]:
+        return -450
 
     """ Hand """
     discounts = [x.intrinsec_cost - x.cost for x in player.hand if x.discount]
@@ -736,18 +759,20 @@ def calc_advantage_minmax(state):
         hand_advantage += 0.5 * mean(discounts)
     hand_advantage -= 1.5 * len(adv.hand)
     hand_advantage *= coef_hand
+    hand_advantage = round(hand_advantage, 3)
 
     """ Deck """
     deck_advantage = 0.1 * (len(player.deck) - len(adv.deck))
     if player.deck and player.deck[0].base_cost < player.deck[0].intrinsec_cost:
         deck_advantage += player.deck[0].intrinsec_cost - player.deck[0].base_cost
     deck_advantage *= coef_deck
+    deck_advantage = round(deck_advantage, 3)
 
     """ Board """
     board_advantage_j, board_advantage_adv = 0, 0
     board_advantage_j += sum([calc_advantage_serv(servant, player, adv) for servant in player.servants])
     board_advantage_j *= coef_board_j
-    board_advantage_adv += sum([calc_advantage_serv(servant, player, adv, serv_adv=True) for servant in adv.servants])
+    board_advantage_adv -= sum([calc_advantage_serv(servant, player, adv, serv_adv=True) for servant in adv.servants])
     board_advantage_adv *= coef_board_adv
 
     """ Weapon """
@@ -762,8 +787,10 @@ def calc_advantage_minmax(state):
     mana_advantage *= coef_mana
 
     """ Health """
-    health_advantage = 3 * (coef_health_adv/adv.health - coef_health_j/player.health)
-    health_advantage += 3.1 * (player.armor - adv.armor)
+    health_advantage = 6 * coef_health_adv * (-math.sqrt(adv.health + adv.armor) + math.sqrt(adv.base_health + adv.armor))
+    health_advantage -= 6 * coef_health_j * (-math.sqrt(player.health + player.armor) + math.sqrt(player.base_health + player.armor))
+    health_advantage += 0.5 * (player.armor - adv.armor)
+    health_advantage = round(health_advantage, 3)
 
     """ Others """
     other_advantage = 0
@@ -785,8 +812,7 @@ def calc_advantage_minmax(state):
 total_actions = 0
 
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=3):
-
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=2.5):
     gc.disable()
     global total_actions
     base_advantage = calc_advantage_minmax(state)
@@ -800,11 +826,13 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
     ])
 
     first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
-    first_estimate_duplicates = [idx for idx, item in enumerate(first_estimate) if item in first_estimate[:idx]]
-    first_estimate[0] = base_advantage
+    if possible_new_states[0][0] == 0:
+        first_estimate[0] = base_advantage
     first_estimate_sorted = np.array(first_estimate).argsort()
+    to_simulate = -max(round(min(30, len(possible_new_states)) / (pow(exploration_toll, depth))), 1)
+    first_estimate_duplicates = [idx for idx, item in enumerate(first_estimate) if item in first_estimate[:idx]]
     first_estimate_sorted1 = first_estimate_sorted[~np.in1d(first_estimate_sorted, first_estimate_duplicates)]
-    to_simulate = -max(round(min(30, len(possible_new_states))/(pow(exploration_toll, depth))), 1)
+
 
     if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
         if depth != 0:
@@ -861,7 +889,7 @@ for i in range(3):
             max_reward, best_action = minimax(plateau_depart)
             if type(best_action) == list:
                 for action in best_action:
-                    plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+                    plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action)
             else:
                 plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
         # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")

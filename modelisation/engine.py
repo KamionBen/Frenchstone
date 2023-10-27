@@ -1474,6 +1474,10 @@ class TourEnCours:
                                         if len(player.servants) + len(player.lieux) < 7:
                                             card.boost(4, 4, fixed_stats=True)
                                             self.invoke_servant(card, player)
+                            elif "if_alone" in carte.effects["cri de guerre"][1] and len(player.servants) == 1:
+                                for crea in carte.effects["cri de guerre"][2]:
+                                    if len(player.servants) + len(player.lieux) < 7:
+                                        self.invoke_servant(get_card(crea, all_servants), player)
                         elif "until_cadavre" in carte.effects["cri de guerre"][1]:
                             if player.cadavres > 0:
                                 invoked_creatures = []
@@ -1501,10 +1505,6 @@ class TourEnCours:
                             elif "if_death_undead" in carte.effects["cri de guerre"][1] and player.dead_undeads:
                                 invoked_servant = get_card(carte.effects["cri de guerre"][2], all_servants)
                                 self.invoke_servant(invoked_servant, player)
-                            elif "if_alone" in carte.effects["cri de guerre"][1] and len(player.servants) == 1:
-                                for crea in carte.effects["cri de guerre"][2]:
-                                    if len(player.servants) + len(player.lieux) < 7:
-                                        self.invoke_servant(get_card(crea, all_servants), player)
                         elif "copy" in carte.effects["cri de guerre"][1]:
                             if "if_secret" in carte.effects["cri de guerre"][1] and player.secrets:
                                 invoked_servant = copy_card(carte.effects["cri de guerre"][2])
@@ -3012,6 +3012,27 @@ class TourEnCours:
                                 target = adv.servants[target - 10]
                         if not ("ciblage" in played_card.effects and target is None):
                             TourEnCours(self.plt).apply_effects(played_card, target)
+                if "secret" in carte.effects["play"] and "other_class" in carte.effects["play"]:
+                    played_card = Card(**random.choice([x for x in all_spells if x["classe"] not in ["Neutre", player.classe] and x["decouvrable"] == 1 and "secret" in x["effects"]]))
+                    player.hand.cards.insert(0, played_card)
+                    played_card.cost = 0
+                    possible_targets = generate_targets(self.plt)[0: 16]
+                    player.hand.remove(played_card)
+                    possible_targets_refined = [n for n in range(len(possible_targets)) if possible_targets[n]]
+                    if possible_targets_refined:
+                        target = random.choice(possible_targets_refined)
+                        if target == 0:
+                            target = None
+                        elif target == 1:
+                            target = player
+                        elif target < 9:
+                            target = player.servants[target - 2]
+                        elif target == 9:
+                            target = adv
+                        else:
+                            target = adv.servants[target - 10]
+                    if not ("ciblage" in played_card.effects and target is None):
+                        TourEnCours(self.plt).apply_effects(played_card, target)
             if "hero_attack" in carte.effects:
                 if type(carte.effects["hero_attack"]) == list:
                     if "conditional" in carte.effects["hero_attack"]:
@@ -5977,6 +5998,14 @@ class TourEnCours:
                 player.attached.remove(effect)
                 if effect[0] in ["Melodie des anciens", "Danse des geants"]:
                     self.apply_effects(get_card(effect[0], all_cards))
+        if player.secrets and [x for x in player.secrets if x.effects["trigger"] == "debut_tour_j"]:
+            for secret in [x for x in player.secrets if x.effects["trigger"] == "debut_tour_j"]:
+                target = None
+                secret.effects[secret.effects["secret"][0]] = secret.effects["secret"][1]
+                secret.effects.pop("secret")
+                self.apply_effects(secret, target)
+                player.secrets.remove(secret)
+                player.secrets_declenches += 1
         player.servants.reset()
         for servant in player.servants:
             if "aura" in servant.effects and "start_turn" in servant.effects["aura"][1]:

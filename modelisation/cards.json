@@ -13310,5 +13310,17 @@
         "attack": 1,
         "health": 4,
         "effects": {"aura": ["add_hand", ["decoction", "conditional", "if_serv_death"], 1], "legendaire": 1}
+    },
+    {
+        "id": 1113,
+        "name": "Parjure",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"secret": ["play", ["secret", "other_class"]], "trigger": "debut_tour_j"}
     }
 ]

@@ -812,7 +812,7 @@ def calc_advantage_minmax(state):
 total_actions = 0
 
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=2.5):
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=2.8):
     gc.disable()
     global total_actions
     base_advantage = calc_advantage_minmax(state)

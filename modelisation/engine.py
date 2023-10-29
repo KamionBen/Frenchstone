@@ -563,6 +563,8 @@ class TourEnCours:
                 carte.effects["bouclier divin"] = 1
         elif carte.name == "Automate astral":
             player.automates += 1
+        elif carte.name == "Tentacule chaotique":
+            player.tentacules += 1
 
         if carte.type == "Serviteur" and not "titan" in carte.effects:
             if "colossal" in carte.effects and not (carte.is_dead() or "rale_applied" in carte.effects):
@@ -574,6 +576,9 @@ class TourEnCours:
                         self.invoke_servant(get_card(carte.effects["colossal"][1], all_servants), adv)
             if "cri de guerre" in carte.effects and not (carte.is_dead() or "rale_applied" in carte.effects):
                 if "play" in carte.effects["cri de guerre"] and carte.effects["cri de guerre"][2] != "":
+                    if "aléatoire" in carte.effects["cri de guerre"][1]:
+                        if "tentacule" in carte.effects["cri de guerre"][1]:
+                            carte.effects["cri de guerre"][2] = [random.choice([x["name"] for x in all_spells if x["cost"] == min(10, player.tentacules)])]
                     for card in carte.effects["cri de guerre"][2]:
                         played_card = get_card(card, all_cards)
                         if len(player.servants) + len(player.lieux) < 7:
@@ -989,6 +994,11 @@ class TourEnCours:
                                 for card in [x for x in player.hand if "copied" in x.effects]:
                                     card.cost = max(0, card.cost - carte.effects["cri de guerre"][2])
                                     card.base_cost = max(0, card.base_cost - carte.effects["cri de guerre"][2])
+                    elif "deck" in carte.effects["cri de guerre"][1]:
+                        if "if_rale_agonie" in carte.effects["cri de guerre"][1] and [x for x in player.deck if x.type == "Serviteur" and "rale d'agonie" in x.effects]:
+                            for creature in [x for x in player.deck if x.type == "Serviteur" and "rale d'agonie" in x.effects]:
+                                creature.cost = max(0, creature.cost + carte.effects["cri de guerre"][2])
+                                creature.base_cost = max(0, creature.base_cost + carte.effects["cri de guerre"][2])
                 elif "augment" in carte.effects["cri de guerre"]:
                     if "ennemi" in carte.effects["cri de guerre"][1] and "temp_fullturn" in \
                             carte.effects["cri de guerre"][1]:
@@ -3547,64 +3557,75 @@ class TourEnCours:
                     player.mana_max = min(player.mana_final, player.mana_max + carte.effects["mana_growth"][-1])
                     player.mana += carte.effects["mana_growth"][-1]
             if "add_hand" in carte.effects:
-                if "allié" in carte.effects["add_hand"][0]:
-                    if target is not None and carte.effects["add_hand"][1] == "copy_target":
-                        card_to_add = get_card(target.name, all_servants)
-                        if "boosted" in carte.effects["add_hand"][0]:
-                            target.boost(carte.effects["add_hand"][0][-1][0], carte.effects["add_hand"][0][-1][1])
-                            card_to_add.boost(carte.effects["add_hand"][0][-1][0], carte.effects["add_hand"][0][-1][1])
-                        player.hand.add(card_to_add)
-                    else:
-                        if "aléatoire" in carte.effects["add_hand"][1]:
-                            if "serviteur" in carte.effects["add_hand"][1]:
-                                if "colossal" in carte.effects["add_hand"][1]:
-                                    card_to_add = random.choice([x for x in all_servants if "colossal" in x.effects])
-                                    card_to_add.cost, card_to_add.base_cost = 1, 1
-                                    player.hand.add(card_to_add)
-                                if "Élémentaire" in carte.effects["add_hand"][1] and "123" in carte.effects["add_hand"][1]:
-                                    for i in range(3):
-                                        player.hand.add(Card(**random.choice([x for x in all_servants if "Élémentaire" in x["genre"] and x["cost"] == i + 1 and x["decouvrable"] == 1])))
-                            elif "sort" in carte.effects["add_hand"][1]:
-                                if "until_full" in carte.effects["add_hand"][1]:
-                                    while len(player.hand) < 10:
-                                        player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1])))
-                                elif "Nature" in carte.effects["add_hand"][1]:
-                                    for _ in range(carte.effects["add_hand"][1][-1]):
-                                        player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and "Nature" in x["genre"] and x["name"] != carte.name])))
-                                elif "mage" in carte.effects["add_hand"][1]:
-                                    if "reduc" in carte.effects["add_hand"][1]:
-                                        for _ in range(carte.effects["add_hand"][1][-1]):
-                                            card_to_add = Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and x["classe"] == "Mage" and x["name"] != carte.name]))
-                                            card_to_add.cost = max(0, card_to_add.cost - carte.effects["add_hand"][1][-1])
-                                            card_to_add.base_cost = max(0, card_to_add.base_cost - carte.effects["add_hand"][1][-1])
-                                            player.hand.add(card_to_add)
-                                elif "other_class" in carte.effects["add_hand"][1]:
-                                    if "cost_sup5" in carte.effects["add_hand"][1]:
-                                        for _ in range(carte.effects["add_hand"][1][-1]):
-                                            player.hand.add(Card(**random.choice([x for x in all_spells if x["classe"] not in ["Neutre", player.classe] and x["cost"] >= 5 and x["decouvrable"] == 1])))
-                                else:
-                                    for _ in range(carte.effects["add_hand"][1][-1]):
-                                        player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and x["name"] != carte.name])))
-                            else:
-                                if "other_class" in carte.effects["add_hand"][1]:
-                                    card_to_add = Card(**random.choice([x for x in all_cards if x["decouvrable"] == 1 and x["classe"] not in [carte.classe, "Neutre"]]))
-                                    if "reduc" in carte.effects["add_hand"][1]:
-                                        card_to_add.cost = max(0, card_to_add.cost - 3)
-                                        card_to_add.base_cost = max(0, card_to_add.base_cost - 3)
+                try:
+                    if "allié" in carte.effects["add_hand"][0]:
+                        if target is not None and carte.effects["add_hand"][1] == "copy_target":
+                            card_to_add = get_card(target.name, all_servants)
+                            if "boosted" in carte.effects["add_hand"][0]:
+                                target.boost(carte.effects["add_hand"][0][-1][0], carte.effects["add_hand"][0][-1][1])
+                                card_to_add.boost(carte.effects["add_hand"][0][-1][0], carte.effects["add_hand"][0][-1][1])
+                            player.hand.add(card_to_add)
+                        else:
+                            if "aléatoire" in carte.effects["add_hand"][1]:
+                                if "serviteur" in carte.effects["add_hand"][1]:
+                                    if "colossal" in carte.effects["add_hand"][1]:
+                                        card_to_add = Card(**random.choice([x for x in all_servants if "colossal" in x["effects"]]))
+                                        card_to_add.cost, card_to_add.base_cost = 1, 1
                                         player.hand.add(card_to_add)
-                                    if "double" in carte.effects["add_hand"][1]:
+                                    elif "Élémentaire" in carte.effects["add_hand"][1] and "123" in carte.effects["add_hand"][1]:
+                                        for i in range(3):
+                                            player.hand.add(Card(**random.choice([x for x in all_servants if "Élémentaire" in x["genre"] and x["cost"] == i + 1 and x["decouvrable"] == 1])))
+                                    elif "bot_etincelle" in carte.effects["add_hand"][1]:
+                                        for _ in range(carte.effects["add_hand"][1][-1]):
+                                            player.hand.add(Card(**random.choice([x for x in all_servants if "bot_etincelle" in x["effects"]])))
+                                elif "sort" in carte.effects["add_hand"][1]:
+                                    if "until_full" in carte.effects["add_hand"][1]:
+                                        while len(player.hand) < 10:
+                                            player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1])))
+                                    elif "Nature" in carte.effects["add_hand"][1]:
+                                        for _ in range(carte.effects["add_hand"][1][-1]):
+                                            player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and "Nature" in x["genre"] and x["name"] != carte.name])))
+                                    elif "mage" in carte.effects["add_hand"][1]:
+                                        if "reduc" in carte.effects["add_hand"][1]:
+                                            for _ in range(carte.effects["add_hand"][1][-1]):
+                                                card_to_add = Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and x["classe"] == "Mage" and x["name"] != carte.name]))
+                                                card_to_add.cost = max(0, card_to_add.cost - carte.effects["add_hand"][1][-1])
+                                                card_to_add.base_cost = max(0, card_to_add.base_cost - carte.effects["add_hand"][1][-1])
+                                                player.hand.add(card_to_add)
+                                    elif "other_class" in carte.effects["add_hand"][1]:
+                                        if "cost_sup5" in carte.effects["add_hand"][1]:
+                                            for _ in range(carte.effects["add_hand"][1][-1]):
+                                                player.hand.add(Card(**random.choice([x for x in all_spells if x["classe"] not in ["Neutre", player.classe] and x["cost"] >= 5 and x["decouvrable"] == 1])))
+                                    else:
+                                        for _ in range(carte.effects["add_hand"][1][-1]):
+                                            player.hand.add(Card(**random.choice([x for x in all_spells if x["decouvrable"] == 1 and x["name"] != carte.name])))
+                                else:
+                                    if "other_class" in carte.effects["add_hand"][1]:
                                         card_to_add = Card(**random.choice([x for x in all_cards if x["decouvrable"] == 1 and x["classe"] not in [carte.classe, "Neutre"]]))
                                         if "reduc" in carte.effects["add_hand"][1]:
                                             card_to_add.cost = max(0, card_to_add.cost - 3)
                                             card_to_add.base_cost = max(0, card_to_add.base_cost - 3)
                                             player.hand.add(card_to_add)
-                        elif type(carte.effects["add_hand"][1]) == list:
-                            for card in carte.effects["add_hand"][1]:
-                                try:
-                                    player.hand.add(get_card(card, all_cards))
-                                except:
-                                    print(carte, carte.effects, card)
-                                    raise TypeError
+                                        if "double" in carte.effects["add_hand"][1]:
+                                            card_to_add = Card(**random.choice([x for x in all_cards if x["decouvrable"] == 1 and x["classe"] not in [carte.classe, "Neutre"]]))
+                                            if "reduc" in carte.effects["add_hand"][1]:
+                                                card_to_add.cost = max(0, card_to_add.cost - 3)
+                                                card_to_add.base_cost = max(0, card_to_add.base_cost - 3)
+                                                player.hand.add(card_to_add)
+                            elif type(carte.effects["add_hand"][1]) == list:
+                                for card in carte.effects["add_hand"][1]:
+                                    try:
+                                        player.hand.add(get_card(card, all_cards))
+                                    except:
+                                        print(carte, carte.effects, card)
+                                        raise TypeError
+                except:
+                    print(carte, carte.effects)
+                    raise TypeError
+                if "ennemi" in carte.effects["add_hand"][0]:
+                    if "played_this_turn" in carte.effects["add_hand"][1]:
+                        for card in player.cards_this_turn:
+                            adv.hand.add(get_card(card, all_cards))
                 elif type(carte.effects["add_hand"]) == CardGroup:
                     for card in carte.effects["add_hand"]:
                         player.hand.add(get_card(card, all_cards))
@@ -3617,9 +3638,11 @@ class TourEnCours:
                 if target in player.servants:
                     player.servants.remove(target)
                     player.hand.add(basic_card)
+                elif target in adv.servants:
+                    adv.servants.remove(target)
+                    adv.hand.add(basic_card)
                 else:
                     try:
-                        adv.servants.remove(target)
                         adv.hand.add(basic_card)
                     except:
                         print(carte, carte.effects, target)
@@ -4136,6 +4159,8 @@ class TourEnCours:
                         self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([x for x in player.deck if x.type == "Sort"]))
                     elif "secret" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", other="Secret")
+                        if "other_class" in carte.effects["decouverte"]:
+                            self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", other="Secret", classe="other_class")
                     elif "decoction" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, type="sort", other="decoction")
                     elif "not_used_ecole" in carte.effects["decouverte"]:
@@ -4149,6 +4174,8 @@ class TourEnCours:
                 elif "serviteur" in carte.effects["decouverte"]:
                     if "in_deck" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([x for x in player.deck if x.type == "Serviteur"]))
+                        if "Méca" in carte.effects["decouverte"]:
+                            self.plt.cards_chosen = self.choice_decouverte(carte, card_group=CardGroup([x for x in player.deck if x.type == "Serviteur" and "Méca" in x.genre]))
                     elif "dragon" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, type="serviteur", genre=["Dragon"])
                     elif "Méca" in carte.effects["decouverte"]:
@@ -4907,7 +4934,7 @@ class TourEnCours:
         Le plateau est mis à jour en conséquence """
         player = self.plt.players[0]
         adv = self.plt.players[1]
-        player.cards_this_turn += 1
+        player.cards_this_turn.append(carte.name)
 
         """ Actions pré_effet """
         if carte.cost >= 5 and player.weapon is not None and player.weapon.name == "Tambourin des bois":
@@ -5165,7 +5192,7 @@ class TourEnCours:
         """ Après avoir joué la carte """
         if "haunted" in carte.effects:
             self.invoke_servant(get_card(carte.effects["haunted"], all_servants), player)
-        if adv.secrets and "if_three_played" in [x.effects["trigger"] for x in adv.secrets] and player.cards_this_turn >= 3:
+        if adv.secrets and "if_three_played" in [x.effects["trigger"] for x in adv.secrets] and len(player.cards_this_turn) >= 3:
             for secret in adv.secrets:
                 if secret.effects["trigger"] == "if_three_played":
                     if "ciblage" in secret.effects["secret"]:
@@ -5639,7 +5666,7 @@ class TourEnCours:
                             self.plt.cards_chosen = self.choice_decouverte(get_card("Bourgeon de belladone combine", all_spells), card_group=CardGroup([x for x in player.deck if x.type == "Sort"]))
                     else:
                         self.apply_effects(cards[choice])
-                elif player.last_card.name in ["Piege forge par les titans", "Piege forge par les titans forge", "Harmoniciste soliste"]:
+                elif player.last_card.name in ["Piege forge par les titans", "Piege forge par les titans forge", "Harmoniciste soliste", "Parjure"]:
                     self.apply_effects(cards[choice])
                 elif player.last_card.name == "Carquois arcanique" and "Arcanes" in cards[choice].genre and "damage" in cards[choice].effects:
                     if type(cards[choice].effects["damage"]) == int:
@@ -5723,6 +5750,11 @@ class TourEnCours:
                     for card in [x for x in player.deck if x.name == cards[choice].name]:
                         player.deck.remove(card)
                         player.hand.add(card)
+            elif player.last_card.name == "Point de ravitaillement":
+                try:
+                    cards[choice].boost(2, 1)
+                except:
+                    pass
         elif type_dec == "dragage":
             try:
                 if not player.last_card.name == "Elementaire desarmant" and player.deck.cards:
@@ -5890,6 +5922,11 @@ class TourEnCours:
                     else:
                         if len(player.servants) + len(player.lieux) < 7:
                             self.invoke_servant(get_card(servant.effects["aura"][2], all_servants), player)
+                elif "add_hand" in servant.effects["aura"]:
+                    if "allié" in servant.effects["aura"][1]:
+                        if "decoction" in servant.effects["aura"][1]:
+                            card_to_draw = Card(**random.choice([x for x in all_spells if "decoction" in x["effects"]]))
+                            player.hand.add(card_to_draw)
             if "frail" in servant.effects:
                 servant.blessure = 1000
             if "temp_turn" in servant.effects:
@@ -5937,13 +5974,21 @@ class TourEnCours:
             else:
                 rock_en_fusion.effects["rock_en_fusion"] += 2
                 adv.hand.add(rock_en_fusion)
-        if adv.secrets.cards and "if_zero_mana" in [x.effects["trigger"] for x in adv.secrets] and player.mana == 0:
-            for secret in [x for x in adv.secrets if x.effects["trigger"] == "if_zero_mana"]:
-                secret.effects[secret.effects["secret"][0]] = secret.effects["secret"][1]
-                secret.effects.pop("secret")
-                self.apply_effects(secret)
-                adv.secrets.remove(secret)
-                adv.secrets_declenches += 1
+        if adv.secrets.cards:
+            if "if_zero_mana" in [x.effects["trigger"] for x in adv.secrets] and player.mana == 0:
+                for secret in [x for x in adv.secrets if x.effects["trigger"] == "if_zero_mana"]:
+                    secret.effects[secret.effects["secret"][0]] = secret.effects["secret"][1]
+                    secret.effects.pop("secret")
+                    self.apply_effects(secret)
+                    adv.secrets.remove(secret)
+                    adv.secrets_declenches += 1
+            if "fin_tour_adv" in [x.effects["trigger"] for x in adv.secrets] and player.cards_this_turn:
+                for secret in [x for x in adv.secrets if x.effects["trigger"] == "fin_tour_adv"]:
+                    secret.effects[secret.effects["secret"][0]] = secret.effects["secret"][1]
+                    secret.effects.pop("secret")
+                    self.apply_effects(secret)
+                    adv.secrets.remove(secret)
+                    adv.secrets_declenches += 1
         if player.effects:
             if "end_turn" in player.effects and "damage" in player.effects["end_turn"]:
                 if "heros" in player.effects["end_turn"][1] and "ennemi" in player.effects["end_turn"][1]:
@@ -6003,6 +6048,7 @@ class TourEnCours:
                 target = None
                 secret.effects[secret.effects["secret"][0]] = secret.effects["secret"][1]
                 secret.effects.pop("secret")
+                player.last_card = secret
                 self.apply_effects(secret, target)
                 player.secrets.remove(secret)
                 player.secrets_declenches += 1
@@ -6045,6 +6091,8 @@ class TourEnCours:
                             servant.effects["cri de guerre"] = servant.effects["awaken"]
                             servant.effects.pop("awaken")
                         TourEnCours(self.plt).apply_effects(servant)
+            if "camouflage" in servant.effects and servant.effects["camouflage"] == 0:
+                servant.effects.pop("camouflage")
         if [x for x in player.hand if "start_turn" in x.effects]:
             for card in [x for x in player.hand if "start_turn" in x.effects]:
                 """ Transformation des serviteurs concernés """
@@ -6683,11 +6731,14 @@ class Orchestrator:
                     if adv.secrets and "if_serv_dies" in [x.effects["trigger"] for x in adv.secrets]:
                         for secret in adv.secrets:
                             if secret.effects["trigger"] == "if_serv_dies":
+                                target = None
                                 if "invocation" in secret.effects["secret"]:
                                     secret.effects["secret"][1][0] = servant.name
+                                if "return_hand" in secret.effects["secret"]:
+                                    target = servant
                                 secret.effects[secret.effects["secret"][0]] = secret.effects["secret"][1]
                                 secret.effects.pop("secret")
-                                TourEnCours(plateau).apply_effects(secret)
+                                TourEnCours(plateau).apply_effects(secret, target)
                                 adv.secrets.remove(secret)
                                 adv.secrets_declenches += 1
                 elif servant in player.servants:

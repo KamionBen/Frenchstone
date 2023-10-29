@@ -677,8 +677,11 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
     if "frail" in servant.effects:
         serv_advantage /= 3
     if "en sommeil" in servant.effects:
-        remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
-        serv_advantage -= (remaining_turns / (remaining_turns + 1)) * (1.25 * servant.attack + 1.25 * servant.health)
+        try:
+            remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
+            serv_advantage -= (remaining_turns / (remaining_turns + 1)) * (1.25 * servant.attack + 1.25 * servant.health)
+        except:
+            pass
 
     if not serv_adv:
         """ Potentiel value trade adverse """
@@ -763,8 +766,8 @@ def calc_advantage_minmax(state):
 
     """ Deck """
     deck_advantage = 0.1 * (len(player.deck) - len(adv.deck))
-    if player.deck and player.deck[0].base_cost < player.deck[0].intrinsec_cost:
-        deck_advantage += player.deck[0].intrinsec_cost - player.deck[0].base_cost
+    if player.deck:
+        deck_advantage += sum([(x.intrinsec_cost - x.cost) for x in player.deck])
     deck_advantage *= coef_deck
     deck_advantage = round(deck_advantage, 3)
 
@@ -826,7 +829,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
     ])
 
     first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
-    if possible_new_states[0][0] == 0:
+    if len(possible_new_states) != 0 and possible_new_states[0][0] == 0:
         first_estimate[0] = base_advantage
     first_estimate_sorted = np.array(first_estimate).argsort()
     to_simulate = -max(round(min(30, len(possible_new_states)) / (pow(exploration_toll, depth))), 1)

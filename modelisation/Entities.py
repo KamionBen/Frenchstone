@@ -443,7 +443,7 @@ class Player:
         self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect = [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
-        self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules = 0, 0, 0, 0, 0, 0, 0
+        self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules, self.combo_played = 0, 0, 0, 0, 0, 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
         """ Héros choisi par le joueur """

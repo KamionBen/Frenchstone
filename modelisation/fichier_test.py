@@ -107,7 +107,8 @@ def generate_legal_vector_test(state):
                                         if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
                                             legal_actions[17 * i + j + 11] = True
                                 else:
-                                    if "if_attack_greater" in player.hand[i].effects["cri de guerre"][1] and [x for x in player.servants.cards + adv.servants.cards if x.attack >= player.hand[i].effects["cri de guerre"][1][5]]:
+                                    if "if_attack_greater" in player.hand[i].effects["cri de guerre"][1] and [x for x in player.servants.cards + adv.servants.cards if x.attack >= player.hand[i].effects["cri de guerre"][1][5]]\
+                                            or "if_death_undead" in player.hand[i].effects["cri de guerre"][1] and player.dead_undeads:
                                         for j in range(len(player.servants)):
                                             if player.servants[j].attack >= player.hand[i].effects["cri de guerre"][1][5] and player.servants[j] != player.hand[i]:
                                                 legal_actions[17 * i + j + 3] = True
@@ -115,9 +116,8 @@ def generate_legal_vector_test(state):
                                             if adv.servants[j].attack >= player.hand[i].effects["cri de guerre"][1][5]:
                                                 legal_actions[17 * i + j + 11] = True
                                     else:
+                                        player.hand[i].effects.pop("cri de guerre")
                                         legal_actions[17 * i + 1] = True
-
-
                             else:
                                 legal_actions[17 * i + 1] = True
                         elif "tous" in player.hand[i].effects["cri de guerre"][1]:
@@ -148,6 +148,7 @@ def generate_legal_vector_test(state):
                                             if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
                                                 legal_actions[17 * i + j + 11] = True
                                     else:
+                                        player.hand[i].effects.pop("cri de guerre")
                                         legal_actions[17 * i + 1] = True
                         elif "lieu" in player.hand[i].effects["cri de guerre"][1]:
                             if "ennemi" in player.hand[i].effects["cri de guerre"][1]:
@@ -340,8 +341,8 @@ def generate_legal_vector_test(state):
                                                 adv.servants[j].effects:
                                             legal_actions[17 * i + j + 11] = True
                                 else:
-                                    if "if_attack_greater" in player.hand[i].effects["cri de guerre"][1] \
-                                            and [x for x in player.servants.cards + adv.servants.cards if x.attack >= player.hand[i].effects["cri de guerre"][1][5]]:
+                                    if ("if_attack_greater" in player.hand[i].effects["cri de guerre"][1]\
+                                            and [x for x in player.servants.cards + adv.servants.cards if x.attack >= player.hand[i].effects["cri de guerre"][1][5]]):
                                         for j in range(len(player.servants)):
                                             if player.servants[j].attack >= player.hand[i].effects["cri de guerre"][1][
                                                 5] and player.servants[j] != player.hand[i]:
@@ -349,7 +350,8 @@ def generate_legal_vector_test(state):
                                         for j in range(len(adv.servants)):
                                             if adv.servants[j].attack >= player.hand[i].effects["cri de guerre"][1][5]:
                                                 legal_actions[17 * i + j + 11] = True
-                                    elif "if_pur" in player.hand[i].effects["cri de guerre"][1] and not [x for x in player.deck if x.classe == "Neutre"]:
+                                    elif ("if_pur" in player.hand[i].effects["cri de guerre"][1] and not [x for x in player.deck if x.classe == "Neutre"])\
+                                           or ("if_death_undead" in player.hand[i].effects["cri de guerre"][1] and player.dead_undeads):
                                         for j in range(len(player.servants)):
                                             legal_actions[17 * i + j + 3] = True
                                         for j in range(len(adv.servants)):
@@ -357,6 +359,7 @@ def generate_legal_vector_test(state):
                                                     adv.servants[j].effects:
                                                 legal_actions[17 * i + j + 11] = True
                                     else:
+                                        player.hand[i].effects.pop("cri de guerre")
                                         legal_actions[17 * i + 1] = True
                             else:
                                 legal_actions[17 * i + 1] = True
@@ -391,7 +394,8 @@ def generate_legal_vector_test(state):
                                             or "if_alone" in player.hand[i].effects["cri de guerre"][1] and len(
                                         player.servants) == 0 \
                                             or "if_spell" in player.hand[i].effects["cri de guerre"][1] and \
-                                            player.hand[i].effects["cri de guerre"][2] != 0:
+                                            player.hand[i].effects["cri de guerre"][2] != 0\
+                                            or "if_méca_inhand" in player.hand[i].effects["cri de guerre"][1] and [x for x in player.hand if "Méca" in x.genre and x != player.hand[i]]:
                                         legal_actions[17 * i + 2] = True
                                         legal_actions[17 * i + 10] = True
                                         for j in range(len(player.servants)):
@@ -532,7 +536,7 @@ def generate_legal_vector_test(state):
                                                 adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                             if adv.servants[j].blessure == 0:
                                                 legal_actions[17 * i + j + 11] = True
-                                if "if_2serv" in player.hand[i].effects["ciblage"] \
+                                elif "if_2serv" in player.hand[i].effects["ciblage"] \
                                         and len([x for x in adv.servants if "camouflage" not in x.effects and "en sommeil" not in x.effects and "inciblable" not in x.effects]) + len([x for x in player.servants if "en sommeil" not in x.effects and "inciblable" not in x.effects]) >= 2:
                                     for j in range(len(player.servants)):
                                         if "en sommeil" not in player.servants[j].effects and "inciblable" not in player.servants[j].effects:

@@ -619,6 +619,8 @@ class Player:
                         card.cost = max(0, card.base_cost - self.sacre_spent)
                     elif "paladin_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.paladin_played)
+                    elif "cards_played" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - len(self.cards_this_turn))
                     elif "if_death_undead" in card.effects["reduc"] and self.dead_undeads:
                         if "fixed_cost" in card.effects["reduc"]:
                             card.cost = card.effects["reduc"][-1]
@@ -778,6 +780,8 @@ class Player:
     def damage(self, nb, toxic=False):
         if "alibi solide" in self.permanent_buff:
             nb = 1
+        if "micro_casse" in self.permanent_buff:
+            nb += 1
         if "bouclier divin" in self.effects:
             nb = 0
             self.effects.pop("bouclier divin")

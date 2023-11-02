@@ -223,8 +223,7 @@ class PlayerSprite(pygame.sprite.Sprite):
             self.is_playing = False
 
         """ Infos """
-        if self.classe is None:
-            self.classe = logline['classe_'+role]
+        self.classe = logline['classe_'+role]
 
         self.mana_max = logline['mana_max_'+role]
         self.surcharge = logline['surcharge_'+role]

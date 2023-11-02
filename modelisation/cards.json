@@ -5494,7 +5494,7 @@
         "cost": 4,
         "attack": 3,
         "health": 6,
-        "effects": {"aura": ["equip_arme", ["allié", "Chasseur de démons", "if_arme_destroyed"], 1]}
+        "effects": {"aura": ["equip_weapon", ["allié", "Chasseur de démons", "if_arme_destroyed"], 1]}
     },
     {
         "id": 464,
@@ -10857,7 +10857,7 @@
         "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"invocation": ["Recrue de la main d'argent", "Recrue de la main d'argent", "Recrue de la main d'argent"], "equip_arme": ["allié", "Justice de la lumiere"]}
+        "effects": {"invocation": ["Recrue de la main d'argent", "Recrue de la main d'argent", "Recrue de la main d'argent"], "equip_weapon": ["allié", "Justice de la lumiere"]}
     },
     {
         "id": 910,
@@ -11429,7 +11429,7 @@
         "cost": 8,
         "attack": 8,
         "health": 8,
-        "effects": {"provocation": 1, "bouclier divin": 1, "rale d'agonie": ["equip_arme", ["heros", "allié"], "Porte cendres"],"legendaire": 1}
+        "effects": {"provocation": 1, "bouclier divin": 1, "rale d'agonie": ["equip_weapon", ["heros", "allié"], "Porte cendres"],"legendaire": 1}
     },
     {
         "id": 957,
@@ -13984,5 +13984,237 @@
         "attack": 3,
         "health": 5,
         "effects": {"ruée": 1, "aura": ["return_hand", ["self", "heros_allié_attack", "reduc_cost"], 1], "legendaire": 1}
+    },
+    {
+        "id": 1169,
+        "name": "Constructeur laborantin",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 3,
+        "health": 2,
+        "effects": {"aura": ["invocation", ["allié", "end_turn", "copy"], 1], "forge": "Constructeur laborantin forge"}
+    },
+    {
+        "id": 1170,
+        "name": "Constructeur laborantin forge",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 3,
+        "health": 2,
+        "effects": {"aura": ["invocation", ["allié", "end_turn", "copy"], 1], "forged": 1, "magnetisme": 1}
+    },
+    {
+        "id": 1171,
+        "name": "Mc bling o tron",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {"cri de guerre": ["equip_weapon", ["allié", "ennemi", "Micro casse"], "Micro d'or"], "legendaire": 1}
+    },
+    {
+        "id": 1172,
+        "name": "Micro d'or",
+        "classe": "Voleur",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {}
+    },
+    {
+        "id": 1173,
+        "name": "Micro casse",
+        "classe": "Voleur",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"aura": ["modif_damage", ["heros", "ennemi"], 1]}
+    },
+    {
+        "id": 1174,
+        "name": "Necro seigneuresse draka",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre": ["equip_weapon", ["allié", "cartes_played", "Micro casse"], "Dague de maldraxxus"], "legendaire": 1}
+    },
+    {
+        "id": 1175,
+        "name": "Dague de maldraxxus",
+        "classe": "Voleur",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {}
+    },
+    {
+        "id": 1176,
+        "name": "Submerge crochebotte",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Pirate"],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 4,
+        "health": 4,
+        "effects": {"cri de guerre": ["rien", ["serviteur", "ennemi", "choisi"], 1],
+    "combo": ["cri de guerre", ["return_deck", ["serviteur", "ennemi", "choisi"], 1]]}
+    },
+    {
+        "id": 1177,
+        "name": "Vaisseau d'azshara",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Pirate d'azshara", "Pirate d'azshara"], "add_deck": [["allié", "end_deck"], ["Vaisseau englouti"]]}
+    },
+    {
+        "id": 1178,
+        "name": "Vaisseau englouti",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Pirate d'azshara", "Pirate d'azshara"], "played_drawn": 1}
+    },
+    {
+        "id": 1179,
+        "name": "Pirate d'azshara",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Pirate"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"camouflage": 1}
+    },
+    {
+        "id": 1180,
+        "name": "Crabatoa",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": 6,
+        "health": 5,
+        "effects": {"colossal": [2, "Patte de crabatoa"], "legendaire": 1, "aura": ["boost", ["serviteur", "allié", "alive", "crabatoa"], [2, 0]]}
+    },
+    {
+        "id": 1181,
+        "name": "Patte de crabatoa",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": 2,
+        "health": 1,
+        "effects": {"ruée": 1, "rale d'agonie": ["equip_weapon", ["allié"], "Pince de crabatoa"]}
+    },
+    {
+        "id": 1182,
+        "name": "Pince de crabatoa",
+        "classe": "Voleur",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {}
+    },
+    {
+        "id": 1183,
+        "name": "Du sang dans l'eau",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Requin tigre"], "damage": 3, "ciblage": ["tous", "tous", "choisi"]}
+    },
+    {
+        "id": 1184,
+        "name": "Requin tigre",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 0,
+        "cost": 5,
+        "attack": 5,
+        "health": 5,
+        "effects": {"ruée": 1}
+    },
+    {
+        "id": 1185,
+        "name": "Primus v 07 tr on",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Méca"],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": 3,
+        "health": 5,
+        "effects": {"titan": [["boost", "repeat", "self", "damage", 4, [2, 1]],
+                ["boost", "repeat", "self", "pioche", 1, [1, 2]],
+                ["boost", "repeat", "self", "inciblable", [0, 3]], 1],
+            "ne peut pas attaquer": 1, "legendaire": 1}
+    },
+    {
+        "id": 1186,
+        "name": "Stenographe griffonneur",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 4,
+        "health": 4,
+        "effects": {"ruée": 1, "reduc": ["self", "cards_played"]}
+    },
+    {
+        "id": 1187,
+        "name": "Tess grisetete",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": 6,
+        "health": 6,
+        "effects": {"cri de guerre":  ["tess", [], []], "legendaire": 1}
     }
 ]

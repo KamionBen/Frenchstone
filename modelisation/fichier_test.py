@@ -5,9 +5,6 @@ from statistics import mean
 import math
 import matplotlib.pyplot as plt
 
-players = [Player("NewIA", "Voleur", "tempo"), Player("OldIA", "Chevalier de la mort", "controle")]
-plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
-
 
 def deadly_attack(adv, serv):
     if "bouclier_divin" in serv.effects:
@@ -575,6 +572,7 @@ def generate_legal_vector_test(state):
                     legal_actions[17 * i + 1] = True
                 elif player.hand[i].type.lower() == "arme":
                     legal_actions[17 * i + 1] = True
+
     """ Quelles cibles peut-on attaquer et avec quels attaquants"""
     is_provoc = False
     if not "ignore_taunt" in [x.effects["aura"][0] for x in player.servants if "aura" in x.effects]:
@@ -609,6 +607,9 @@ def generate_legal_vector_test(state):
                 else:
                     if "provocation" in adv.servants[j].effects:
                         legal_actions[171 + 8 * (i + 1) + (j + 1)] = True
+
+    if [x for x in legal_actions if x and x >= 171 + 8 * (len(player.servants) + 1)]:
+        print(player.servants, adv.servants, [x for x in legal_actions if x and x >= 171 + 8 * (len(player.servants) + 1)])
 
     """ Pouvoir héroïque """
     if player.dispo_pouvoir and player.cout_pouvoir_temp <= player.mana:
@@ -853,12 +854,15 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
     first_estimate_duplicates = [idx for idx, item in enumerate(first_estimate) if item in first_estimate[:idx]]
     first_estimate_sorted1 = first_estimate_sorted[~np.in1d(first_estimate_sorted, first_estimate_duplicates)]
 
-
-    if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
-        if depth != 0:
-            possible_new_states = possible_new_states[first_estimate_sorted1[to_simulate:]]
-        else:
-            possible_new_states = possible_new_states[first_estimate_sorted1[-min(25, len(possible_new_states)):]]
+    try:
+        if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
+            if depth != 0:
+                possible_new_states = possible_new_states[first_estimate_sorted1[to_simulate:]]
+            else:
+                possible_new_states = possible_new_states[first_estimate_sorted1[-min(25, len(possible_new_states)):]]
+    except:
+        print(legal_actions)
+        print(state_saved)
 
     gc.enable()
 
@@ -890,7 +894,20 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
+class_to_chose = ["Chevalier de la mort", "Chasseur de démons", "Paladin", "Voleur", "Prêtre", "Chasseur", "Druide", "Mage"]
+dict_deck_status = {"Chevalier de la mort": "controle",
+                    "Chasseur de démons": "tempo",
+                    "Paladin": "aggro",
+                    "Voleur": "tempo",
+                    "Prêtre": "aggro",
+                    "Chasseur": "tempo",
+                    "Druide": "controle",
+                    "Mage": "tempo"}
 for i in range(3):
+    class_j1 = "Voleur"
+    class_j2 = random.choice(class_to_chose)
+    players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
+    plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
     print(i)
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')
@@ -898,24 +915,15 @@ for i in range(3):
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')
     while plateau_depart.game_on:
-        try:
-            max_reward, best_action = minimax(plateau_depart)
-            if type(best_action) == list:
-                for action in best_action:
-                    plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action)
-            else:
-                plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
-        except:
-            max_reward, best_action = minimax(plateau_depart)
-            if type(best_action) == list:
-                for action in best_action:
-                    plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action)
-            else:
-                plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+        max_reward, best_action = minimax(plateau_depart)
+        if type(best_action) == list:
+            for action in best_action:
+                plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action)
+        else:
+            plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
         # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
         # print('----------------------------------------------')
         logs.append(pd.DataFrame(logs_inter))
-    plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
 
 end = time.perf_counter()
 logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)

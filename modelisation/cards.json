@@ -81,7 +81,7 @@
         "cost": 1,
         "attack": 0,
         "health": 2,
-        "effects": {}
+        "effects": {"aura": ["heal", ["serviteur", "allié", "tous", "end_turn"], 1]}
     },
     {
         "id": 16,
@@ -105,7 +105,7 @@
         "cost": 1,
         "attack": 0,
         "health": 2,
-        "effects": {}
+        "effects": {"aura": ["boost", ["serviteur", "allié", "aléatoire", "end_turn"], [1, 0]]}
     },
     {
         "id": 18,
@@ -14216,5 +14216,221 @@
         "attack": 6,
         "health": 6,
         "effects": {"cri de guerre":  ["tess", [], []], "legendaire": 1}
+    },
+    {
+        "id": 1188,
+        "name": "Triple sept",
+        "classe": "Voleur",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 7,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", 7], "damage": 7, "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 1189,
+        "name": "Amirale pirate double crochet",
+        "classe": "Voleur",
+        "type": "Serviteur",
+        "genre": ["Pirate"],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 8,
+        "health": 8,
+        "effects": {"legendaire": 1}
+    },
+    {
+        "id": 1190,
+        "name": "Melomanie",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"permanent_buff": ["melomanie", ["heros", "allié"], 1]}
+    },
+    {
+        "id": 1191,
+        "name": "Zap",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": ["Nature"],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 2, "ciblage": ["serviteur", "tous", "choisi"], "surcharge": 1}
+    },
+    {
+        "id": 1192,
+        "name": "Banc de carnivore",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": [["allié"], ["Piranha grouillant", "Piranha grouillant", "Piranha grouillant"]]}
+    },
+    {
+        "id": 1193,
+        "name": "Bassin boueux",
+        "classe": "Chaman",
+        "type": "Lieu",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"use": ["transformation", ["serviteur", "allié", "choisi", "cost_1more"], 1]}
+    },
+    {
+        "id": 1194,
+        "name": "Cryogenie",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": [["allié"], "copy_target"], "gel": 1, "ciblage": ["serviteur", "tous", "choisi"]}
+    },
+    {
+        "id": 1195,
+        "name": "Deguisement convaincant",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"evolve": 2, "ciblage": ["serviteur", "allié", "choisi"], "impregnation": ["Deguisement convaincant impregne", 4]}
+    },
+    {
+        "id": 1196,
+        "name": "Deguisement convaincant impregne",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"evolve": ["tous", "allié", 2]}
+    },
+    {
+        "id": 1197,
+        "name": "Geyser bouillant",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 2, "ciblage": ["tous", "tous", "choisi"], "dragage": 1}
+    },
+    {
+        "id": 1198,
+        "name": "Genie du rythme",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": ["Naga"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 2,
+        "health": 1,
+        "effects": {"cri de guerre": ["decouverte", ["sort", "in_deck", "conditional", "if_surcharge"], 1]}
+    },
+    {
+        "id": 1199,
+        "name": "Parchemin d'azshara",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["sort", "feu_givre_nature", "allié"], "add_deck": [["allié", "end_deck"], ["Parchemin englouti"]]}
+    },
+    {
+        "id": 1200,
+        "name": "Parchemin englouti",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": [["allié"], ["sort", "aléatoire", "feu_givre_nature"]]}
+    },
+    {
+        "id": 1201,
+        "name": "Preuve totemique",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["serviteur", "base_totem", "allié"], "impregnation": ["Preuve totemique impregne", 3]}
+    },
+    {
+        "id": 1201,
+        "name": "Preuve totemique impregne",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Totem de soins", "Totem incendiaire", "Totem de puissance", "Totem de griffes de pierre"]}
+    },
+    {
+        "id": 1202,
+        "name": "Reflexes eclair",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": ["Nature"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["sort", "Nature"]}
+    },
+    {
+        "id": 1203,
+        "name": "Reflexes eclair2",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": ["Nature"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["sort", "Nature"]}
+    },
+    {
+        "id": 1204,
+        "name": "Sautilleur foudroyant",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": ["Élémentaire", "Bête"],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 2,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "surcharge"], 1]}
     }
 ]

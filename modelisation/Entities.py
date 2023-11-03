@@ -148,7 +148,8 @@ class Plateau:
                        'Voleur': 'voleur_secrets.csv',
                        'Guerrier': 'dk_sang.csv',
                        'Chevalier de la mort': 'dk_sang.csv',
-                       'Prêtre': 'shadow_priest.csv'
+                       'Prêtre': 'shadow_priest.csv',
+                       'Chaman': 'chaman_totem.csv'
                        }
         self.cards_chosen, self.cards_dragage, self.cards_entrave, self.cards_hands_to_deck, self.choix_des_armes = [], [], [], [], None
         if players == ():
@@ -303,7 +304,7 @@ class Plateau:
         action_line["mana_max_adv"] = adv.mana_max
         action_line["pv_j"], action_line["pv_adv"] = player.health, adv.health
         action_line["armor_j"], action_line["armor_adv"] = player.armor, adv.armor
-        action_line["surcharge_j"], action_line["surcharge_adv"] = player.surcharge, adv.surcharge
+        action_line["surcharge_j"], action_line["surcharge_adv"] = player.surcharge[0], adv.surcharge[0]
         action_line["pv_max_j"], action_line["pv_max_adv"] = player.base_health, adv.base_health
         action_line["cadavres_j"], action_line["cadavres_adv"] = player.cadavres, adv.cadavres
         action_line["nbre_cartes_j"], action_line["nbre_cartes_adv"] = len(player.hand), len(adv.hand)
@@ -436,7 +437,7 @@ class Player:
         self.last_card, self.first_spell, self.next_spell, self.otherclass_played = get_card(-1, all_cards), None, [], False
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
-        self.surcharge, self.randomade, self.milouse, self.surplus = 0, 0, 0, 0
+        self.surcharge, self.randomade, self.milouse, self.surplus = [0, 0], 0, 0, 0
         self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells, self.poofed = [], [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
@@ -729,8 +730,8 @@ class Player:
         self.mana_max = min(self.mana_max + 1, self.mana_final)
 
     def mana_reset(self):
-        self.mana = self.mana_max - self.surcharge
-        self.surcharge = 0
+        self.mana = self.mana_max - self.surcharge[0]
+        self.surcharge = [0, self.surcharge[0]]
 
     def pick(self):
         """ Prendre la première carte du deck et l'ajouter à sa main """

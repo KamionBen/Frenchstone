@@ -688,7 +688,7 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
     if "reincarnation" in servant.effects:
         serv_advantage += 1.25 * servant.attack
     if "gel" in servant.effects:
-        serv_advantage -= servant.attack
+        serv_advantage -= 1.25 * servant.attack
     if "fragile" in servant.effects:
         serv_advantage /= 3
     if "frail" in servant.effects:
@@ -699,6 +699,8 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
             serv_advantage -= (remaining_turns / (remaining_turns + 1)) * (1.25 * servant.attack + 1.25 * servant.health)
         except:
             pass
+    if servant.attack == 0:
+        serv_advantage /= 1.5
 
     if not serv_adv:
         """ Potentiel value trade adverse """
@@ -801,6 +803,7 @@ def calc_advantage_minmax(state):
     """ Mana """
     mana_advantage = 0
     mana_advantage += 5 * (player.mana_max - adv.mana_max)
+    mana_advantage += 1.5 * (sum(adv.surcharge) - sum(player.surcharge))
     mana_advantage *= coef_mana
 
     """ Health """
@@ -902,9 +905,10 @@ dict_deck_status = {"Chevalier de la mort": "controle",
                     "Prêtre": "aggro",
                     "Chasseur": "tempo",
                     "Druide": "controle",
-                    "Mage": "tempo"}
+                    "Mage": "tempo",
+                    "Chaman": "aggro"}
 for i in range(3):
-    class_j1 = "Voleur"
+    class_j1 = "Chaman"
     class_j2 = random.choice(class_to_chose)
     players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
@@ -914,8 +918,13 @@ for i in range(3):
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')
+    copy_best_action = 0
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)
+        if best_action == copy_best_action:
+            print(best_action, plateau_depart.players[0].hand, plateau_depart.players[0].servants, plateau_depart.players[1].hand, plateau_depart.players[1].servants)
+            print(" ---------- Boucle potentielle -------------- ")
+        copy_best_action = best_action
         if type(best_action) == list:
             for action in best_action:
                 plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action)

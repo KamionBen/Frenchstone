@@ -709,6 +709,9 @@ class Player:
         if "eternel amour" in self.permanent_buff and self.permanent_buff["eternel amour"] == 1:
             for card in [x for x in self.hand if x.type == "Sort"]:
                 card.cost = max(0, card.cost - 2)
+        if "nature_next_turn" in self.permanent_buff and self.permanent_buff["nature_next_turn"] == 0:
+            for card in [x for x in self.hand if x.type == "Sort" and "Nature" in x.genre]:
+                card.cost = max(0, card.cost - 1)
 
     def apply_weapon(self):
         self.dead_weapon = []

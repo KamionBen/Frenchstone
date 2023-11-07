@@ -865,7 +865,9 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
                 possible_new_states = possible_new_states[first_estimate_sorted1[-min(25, len(possible_new_states)):]]
     except:
         print(legal_actions)
-        print(state_saved)
+        print(logs_inter)
+        print(state.cards_chosen, state.cards_dragage, state.cards_entrave, state.choix_des_armes)
+        raise TypeError
 
     gc.enable()
 
@@ -921,9 +923,6 @@ for i in range(3):
     copy_best_action = 0
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)
-        if best_action == copy_best_action:
-            print(best_action, plateau_depart.players[0].hand, plateau_depart.players[0].servants, plateau_depart.players[1].hand, plateau_depart.players[1].servants)
-            print(" ---------- Boucle potentielle -------------- ")
         copy_best_action = best_action
         if type(best_action) == list:
             for action in best_action:

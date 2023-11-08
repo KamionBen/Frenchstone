@@ -625,6 +625,9 @@ class Player:
                     elif "if_death_undead" in card.effects["reduc"] and self.dead_undeads:
                         if "fixed_cost" in card.effects["reduc"]:
                             card.cost = card.effects["reduc"][-1]
+            elif "bonne pioche" in card.effects and "reduc" in card.effects["bonne pioche"] and card.effects["bonne pioche"][-1] == 1:
+                if "self" in card.effects["bonne pioche"][1]:
+                    card.cost = card.effects["bonne pioche"][1][-1]
             if "milouse" in card.effects:
                 card.cost = card.base_cost + self.milouse
             if "marginal" in card.effects and "cost" in card.effects["marginal"] and card in [self.hand[0], self.hand[-1]]:
@@ -688,6 +691,10 @@ class Player:
                 if [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
                     for spell in [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
                         spell.cost = max(0, spell.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Arcanes" in x.effects["aura"][1]]))
+            elif [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Nature" in x.effects["aura"][1]]:
+                if [x for x in self.hand if x.type == "Sort" and "Nature" in x.genre]:
+                    for spell in [x for x in self.hand if x.type == "Sort" and "Nature" in x.genre]:
+                        spell.cost = max(0, spell.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Nature" in x.effects["aura"][1]]))
         if [x for x in self.attached if x[0] == "Aura de l'inventeur"]:
             if [x for x in self.hand if "Méca" in x.genre]:
                 for meca in [x for x in self.hand if "Méca" in x.genre]:
@@ -751,7 +758,10 @@ class Player:
                             creature.effects["en sommeil"][1] -= 1
                             if creature.effects["en sommeil"][1] == 0:
                                 creature.effects.pop("en sommeil")
-                self.hand.add(self.deck.pick_one())
+                card_to_draw = self.deck.pick_one()
+                self.hand.add(card_to_draw)
+                if "bonne pioche" in card_to_draw.effects:
+                    card_to_draw.effects["bonne pioche"][-1] = 1
                 self.drawn_this_turn += 1
                 if [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
                     for creature in [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
@@ -1149,9 +1159,16 @@ def generate_targets(state):
             if "ciblage" in player.hand[i].effects:
                 if "serviteur" in player.hand[i].effects["ciblage"]:
                     if "ennemi" in player.hand[i].effects["ciblage"]:
-                        for j in range(len(adv.servants)):
-                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
-                                legal_actions[17 * i + j + 10] = True
+                        if "if_2adv" in player.hand[i].effects["ciblage"] and len([x for x in adv.servants if
+                                                                                   "camouflage" not in x.effects and "en sommeil" not in x.effects and "inciblable" not in x.effects]) >= 2:
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[
+                                    j].effects and "inciblable" not in adv.servants[j].effects:
+                                    legal_actions[17 * i + j + 10] = True
+                        else:
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    legal_actions[17 * i + j + 10] = True
                     elif "allié" in player.hand[i].effects["ciblage"]:
                         if "conditional" in player.hand[i].effects["ciblage"]:
                             if "if_bouclier_divin" in player.hand[i].effects["ciblage"] and [x for x in player.servants if "bouclier divin" in x.effects]:
@@ -1184,12 +1201,40 @@ def generate_targets(state):
                             for j in range(len(player.servants)):
                                 if player.servants[j].name == "Recrue de la main d'argent" and "inciblable" not in \
                                         player.servants[j].effects:
-                                    legal_actions[17 * i + j + 3] = True
+                                    legal_actions[17 * i + j + 2] = True
                             for j in range(len(adv.servants)):
                                 if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
                                         adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                     if adv.servants[j].name == "Recrue de la main d'argent":
-                                        legal_actions[17 * i + j + 11] = True
+                                        legal_actions[17 * i + j + 10] = True
+                        elif "if_atk_sup5" in player.hand[i].effects["ciblage"]:
+                            for j in range(len(player.servants)):
+                                if player.servants[j].attack >= 5 and "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
+                                        adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    if adv.servants[j].attack >= 5:
+                                        legal_actions[17 * i + j + 10] = True
+                        elif "if_indemne" in player.hand[i].effects["ciblage"]:
+                            for j in range(len(player.servants)):
+                                if player.servants[j].blessure == 0 and "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
+                                        adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    if adv.servants[j].blessure == 0:
+                                        legal_actions[17 * i + j + 10] = True
+                        elif "if_2serv" in player.hand[i].effects["ciblage"] and len([x for x in adv.servants if "camouflage" not in x.effects and "en sommeil" not in x.effects and "inciblable" not in x.effects]) + len([x for x in player.servants if
+                             "en sommeil" not in x.effects and "inciblable" not in x.effects]) >= 2:
+                            for j in range(len(player.servants)):
+                                if "en sommeil" not in player.servants[j].effects and "inciblable" not in \
+                                        player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[
+                                    j].effects and "inciblable" not in adv.servants[j].effects:
+                                    legal_actions[17 * i + j + 10] = True
                         else:
                             for j in range(len(player.servants)):
                                 if "inciblable" not in player.servants[j].effects:

@@ -681,6 +681,10 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
         serv_advantage *= 1.25
     if "camouflage" in servant.effects:
         serv_advantage *= 1.25
+    if "rale d'agonie" in servant.effects:
+        serv_advantage *= 1.25
+    if "aura" in servant.effects:
+        serv_advantage *= 1.5
     if "toxicite" in servant.effects:
         serv_advantage *= 1.25
     if "provocation" in servant.effects:

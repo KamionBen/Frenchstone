@@ -1,7 +1,6 @@
 import time
 from engine import *
 import gc
-from statistics import mean
 import math
 import matplotlib.pyplot as plt
 
@@ -681,8 +680,6 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
         serv_advantage *= 1.25
     if "camouflage" in servant.effects:
         serv_advantage *= 1.25
-    if "rale d'agonie" in servant.effects:
-        serv_advantage *= 1.25
     if "aura" in servant.effects:
         serv_advantage *= 1.5
     if "toxicite" in servant.effects:
@@ -698,26 +695,19 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
     if "frail" in servant.effects:
         serv_advantage /= 3
     if "en sommeil" in servant.effects:
-        try:
-            remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
-            serv_advantage -= (remaining_turns / (remaining_turns + 1)) * (1.25 * servant.attack + 1.25 * servant.health)
-        except:
-            pass
-    if servant.attack == 0:
+        remaining_turns = servant.effects["en sommeil"] if type(servant.effects["en sommeil"]) == int else servant.effects["en sommeil"][-1]
+        serv_advantage -= (remaining_turns / (remaining_turns + 1)) * (1.25 * servant.attack + 1.25 * servant.health)
+    if not servant.attack:
         serv_advantage /= 1.5
 
     if not serv_adv:
         """ Potentiel value trade adverse """
-        if [x for x in adv.servants if calc_advantage_serv(x, adv, player, serv_adv=True) < calc_advantage_serv(servant, player, adv, serv_adv=True)]:
-            for adv_serv in [x for x in adv.servants if calc_advantage_serv(x, adv, player, serv_adv=True) < calc_advantage_serv(servant, player, adv, serv_adv=True)]:
-                if deadly_attack(adv_serv, servant):
-                    serv_advantage = min(serv_advantage, calc_advantage_serv(adv_serv, adv, player, serv_adv=True))
+        value_trade = [calc_advantage_serv(x, adv, player, serv_adv=True) for x in adv.servants if (calc_advantage_serv(x, adv, player, serv_adv=True) < calc_advantage_serv(servant, player, adv, serv_adv=True)) and deadly_attack(x, servant)]
+        if value_trade:
+            serv_advantage = min(serv_advantage, min(value_trade))
         """ Potentiel d'être tué par le HP adverse """
-        if servant.health == 1 and "bouclier divin" not in servant.effects and "camouflage" not in servant.effects:
-            if adv.classe in ["Chasseur de démons", "Mage", "Druide", "Chevalier de la mort", "Voleur"]:
-                serv_advantage = min(serv_advantage, 2)
-            t3 = time.perf_counter()
-
+        if servant.health == 1 and "bouclier divin" not in servant.effects and "camouflage" not in servant.effects and adv.classe in ["Chasseur de démons", "Mage", "Druide", "Chevalier de la mort", "Voleur"]:
+            serv_advantage = min(serv_advantage, 2)
     return serv_advantage
 
 
@@ -739,6 +729,9 @@ def calc_advantage_card_hand(card, player):
     if "fragile" in card.effects:
         card_advantage = card_advantage / 3
     return card_advantage
+
+
+avg_time = [[0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1]]
 
 
 def calc_advantage_minmax(state):
@@ -774,7 +767,6 @@ def calc_advantage_minmax(state):
     elif adv.health <= 0:
         return 500
 
-
     """ Hand """
     discounts = [x.intrinsec_cost - x.cost for x in player.hand if x.discount]
     hand_advantage = sum([calc_advantage_card_hand(card, player) for card in player.hand])
@@ -782,14 +774,12 @@ def calc_advantage_minmax(state):
         hand_advantage += 0.5 * mean(discounts)
     hand_advantage -= 1.5 * len(adv.hand)
     hand_advantage *= coef_hand
-    hand_advantage = round(hand_advantage, 3)
 
     """ Deck """
     deck_advantage = 0.1 * (len(player.deck) - len(adv.deck))
     if player.deck:
         deck_advantage += sum([(x.intrinsec_cost - x.cost) for x in player.deck])
     deck_advantage *= coef_deck
-    deck_advantage = round(deck_advantage, 3)
 
     """ Board """
     board_advantage_j, board_advantage_adv = 0, 0
@@ -814,8 +804,6 @@ def calc_advantage_minmax(state):
     health_advantage = 6 * coef_health_adv * (-math.sqrt(adv.health + adv.armor) + math.sqrt(adv.base_health + adv.armor))
     health_advantage -= 6 * coef_health_j * (-math.sqrt(player.health + player.armor) + math.sqrt(player.base_health + player.armor))
     health_advantage += 0.5 * (player.armor - adv.armor)
-    health_advantage = round(health_advantage, 3)
-
     """ Others """
     other_advantage = 0
     # Secrets
@@ -823,7 +811,6 @@ def calc_advantage_minmax(state):
     # Lieux
     other_advantage += 2.5 * (sum([(x.attack * x.intrinsec_cost/x.intrinsec_attack) for x in player.lieux]) - sum([(x.attack * x.intrinsec_cost/x.intrinsec_attack) for x in adv.lieux]))
     # Autres
-    other_advantage += 3 * (len(player.attached) - len(adv.attached))
     other_advantage += 4 * len(player.permanent_buff)
     other_advantage += 0.01 * player.cadavres
     other_advantage *= coef_other
@@ -838,28 +825,51 @@ def calc_advantage_minmax(state):
 
 
 total_actions = 0
-
+avg_time = [[0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1]]
 
 def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=2.8):
+    t0 = time.perf_counter()
     gc.disable()
     global total_actions
     base_advantage = calc_advantage_minmax(state)
+    t1 = time.perf_counter()
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
     legal_actions = [i for i in range(len(legal_actions)) if legal_actions[i]]
+    t2_byaction = (time.perf_counter() - t1) / len(legal_actions)
+    t2 = time.perf_counter()
     state_saved = pickle.dumps(state, -1)
+    t3 = time.perf_counter()
 
     possible_new_states = np.array([
         (action, Orchestrator().tour_ia_minmax(pickle.loads(state_saved), [], action, False)[0]) for action
         in legal_actions
     ])
+    t4_byaction = (time.perf_counter() - t3)/len(legal_actions)
+    t4 = time.perf_counter()
 
     first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
+    t5_byaction = (time.perf_counter() - t4) / len(possible_new_states)
+    t5 = time.perf_counter()
     if len(possible_new_states) != 0 and possible_new_states[0][0] == 0:
         first_estimate[0] = base_advantage
     first_estimate_sorted = np.array(first_estimate).argsort()
     to_simulate = -max(round(min(30, len(possible_new_states)) / (pow(exploration_toll, depth))), 1)
     first_estimate_duplicates = [idx for idx, item in enumerate(first_estimate) if item in first_estimate[:idx]]
     first_estimate_sorted1 = first_estimate_sorted[~np.in1d(first_estimate_sorted, first_estimate_duplicates)]
+    t6 = time.perf_counter()
+
+    avg_time[0][0] += 1000 * (t1 - t0)
+    avg_time[0][1] += 1
+    avg_time[1][0] += 1000 * t2_byaction
+    avg_time[1][1] += 1
+    avg_time[2][0] += 1000 * (t3 - t2)
+    avg_time[2][1] += 1
+    avg_time[3][0] += 1000 * t4_byaction
+    avg_time[3][1] += 1
+    avg_time[4][0] += 1000 * t5_byaction
+    avg_time[4][1] += 1
+    avg_time[5][0] += 1000 * (t6 - t5)
+    avg_time[5][1] += 1
 
     try:
         if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
@@ -930,15 +940,16 @@ for i in range(3):
         copy_best_action = best_action
         if type(best_action) == list:
             for action in best_action:
-                plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action)
+                plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action, generate_logs=False)
         else:
-            plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action)
+            plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action, generate_logs=False)
+        print(round(avg_time[0][0]/avg_time[0][1], 3), round(avg_time[1][0]/avg_time[1][1], 3), round(avg_time[2][0]/avg_time[2][1], 3), round(avg_time[3][0]/avg_time[3][1], 3), round(avg_time[4][0]/avg_time[4][1], 3), round(avg_time[5][0]/avg_time[5][1], 3))
         # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
         # print('----------------------------------------------')
-        logs.append(pd.DataFrame(logs_inter))
+        # logs.append(pd.DataFrame(logs_inter))
 
 end = time.perf_counter()
-logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)
+# logs_hs = pd.concat(logs).reset_index().drop("index", axis=1)
 print(f"Temps total : {round(end - beginning, 1)}s")
 
 """ Sauvegarde des logs"""

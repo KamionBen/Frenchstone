@@ -5,6 +5,8 @@ from random import shuffle, choice
 from typing import Union
 import random
 import pickle, time
+from statistics import mean, stdev
+from sys import getsizeof
 
 """ CONSTANTS """
 dict_actions = {
@@ -28,9 +30,13 @@ def get_cards_data(file: str) -> list:
 # cardsfile = "cards.json"
 
 all_cards = get_cards_data('cards.json')
+all_decouvrables = [x for x in all_cards if x['decouvrable'] == 1]
 all_servants = [x for x in all_cards if x['type'] == "Serviteur"]
+all_servants_decouvrables = [x for x in all_cards if x['type'] == "Serviteur" and x['decouvrable'] == 1]
 all_spells = [x for x in all_cards if x['type'] == "Sort"]
+all_spells_decouvrable = [x for x in all_cards if x['type'] == "Sort" and x['decouvrable'] == 1]
 all_weapons = [x for x in all_cards if x['type'] == "Arme"]
+all_marginal = [x for x in all_cards if "marginal" in x["effects"]]
 heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
           "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"],
           "Paladin": ["Uther"],

@@ -15200,5 +15200,77 @@
         "attack": 4,
         "health": 4,
         "effects": {"cri de guerre": ["dragage", [], 1]}
+    },
+    {
+        "id": 1269,
+        "name": "Gardienne contaminee",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 4,
+        "effects": {"rale d'agonie": ["add_hand", ["allié"], ["Tentacule chaotique", "Tentacule chaotique"]], "provocation": 1}
+    },
+    {
+        "id": 1270,
+        "name": "Marteau des tempetes",
+        "classe": "Chaman",
+        "type": "Arme",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 1,
+        "health": 3,
+        "effects": {"aura": ["damage", ["ennemi", "lowest_health", "conditional", "if_attack"], 3]}
+    },
+    {
+        "id": 1271,
+        "name": "Prescience",
+        "classe": "Chaman",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", "serviteur", "invoke_ifsup5", "Apparition sinistre", 2]}
+    },
+    {
+        "id": 1272,
+        "name": "Apparition sinistre",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"provocation": 1}
+    },
+    {
+        "id": 1273,
+        "name": "Videur des coulisses",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": ["Bête"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 5,
+        "effects": {"provocation": 1, "cri de guerre": ["mutation", ["serviteur", "allié", "choisi", "copy"], ""]}
+    },
+    {
+        "id": 1274,
+        "name": "Elementaire des cuivres",
+        "classe": "Chaman",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 3,
+        "health": 3,
+        "effects": {"provocation": 1, "ruée": 1, "bouclier divin": 1, "furie des vents": 1}
     }
 ]

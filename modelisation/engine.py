@@ -4263,6 +4263,7 @@ class TourEnCours:
                                 adv.servants[index_target + 1].effects["rale d'agonie"] = target.effects[
                                     "rale d'agonie"]
             if "invocation" in carte.effects:
+                # t0 = time.perf_counter()
                 if "until_cadavre" in carte.effects["invocation"]:
                     if player.cadavres > 0:
                         invoked_creatures = []
@@ -4382,6 +4383,10 @@ class TourEnCours:
                 if "spend_cadavre" in carte.effects and player.cadavres >= carte.effects["spend_cadavre"][0]:
                     player.cadavres -= carte.effects["spend_cadavre"][0]
                     player.cadavres_spent += carte.effects["spend_cadavre"][0]
+                # t1 = time.perf_counter()
+                # time_compute = round(1000 * (t1 - t0), 3)
+                # if time_compute > 0.1:
+                #     print(carte, carte.effects, time_compute, "ms")
             elif "copy" in carte.effects and target is not None:
                 if "same_stats" in carte.effects["copy"]:
                     to_invoke = get_card(carte.effects["copy"][0], all_servants)

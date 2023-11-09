@@ -932,8 +932,6 @@ for i in range(3):
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------')
-    print('------------------------------------------------------------------------------')
-    print('------------------------------------------------------------------------------')
     copy_best_action = 0
     while plateau_depart.game_on:
         max_reward, best_action = minimax(plateau_depart)
@@ -943,7 +941,7 @@ for i in range(3):
                 plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], action, generate_logs=False)
         else:
             plateau_depart, logs_inter = Orchestrator().tour_ia_minmax(plateau_depart, [], best_action, generate_logs=False)
-        print(round(avg_time[0][0]/avg_time[0][1], 3), round(avg_time[1][0]/avg_time[1][1], 3), round(avg_time[2][0]/avg_time[2][1], 3), round(avg_time[3][0]/avg_time[3][1], 3), round(avg_time[4][0]/avg_time[4][1], 3), round(avg_time[5][0]/avg_time[5][1], 3))
+        # print(round(avg_time[0][0]/avg_time[0][1], 3), round(avg_time[1][0]/avg_time[1][1], 3), round(avg_time[2][0]/avg_time[2][1], 3), round(avg_time[3][0]/avg_time[3][1], 3), round(avg_time[4][0]/avg_time[4][1], 3), round(avg_time[5][0]/avg_time[5][1], 3))
         # print(f"Meilleure action : {best_action}   ---   Avantage estimé : {max_reward}")
         # print('----------------------------------------------')
         # logs.append(pd.DataFrame(logs_inter))

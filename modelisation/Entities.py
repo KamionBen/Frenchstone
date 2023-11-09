@@ -30,6 +30,8 @@ def get_cards_data(file: str) -> list:
 # cardsfile = "cards.json"
 
 all_cards = get_cards_data('cards.json')
+name_index = {card["name"]: card for card in all_cards}
+id_index = {card["id"]: card for card in all_cards}
 all_decouvrables = [x for x in all_cards if x['decouvrable'] == 1]
 all_servants = [x for x in all_cards if x['type'] == "Serviteur"]
 all_servants_decouvrables = [x for x in all_cards if x['type'] == "Serviteur" and x['decouvrable'] == 1]
@@ -1117,24 +1119,18 @@ def import_deck(file: str, data='cards.json') -> CardGroup:
 
 
 def get_card(key: Union[int, str], cardpool: list) -> Card:
+
     """ Renvoie l'objet Card en fonction de 'key', qui peut être l'id où le nom de la carte """
     found = False
     if type(key) is int:
-        # Recherche par id fixe
-        for elt in cardpool:
-            if elt['id'] == key:
-                return Card(**elt)
+        return Card(**id_index[key])
     elif type(key) is str:
         if len(key.split('-')) == 2:
             # Recherche par id temporaire
             key, ext = key.split('-')
-            for elt in cardpool:
-                if str(elt['id']) == key:
-                    return Card(cid=f"{key}-{ext}", **elt)
+            return Card(cid=f"{key}-{ext}", **id_index[key])
         else:
-            for elt in cardpool:
-                if elt['name'].lower() == key.lower():
-                    return Card(**elt)
+            return Card(**name_index[key])
 
     if found is False:
         raise KeyError(f"Impossible de trouver {key}")

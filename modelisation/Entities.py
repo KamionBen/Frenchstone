@@ -5,7 +5,8 @@ from random import shuffle, choice
 from typing import Union
 import random
 import pickle, time
-from statistics import mean, stdev
+from statistics import mean
+from copy import deepcopy
 from sys import getsizeof
 
 """ CONSTANTS """
@@ -15,8 +16,18 @@ dict_actions = {
             2: "attaquer"
         }
 
-classes_heros_old = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
-                 "Chevalier de la mort"]
+class_files = {'Chasseur': 'chasseur.csv',
+               'Mage': 'mage_rainbow.csv',
+               'Paladin': 'paladin_pur.csv',
+               'Démoniste': 'dk_sang.csv',
+               'Chasseur de démons': 'dh_marginal.csv',
+               'Druide': 'big_druid.csv',
+               'Voleur': 'voleur_secrets.csv',
+               'Guerrier': 'dk_sang.csv',
+               'Chevalier de la mort': 'dk_sang.csv',
+               'Prêtre': 'shadow_priest.csv',
+               'Chaman': 'chaman_totem.csv'
+               }
 classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
                  "Chevalier de la mort"]
 all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"]
@@ -26,30 +37,24 @@ def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
         return json.load(jsonfile)
 
-
 # cardsfile = "cards.json"
 
 all_cards = get_cards_data('cards.json')
-name_index = {card["name"]: card for card in all_cards}
-id_index = {card["id"]: card for card in all_cards}
 all_decouvrables = [x for x in all_cards if x['decouvrable'] == 1]
 all_servants = [x for x in all_cards if x['type'] == "Serviteur"]
 all_servants_decouvrables = [x for x in all_cards if x['type'] == "Serviteur" and x['decouvrable'] == 1]
+all_graines = [x for x in all_cards if x['type'] == "Serviteur" and "graine" in x["effects"]]
 all_spells = [x for x in all_cards if x['type'] == "Sort"]
 all_spells_decouvrable = [x for x in all_cards if x['type'] == "Sort" and x['decouvrable'] == 1]
 all_weapons = [x for x in all_cards if x['type'] == "Arme"]
 all_marginal = [x for x in all_cards if "marginal" in x["effects"]]
-heroes = {"Chasseur": ["Rexxar", "Alleria Coursevent", "Sylvanas Coursevent", "Rexxar chanteguerre"],
-          "Mage": ["Jaina Portvaillant", "Medivh", "Khadgar", "Jaina mage Feu"],
-          "Paladin": ["Uther"],
-          "Démoniste": ["Gul'dan"],
-          "Chasseur de démons": ["Ilidan"],
-          "Druide" : ["Malfurion"],
-          "Voleur" : ["Valeera"],
-          "Guerrier": ["Garrosh"],
-          "Chevalier de la mort": ["Le Roi-Liche"],
-          "Prêtre": ["Anduin"]
-          }  # Devra être dans un fichier à part
+all_servants_genre = {}
+for genre in all_genre_servants:
+    all_servants_genre[genre] = [x for x in all_servants_decouvrables if genre in x["genre"]]
+
+name_index = {card["name"]: card for card in all_cards}
+id_index = {card["id"]: card for card in all_cards}
+name_index_servant = {card["name"]: card for card in all_servants_decouvrables}
 
 
 empty_action_line = {"carte_jouee": "",
@@ -144,39 +149,29 @@ for i in range(7):
 """ CLASSES """
 
 
+# deck_chaman = ["Banc de carnivores", "Banc de carnivores", "Guide", "Guide", "Une erreur", "Une erreur", "Preuve totemique", "Preuve totemique",
+#                "Amalgame des profondeurs", "Amalgame des profondeurs", "Burin de gravure", "Burin de gravure", "Totem langue de feu",
+#                "Totem langue de feu", "Totem ancre", "Totem ancre", "Grand totem oeil d'or", "Crealithe", "Videur des coulisses",
+#                "Videur des coulisses", "Bouffon affame", "Bouffon affame", "Magatha l'antimusique", "Elementaire des cuivres",
+#                "Elementaire des cuivres", "Prescience", "Prescience", "Gardienne contaminee", "Gardienne contaminee"]
+
 class Plateau:
     def __init__(self, players=()):
         """ Décrit exhaustivement le plateau de jeu """
-        class_files = {'Chasseur': 'chasseur.csv',
-                       'Mage': 'mage_rainbow.csv',
-                       'Paladin': 'paladin_pur.csv',
-                       'Démoniste': 'dk_sang.csv',
-                       'Chasseur de démons': 'dh_marginal.csv',
-                       'Druide': 'big_druid.csv',
-                       'Voleur': 'voleur_secrets.csv',
-                       'Guerrier': 'dk_sang.csv',
-                       'Chevalier de la mort': 'dk_sang.csv',
-                       'Prêtre': 'shadow_priest.csv',
-                       'Chaman': 'chaman_totem.csv'
-                       }
         self.cards_chosen, self.cards_dragage, self.cards_entrave, self.cards_hands_to_deck, self.choix_des_armes = [], [], [], [], None
-        if players == ():
-            self.players = [Player("Smaguy", 'Chasseur', ""), Player("Rupert", 'Mage', "")]
-        else:
-            self.players = list(players)
+        self.players = list(players)
 
         Card.created = {}
 
         for player in self.players:
             player.deck = import_deck(class_files[player.classe])
-            player.initial_deck = pickle.loads(pickle.dumps(player.deck))
 
         """ Mélange des decks et tirage de la main de départ """
         for player in self.players:
             player.start_game()
         """ Le joueur 2 reçoit une carte en plus et la pièce """
         self.players[1].pick()
-        self.players[1].hand.add(get_card("La piece", get_cards_data("cards.json")))
+        self.players[1].hand.add(get_card("La piece", all_spells))
 
         """ Gestion du mana """
         """ Le premier joueur démarre son tour à l'initialisation """
@@ -438,7 +433,7 @@ class Player:
         self.style = style_deck
 
         # Cartes
-        self.deck, self.initial_deck = CardGroup(), CardGroup()  # Le tas de cartes à l'envers
+        self.deck, self.initial_deck = CardGroup() ,CardGroup()  # Le tas de cartes à l'envers
         self.hand, self.cards_played = CardGroup(), []  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, [], 0
@@ -862,7 +857,6 @@ class CardGroup:
     def __init__(self, cards=()):
         """ Permet de faire des opérations sur un groupe de cartes """
         self.cards = list(cards)
-        self.carddict = {c.id: c for c in self.cards}
         self.aegwynn = False
 
     def reset(self):
@@ -902,22 +896,6 @@ class CardGroup:
     def __len__(self):
         return len(self.cards)
 
-    def __iter__(self):
-        return iter(self.cards)
-
-    def __add__(self, other):
-        if type(other) is Card:
-            ls = self.cards.copy()
-            ls.append(other)
-            return CardGroup(ls)
-        elif type(other) is list:
-            ls = self.cards.copy()
-            for l in other:
-                ls.append(l)
-            return ls
-        else:
-            raise TypeError(f"Impossible d'additionner {other} (type:{type(other)}) avec le type CardGroup")
-
     def __getitem__(self, x):
         """ Renvoie la xième carte du groupe"""
         if type(x) is int:
@@ -925,20 +903,11 @@ class CardGroup:
         else:
             raise TypeError
 
-    def choice(self):
-        """ Retire une carte au hasard """
-        if len(self.cards) == 0:
-            return None
-        else:
-            my_choice = choice(self.cards)
-            self.cards.remove(my_choice)
-            return my_choice
-
     def __repr__(self):
         return str(self.cards)
 
 
-class Card:
+class Card():
     created = {}
 
     def __init__(self, cid=None, **kw):
@@ -949,21 +918,21 @@ class Card:
         self.genre = kw["genre"]
         if cid is None:
             # Génération d'un id de carte
-            self.id = f"{kw['id']}-{self.generate_id()}"
-            Card.created[self.name] = self.generate_id()
+            id_generated = self.generate_id()
+            self.id = f"{kw['id']}-{id_generated}"
+            Card.created[self.name] = id_generated
         else:
             self.id = cid
-
         """ Category """
         self.classe = kw["classe"]
         self.type = kw["type"]
 
         """ Stats """
-        self.cost, self.base_cost, self.discount = kw["cost"], kw["cost"], []
-        self.attack, self.base_attack = kw["attack"], kw["attack"]
-        self.health, self.base_health = kw["health"], kw["health"]
-        self.intrinsec_attack, self.intrinsec_health, self.intrinsec_cost = kw["attack"], kw["health"], kw["cost"]
-        
+        self.cost =  self.base_cost = self.intrinsec_cost =  kw["cost"]
+        self.attack = self.base_attack = self.intrinsec_attack = kw["attack"]
+        self.health = self.base_health = self.intrinsec_health = kw["health"]
+        self.discount = []
+
         """ Combat """
         self.remaining_atk = -1
         self.damage_taken, self.blessure, self.surplus, self.has_attacked = False, 0, 0, False
@@ -1004,11 +973,6 @@ class Card:
                 self.health = max(0, self.base_health + self.total_temp_boost[1] - self.blessure)
         if "gel" in self.effects:
             self.remaining_atk = -1
-
-    def reset_complete(self):
-        self.cost = self.base_cost
-        self.attack = self.base_attack
-        self.health = self.base_health
 
     def damage(self, nb, toxic=False):
         """ Removes nb from the card health """
@@ -1072,14 +1036,6 @@ class Card:
     def __repr__(self) -> str:
         return self.name
 
-    def __eq__(self, other) -> bool:
-        if type(other) == Card:
-            return other.id == self.id
-        elif type(other) == str:
-            return other == self.id or other.lower() == self.name.lower()
-        else:
-            return False
-
 
 class Weapon:
     def __init__(self, name):
@@ -1098,7 +1054,6 @@ def import_deck(file: str, data='cards.json') -> CardGroup:
     :param data : The .json file
     :return: A CardGroup
     """
-    jsoncards = get_cards_data(data)
     deck = CardGroup()
     with open(path.join('../decks', file), 'r') as csvdeck:
         reader = csv.reader(csvdeck, delimiter=";")
@@ -1106,34 +1061,13 @@ def import_deck(file: str, data='cards.json') -> CardGroup:
             name = line[0]
             number = int(line[1])
             found = False
-            for jsoncard in jsoncards:
-                if jsoncard['name'] == name:
-                    found = True
-                    for _ in range(number):
-                        card = Card(**jsoncard)
-                        deck.add(card)
-                    break
+            for _ in range(number):
+                card = get_card(name, all_cards)
+                found = True
+                deck.add(card)
             if found is False:
                 print(f"\033[91mERREUR : La carte {name} n'a pas été trouvée dans le fichier cards.json\033[0m")
     return deck
-
-
-def get_card(key: Union[int, str], cardpool: list) -> Card:
-
-    """ Renvoie l'objet Card en fonction de 'key', qui peut être l'id où le nom de la carte """
-    found = False
-    if type(key) is int:
-        return Card(**id_index[key])
-    elif type(key) is str:
-        if len(key.split('-')) == 2:
-            # Recherche par id temporaire
-            key, ext = key.split('-')
-            return Card(cid=f"{key}-{ext}", **id_index[key])
-        else:
-            return Card(**name_index[key])
-
-    if found is False:
-        raise KeyError(f"Impossible de trouver {key}")
 
 
 def copy_card(card):
@@ -1296,6 +1230,23 @@ def jouer_sort(self, carte, target=None):
                                 serv.effects["cri de guerre"][2] = serv.effects["cri de guerre"][3]
         else:
             raise PermissionError("Carte plus chère que la mana du joueur")
+
+def get_card(key: Union[int, str], cardpool: list):
+
+    """ Renvoie l'objet Card en fonction de 'key', qui peut être l'id où le nom de la carte """
+    found = False
+    if type(key) is int:
+        return Card(**next(item for item in cardpool if item["id"] == key))
+    elif type(key) is str:
+        if len(key.split('-')) == 2:
+            # Recherche par id temporaire
+            key, ext = key.split('-')
+            return Card(cid=f"{key}-{ext}", **id_index[int(key)])
+        else:
+            return Card(**next(item for item in cardpool if item["name"] == key))
+
+    if found is False:
+        raise KeyError(f"Impossible de trouver {key}")
 
 
 if __name__ == '__main__':

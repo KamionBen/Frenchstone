@@ -7,7 +7,6 @@ import random
 import pickle, time
 from statistics import mean
 from copy import deepcopy
-from sys import getsizeof
 
 """ CONSTANTS """
 dict_actions = {
@@ -54,7 +53,11 @@ for genre in all_genre_servants:
 
 name_index = {card["name"]: card for card in all_cards}
 id_index = {card["id"]: card for card in all_cards}
-name_index_servant = {card["name"]: card for card in all_servants_decouvrables}
+name_index_servants = {card["name"]: card for card in all_servants}
+name_index_servants_decouvrables = {card["name"]: card for card in all_servants_decouvrables}
+name_index_spells = {card["name"]: card for card in all_spells}
+name_index_spells_decouvrables = {card["name"]: card for card in all_spells_decouvrable}
+name_index_weapons = {card["name"]: card for card in all_weapons}
 
 
 empty_action_line = {"carte_jouee": "",
@@ -171,7 +174,7 @@ class Plateau:
             player.start_game()
         """ Le joueur 2 reçoit une carte en plus et la pièce """
         self.players[1].pick()
-        self.players[1].hand.add(get_card("La piece", all_spells))
+        self.players[1].hand.add(get_card("La piece", name_index_spells))
 
         """ Gestion du mana """
         """ Le premier joueur démarre son tour à l'initialisation """
@@ -256,7 +259,7 @@ class Plateau:
                             card.effects["cri de guerre"][1][3] += 1
                         else:
                             player.hand.remove(card)
-                            new_card = get_card(card.effects["impregnation"][0], all_cards)
+                            new_card = get_card(card.effects["impregnation"][0], name_index)
                             player.hand.add(new_card)
                             if new_card.name == "Golem pecheur impregne":
                                 new_card.effects["cri de guerre"][2] = [sum([x.base_attack for x in player.all_dead_servants]), sum([x.base_health for x in player.all_dead_servants])]
@@ -437,6 +440,7 @@ class Player:
         self.hand, self.cards_played = CardGroup(), []  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, [], 0
+        self.nature_this_turn, self.consec_elems = 0, 0
         self.last_card, self.first_spell, self.next_spell, self.otherclass_played = get_card(-1, all_cards), None, [], False
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
@@ -447,6 +451,7 @@ class Player:
         self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect = [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
+        self.grenouilles, self.totem_invoked = 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules, self.combo_played = 0, 0, 0, 0, 0, 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
@@ -477,7 +482,7 @@ class Player:
                 serv_to_consume = random.sample([x for x in self.deck if x.type == "Serviteur"], min(3, len([x for x in self.deck if x.type == "Serviteur"])))
                 for serviteur in serv_to_consume:
                     self.deck.remove(serviteur)
-                    self.deck.add(get_card("Ame liee", all_spells))
+                    self.deck.add(get_card("Ame liee", name_index_spells))
                     self.ames_liees.append(serviteur)
                 self.deck.shuffle()
         if "Prince Renathal" in [x.name for x in self.deck]:
@@ -550,7 +555,7 @@ class Player:
             self.hand.cards = self.hand.cards[:10]
         if len([x for x in self.hand if "decoction" in x.effects]) > 1:
             decoctions = [x for x in self.hand if "decoction" in x.effects]
-            mixed_decoction = get_card("Decoction melangee", all_spells)
+            mixed_decoction = get_card("Decoction melangee", name_index_spells)
             mixed_decoction.effects = decoctions[0].effects.copy()
             if decoctions[0].name != decoctions[1].name:
                 mixed_decoction.effects.pop("decoction")
@@ -599,6 +604,8 @@ class Player:
                         card.cost = max(0, card.base_cost - len(self.hand) + 1)
                     elif "total_mana_spend_spells" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.mana_spend_spells)
+                    elif "nature_this_turn" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.nature_this_turn)
                     elif "cadavres_spent" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.cadavres_spent)
                     elif "cards_drawn" in card.effects["reduc"]:
@@ -607,6 +614,8 @@ class Player:
                         card.cost = max(0, card.base_cost - self.armor)
                     elif "weapons_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - 2 * self.weapons_played)
+                    elif "totem_invoked" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.totem_invoked)
                     elif "marginal_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.marginal_played)
                     elif "treants_invoked" in card.effects["reduc"]:
@@ -626,6 +635,9 @@ class Player:
                     elif "cards_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - len(self.cards_this_turn))
                     elif "if_death_undead" in card.effects["reduc"] and self.dead_undeads:
+                        if "fixed_cost" in card.effects["reduc"]:
+                            card.cost = card.effects["reduc"][-1]
+                    elif "if_surcharge" in card.effects["reduc"] and sum(self.surcharge) != 0:
                         if "fixed_cost" in card.effects["reduc"]:
                             card.cost = card.effects["reduc"][-1]
             elif "bonne pioche" in card.effects and "reduc" in card.effects["bonne pioche"] and card.effects["bonne pioche"][-1] == 1:
@@ -694,10 +706,13 @@ class Player:
                 if [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
                     for spell in [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
                         spell.cost = max(0, spell.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Arcanes" in x.effects["aura"][1]]))
-            elif [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Nature" in x.effects["aura"][1]]:
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Nature" in x.effects["aura"][1]]:
                 if [x for x in self.hand if x.type == "Sort" and "Nature" in x.genre]:
                     for spell in [x for x in self.hand if x.type == "Sort" and "Nature" in x.genre]:
                         spell.cost = max(0, spell.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Nature" in x.effects["aura"][1]]))
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "premier" in x.effects["aura"][1]] and self.spell_this_turn == 0:
+                for spell in [x for x in self.hand if x.type == "Sort"]:
+                    spell.cost = max(0, spell.cost - 3)
         if [x for x in self.attached if x[0] == "Aura de l'inventeur"]:
             if [x for x in self.hand if "Méca" in x.genre]:
                 for meca in [x for x in self.hand if "Méca" in x.genre]:
@@ -719,6 +734,9 @@ class Player:
         if "eternel amour" in self.permanent_buff and self.permanent_buff["eternel amour"] == 1:
             for card in [x for x in self.hand if x.type == "Sort"]:
                 card.cost = max(0, card.cost - 2)
+        if "inzah" in self.permanent_buff:
+            for card in [x for x in self.hand if "surcharge" in x.effects]:
+                card.cost = max(0, card.cost - self.permanent_buff["inzah"])
         if "nature_next_turn" in self.permanent_buff and self.permanent_buff["nature_next_turn"] == 0:
             for card in [x for x in self.hand if x.type == "Sort" and "Nature" in x.genre]:
                 card.cost = max(0, card.cost - 1)
@@ -754,7 +772,7 @@ class Player:
                     if self.deck.cards[0].type == "Serviteur":
                         self.servants.add(self.deck.pick_one())
                     else:
-                        self.servants.add(get_card(self.deck.cards[0].effects["invoked_drawn"], all_servants))
+                        self.servants.add(get_card(self.deck.cards[0].effects["invoked_drawn"], name_index_servants))
                         self.deck.remove(self.deck.cards[0])
                     if [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
                         for creature in [x for x in self.servants.cards if "en sommeil" in x.effects and type(x.effects["en sommeil"]) == list and "pioche" in x.effects["en sommeil"]]:
@@ -776,7 +794,7 @@ class Player:
                 if "if_pioche" in [x.effects["aura"][1][-1] for x in self.servants if "aura" in x.effects]:
                     for creature in [x for x in self.servants if "aura" in x.effects and x.effects["aura"][1][-1] == "if_pioche"]:
                         if "invocation" in creature.effects["aura"] and len(self.servants) + len(self.lieux) < 7:
-                            self.servants.add(get_card(creature.effects["aura"][2], all_servants))
+                            self.servants.add(get_card(creature.effects["aura"][2], name_index_servants))
             else:
                 self.fatigue += 1
                 self.damage(self.fatigue)
@@ -825,7 +843,11 @@ class Player:
         if "cleave" in self.effects:
             self.effects.pop("cleave")
         self.elem_before = self.elem_this_turn
-        self.damage_this_turn, self.heal_this_turn, self.elem_this_turn = 0, 0, 0
+        if self.elem_this_turn:
+            self.consec_elems += 1
+        else:
+            self.consec_elems = 0
+        self.damage_this_turn, self.heal_this_turn, self.elem_this_turn, self.nature_this_turn = 0, 0, 0, 0
         self.atk_this_turn, self.armor_this_turn = self.inter_attack, self.armor
         self.inter_attack, self.has_attacked = 0, 0
         self.my_turn = True
@@ -839,7 +861,7 @@ class Player:
         if nb_heal and self.weapon is not None and self.weapon.name == "Eventreur en arcanite" and self.my_turn:
             self.weapon.effects["stack"] += 1
         if nb_heal > 0 and [x for x in self.servants if "aura" in x.effects and "Banshee hurlante" in x.effects["aura"]] and len(self.servants) + len(self.lieux) < 7:
-            invoked_servant = get_card("Fanshee", all_servants)
+            invoked_servant = get_card("Fanshee", name_index_servants)
             invoked_servant.attack = nb_heal
             invoked_servant.base_attack = nb_heal
             invoked_servant.health = nb_heal
@@ -871,9 +893,9 @@ class CardGroup:
                 else:
                     new_card.effects["degats des sorts"] = 2
                 if "rale d'agonie" in new_card.effects:
-                    new_card.effects["rale d'agonie2"] = get_card("Aegwynn la gardienne", all_servants).effects["rale d'agonie"]
+                    new_card.effects["rale d'agonie2"] = get_card("Aegwynn la gardienne", name_index_servants).effects["rale d'agonie"]
                 else:
-                    new_card.effects["rale d'agonie"] = get_card("Aegwynn la gardienne", all_servants).effects["rale d'agonie"]
+                    new_card.effects["rale d'agonie"] = get_card("Aegwynn la gardienne", name_index_servants).effects["rale d'agonie"]
                 self.aegwynn = False
             self.cards.append(new_card)
 
@@ -918,9 +940,8 @@ class Card():
         self.genre = kw["genre"]
         if cid is None:
             # Génération d'un id de carte
-            id_generated = self.generate_id()
-            self.id = f"{kw['id']}-{id_generated}"
-            Card.created[self.name] = id_generated
+            self.id = f"{kw['id']}-{self.generate_id()}"
+            Card.created[self.name] = self.generate_id()
         else:
             self.id = cid
         """ Category """
@@ -928,7 +949,7 @@ class Card():
         self.type = kw["type"]
 
         """ Stats """
-        self.cost =  self.base_cost = self.intrinsec_cost =  kw["cost"]
+        self.cost = self.base_cost = self.intrinsec_cost = kw["cost"]
         self.attack = self.base_attack = self.intrinsec_attack = kw["attack"]
         self.health = self.base_health = self.intrinsec_health = kw["health"]
         self.discount = []
@@ -940,10 +961,10 @@ class Card():
         self.cursed_player = None
 
     def generate_id(self):
-        try:
+        if self.name in Card.created:
             x = Card.created[self.name]
             x += 1
-        except:
+        else:
             x = 0
         return x
 
@@ -961,7 +982,11 @@ class Card():
         else:
             self.remaining_atk = 1
         if "furie des vents" in self.effects:
-            self.effects["furie des vents"] = 1
+            intrinsec_card = get_card(self.name, name_index_servants)
+            if "furie des vents" in intrinsec_card.effects and intrinsec_card.effects["furie des vents"] > 1:
+                self.effects["furie des vents"] = intrinsec_card.effects["furie des vents"]
+            else:
+                self.effects["furie des vents"] = 1
         if "entrave" in self.effects:
             self.effects.pop("entrave")
         if "ruée" in self.effects and not "en sommeil" in self.effects:
@@ -1062,7 +1087,7 @@ def import_deck(file: str, data='cards.json') -> CardGroup:
             number = int(line[1])
             found = False
             for _ in range(number):
-                card = get_card(name, all_cards)
+                card = get_card(name, name_index)
                 found = True
                 deck.add(card)
             if found is False:
@@ -1072,9 +1097,9 @@ def import_deck(file: str, data='cards.json') -> CardGroup:
 
 def copy_card(card):
     try:
-        copied_card = get_card(card.name, all_cards)
+        copied_card = get_card(card.name, name_index)
     except:
-        copied_card = get_card("", all_cards)
+        copied_card = get_card("", name_index)
     copied_card.attack, copied_card.base_attack = card.attack, card.base_attack
     copied_card.health, copied_card.base_health = card.health, card.base_health
     copied_card.cost, copied_card.base_cost = card.cost, card.base_cost
@@ -1198,52 +1223,19 @@ def generate_targets(state):
     return legal_actions
 
 
-def jouer_sort(self, carte, target=None):
-        """ Action de poser une carte depuis la main du joueur dont c'est le tour.
-        Le plateau est mis à jour en conséquence """
-        player = self.plt.players[0]
-        adv = self.plt.players[1]
-        if carte.cost <= player.mana:
-            if carte.type.lower() == "sort":
-                if "marginal" in carte.effects:
-                    if carte in [player.hand[0], player.hand[-1]]:
-                        carte.effects[carte.effects["marginal"][0]] = carte.effects["marginal"][1]
-                        print(carte.effects)
-                player.hand.remove(carte)
-                player.mana_spend(carte.cost)
-                if "counter" in [x.effects["aura"][0] for x in adv.servants if "aura" in x.effects] and "sort" in [x.effects["aura"][1] for x in adv.servants if "aura" in x.effects]:
-                    print("Sort contré")
-                    [x for x in adv.servants if "counter" in x.effects["aura"][0]][0].effects.pop("counter")
-                else:
-                    player.mana_spend_spells += carte.cost
-                    if "relique" in carte.effects:
-                        player.reliques += 1
-                        if player.double_relique == 1:
-                            self.apply_effects(carte, target)
-                            player.reliques += 1
-                            player.double_relique = 0
-                    self.apply_effects(carte, target)
-                    if [x for x in player.hand if "cri de guerre" in x.effects and "if_spell" in x.effects["cri de guerre"][1]]:
-                        for serv in [x for x in player.hand if "cri de guerre" in x.effects and "if_spell" in x.effects["cri de guerre"][1]]:
-                            serv.effects["cri de guerre"][1][-1] -= 1
-                            if serv.effects["cri de guerre"][1][-1] <= 0:
-                                serv.effects["cri de guerre"][2] = serv.effects["cri de guerre"][3]
-        else:
-            raise PermissionError("Carte plus chère que la mana du joueur")
-
 def get_card(key: Union[int, str], cardpool: list):
 
     """ Renvoie l'objet Card en fonction de 'key', qui peut être l'id où le nom de la carte """
     found = False
     if type(key) is int:
-        return Card(**next(item for item in cardpool if item["id"] == key))
+        return Card(**id_index[key])
     elif type(key) is str:
         if len(key.split('-')) == 2:
             # Recherche par id temporaire
             key, ext = key.split('-')
             return Card(cid=f"{key}-{ext}", **id_index[int(key)])
         else:
-            return Card(**next(item for item in cardpool if item["name"] == key))
+            return Card(**cardpool[key])
 
     if found is False:
         raise KeyError(f"Impossible de trouver {key}")

@@ -276,9 +276,6 @@ def generate_legal_vector_test(state):
     else:
         for i in range(len(player.hand)):
             serv_effects = player.hand[i].effects
-            if "reduc" in serv_effects and "self" in serv_effects["reduc"]:
-                if "total_serv" in serv_effects["reduc"]:
-                    player.hand[i].cost -= len(player.servants) + len(adv.servants)
             if ((player.hand[i].type == "Serviteur" and (player.hand[i].cost <= player.mana if "cost_armor" not in player.effects else player.hand[i].cost <= player.armor))\
                     or (player.hand[i].type != "Serviteur" and player.hand[i].cost <= player.mana)) and "entrave" not in serv_effects:
                 if len(player.servants) + len(player.lieux) < 7 and player.hand[i].type == "Serviteur":

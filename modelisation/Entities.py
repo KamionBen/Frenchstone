@@ -30,7 +30,8 @@ class_files = {'Chasseur': 'chasseur.csv',
 classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
                  "Chevalier de la mort"]
 all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"]
-
+treasure_classes = ["Mage", "Chevalier de la mort", "Voleur", "Démoniste", "Guerrier"]
+treasure_leg = {"Mage": "Faucon d'azerite", "Chevalier de la mort": "Scorpion d'azerite", "Voleur": "Rat d'azerite", "Démoniste": "Serpent d'azerite", "Guerrier": "Buffle d'azerite"}
 
 def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
@@ -45,6 +46,7 @@ all_servants_decouvrables = [x for x in all_cards if x['type'] == "Serviteur" an
 all_graines = [x for x in all_cards if x['type'] == "Serviteur" and "graine" in x["effects"]]
 all_spells = [x for x in all_cards if x['type'] == "Sort"]
 all_spells_decouvrable = [x for x in all_cards if x['type'] == "Sort" and x['decouvrable'] == 1]
+all_treasures = [x for x in all_cards if x['type'] == "Sort" and "tresor" in x["effects"]]
 all_weapons = [x for x in all_cards if x['type'] == "Arme"]
 all_marginal = [x for x in all_cards if "marginal" in x["effects"]]
 all_servants_genre = {}
@@ -451,7 +453,7 @@ class Player:
         self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect = [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
-        self.grenouilles, self.totem_invoked = 0, 0
+        self.grenouilles, self.totem_invoked, self.tresor = 0, 0, 1
         self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules, self.combo_played = 0, 0, 0, 0, 0, 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
 
@@ -813,6 +815,10 @@ class Player:
             self.pick()
         
     def damage(self, nb, toxic=False):
+        if self.weapon is not None and "aura" in self.weapon.effects and "if_damage_self_turn" in self.weapon.effects["aura"][1] and self.my_turn and nb > 0:
+            self.weapon.health -= 1
+            self.heal(2)
+            nb = 0
         if "alibi solide" in self.permanent_buff:
             nb = 1
         if "micro_casse" in self.permanent_buff:
@@ -992,7 +998,7 @@ class Card():
         if "ruée" in self.effects and not "en sommeil" in self.effects:
             self.effects["ruée"] = 0
         if "aura" in self.effects:
-            if "temp_fullturn" in self.effects["aura"][1]:
+            if ("temp_fullturn" in self.effects["aura"][1]) or "temp_fullturn" in self.effects:
                 self.total_temp_boost = [0, 0]
                 self.attack = max(0, self.base_attack + self.total_temp_boost[0])
                 self.health = max(0, self.base_health + self.total_temp_boost[1] - self.blessure)

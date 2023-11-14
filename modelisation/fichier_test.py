@@ -464,10 +464,11 @@ def generate_legal_vector_test(state):
                     if "ciblage" in serv_effects:
                         if "serviteur" in serv_effects["ciblage"]:
                             if "ennemi" in serv_effects["ciblage"]:
-                                if "if_2adv" in serv_effects["ciblage"] and len([x for x in adv.servants if "camouflage" not in x.effects and "en sommeil" not in x.effects and "inciblable" not in x.effects]) >= 2:
-                                    for j in range(len(adv.servants)):
-                                        if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
-                                            legal_actions[17 * i + j + 11] = True
+                                if "if_2adv" in serv_effects["ciblage"]:
+                                    if len([x for x in adv.servants if "camouflage" not in x.effects and "en sommeil" not in x.effects and "inciblable" not in x.effects]) >= 2:
+                                        for j in range(len(adv.servants)):
+                                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                                legal_actions[17 * i + j + 11] = True
                                 else:
                                     for j in range(len(adv.servants)):
                                         if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
@@ -477,6 +478,11 @@ def generate_legal_vector_test(state):
                                     if "if_bouclier_divin" in serv_effects["ciblage"] and [x for x in player.servants if "bouclier divin" in x.effects]:
                                         for j in range(len(player.servants)):
                                             if "inciblable" not in player.servants[j].effects and "bouclier divin" in player.servants[j].effects:
+                                                legal_actions[17 * i + j + 3] = True
+                                    elif "if_adv" in serv_effects["ciblage"] and len([x for x in adv.servants if
+                                                                                     "camouflage" not in x.effects and "en sommeil" not in x.effects and "inciblable" not in x.effects]) >= 1:
+                                        for j in range(len(player.servants)):
+                                            if "en sommeil" not in player.servants[j].effects and "inciblable" not in player.servants[j].effects:
                                                 legal_actions[17 * i + j + 3] = True
                                 else:
                                     for j in range(len(player.servants)):

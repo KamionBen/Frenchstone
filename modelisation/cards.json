@@ -48,6 +48,18 @@
         "effects": {}
     },
     {
+        "id": 3,
+        "name": "Anubisath imposant",
+        "classe": "Neutre",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 7,
+        "health": 7,
+        "effects": {"provocation": 1, "ne peut pas attaquer": 1}
+    },
+    {
         "id": 13,
         "name": "Recrue de la main d'argent",
         "classe": "Paladin",
@@ -15744,5 +15756,53 @@
         "attack": 8,
         "health": 8,
         "effects": {"reduc": ["self", "totem_invoked"]}
+    },
+    {
+        "id": 1314,
+        "name": "Au plus bas",
+        "classe": "Démoniste",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["Rodeur froide lumiere"], "dragage": 1}
+    },
+    {
+        "id": 1315,
+        "name": "Rodeur froide lumiere",
+        "classe": "Démoniste",
+        "type": "Serviteur",
+        "genre": ["Murloc"],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": 1,
+        "health": 1,
+        "effects": {}
+    },
+    {
+        "id": 1316,
+        "name": "Bibliothecaire sur les nerfs",
+        "classe": "Démoniste",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"aura": ["boost", ["self", "diablotin_allié"], [0, 0]]}
+    },
+    {
+        "id": 1317,
+        "name": "Bombe spirituelle",
+        "classe": "Démoniste",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 4, "self_damage": 4, "ciblage": ["serviteur", "tous", "choisi"]}
     }
 ]

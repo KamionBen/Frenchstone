@@ -754,7 +754,7 @@ def calc_advantage_minmax(state):
         elif adv.style == "tempo":
             coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.25, 1, 0.5, 2.25, 1, 1.5, 2, 0.75, 1.5
         elif adv.style == "controle":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 3, 3, 0.3, 0.5, 1, 3, 0.5, 0.5, 2
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 2, 2, 0.8, 0.85, 1, 3, 1, 0.5, 2
 
     """ End """
     if player.health <= 0:
@@ -903,7 +903,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-class_to_chose = ["Chevalier de la mort", "Chasseur de démons", "Paladin", "Voleur", "Prêtre", "Chasseur", "Druide", "Mage"]
+class_to_chose = ["Chevalier de la mort", "Chasseur de démons", "Paladin", "Voleur", "Prêtre", "Chasseur", "Druide", "Mage", "Chaman"]
 dict_deck_status = {"Chevalier de la mort": "controle",
                     "Chasseur de démons": "tempo",
                     "Paladin": "aggro",
@@ -912,9 +912,10 @@ dict_deck_status = {"Chevalier de la mort": "controle",
                     "Chasseur": "tempo",
                     "Druide": "controle",
                     "Mage": "tempo",
-                    "Chaman": "aggro"}
+                    "Chaman": "aggro",
+                    "Démoniste": "controle"}
 for i in range(3):
-    class_j1 = "Chaman"
+    class_j1 = "Démoniste"
     class_j2 = random.choice(class_to_chose)
     players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))

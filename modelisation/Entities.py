@@ -18,7 +18,7 @@ dict_actions = {
 class_files = {'Chasseur': 'chasseur.csv',
                'Mage': 'mage_rainbow.csv',
                'Paladin': 'paladin_pur.csv',
-               'Démoniste': 'dk_sang.csv',
+               'Démoniste': 'demo_controle.csv',
                'Chasseur de démons': 'dh_marginal.csv',
                'Druide': 'big_druid.csv',
                'Voleur': 'voleur_secrets.csv',

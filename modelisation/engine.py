@@ -5022,6 +5022,8 @@ class TourEnCours:
                             servant.boost(servant.effects["aura"][2][0], servant.effects["aura"][2][1])
                     elif servant.effects["aura"][1][1] == "cards_drawn":
                         servant.total_temp_boost[0] = player.drawn_this_turn
+                    elif servant.effects["aura"][1][1] == "diablotin_allié":
+                        servant.total_temp_boost[0] = len([x for x in player.servants if "diablotin" in x.effects])
                     elif servant.effects["aura"][1][1] == "automates":
                         servant.total_temp_boost[0] = player.automates - 1
                         servant.total_temp_boost[1] = player.automates - 1
@@ -6541,6 +6543,8 @@ class TourEnCours:
                     card_to_invoke.boost(2, 2, fixed_stats=True)
                     self.invoke_servant(card_to_invoke, player)
                     player.deck.cards.insert(0, cards[choice])
+                elif player.last_card.name == "Au plus bas" and "Murloc" in cards[choice].genre:
+                    self.invoke_servant(get_card("Rodeur froide lumiere", name_index_servants), player)
                 elif player.last_card.name == "Necromancienne putrefiee" and "Mort-vivant" in cards[choice].genre:
                     adv.damage(5)
                     player.deck.cards.insert(0, cards[choice])

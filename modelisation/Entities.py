@@ -233,8 +233,6 @@ class Plateau:
                         player.dead_indirect.append(servant.name)
                     player.all_dead_servants.append(servant)
                     player.dead_this_turn.append(servant)
-                    if len(player.all_dead_servants) > 3:
-                        player.all_dead_servants = player.all_dead_servants[-3:]
                     dead_servants.append(servant)
                     dead_servants_player.append(servant)
                     if "ressuscite" not in servant.name:
@@ -264,7 +262,7 @@ class Plateau:
                             new_card = get_card(card.effects["impregnation"][0], name_index)
                             player.hand.add(new_card)
                             if new_card.name == "Golem pecheur impregne":
-                                new_card.effects["cri de guerre"][2] = [sum([x.base_attack for x in player.all_dead_servants]), sum([x.base_health for x in player.all_dead_servants])]
+                                new_card.effects["cri de guerre"][2] = [sum([x.base_attack for x in player.all_dead_servants.cards[-3:]]), sum([x.base_health for x in player.all_dead_servants.cards[-3:]])]
             """ Répartition cadavres """
             if player.cadavres_spent > sum(player.cadavres_repartis):
                 a_repartir = player.cadavres_spent - sum(player.cadavres_repartis)
@@ -443,7 +441,7 @@ class Player:
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, [], 0
         self.nature_this_turn, self.consec_elems = 0, 0
-        self.last_card, self.first_spell, self.next_spell, self.otherclass_played = get_card(-1, all_cards), None, [], False
+        self.last_card, self.first_spell, self.next_spell, self.otherclass_played, self.last_shadow_spell = get_card(-1, all_cards), None, [], False, None
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade, self.milouse, self.surplus = [0, 0], 0, 0, 0
@@ -453,9 +451,9 @@ class Player:
         self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect = [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
-        self.grenouilles, self.totem_invoked, self.tresor = 0, 0, 1
+        self.grenouilles, self.totem_invoked, self.tresor, self.malediction = 0, 0, 1, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules, self.combo_played = 0, 0, 0, 0, 0, 0, 0, 0
-        self.copies_to_deck, self.spell_before, self.elem_before = 0, False, 0
+        self.copies_to_deck, self.spell_before, self.elem_before, self.defausse, self.forge = 0, False, 0, False, False
 
         """ Héros choisi par le joueur """
         self.power = None
@@ -593,7 +591,8 @@ class Player:
                 serv.remaining_atk = 1 if serv.remaining_atk == -1 else serv.remaining_atk
         if [x for x in self.servants if "lost_shield" in x.effects]:
             for serv in [x for x in self.servants if "lost_shield" in x.effects]:
-                serv.effects.pop("lost_shield")
+                if "lost_shield" in serv.effects:
+                    serv.effects.pop("lost_shield")
                 if [x for x in self.servants if "aura" in x.effects and "lose_bouclier_divin" in x.effects["aura"][1]]:
                     self.pick_multi(1)
 
@@ -708,6 +707,10 @@ class Player:
                 if [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
                     for spell in [x for x in self.hand if x.type == "Sort" and "Arcanes" in x.genre]:
                         spell.cost = max(0, spell.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Arcanes" in x.effects["aura"][1]]))
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Fiel" in x.effects["aura"][1]]:
+                if [x for x in self.hand if x.type == "Sort" and "Fiel" in x.genre]:
+                    for spell in [x for x in self.hand if x.type == "Sort" and "Fiel" in x.genre]:
+                        spell.cost = max(0, spell.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Fiel" in x.effects["aura"][1]]))
             if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "Nature" in x.effects["aura"][1]]:
                 if [x for x in self.hand if x.type == "Sort" and "Nature" in x.genre]:
                     for spell in [x for x in self.hand if x.type == "Sort" and "Nature" in x.genre]:
@@ -815,6 +818,9 @@ class Player:
             self.pick()
         
     def damage(self, nb, toxic=False):
+        if [x for x in self.servants if "aura" in x.effects and "hero_buff" in x.effects["aura"] and "insensible" in x.effects["aura"][1]]:
+            if self.my_turn and [x for x in self.servants if "aura" in x.effects and "hero_buff" in x.effects["aura"] and "insensible" in x.effects["aura"][1] and "own_turn" in x.effects["aura"][1]]:
+                nb = 0
         if self.weapon is not None and "aura" in self.weapon.effects and "if_damage_self_turn" in self.weapon.effects["aura"][1] and self.my_turn and nb > 0:
             self.weapon.health -= 1
             self.heal(2)
@@ -1004,9 +1010,13 @@ class Card():
                 self.health = max(0, self.base_health + self.total_temp_boost[1] - self.blessure)
         if "gel" in self.effects:
             self.remaining_atk = -1
+        if "infection" in self.effects and "if_damage_hero" in self.effects["infection"]:
+            self.effects["infection"][-1] = 0
 
     def damage(self, nb, toxic=False):
         """ Removes nb from the card health """
+        if "en sommeil" in self.effects:
+            nb = 0
         if self.name == "Bulleur" and nb == 1:
             self.health = 0
         if "enchanteur" in self.effects:
@@ -1020,7 +1030,7 @@ class Card():
                 self.effects.pop("bouclier divin")
                 self.effects["lost_shield"] = 1
         else:
-            if toxic or ("holotech" in self.effects and nb == 1) or ("fragile" in self.effects):
+            if toxic or ("holotech" in self.effects and nb == 1) or ("fragile" in self.effects and nb > 0):
                 self.health -= 1000
                 self.blessure += 1000
             else:
@@ -1145,7 +1155,7 @@ def generate_targets(state):
                                         legal_actions[17 * i + j + 2] = True
                         else:
                             for j in range(len(player.servants)):
-                                if "inciblable" not in player.servants[j].effects:
+                                if "inciblable" not in player.servants[j].effects and "en sommeil" not in player.servants[j].effects:
                                     legal_actions[17 * i + j + 2] = True
                     elif "tous" in player.hand[i].effects["ciblage"]:
                         if "if_rale_agonie" in player.hand[i].effects["ciblage"]:

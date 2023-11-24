@@ -227,6 +227,8 @@ class Plateau:
                             player.dead_squelette += 1
                     if "Démon" in servant.genre:
                         player.dead_demons.append(servant)
+                    if "diablotin" in servant.effects:
+                        player.dead_diablotins.append(servant.name)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
                     if servant.id not in [x.id for x in player.initial_deck if x.type == "Serviteur"]:
@@ -296,6 +298,9 @@ class Plateau:
                 targets.append(player)
         elif player.power[0] in ["Explosion demoniaque", "Pretre ombre"]:
             targets = [player] + [adv] + player.servants.cards + adv.servants.cards
+        elif player.power[0] in ["Jaraxxus"]:
+            if len(player.servants) + len(player.lieux) < 7:
+                targets.append(player)
         return targets
 
     def get_gamestate(self) -> dict:
@@ -448,10 +453,10 @@ class Player:
         self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells, self.poofed = [], [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect = [], [], [], []
+        self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect, self.dead_diablotins = [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
-        self.grenouilles, self.totem_invoked, self.tresor, self.malediction = 0, 0, 1, 0
+        self.grenouilles, self.totem_invoked, self.tresor, self.malediction = 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules, self.combo_played = 0, 0, 0, 0, 0, 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before, self.defausse, self.forge = 0, False, 0, False, False
 
@@ -470,7 +475,7 @@ class Player:
         self.weapon = None
         self.effects = {}
 
-        self.fatigue, self.damage_this_turn, self.heal_this_turn = 0, 0, 0
+        self.fatigue, self.damage_this_turn, self.heal_this_turn, self.damage_own_turn = 0, 0, 0, 0
         self.my_turn = False
 
     def start_game(self):
@@ -603,6 +608,8 @@ class Player:
                 if "self" in card.effects["reduc"]:
                     if "len_hand" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - len(self.hand) + 1)
+                    elif "cards_in_deck" in card.effects["reduc"] and "fixed_cost" in card.effects["reduc"]:
+                        card.cost = len(self.deck)
                     elif "total_mana_spend_spells" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.mana_spend_spells)
                     elif "nature_this_turn" in card.effects["reduc"]:
@@ -631,6 +638,8 @@ class Player:
                         card.cost = max(0, card.base_cost - len(self.ecoles_jouees))
                     elif "sacre_spent" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.sacre_spent)
+                    elif "damage_own_turn" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.damage_own_turn)
                     elif "paladin_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.paladin_played)
                     elif "cards_played" in card.effects["reduc"]:
@@ -819,12 +828,15 @@ class Player:
         
     def damage(self, nb, toxic=False):
         if [x for x in self.servants if "aura" in x.effects and "hero_buff" in x.effects["aura"] and "insensible" in x.effects["aura"][1]]:
-            if self.my_turn and [x for x in self.servants if "aura" in x.effects and "hero_buff" in x.effects["aura"] and "insensible" in x.effects["aura"][1] and "own_turn" in x.effects["aura"][1]]:
+            if (self.my_turn and [x for x in self.servants if "aura" in x.effects and "hero_buff" in x.effects["aura"] and "insensible" in x.effects["aura"][1] and "own_turn" in x.effects["aura"][1]])\
+                    or [x for x in self.servants if "aura" in x.effects and "hero_buff" in x.effects["aura"] and "insensible" in x.effects["aura"][1] and not "own_turn" in x.effects["aura"][1]]:
                 nb = 0
-        if self.weapon is not None and "aura" in self.weapon.effects and "if_damage_self_turn" in self.weapon.effects["aura"][1] and self.my_turn and nb > 0:
-            self.weapon.health -= 1
-            self.heal(2)
-            nb = 0
+        if self.my_turn and nb > 0:
+            if self.weapon is not None and "aura" in self.weapon.effects and "if_damage_self_turn" in self.weapon.effects["aura"][1]:
+                self.weapon.health -= 1
+                self.heal(2)
+                nb = 0
+            self.damage_own_turn += nb
         if "alibi solide" in self.permanent_buff:
             nb = 1
         if "micro_casse" in self.permanent_buff:

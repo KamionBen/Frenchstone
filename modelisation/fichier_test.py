@@ -217,6 +217,11 @@ def generate_legal_vector_test(state):
                                                     adv.servants[j].effects and "inciblable" not in adv.servants[
                                                 j].effects:
                                                 legal_actions[17 * i + j + 11] = True
+                                elif "if_blessure" in serv_effects["ciblage"]:
+                                    for j in range(len(adv.servants)):
+                                        if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects\
+                                                and adv.servants[j].blessure != 0:
+                                            legal_actions[17 * i + j + 11] = True
                                 else:
                                     for j in range(len(adv.servants)):
                                         if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
@@ -359,6 +364,9 @@ def generate_legal_vector_test(state):
                     legal_actions[17 * i + 1] = True
                 elif player.hand[i].type.lower() == "arme":
                     legal_actions[17 * i + 1] = True
+        if len([x for x in legal_actions if x]) == 1:
+            for card in [x for x in player.hand if "mandatory" in x.effects]:
+                player.hand.remove(card)
         return legal_actions
     else:
         for i in range(len(player.hand)):
@@ -438,10 +446,19 @@ def generate_legal_vector_test(state):
                                     elif ("if_pur" in serv_effects["cri de guerre"][1] and not [x for x in player.deck if x.classe == "Neutre"])\
                                            or ("if_death_undead" in serv_effects["cri de guerre"][1] and player.dead_undeads):
                                         for j in range(len(player.servants)):
-                                            legal_actions[17 * i + j + 3] = True
+                                            if "en sommeil" not in player.servants[j].effects:
+                                                legal_actions[17 * i + j + 3] = True
                                         for j in range(len(adv.servants)):
                                             if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
                                                     adv.servants[j].effects:
+                                                legal_actions[17 * i + j + 11] = True
+                                    elif "if_hurt" in serv_effects["cri de guerre"][1] and [x for x in player.servants.cards + adv.servants.cards if x.blessure > 0]:
+                                        for j in range(len(player.servants)):
+                                            if player.servants[j].blessure > 0 and "en sommeil" not in player.servants[j].effects:
+                                                legal_actions[17 * i + j + 3] = True
+                                        for j in range(len(adv.servants)):
+                                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in \
+                                                    adv.servants[j].effects and adv.servants[j].blessure > 0:
                                                 legal_actions[17 * i + j + 11] = True
                                     else:
                                         serv_effects.pop("cri de guerre")
@@ -562,6 +579,11 @@ def generate_legal_vector_test(state):
                                         for j in range(len(adv.servants)):
                                             if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                                 legal_actions[17 * i + j + 11] = True
+                                elif "if_blessure" in serv_effects["ciblage"]:
+                                    for j in range(len(adv.servants)):
+                                        if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects\
+                                                and adv.servants[j].blessure != 0:
+                                            legal_actions[17 * i + j + 11] = True
                                 else:
                                     for j in range(len(adv.servants)):
                                         if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
@@ -965,6 +987,13 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
     t1 = time.perf_counter()
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
     legal_actions = [i for i in range(len(legal_actions)) if legal_actions[i]]
+    if len(legal_actions) == 0:
+        player = state.players[0]
+        adv = state.players[1]
+        print(player.health, adv.health)
+        print(player.servants, adv.servants)
+        print(player.mana)
+        print(player.hand)
     t2_byaction = (time.perf_counter() - t1) / len(legal_actions)
     t2 = time.perf_counter()
 
@@ -1038,7 +1067,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 
 logs = []
 beginning = time.perf_counter()
-class_to_chose = ["Chevalier de la mort", "Chasseur de démons", "Paladin", "Voleur", "Prêtre", "Chasseur", "Druide", "Mage", "Chaman", "Démoniste"]
+class_to_chose = ["Chevalier de la mort", "Chasseur de démons", "Paladin", "Voleur", "Prêtre", "Chasseur", "Druide", "Mage", "Chaman", "Démoniste", "Guerrier"]
 dict_deck_status = {"Chevalier de la mort": "controle",
                     "Chasseur de démons": "tempo",
                     "Paladin": "aggro",
@@ -1048,9 +1077,10 @@ dict_deck_status = {"Chevalier de la mort": "controle",
                     "Druide": "controle",
                     "Mage": "tempo",
                     "Chaman": "aggro",
-                    "Démoniste": "controle"}
+                    "Démoniste": "controle",
+                    "Guerrier":"controle"}
 for i in range(3):
-    class_j1 = "Démoniste"
+    class_j1 = "Guerrier"
     class_j2 = random.choice(class_to_chose)
     players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))

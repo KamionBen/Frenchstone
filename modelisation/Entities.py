@@ -22,7 +22,7 @@ class_files = {'Chasseur': 'chasseur.csv',
                'Chasseur de démons': 'dh_marginal.csv',
                'Druide': 'big_druid.csv',
                'Voleur': 'voleur_secrets.csv',
-               'Guerrier': 'dk_sang.csv',
+               'Guerrier': 'guerrier_controle.csv',
                'Chevalier de la mort': 'dk_sang.csv',
                'Prêtre': 'shadow_priest.csv',
                'Chaman': 'chaman_totem.csv'
@@ -446,7 +446,7 @@ class Player:
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, [], 0
         self.nature_this_turn, self.consec_elems = 0, 0
-        self.last_card, self.first_spell, self.next_spell, self.otherclass_played, self.last_shadow_spell = get_card(-1, all_cards), None, [], False, None
+        self.last_card, self.first_spell, self.next_spell, self.otherclass_played, self.last_shadow_spell, self.dernier_riff = get_card(-1, all_cards), None, [], False, None, None
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade, self.milouse, self.surplus = [0, 0], 0, 0, 0
@@ -469,7 +469,7 @@ class Player:
 
         self.attack, self.inter_attack, self.spell_damage = 0, 0, 0
         self.remaining_atk, self.has_attacked, self.total_attacks = 1, 0, 0
-        self.armor = 0
+        self.armor, self.armor_inter = 0, 0
         self.curses, self.permanent_buff = {}, {}
         self.health, self.base_health = 30, 30
         self.weapon = None
@@ -589,6 +589,9 @@ class Player:
             self.spell_damage += 1 + len(self.ecoles_jouees)
         if self.weapon is not None and self.weapon.is_dead():
             self.weapon = None
+        if self.armor - self.armor_inter:
+            self.armor_this_turn = self.armor - self.armor_inter
+            self.armor_inter = self.armor
 
         """ Ruées et charges """
         if [x for x in self.servants if "ruée" in x.effects or "charge" in x.effects]:
@@ -872,7 +875,7 @@ class Player:
         else:
             self.consec_elems = 0
         self.damage_this_turn, self.heal_this_turn, self.elem_this_turn, self.nature_this_turn = 0, 0, 0, 0
-        self.atk_this_turn, self.armor_this_turn = self.inter_attack, self.armor
+        self.atk_this_turn, self.armor_inter, self.armor_this_turn = self.inter_attack, self.armor, 0
         self.inter_attack, self.has_attacked = 0, 0
         self.my_turn = True
 
@@ -1035,6 +1038,8 @@ class Card():
             nb *= 2
         if "solide" in self.effects:
             nb = min(2, nb)
+        if "robuste" in self.effects:
+            nb = min(self.health - 1, nb)
         if "bouclier divin" in self.effects and nb != 0:
             if toxic:
                 toxic = False

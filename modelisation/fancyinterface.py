@@ -160,7 +160,6 @@ class CardSprite(pygame.sprite.Sprite):
                 self.image.blit(cost, (5, 30))
 
 
-
 class PlayerSprite(pygame.sprite.Sprite):
     def __init__(self, pseudo: str, color=None):
         pygame.sprite.Sprite.__init__(self)
@@ -310,6 +309,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         for x, card in enumerate(self.lieux):
             self.image.blit(card.image, (pos_x + (card.width + gap) * x, height[self.position]))
 
+
 class FancyInterface:
     def __init__(self, log_filename, debug=False, resolution=(1280, 720)):
         """ Show the gamelog with a graphic interface """
@@ -412,7 +412,6 @@ class FancyInterface:
             if self.debug:
                 debug_str = {k: v for k, v in self.get_currentline().items() if v not in (-99, "")}
                 print(debug_str)
-
 
 
 if __name__ == '__main__':

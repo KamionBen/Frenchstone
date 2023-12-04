@@ -447,6 +447,7 @@ class Player:
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, [], 0
         self.nature_this_turn, self.consec_elems = 0, 0
         self.last_card, self.first_spell, self.next_spell, self.otherclass_played, self.last_shadow_spell, self.dernier_riff = get_card(-1, all_cards), None, [], False, None, None
+        self.last_spell = None
 
         self.mana, self.mana_max, self.mana_final, self.mana_spend_spells = 0, 0, 10, 0
         self.surcharge, self.randomade, self.milouse, self.surplus = [0, 0], 0, 0, 0
@@ -647,6 +648,11 @@ class Player:
                         card.cost = max(0, card.base_cost - self.paladin_played)
                     elif "cards_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - len(self.cards_this_turn))
+                    elif "all_hurt_allies" in card.effects["reduc"]:
+                        total_reduc = len([x for x in self.servants if x.blessure > 0])
+                        if self.health < self.base_health:
+                            total_reduc += 1
+                        card.cost = max(0, card.base_cost - total_reduc)
                     elif "if_death_undead" in card.effects["reduc"] and self.dead_undeads:
                         if "fixed_cost" in card.effects["reduc"]:
                             card.cost = card.effects["reduc"][-1]
@@ -894,6 +900,15 @@ class Player:
             invoked_servant.health = nb_heal
             invoked_servant.base_health = nb_heal
             self.servants.add(invoked_servant)
+            
+    def add_armor(self, nb):
+        if [x for x in self.servants if "aura" in x.effects and "armore" in x.effects["aura"][1]]:
+            nb += 2 * len([x for x in self.servants if "aura" in x.effects and "armore" in x.effects["aura"][1]])
+        self.armor += nb
+        if "odyn" in self.permanent_buff:
+            self.inter_attack += nb
+        if self.weapon is not None and "rale d'agonie" in self.weapon.effects and "if_armor" in self.weapon.effects["rale d'agonie"][1]:
+            self.weapon.effects["rale d'agonie"][2] += 1
 
     def is_dead(self) -> bool:
         return self.health <= 0
@@ -1089,6 +1104,8 @@ class Card():
 
     def is_dead(self):
         """ Return True if the card health <= 0"""
+        if "temp_attack_immunity" in self.effects:
+            return False
         return self.health <= 0
 
     def __repr__(self) -> str:

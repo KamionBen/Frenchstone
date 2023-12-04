@@ -27,7 +27,6 @@ def generate_legal_vector_test(state):
     
     """ decouverte """
     if state.cards_chosen or state.cards_dragage:
-        legal_actions[0] = False
         for i in range(251, 251 + len(state.cards_chosen[0]) if state.cards_chosen else 251 + len(state.cards_dragage[0])):
             legal_actions[i] = True
         if state.cards_chosen and len(state.cards_chosen[0]) == 4 and state.cards_chosen[0][3] == "choix mystere":
@@ -927,6 +926,8 @@ def calc_advantage_minmax(state):
     deck_advantage = 0.1 * (len(player.deck) - len(adv.deck))
     if player.deck:
         deck_advantage += sum([(x.intrinsec_cost - x.cost) for x in player.deck])
+        deck_advantage += 0.5 * sum([(x.base_attack - x.intrinsec_attack) for x in player.deck if x.type in ["Serviteur", "Arme"]])
+        deck_advantage += 0.5 * sum([(x.base_health - x.intrinsec_health) for x in player.deck if x.type in ["Serviteur", "Arme"]])
     if player.forge and [x for x in player.deck.cards + player.hand.cards if x.name == "Ignis la flamme eternelle"]:
         deck_advantage += 1
     deck_advantage *= coef_deck

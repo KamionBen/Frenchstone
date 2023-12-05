@@ -178,6 +178,8 @@ class Plateau:
         """ Le joueur 2 reçoit une carte en plus et la pièce """
         self.players[1].pick()
         self.players[1].hand.add(get_card("La piece", name_index_spells))
+        self.players[0].initial_hand = [x.name for x in self.players[0].hand]
+        self.players[1].initial_hand = [x.name for x in self.players[1].hand]
 
         """ Gestion du mana """
         """ Le premier joueur démarre son tour à l'initialisation """
@@ -443,7 +445,7 @@ class Player:
 
         # Cartes
         self.deck, self.initial_deck = CardGroup() ,CardGroup()  # Le tas de cartes à l'envers
-        self.hand, self.cards_played = CardGroup(), []  # La main du joueur
+        self.hand, self.cards_played, self.initial_hand = CardGroup(), [], []  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, [], 0
         self.nature_this_turn, self.consec_elems = 0, 0
@@ -868,7 +870,7 @@ class Player:
     def reset(self):
         """ Le reset de début de tour """
         self.dispo_pouvoir = True
-        self.first_spell, self.next_spell, self.end_turn_cards, self.last_card, self.otherclass_played = None, [], [], get_card(-1, all_cards), False
+        self.first_spell, self.next_spell, self.end_turn_cards, self.otherclass_played = None, [], [], False
         if "jotun" in self.permanent_buff:
             self.permanent_buff["jotun"] = 1
         self.dead_this_turn, self.drawn_this_turn, self.curses = [], 0, {}

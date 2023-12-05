@@ -44,6 +44,7 @@ all_decouvrables = [x for x in all_cards if x['decouvrable'] == 1]
 all_servants = [x for x in all_cards if x['type'] == "Serviteur"]
 all_servants_decouvrables = [x for x in all_cards if x['type'] == "Serviteur" and x['decouvrable'] == 1]
 all_graines = [x for x in all_cards if x['type'] == "Serviteur" and "graine" in x["effects"]]
+all_pestes = [x for x in all_cards if x['type'] == "Sort" and "peste" in x["effects"]]
 all_spells = [x for x in all_cards if x['type'] == "Sort"]
 all_spells_decouvrable = [x for x in all_cards if x['type'] == "Sort" and x['decouvrable'] == 1]
 all_treasures = [x for x in all_cards if x['type'] == "Sort" and "tresor" in x["effects"]]
@@ -457,7 +458,7 @@ class Player:
         self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect, self.dead_diablotins = [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
-        self.grenouilles, self.totem_invoked, self.tresor, self.malediction = 0, 0, 0, 0
+        self.grenouilles, self.totem_invoked, self.tresor, self.malediction, self.pestes = 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules, self.combo_played = 0, 0, 0, 0, 0, 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before, self.defausse, self.forge = 0, False, 0, False, False
 
@@ -468,7 +469,7 @@ class Player:
         self.cout_pouvoir = 2
         self.cout_pouvoir_temp = 2
 
-        self.attack, self.inter_attack, self.spell_damage = 0, 0, 0
+        self.attack, self.inter_attack, self.spell_damage, self.temp_spell_damage = 0, 0, 0, 0
         self.remaining_atk, self.has_attacked, self.total_attacks = 1, 0, 0
         self.armor, self.armor_inter = 0, 0
         self.curses, self.permanent_buff = {}, {}
@@ -505,6 +506,8 @@ class Player:
             for element in self.next_turn:
                 if element[0] == "add_armor":
                     self.armor += element[1]
+                if element[0] == "pioche":
+                    self.pick_multi(element[1])
             self.next_turn = []
         self.pick_multi(1)
         if "pioche" in self.permanent_buff:
@@ -583,7 +586,7 @@ class Player:
                 self.hand.remove(decoction)
             self.hand.add(mixed_decoction)
             [x for x in all_cards if x["name"] == "Decoction melangee"][0]["effects"] = mixed_decoction.effects
-        self.spell_damage = 0
+        self.spell_damage = self.temp_spell_damage
         if [x for x in self.servants if "degats des sorts" in x.effects]:
             self.spell_damage = sum([x.effects["degats des sorts"] for x in self.servants if "degats des sorts" in x.effects and not x.is_dead()])
         if [x for x in self.servants if "aura" in x.effects and "degats des sorts" in x.effects["aura"] and "ecoles_jouees" in x.effects["aura"][1]]:
@@ -648,6 +651,8 @@ class Player:
                         card.cost = max(0, card.base_cost - self.paladin_played)
                     elif "cards_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - len(self.cards_this_turn))
+                    elif "pestes_indeck" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.pestes)
                     elif "all_hurt_allies" in card.effects["reduc"]:
                         total_reduc = len([x for x in self.servants if x.blessure > 0])
                         if self.health < self.base_health:
@@ -712,7 +717,7 @@ class Player:
         if self.augment:
             for card in self.hand:
                 for augment in self.augment:
-                    if card.type.lower() == augment[0]:
+                    if card.type.lower() == augment[0] or augment[0] == "tous":
                         if augment[2] > 0:
                             card.cost = card.base_cost + augment[2]
         if [x for x in self.servants if "aura" in x.effects and "Thaddius" in x.effects["aura"]]:
@@ -907,6 +912,7 @@ class Player:
         self.armor += nb
         if "odyn" in self.permanent_buff:
             self.inter_attack += nb
+            self.attack += nb
         if self.weapon is not None and "rale d'agonie" in self.weapon.effects and "if_armor" in self.weapon.effects["rale d'agonie"][1]:
             self.weapon.effects["rale d'agonie"][2] += 1
 

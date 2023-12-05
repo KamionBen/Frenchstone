@@ -5088,7 +5088,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {"marginal": ["pioche", ["allié"], 1]}
+        "effects": {"marginal": ["cri de guerre", ["pioche", ["allié"], 1]]}
     },
     {
         "id": 420,
@@ -5160,7 +5160,7 @@
         "cost": 1,
         "attack": 2,
         "health": 1,
-        "effects": {"ruée": 1, "marginal": ["reduc", ["tous", "prochain", "", "marginal"], -1]}
+        "effects": {"ruée": 1, "marginal": ["cri de guerre", ["reduc", ["tous", "prochain", "", "marginal"], -1]]}
     },
     {
         "id": 426,
@@ -5328,7 +5328,7 @@
         "cost": 2,
         "attack": 2,
         "health": 2,
-        "effects": {"marginal":  ["reduc", ["left_card", "right_card", 1]]}
+        "effects": {"marginal": ["cri de guerre", ["reduc", ["left_card", "right_card", 1], ""]]}
     },
     {
         "id": 440,
@@ -5437,7 +5437,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"marginal": ["hero_attack", 3]}
+        "effects": {"marginal": ["cri de guerre", ["hero_attack", [], 3]]}
     },
     {
         "id": 449,
@@ -5557,7 +5557,7 @@
         "cost": 3,
         "attack": 2,
         "health": 1,
-        "effects": {"cri de guerre":  ["nothing", ["serviteur", "tous", "choisi"], 1], "marginal": ["sap", ["serviteur", "tous", "choisi"], 1]}
+        "effects": {"cri de guerre":  ["nothing", ["serviteur", "tous", "choisi"], 1], "marginal": ["cri de guerre", ["sap", ["serviteur", "tous", "choisi"], 1]]}
     },
     {
         "id": 459,
@@ -13962,7 +13962,7 @@
         "cost": 3,
         "attack": 2,
         "health": 1,
-        "effects": {"cri de guerre":  ["nothing", ["serviteur", "tous", "choisi"], 1], "marginal": ["sap", ["serviteur", "tous", "choisi"], 1]}
+        "effects": {"cri de guerre":  ["nothing", ["serviteur", "tous", "choisi"], 1], "marginal": ["cri de guerre", ["sap", ["serviteur", "tous", "choisi"], 1]]}
     },
     {
         "id": 1157,
@@ -19107,8 +19107,300 @@
         "genre": [],
         "decouvrable": 1,
         "cost": 1,
+        "attack": 1,
+        "health": 3,
+        "effects": {"aura": ["add_deck", ["ennemi", "if_attack", "random_peste"], 1], "vert": 1}
+    },
+    {
+        "id": 1581,
+        "name": "Peste de sang",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"self_damage": 2, "vol de vie": 1, "played_drawn": 1, "peste": true}
+    },
+    {
+        "id": 1582,
+        "name": "Peste d'impiete",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"self_damage": 2, "invocation": ["ennemi", "Paysanne morte vivante"], "played_drawn": 1, "peste": true}
+    },
+    {
+        "id": 1583,
+        "name": "Peste de givre",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"self_damage": 2, "augment": ["tous", "allié", "next", 1], "played_drawn": 1, "peste": true}
+    },
+    {
+        "id": 1584,
+        "name": "Runes des tenebres",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 1,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["arme", 1], "rouge": 1}
+    },
+    {
+        "id": 1585,
+        "name": "Froideur unilaterale",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"pioche": ["allié", "ennemi", "entrave", 2], "bleu": 1}
+    },
+    {
+        "id": 1586,
+        "name": "Kvaldir angoissee",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 3,
+        "health": 2,
+        "effects": {"rale d'agonie": ["add_deck", ["ennemi", "random_peste", 2], []], "vert": 1}
+    },
+    {
+        "id": 1587,
+        "name": "La peste ou le cholera",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": 3, "ciblage": ["tous", "tous", "choisi"], "add_deck": [["ennemi", "random_peste"], 2], "vert": 1}
+    },
+    {
+        "id": 1588,
+        "name": "Navigation septentrionale",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Givre"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"decouverte": ["sort", "in_deck", 1], "bleu": 1}
+    },
+    {
+        "id": 1589,
+        "name": "Panegyriste",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi", "conditional", "if_cadavre", "spend_cadavre"], 3], "forge": "Panegyriste forge"}
+    },
+    {
+        "id": 1590,
+        "name": "Panegyriste forge",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi", "gain_cadavre"], 3], "forged": 1}
+    },
+    {
+        "id": 1591,
+        "name": "Vil marcheur maladif",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 2,
+        "health": 3,
+        "effects": {"aura": ["boost", ["serviteur", "allié", "", "Mort-vivant", "toxicite"], [0, 0]], "vert": 1}
+    },
+    {
+        "id": 1592,
+        "name": "Coeur en cage",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": ["Ombre"],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": [[2, 2]], "copy": ["conditional", "if_cadavres", 5], "ciblage": ["serviteur", "allié", "conditional", "if_undead", "choisi"], "vert": 1}
+    },
+    {
+        "id": 1593,
+        "name": "Helya",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 4,
+        "effects": {"cri de guerre": ["add_deck", ["ennemi", "permanent_buff", "helya"], ["Peste de sang", "Peste d'impiete", "Peste de givre"]], "vert": 1, "legendaire": true}
+    },
+    {
+        "id": 1594,
+        "name": "Traitre du tombeau",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 3,
+        "effects": {"cri de guerre": ["damage", ["serviteur", "ennemi", "tous", "conditional", "if_peste"], 0, 3], "vert": 1}
+    },
+    {
+        "id": 1595,
+        "name": "Le primat",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 8,
+        "attack": 7,
+        "health": 9,
+        "effects": {"on_use": ["decouverte", ["tous", "couleur"]],
+            "titan": [["add_hand", "Primat control", "rouge"],
+                ["reduc", "next_spell", 3, "bleu"],
+                ["invocation", ["Larbin du primat", "Larbin du primat"], "vert"], 1],
+            "ne peut pas attaquer": 1, "legendaire": true}
+    },
+    {
+        "id": 1596,
+        "name": "Larbin du primat",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant"],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"provocation": 1, "reincarnation": 1}
+    },
+    {
+        "id": 1597,
+        "name": "Primat control",
+        "classe": "Chevalier de la mort",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"destroy": 1, "ciblage": ["serviteur", "ennemi", "choisi"], "boost": ["heros", "allié", "target_health", "primat"], "mandatory": 1}
+    },
+    {
+        "id": 1598,
+        "name": "Gardien enchaine",
+        "classe": "Chevalier de la mort",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 11,
+        "attack": 8,
+        "health": 5,
+        "effects": {"ruée": 1, "reincarnation": 1, "reduc": ["self", "pestes_indeck"], "vert": 1}
+    },
+    {
+        "id": 1599,
+        "name": "Trainard de saronite",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": ["Élémentaire"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 3,
+        "effects": {"cri de guerre": ["hero_attack", ["allié", "conditional", "if_5_spell"], 0, 4]}
+    },
+    {
+        "id": 1600,
+        "name": "Glyphe du temps",
+        "classe": "Chasseur de démons",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"next_turn": ["pioche", 3]}
+    },
+    {
+        "id": 1601,
+        "name": "Torve esprit",
+        "classe": "Chasseur de démons",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 4,
+        "attack": 4,
+        "health": 4,
+        "effects": {"cri de guerre": ["damage", ["tous", "tous", "choisi", "cards_drawn"], 0]}
+    },
+    {
+        "id": 1602,
+        "name": "Fruit interdit",
+        "classe": "Druide",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"choix_des_armes": [["spend_mana", ["allié", "hero_attack"]], ["spend_mana", ["allié", "add_armor"]]]}
+    },
+    {
+        "id": 1603,
+        "name": "Aerofertiliseur",
+        "classe": "Druide",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
         "attack": 2,
         "health": 2,
-        "effects": {"aura": ["damage", ["heros", "ennemi", "if_attack"], 2], "bleu": 1}
+        "effects": {"cri de guerre": ["invocation", ["allié"], ["Treant"]], "rale d'agonie": ["invocation", ["allié"], ["Treant"]]}
+    },
+    {
+        "id": 1604,
+        "name": "Flagellant contamine",
+        "classe": "Druide",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {"cri de guerre": ["refresh_mana", ["allié", "conditional", "if_5_spell"], 4]}
     }
 ]

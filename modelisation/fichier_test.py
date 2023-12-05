@@ -496,8 +496,8 @@ def generate_legal_vector_test(state):
                                                                                                                        i]] \
                                             or "if_alone" in serv_effects["cri de guerre"][1] and len(
                                         player.servants) == 0 \
-                                            or "if_spell" in serv_effects["cri de guerre"][1] and \
-                                            serv_effects["cri de guerre"][2] != 0\
+                                            or "if_spell" in serv_effects["cri de guerre"][1] and serv_effects["cri de guerre"][2] != 0 \
+                                            or "if_cadavre" in serv_effects["cri de guerre"][1] and player.cadavres >= serv_effects["cri de guerre"][2]\
                                             or "if_méca_inhand" in serv_effects["cri de guerre"][1] and [x for x in player.hand if "Méca" in x.genre and x != player.hand[i]]:
                                         legal_actions[17 * i + 2] = True
                                         legal_actions[17 * i + 10] = True
@@ -601,6 +601,11 @@ def generate_legal_vector_test(state):
                                     elif "if_rale_agonie" in serv_effects["ciblage"]:
                                         for j in range(len(player.servants)):
                                             if "rale d'agonie" in player.servants[j].effects and "inciblable" not in \
+                                                    player.servants[j].effects and "en sommeil" not in player.servants[j].effects:
+                                                legal_actions[17 * i + j + 3] = True
+                                    elif "if_undead" in serv_effects["ciblage"]:
+                                        for j in range(len(player.servants)):
+                                            if "Mort_vivant" in player.servants[j].genre and "inciblable" not in \
                                                     player.servants[j].effects and "en sommeil" not in player.servants[j].effects:
                                                 legal_actions[17 * i + j + 3] = True
                                 else:
@@ -963,6 +968,7 @@ def calc_advantage_minmax(state):
     other_advantage += 2.5 * (sum([(x.attack * x.intrinsec_cost/x.intrinsec_attack) for x in player.lieux]) - sum([(x.attack * x.intrinsec_cost/x.intrinsec_attack) for x in adv.lieux]))
     # Autres
     other_advantage += 4 * len(player.permanent_buff)
+    other_advantage += 4 * len(player.next_turn)
     other_advantage += 0.01 * player.cadavres
     if player.power is not None:
         other_advantage += 5
@@ -1081,7 +1087,7 @@ dict_deck_status = {"Chevalier de la mort": "controle",
                     "Démoniste": "controle",
                     "Guerrier":"controle"}
 for i in range(3):
-    class_j1 = "Guerrier"
+    class_j1 = "Chasseur de démons"
     class_j2 = random.choice(class_to_chose)
     players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))

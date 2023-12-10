@@ -20695,5 +20695,90 @@
         "attack": 6,
         "health": 5,
         "effects": {"cri de guerre": ["pioche", ["allié", "serviteur", "Élémentaire", "scinde"], 1], "legendaire": true}
+    },
+    {
+        "id": 1713,
+        "name": "Mineur explomage",
+        "classe": "Mage",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": 4,
+        "health": 4,
+        "effects": {"cri de guerre": ["deterrer", ["allié", "damage", "cards_in_hand"], 1]}
+    },
+    {
+        "id": 1714,
+        "name": "Salve du crepuscule",
+        "classe": "Mage",
+        "type": "Sort",
+        "genre": ["Feu"],
+        "decouvrable": 1,
+        "cost": 10,
+        "attack": null,
+        "health": null,
+        "effects": {"damage": [["serviteur", "ennemi", "aléatoire", "invoke_ten_drop", "dix"], 1]}
+    },
+    {
+        "id": 1715,
+        "name": "Duel au sommet",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"invocation": ["allié", "ennemi", ["Hors la loi", "Hors la loi", "Hors la loi"]], "rush_invoked": 1}
+    },
+    {
+        "id": 1716,
+        "name": "Hors la loi",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 3,
+        "attack": 3,
+        "health": 3,
+        "effects": {}
+    },
+    {
+        "id": 1717,
+        "name": "En avant aile d'argent",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Dragon"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": 2,
+        "health": 1,
+        "effects": {"bouclier divin": 1, "rale d'agonie": ["pioche", ["allié", "sort", "Sacré"], 1]}
+    },
+    {
+        "id": 1718,
+        "name": "Juge et bourreau",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 2,
+        "attack": null,
+        "health": null,
+        "effects": {"boost": ["fixed_stats", [1, 1]], "echangeable": 1, "ciblage": ["serviteur", "tous", "choisi"],
+        "bonne pioche": ["damage", 1, 1]}
+    },
+    {
+        "id": 1719,
+        "name": "Aura d'adjointe",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": ["Sacré"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": null,
+        "health": null,
+        "effects": {"attach_hero": [["Aura d'adjointe", 1, 3]]}
     }
 ]

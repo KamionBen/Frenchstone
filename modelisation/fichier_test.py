@@ -1091,7 +1091,7 @@ dict_deck_status = {"Chevalier de la mort": "controle",
                     "Démoniste": "controle",
                     "Guerrier":"controle"}
 for i in range(3):
-    class_j1 = "Mage"
+    class_j1 = "Paladin"
     class_j2 = random.choice(class_to_chose)
     players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))

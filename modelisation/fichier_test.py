@@ -421,6 +421,10 @@ def generate_legal_vector_test(state):
                                                     adv.servants[j].effects and "provocation" in adv.servants[
                                                 j].effects:
                                                 legal_actions[17 * i + j + 11] = True
+                                    if "if_dragon_inhand" in serv_effects["cri de guerre"][1] and [x for x in player.hand if "Dragon" in x.genre]:
+                                        for j in range(len(adv.servants)):
+                                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects:
+                                                legal_actions[17 * i + j + 11] = True
                                     else:
                                         legal_actions[17 * i + 1] = True
                             elif "tous" in serv_effects["cri de guerre"][1] and (
@@ -872,10 +876,10 @@ def calc_advantage_card_hand(card, player):
     else:
         card_advantage = 2 + (0.12 * card.intrinsec_cost)
     if not card.discount:
-        card_advantage = card_advantage + 0.75 * (card.intrinsec_cost - card.cost)
+        card_advantage = card_advantage + min(0.75 * (card.intrinsec_cost - card.cost), 5)
     if card.type == "Serviteur":
-        card_advantage = card_advantage * min(max(0.5, card.base_attack) / max(0.5, card.intrinsec_attack), 1.6)
-        card_advantage = card_advantage * min(max(0.5, card.base_health) / max(0.5, card.intrinsec_health), 1.6)
+        card_advantage = card_advantage * min(max(0.5, card.base_attack) / max(0.5, card.intrinsec_attack), 1.5)
+        card_advantage = card_advantage * min(max(0.5, card.base_health) / max(0.5, card.intrinsec_health), 1.5)
     elif card.type == "Sort":
         if "decouverte" in card.effects or "add_hand" in card.effects or "add_deck" in card.effects or "pioche" in card.effects or "dragage" in card.effects:
             card_advantage /= 2
@@ -1081,13 +1085,13 @@ dict_deck_status = {"Chevalier de la mort": "controle",
                     "Voleur": "tempo",
                     "Prêtre": "aggro",
                     "Chasseur": "tempo",
-                    "Druide": "controle",
+                    "Druide": "tempo",
                     "Mage": "tempo",
                     "Chaman": "aggro",
                     "Démoniste": "controle",
                     "Guerrier":"controle"}
 for i in range(3):
-    class_j1 = "Chasseur de démons"
+    class_j1 = "Mage"
     class_j2 = random.choice(class_to_chose)
     players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))

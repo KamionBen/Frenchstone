@@ -6,6 +6,7 @@ from typing import Union
 import random
 import pickle, time
 from statistics import mean
+from math import ceil
 from copy import deepcopy
 
 """ CONSTANTS """
@@ -20,10 +21,10 @@ class_files = {'Chasseur': 'chasseur.csv',
                'Paladin': 'paladin_pur.csv',
                'Démoniste': 'demo_controle.csv',
                'Chasseur de démons': 'dh_marginal.csv',
-               'Druide': 'big_druid.csv',
+               'Druide': 'druid_dragons.csv',
                'Voleur': 'voleur_secrets.csv',
                'Guerrier': 'guerrier_controle.csv',
-               'Chevalier de la mort': 'dk_sang.csv',
+               'Chevalier de la mort': 'dk_peste.csv',
                'Prêtre': 'shadow_priest.csv',
                'Chaman': 'chaman_totem.csv'
                }
@@ -31,7 +32,7 @@ classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide",
                  "Chevalier de la mort"]
 all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"]
 treasure_classes = ["Mage", "Chevalier de la mort", "Voleur", "Démoniste", "Guerrier"]
-treasure_leg = {"Mage": "Faucon d'azerite", "Chevalier de la mort": "Scorpion d'azerite", "Voleur": "Rat d'azerite", "Démoniste": "Serpent d'azerite", "Guerrier": "Buffle d'azerite"}
+treasure_leg = {"Mage": "Faucon d'azerite", "Chevalier de la mort": "Rat d'azerite", "Voleur": "Scorpion d'azerite", "Démoniste": "Serpent d'azerite", "Guerrier": "Buffle d'azerite"}
 
 def get_cards_data(file: str) -> list:
     with open(file, 'r', encoding='utf-8') as jsonfile:
@@ -171,6 +172,7 @@ class Plateau:
 
         for player in self.players:
             player.deck = import_deck(class_files[player.classe])
+            player.initial_deck = [x.id for x in player.deck]
 
         """ Mélange des decks et tirage de la main de départ """
         for player in self.players:
@@ -234,7 +236,7 @@ class Plateau:
                         player.dead_diablotins.append(servant.name)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
-                    if servant.id not in [x.id for x in player.initial_deck if x.type == "Serviteur"]:
+                    if servant.id not in [x for x in player.initial_deck]:
                         player.dead_indirect.append(servant.name)
                     player.all_dead_servants.append(servant)
                     player.dead_this_turn.append(servant)
@@ -304,6 +306,8 @@ class Plateau:
         elif player.power[0] in ["Jaraxxus"]:
             if len(player.servants) + len(player.lieux) < 7:
                 targets.append(player)
+        elif player.power[0] in ["Vision d'algalon"]:
+            targets.append(player)
         return targets
 
     def get_gamestate(self) -> dict:
@@ -444,7 +448,7 @@ class Player:
         self.style = style_deck
 
         # Cartes
-        self.deck, self.initial_deck = CardGroup() ,CardGroup()  # Le tas de cartes à l'envers
+        self.deck, self.initial_deck = CardGroup(), []  # Le tas de cartes à l'envers
         self.hand, self.cards_played, self.initial_hand = CardGroup(), [], []  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, [], 0
@@ -460,7 +464,7 @@ class Player:
         self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect, self.dead_diablotins = [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
-        self.grenouilles, self.totem_invoked, self.tresor, self.malediction, self.pestes = 0, 0, 0, 0, 0
+        self.grenouilles, self.totem_invoked, self.tresor, self.malediction, self.pestes, self.dragon_invoked = 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules, self.combo_played = 0, 0, 0, 0, 0, 0, 0, 0
         self.copies_to_deck, self.spell_before, self.elem_before, self.defausse, self.forge = 0, False, 0, False, False
 
@@ -633,6 +637,8 @@ class Player:
                         card.cost = max(0, card.base_cost - 2 * self.weapons_played)
                     elif "totem_invoked" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.totem_invoked)
+                    elif "dragon_invoked" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.dragon_invoked)
                     elif "marginal_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.marginal_played)
                     elif "treants_invoked" in card.effects["reduc"]:
@@ -655,6 +661,8 @@ class Player:
                         card.cost = max(0, card.base_cost - len(self.cards_this_turn))
                     elif "pestes_indeck" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.pestes)
+                    elif "dead_servants" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - len(self.all_dead_servants))
                     elif "all_hurt_allies" in card.effects["reduc"]:
                         total_reduc = len([x for x in self.servants if x.blessure > 0])
                         if self.health < self.base_health:
@@ -680,12 +688,7 @@ class Player:
             for discount in self.discount_next:
                 for card in self.hand:
                     if card.type.lower() == discount[0] or discount[0] == "tous":
-                        if discount[1] != "" and discount[2] < 0:
-                            if discount[1] in card.genre or discount[1] == "tous" or (discount[1] == "rale d'agonie" and "rale d'agonie" in card.effects):
-                                card.cost = max(0, card.cost + discount[2])
-                                if discount not in card.discount:
-                                    card.discount.append(discount)
-                        elif discount[1] == "secret":
+                        if discount[1] == "secret":
                             if "secret" in card.effects and discount[2] >= 0:
                                 card.cost = discount[2]
                                 if discount not in card.discount:
@@ -701,6 +704,11 @@ class Player:
                                 card.discount.append(discount)
                         elif discount[1] == "marginal":
                             if "marginal" in card.effects and discount[2] < 0:
+                                card.cost = max(0, card.cost + discount[2])
+                                if discount not in card.discount:
+                                    card.discount.append(discount)
+                        elif discount[1] != "" and discount[2] < 0:
+                            if discount[1] in card.genre or discount[1] == "tous" or (discount[1] == "rale d'agonie" and "rale d'agonie" in card.effects):
                                 card.cost = max(0, card.cost + discount[2])
                                 if discount not in card.discount:
                                     card.discount.append(discount)
@@ -720,7 +728,9 @@ class Player:
             for card in self.hand:
                 for augment in self.augment:
                     if card.type.lower() == augment[0] or augment[0] == "tous":
-                        if augment[2] > 0:
+                        if augment[1] == "mini":
+                            card.cost = max(card.cost, 2)
+                        elif augment[2] > 0:
                             card.cost = card.base_cost + augment[2]
         if [x for x in self.servants if "aura" in x.effects and "Thaddius" in x.effects["aura"]]:
             reduction = [x for x in self.servants if "aura" in x.effects and "Thaddius" in x.effects["aura"]][0].effects["aura"][2]
@@ -743,6 +753,10 @@ class Player:
             if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "sort" in x.effects["aura"][1] and "premier" in x.effects["aura"][1]] and self.spell_this_turn == 0:
                 for spell in [x for x in self.hand if x.type == "Sort"]:
                     spell.cost = max(0, spell.cost - 3)
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "indirect_cards" in x.effects["aura"][1]]:
+                if [x for x in self.hand if x.id not in self.initial_deck]:
+                    for card in [x for x in self.hand if x.id not in self.initial_deck]:
+                        card.cost = max(1, card.cost - 4)
         if [x for x in self.attached if x[0] == "Aura de l'inventeur"]:
             if [x for x in self.hand if "Méca" in x.genre]:
                 for meca in [x for x in self.hand if "Méca" in x.genre]:
@@ -821,10 +835,18 @@ class Player:
                             creature.effects.pop("en sommeil")
                 if "draw" in self.effects:
                     self.damage(self.effects["draw"][2])
-                if "if_pioche" in [x.effects["aura"][1][-1] for x in self.servants if "aura" in x.effects]:
+                if "if_pioche" in [x.effects["aura"][1] for x in self.servants if "aura" in x.effects]:
                     for creature in [x for x in self.servants if "aura" in x.effects and x.effects["aura"][1][-1] == "if_pioche"]:
                         if "invocation" in creature.effects["aura"] and len(self.servants) + len(self.lieux) < 7:
                             self.servants.add(get_card(creature.effects["aura"][2], name_index_servants))
+                if "if_drawn" in card_to_draw.effects:
+                    if "add_hand" in card_to_draw.effects["if_drawn"]:
+                        while True:
+                            card_to_add = random.choice(all_servants_decouvrables)
+                            if "Dragon" in card_to_add["genre"]:
+                                break
+                        card_to_add = Card(**card_to_add)
+                        self.hand.add(card_to_add)
             else:
                 self.fatigue += 1
                 self.damage(self.fatigue)
@@ -918,6 +940,29 @@ class Player:
         if self.weapon is not None and "rale d'agonie" in self.weapon.effects and "if_armor" in self.weapon.effects["rale d'agonie"][1]:
             self.weapon.effects["rale d'agonie"][2] += 1
 
+    def deterrer(self, reduc=None):
+        if self.classe in treasure_classes and (self.tresor % 4) + 1 == 4:
+            tresor = treasure_leg[self.classe]
+            tresor = get_card(tresor, name_index_servants)
+        else:
+            while True:
+                tresor = random.choice(all_treasures)
+                if self.classe in treasure_classes and tresor["cost"] == (self.tresor % 4) + 1:
+                    break
+                elif self.classe not in treasure_classes and tresor["cost"] == (self.tresor % 3) + 1:
+                    break
+            tresor = Card(**tresor)
+        if reduc is not None:
+            if reduc >= 0:
+                tresor.base_cost = reduc
+        self.hand.add(tresor)
+        if "tas d'os" in self.permanent_buff:
+            for _ in range(self.permanent_buff["tas d'os"]):
+                if len(self.servants) + len(self.lieux) < 7:
+                    to_invoke = get_card("Tas d'os2", name_index_servants)
+                    self.servants.add(to_invoke)
+        self.tresor += 1
+
     def is_dead(self) -> bool:
         return self.health <= 0
 
@@ -1006,7 +1051,7 @@ class Card():
 
         """ Combat """
         self.remaining_atk = -1
-        self.damage_taken, self.blessure, self.surplus, self.has_attacked = False, 0, 0, False
+        self.damage_taken, self.blessure, self.surplus, self.has_attacked, self.just_arrived = False, 0, 0, False, True
         self.total_temp_boost = [0, 0]
         self.cursed_player = None
 

@@ -20780,5 +20780,77 @@
         "attack": null,
         "health": null,
         "effects": {"attach_hero": [["Aura d'adjointe", 1, 3]]}
+    },
+    {
+        "id": 1720,
+        "name": "Cow boy sacre",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 4,
+        "health": 3,
+        "effects": {"cri de guerre": ["reduc", ["sort", "prochain", "", "Sacré"], -2]}
+    },
+    {
+        "id": 1721,
+        "name": "Esprit des terres ingrates",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": ["Mort-vivant", "Bête"],
+        "decouvrable": 1,
+        "cost": 3,
+        "attack": 3,
+        "health": 4,
+        "effects": {"cri de guerre": ["add_hand", ["allié", "conditional", "if_highlander"], "Mirage"], "legendaire": true}
+    },
+    {
+        "id": 1722,
+        "name": "Mirage",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 0,
+        "attack": null,
+        "health": null,
+        "effects": {"start_turn": ["transformation", ["allié", "serviteur", "in_deck", "aléatoire"]]}
+    },
+    {
+        "id": 1723,
+        "name": "Bras de la justice",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 5,
+        "attack": 1,
+        "health": 5,
+        "effects": {"cri de guerre": ["boost", ["self", "cards_in_hand"], [0, 0]], "ruée": 1, "vol de vie": 1}
+    },
+    {
+        "id": 1724,
+        "name": "Bandits des terres ingrates",
+        "classe": "Paladin",
+        "type": "Sort",
+        "genre": [],
+        "decouvrable": 1,
+        "cost": 6,
+        "attack": null,
+        "health": null,
+        "effects": {"add_hand": [["allié"], "bandits", "invocation_if_no_room"]}
+    },
+    {
+        "id": 1725,
+        "name": "Bandit",
+        "classe": "Paladin",
+        "type": "Serviteur",
+        "genre": [],
+        "decouvrable": 0,
+        "cost": 2,
+        "attack": 3,
+        "health": 2,
+        "effects": {}
     }
 ]

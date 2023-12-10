@@ -701,7 +701,10 @@ class TourEnCours:
                             elif "cout_last_card" in carte.effects["cri de guerre"][1] and player.last_card != "" and player.last_card.cost == carte.effects["cri de guerre"][1][2]:
                                 carte.boost(carte.effects["cri de guerre"][2][0], carte.effects["cri de guerre"][2][1])
                             elif "cards_in_hand" in carte.effects["cri de guerre"][1]:
-                                carte.boost(0, len(player.hand))
+                                if carte.name == "Bras de la justice":
+                                    carte.boost(len(player.hand), 0)
+                                else:
+                                    carte.boost(0, len(player.hand))
                             elif "chaque type" in carte.effects["cri de guerre"][1]:
                                 if player.genre_joues:
                                     if carte.effects["cri de guerre"][2] == [0, 0]:
@@ -1518,6 +1521,8 @@ class TourEnCours:
                                     elif "conditional" in carte.effects["cri de guerre"][1]:
                                         if "if_alone" in carte.effects["cri de guerre"][1] and len(player.servants) == 1:
                                             card_to_draw = get_card(carte.effects["cri de guerre"][2], name_index_servants)
+                                        if "if_highlander" in carte.effects["cri de guerre"][1] and len([x.name for x in player.deck]) == len(set([x.name for x in player.deck])):
+                                            card_to_draw = get_card(carte.effects["cri de guerre"][2], name_index_spells)
                                     else:
                                         card_to_draw = get_card(carte.effects["cri de guerre"][2], name_index)
                                     if card_to_draw is not None:
@@ -5340,6 +5345,25 @@ class TourEnCours:
                                                 card_to_add.cost = max(0, card_to_add.cost - 3)
                                                 card_to_add.base_cost = max(0, card_to_add.base_cost - 3)
                                                 player.hand.add(card_to_add)
+                            elif "bandits" in carte.effects["add_hand"][1]:
+                                bonus_effects = ["ruée", "vol de vie", "bouclier divin", "provocation", "furie des vents", "camouflage",
+                             "reincarnation", "toxicite"]
+                                if len(player.hand) <= 2:
+                                    for bonus_effect in bonus_effects:
+                                        card_to_add = get_card("Bandit", name_index_servants)
+                                        card_to_add.effects[bonus_effect] = 1
+                                        player.hand.add(card_to_add)
+                                else:
+                                    to_add = random.sample(bonus_effects, 10 - len(player.hand))
+                                    to_invoke = bonus_effects - to_add
+                                    for bonus_effect in to_add:
+                                        card_to_add = get_card("Bandit", name_index_servants)
+                                        card_to_add.effects[bonus_effect] = 1
+                                        player.hand.add(card_to_add)
+                                    for bonus_effect in to_invoke:
+                                        to_invoke = get_card("Bandit", name_index_servants)
+                                        to_invoke.effects[bonus_effect] = 1
+                                        self.invoke_servant(to_invoke, player)
                             elif type(carte.effects["add_hand"][1]) == list:
                                 for card in carte.effects["add_hand"][1]:
                                     player.hand.add(get_card(card, name_index))
@@ -9021,6 +9045,16 @@ class TourEnCours:
                         player.hand.remove(card)
                         new_card = random.choice(potential_transform)
                         new_card.effects["start_turn"] = card.effects["start_turn"]
+                    elif "allié" in card.effects["start_turn"][1] and "in_deck" in card.effects["start_turn"][1] and "serviteur" in card.effects["start_turn"][1]:
+                        if [x for x in player.deck if x.type == "Serviteur"]:
+                            potential_transform = [x for x in player.deck if x.type == "Serviteur"]
+                        else:
+                            potential_transform = [card]
+                        player.hand.remove(card)
+                        new_card = random.choice(potential_transform)
+                        new_card.effects["start_turn"] = card.effects["start_turn"]
+                        if not [x for x in player.hand if x.name == "Mirage"]:
+                            player.hand.add(get_card("Mirage", name_index_spells))
                     else:
                         potential_transform = [get_card(x, name_index) for x in card.effects["start_turn"][1]]
                         player.hand.remove(card)
@@ -9560,7 +9594,7 @@ class Orchestrator:
                 try:
                     attacker = player.servants[int((action - 171) // 8 - 1)]
                 except:
-                    print(action, player.servants, player.last_card, player.last_card.effects)
+                    print(action, player.servants, player.last_card, player.last_card.effects, adv.last_card, adv.servants)
                     raise TypeError
             if (action - 171) % 8 == 0:
                 target = adv
@@ -9699,8 +9733,8 @@ class Orchestrator:
                         crea.boost(1, 0)
                 creature.damage_taken = False
             creature.health = max(0, creature.base_health + creature.total_temp_boost[1] - creature.blessure)
-            if ([x for x in player.attached if x[0] == "Aura d'adjointe"] and creature == player.servants.cards[0]) or
-                ([x for x in adv.attached if x[0] == "Aura d'adjointe"] and creature == adv.servants.cards[0]):
+            if ([x for x in player.attached if x[0] == "Aura d'adjointe"] and creature in player.servants and creature == player.servants.cards[0]) or\
+                ([x for x in adv.attached if x[0] == "Aura d'adjointe"] and creature in adv.servants and creature == adv.servants.cards[0]):
                 creature.attack += 3
                 creature.effects["vol de vie"] = 1
             creature.surplus = 0

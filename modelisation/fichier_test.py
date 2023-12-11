@@ -53,7 +53,9 @@ def generate_legal_vector_test(state):
             serv_effects = player.hand[i].effects
             if "reduc" in player.hand[i].effects and "self" in player.hand[i].effects["reduc"]:
                 if "total_serv" in player.hand[i].effects["reduc"]:
-                    player.hand[i].cost -= len(player.servants) + len(adv.servants)
+                    player.hand[i].cost = max(0, player.hand[i].cost - len(player.servants) + len(adv.servants))
+                elif "adv_servants" in player.hand[i].effects["reduc"]:
+                    player.hand[i].cost -= len(adv.servants)
             if player.hand[i].cost <= player.mana and "mandatory" in player.hand[i].effects:
                 if len(player.servants) + len(player.lieux) < 7 and player.hand[i].type == "Serviteur":
                     """ Serviteurs avec cris de guerre ciblés """
@@ -370,6 +372,11 @@ def generate_legal_vector_test(state):
     else:
         for i in range(len(player.hand)):
             serv_effects = player.hand[i].effects
+            if "reduc" in player.hand[i].effects and "self" in player.hand[i].effects["reduc"]:
+                if "total_serv" in player.hand[i].effects["reduc"]:
+                    player.hand[i].cost = max(0, player.hand[i].cost - len(player.servants) + len(adv.servants))
+                elif "adv_servants" in player.hand[i].effects["reduc"]:
+                    player.hand[i].cost -= len(adv.servants)
             if ((player.hand[i].type == "Serviteur" and (player.hand[i].cost <= player.mana if "cost_armor" not in player.effects else player.hand[i].cost <= player.armor))\
                     or (player.hand[i].type != "Serviteur" and player.hand[i].cost <= player.mana)) and "entrave" not in serv_effects:
                 if len(player.servants) + len(player.lieux) < 7 and player.hand[i].type == "Serviteur":
@@ -697,15 +704,28 @@ def generate_legal_vector_test(state):
                                         j].effects and "inciblable" not in adv.servants[j].effects:
                                         legal_actions[17 * i + j + 11] = True
                             else:
-                                legal_actions[17 * i + 2] = True
-                                legal_actions[17 * i + 10] = True
-                                for j in range(len(player.servants)):
-                                    if "inciblable" not in player.servants[j].effects:
-                                        legal_actions[17 * i + j + 3] = True
-                                for j in range(len(adv.servants)):
-                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[
-                                        j].effects and "inciblable" not in adv.servants[j].effects:
-                                        legal_actions[17 * i + j + 11] = True
+                                if "conditional" in serv_effects["ciblage"]:
+                                    if "if_hurt" in serv_effects["ciblage"]:
+                                        if player.health < player.base_health:
+                                            legal_actions[17 * i + 2] = True
+                                        if adv.health < adv.base_health:
+                                            legal_actions[17 * i + 10] = True
+                                        for j in range(len(player.servants)):
+                                            if "inciblable" not in player.servants[j].effects and player.servants[j].blessure > 0:
+                                                legal_actions[17 * i + j + 3] = True
+                                        for j in range(len(adv.servants)):
+                                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects and adv.servants[j].blessure > 0:
+                                                legal_actions[17 * i + j + 11] = True
+                                else:
+                                    legal_actions[17 * i + 2] = True
+                                    legal_actions[17 * i + 10] = True
+                                    for j in range(len(player.servants)):
+                                        if "inciblable" not in player.servants[j].effects:
+                                            legal_actions[17 * i + j + 3] = True
+                                    for j in range(len(adv.servants)):
+                                        if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[
+                                            j].effects and "inciblable" not in adv.servants[j].effects:
+                                            legal_actions[17 * i + j + 11] = True
                     else:
                         legal_actions[17 * i + 1] = True
                 elif player.hand[i].type.lower() == "lieu" and len(player.servants) + len(player.lieux) < 7:
@@ -1091,7 +1111,7 @@ dict_deck_status = {"Chevalier de la mort": "controle",
                     "Démoniste": "controle",
                     "Guerrier":"controle"}
 for i in range(3):
-    class_j1 = "Paladin"
+    class_j1 = "Voleur"
     class_j2 = random.choice(class_to_chose)
     players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))

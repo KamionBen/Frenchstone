@@ -466,6 +466,7 @@ class Player:
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
         self.grenouilles, self.totem_invoked, self.tresor, self.malediction, self.pestes, self.dragon_invoked = 0, 0, 0, 0, 0, 0
         self.weapons_played, self.marginal_played, self.secrets_declenches, self.sacre_spent, self.paladin_played, self.automates, self.tentacules, self.combo_played = 0, 0, 0, 0, 0, 0, 0, 0
+        self.one_cost_played = 0
         self.copies_to_deck, self.spell_before, self.elem_before, self.defausse, self.forge = 0, False, 0, False, False
 
         """ Héros choisi par le joueur """
@@ -534,7 +535,7 @@ class Player:
     def end_turn(self):
         """ Mise à jour de fin de tour """
         self.attack, self.inter_attack, self.surplus = 0, 0, 0
-        self.damage_this_turn, self.my_turn, self.cards_this_turn = 0, False, []
+        self.damage_this_turn, self.my_turn, = 0, False
         self.dead_undeads, self.dead_this_turn = [], []
         self.serv_this_turn, self.spell_this_turn = CardGroup(), 0
         self.augment = []
@@ -583,7 +584,7 @@ class Player:
                 elif decoctions[0].name == "Decoction bouillonnante":
                     mixed_decoction.effects["damage"] = ["double", 3]
                 elif decoctions[0].name == "Decoction vaporeuse":
-                    mixed_decoction.effects["add_hand"] = [["allié"], ["aléatoire", "other_class", "double", "reduc", 3]]
+                    mixed_decoction.effects["add_hand"] = [["allié"], ["aléatoire", "other_class", "double", "reduc", 3, 1]]
                 elif decoctions[0].name == "Decoction brillante":
                     mixed_decoction.effects["pioche"] = ["allié", 4]
             mixed_decoction.effects.pop("decoction")
@@ -657,6 +658,8 @@ class Player:
                         card.cost = max(0, card.base_cost - self.damage_own_turn)
                     elif "paladin_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.paladin_played)
+                    elif "1_cost_played" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.one_cost_played)
                     elif "cards_played" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - len(self.cards_this_turn))
                     elif "pestes_indeck" in card.effects["reduc"]:
@@ -909,7 +912,7 @@ class Player:
             self.consec_elems += 1
         else:
             self.consec_elems = 0
-        self.damage_this_turn, self.heal_this_turn, self.elem_this_turn, self.nature_this_turn = 0, 0, 0, 0
+        self.damage_this_turn, self.heal_this_turn, self.elem_this_turn, self.nature_this_turn, self.cards_this_turn = 0, 0, 0, 0, []
         self.atk_this_turn, self.armor_inter, self.armor_this_turn = self.inter_attack, self.armor, 0
         self.inter_attack, self.has_attacked = 0, 0
         self.my_turn = True
@@ -1313,14 +1316,30 @@ def generate_targets(state):
                             if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
                                 legal_actions[17 * i + j + 10] = True
                     else:
-                        legal_actions[17 * i + 1] = True
-                        legal_actions[17 * i + 9] = True
-                        for j in range(len(player.servants)):
-                            if "inciblable" not in player.servants[j].effects:
-                                legal_actions[17 * i + j + 2] = True
-                        for j in range(len(adv.servants)):
-                            if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
-                                legal_actions[17 * i + j + 10] = True
+                        if "conditional" in player.hand[i].effects["ciblage"]:
+                            if "if_hurt" in player.hand[i].effects["ciblage"]:
+                                if player.health < player.base_health:
+                                    legal_actions[17 * i + 2] = True
+                                if adv.health < adv.base_health:
+                                    legal_actions[17 * i + 10] = True
+                                for j in range(len(player.servants)):
+                                    if "inciblable" not in player.servants[j].effects and player.servants[
+                                        j].blessure > 0:
+                                        legal_actions[17 * i + j + 3] = True
+                                for j in range(len(adv.servants)):
+                                    if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[
+                                        j].effects and "inciblable" not in adv.servants[j].effects and adv.servants[
+                                        j].blessure > 0:
+                                        legal_actions[17 * i + j + 11] = True
+                        else:
+                            legal_actions[17 * i + 1] = True
+                            legal_actions[17 * i + 9] = True
+                            for j in range(len(player.servants)):
+                                if "inciblable" not in player.servants[j].effects:
+                                    legal_actions[17 * i + j + 2] = True
+                            for j in range(len(adv.servants)):
+                                if "camouflage" not in adv.servants[j].effects and "en sommeil" not in adv.servants[j].effects and "inciblable" not in adv.servants[j].effects:
+                                    legal_actions[17 * i + j + 10] = True
             else:
                 legal_actions[17 * i] = True
     return legal_actions

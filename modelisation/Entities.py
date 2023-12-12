@@ -50,6 +50,7 @@ all_spells = [x for x in all_cards if x['type'] == "Sort"]
 all_spells_decouvrable = [x for x in all_cards if x['type'] == "Sort" and x['decouvrable'] == 1]
 all_treasures = [x for x in all_cards if x['type'] == "Sort" and "tresor" in x["effects"]]
 all_weapons = [x for x in all_cards if x['type'] == "Arme"]
+all_lieux = [x for x in all_cards if x['type'] == "Lieu"]
 all_marginal = [x for x in all_cards if "marginal" in x["effects"]]
 all_servants_genre = {}
 for genre in all_genre_servants:
@@ -62,6 +63,7 @@ name_index_servants_decouvrables = {card["name"]: card for card in all_servants_
 name_index_spells = {card["name"]: card for card in all_spells}
 name_index_spells_decouvrables = {card["name"]: card for card in all_spells_decouvrable}
 name_index_weapons = {card["name"]: card for card in all_weapons}
+name_index_lieux = {card["name"]: card for card in all_lieux}
 
 
 empty_action_line = {"carte_jouee": "",
@@ -234,6 +236,8 @@ class Plateau:
                         player.dead_demons.append(servant)
                     if "diablotin" in servant.effects:
                         player.dead_diablotins.append(servant.name)
+                    if "ogre" in servant.effects:
+                        player.dead_ogres.append(servant.name)
                     if "rale d'agonie" in servant.effects:
                         player.dead_rale.append(servant)
                     if servant.id not in [x for x in player.initial_deck]:
@@ -301,7 +305,7 @@ class Plateau:
                     targets.append(player)
             else:
                 targets.append(player)
-        elif player.power[0] in ["Explosion demoniaque", "Pretre ombre"]:
+        elif player.power[0] in ["Explosion demoniaque", "Pretre ombre", "Reno ranger"]:
             targets = [player] + [adv] + player.servants.cards + adv.servants.cards
         elif player.power[0] in ["Jaraxxus"]:
             if len(player.servants) + len(player.lieux) < 7:
@@ -461,7 +465,7 @@ class Player:
         self.attached, self.decouverte, self.end_turn_cards, self.spells_played, self.indirect_spells, self.poofed = [], [], [], [], [], []
         self.cadavres, self.cadavres_spent, self.cadavres_repartis = 0, 0, [0, 0, 0, 0]
         self.discount_next, self.augment, self.next_turn, self.boost_next, self.next_choix_des_armes = [], [], [], [], 0
-        self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect, self.dead_diablotins = [], [], [], [], []
+        self.all_dead_servants, self.dead_this_turn, self.dead_zombies, self.dead_indirect, self.dead_diablotins, self.dead_ogres = [], [], [], [], [], []
         self.dead_undeads, self.dead_rale, self.cavalier_apocalypse, self.genre_joues, self.ames_liees, self.dead_demons, self.ecoles_jouees = [], [], [], [], [], [], []
         self.oiseaux_libres, self.etres_terrestres, self.geolier, self.reliques, self.double_relique, self.treants_invoked, self.jeu_lumiere, self.dead_squelette = 0, 0, 0, 0, 0, 0, 0, 0
         self.grenouilles, self.totem_invoked, self.tresor, self.malediction, self.pestes, self.dragon_invoked = 0, 0, 0, 0, 0, 0
@@ -603,6 +607,9 @@ class Player:
         if self.armor - self.armor_inter:
             self.armor_this_turn = self.armor - self.armor_inter
             self.armor_inter = self.armor
+        if "reno_ranger" in self.permanent_buff:
+            if self.servants.cards:
+                self.servants.cards = [self.servants.cards[0]]
 
         """ Ruées et charges """
         if [x for x in self.servants if "ruée" in x.effects or "charge" in x.effects]:
@@ -638,6 +645,8 @@ class Player:
                         card.cost = max(0, card.base_cost - 2 * self.weapons_played)
                     elif "totem_invoked" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.totem_invoked)
+                    elif "consec_elems" in card.effects["reduc"]:
+                        card.cost = max(0, card.base_cost - self.consec_elems)
                     elif "dragon_invoked" in card.effects["reduc"]:
                         card.cost = max(0, card.base_cost - self.dragon_invoked)
                     elif "marginal_played" in card.effects["reduc"]:
@@ -760,6 +769,22 @@ class Player:
                 if [x for x in self.hand if x.id not in self.initial_deck]:
                     for card in [x for x in self.hand if x.id not in self.initial_deck]:
                         card.cost = max(1, card.cost - 4)
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "bonne pioche" in x.effects["aura"][1]]:
+                if [x for x in self.hand if "bonne pioche" in x.effects]:
+                    for card in [x for x in self.hand if "bonne pioche" in x.effects]:
+                        card.cost = max(0, card.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "bonne pioche" in x.effects["aura"][1]]))
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "deterrer" in x.effects["aura"][1]]:
+                if [x for x in self.hand if "deterrer" in x.effects]:
+                    for card in [x for x in self.hand if "deterrer" in x.effects]:
+                        card.cost = max(0, card.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "deterrer" in x.effects["aura"][1]]))
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "echangeable" in x.effects["aura"][1]]:
+                if [x for x in self.hand if "echangeable" in x.effects]:
+                    for card in [x for x in self.hand if "echangeable" in x.effects]:
+                        card.cost = max(0, card.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "echangeable" in x.effects["aura"][1]]))
+            if [x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "legendaire" in x.effects["aura"][1]]:
+                if [x for x in self.hand if "legendaire" in x.effects]:
+                    for card in [x for x in self.hand if "legendaire" in x.effects]:
+                        card.cost = max(0, card.cost - len([x for x in self.servants if "aura" in x.effects and "reduc" in x.effects["aura"] and "legendaire" in x.effects["aura"][1]]))
         if [x for x in self.attached if x[0] == "Aura de l'inventeur"]:
             if [x for x in self.hand if "Méca" in x.genre]:
                 for meca in [x for x in self.hand if "Méca" in x.genre]:
@@ -828,6 +853,9 @@ class Player:
                                 creature.effects.pop("en sommeil")
                 card_to_draw = self.deck.pick_one()
                 self.hand.add(card_to_draw)
+                if "sechecaille" in self.permanent_buff and card_to_draw.type == "Sort":
+                    self.hand.add(copy_card(card_to_draw))
+                    self.permanent_buff.pop("sechecaille")
                 if "bonne pioche" in card_to_draw.effects:
                     card_to_draw.effects["bonne pioche"][-1] = 1
                 self.drawn_this_turn += 1

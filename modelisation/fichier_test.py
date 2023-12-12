@@ -379,7 +379,8 @@ def generate_legal_vector_test(state):
                     player.hand[i].cost -= len(adv.servants)
             if ((player.hand[i].type == "Serviteur" and (player.hand[i].cost <= player.mana if "cost_armor" not in player.effects else player.hand[i].cost <= player.armor))\
                     or (player.hand[i].type != "Serviteur" and player.hand[i].cost <= player.mana)) and "entrave" not in serv_effects:
-                if len(player.servants) + len(player.lieux) < 7 and player.hand[i].type == "Serviteur":
+                if player.hand[i].type == "Serviteur" and ((len(player.servants) + len(player.lieux) < 7 and "reno_ranger" not in player.permanent_buff) or\
+                        (len(player.servants) + len(player.lieux) == 0 and "reno_ranger" in player.permanent_buff)):
                     """ Serviteurs avec cris de guerre ciblés """
                     if "cri de guerre" in serv_effects and "choisi" in serv_effects["cri de guerre"][1]:
                         if "serviteur" in serv_effects["cri de guerre"][1]:
@@ -509,7 +510,8 @@ def generate_legal_vector_test(state):
                                         player.servants) == 0 \
                                             or "if_spell" in serv_effects["cri de guerre"][1] and serv_effects["cri de guerre"][2] != 0 \
                                             or "if_cadavre" in serv_effects["cri de guerre"][1] and player.cadavres >= serv_effects["cri de guerre"][2]\
-                                            or "if_méca_inhand" in serv_effects["cri de guerre"][1] and [x for x in player.hand if "Méca" in x.genre and x != player.hand[i]]:
+                                            or "if_méca_inhand" in serv_effects["cri de guerre"][1] and [x for x in player.hand if "Méca" in x.genre and x != player.hand[i]]\
+                                            or "if_hand_cost4" in serv_effects["cri de guerre"][1] and [x for x in player.hand if x.cost == 4]:
                                         legal_actions[17 * i + 2] = True
                                         legal_actions[17 * i + 10] = True
                                         for j in range(len(player.servants)):
@@ -728,7 +730,8 @@ def generate_legal_vector_test(state):
                                             legal_actions[17 * i + j + 11] = True
                     else:
                         legal_actions[17 * i + 1] = True
-                elif player.hand[i].type.lower() == "lieu" and len(player.servants) + len(player.lieux) < 7:
+                elif player.hand[i].type.lower() == "lieu" and ((len(player.servants) + len(player.lieux) < 7 and "reno_ranger" not in player.permanent_buff) or\
+                        (len(player.servants) + len(player.lieux) == 0 and "reno_ranger" in player.permanent_buff)):
                     legal_actions[17 * i + 1] = True
                 elif player.hand[i].type.lower() == "heros":
                     legal_actions[17 * i + 1] = True
@@ -1111,7 +1114,7 @@ dict_deck_status = {"Chevalier de la mort": "controle",
                     "Démoniste": "controle",
                     "Guerrier":"controle"}
 for i in range(3):
-    class_j1 = "Voleur"
+    class_j1 = "Chasseur de démons"
     class_j2 = random.choice(class_to_chose)
     players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))

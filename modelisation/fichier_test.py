@@ -1102,21 +1102,10 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
 logs = []
 beginning = time.perf_counter()
 class_to_chose = ["Chevalier de la mort", "Chasseur de démons", "Paladin", "Voleur", "Prêtre", "Chasseur", "Druide", "Mage", "Chaman", "Démoniste", "Guerrier"]
-dict_deck_status = {"Chevalier de la mort": "controle",
-                    "Chasseur de démons": "tempo",
-                    "Paladin": "aggro",
-                    "Voleur": "tempo",
-                    "Prêtre": "aggro",
-                    "Chasseur": "tempo",
-                    "Druide": "tempo",
-                    "Mage": "tempo",
-                    "Chaman": "aggro",
-                    "Démoniste": "controle",
-                    "Guerrier":"controle"}
 for i in range(3):
-    class_j1 = "Chasseur de démons"
+    class_j1 = "Paladin"
     class_j2 = random.choice(class_to_chose)
-    players = [Player("NewIA", class_j1, dict_deck_status[class_j1]), Player("OldIA", class_j2, dict_deck_status[class_j2])].copy()
+    players = [Player("NewIA", class_j1), Player("OldIA", class_j2)].copy()
     plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
     print(i)
     print('------------------------------------------------------------------------------')

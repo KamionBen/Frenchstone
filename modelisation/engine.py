@@ -725,7 +725,7 @@ class TourEnCours:
                                 carte.boost(player.oiseaux_libres, player.oiseaux_libres)
                                 player.oiseaux_libres += 1
                             elif carte.name == "Golem terrestre":
-                                carte.boost(player.etres_terrestres, player.etres_terrestres)
+                                carte.boost(2 * player.etres_terrestres, 2 * player.etres_terrestres)
                                 player.etres_terrestres += 1
                             elif "spend_cadavre" in carte.effects["cri de guerre"][1]:
                                 if player.cadavres > carte.effects["cri de guerre"][1][-1]:

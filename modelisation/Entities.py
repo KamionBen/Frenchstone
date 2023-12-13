@@ -16,20 +16,18 @@ dict_actions = {
             2: "attaquer"
         }
 
-class_files = {'Chasseur': 'chasseur.csv',
-               'Mage': 'mage_rainbow.csv',
-               'Paladin': 'paladin_pur.csv',
-               'Démoniste': 'demo_controle.csv',
-               'Chasseur de démons': 'dh_marginal.csv',
-               'Druide': 'druid_dragons.csv',
-               'Voleur': 'voleur_secrets.csv',
-               'Guerrier': 'guerrier_controle.csv',
-               'Chevalier de la mort': 'dk_peste.csv',
-               'Prêtre': 'shadow_priest.csv',
-               'Chaman': 'chaman_totem.csv'
+class_files = {'Chasseur': [['chasseur.csv', "tempo"]],
+               'Mage': [['mage_rainbow.csv', "tempo"]],
+               'Paladin': [['pala_aggro.csv', "aggro"], ['pala_golems.csv', "tempo"], ['pala_highlander.csv', "tempo"]],
+               'Démoniste': [['demo_controle.csv', "controle"]],
+               'Chasseur de démons': [['dh_marginal.csv', "tempo"]],
+               'Druide': [['druid_dragons.csv', "tempo"]],
+               'Voleur': [['voleur_secrets.csv', "tempo"]],
+               'Guerrier': [['guerrier_controle.csv', "controle"]],
+               'Chevalier de la mort': [['dk_peste.csv', "controle"], ['dk_givre.csv', "aggro"]],
+               'Prêtre': [['shadow_priest.csv', "aggro"]],
+               'Chaman': [['chaman_totem.csv', "aggro"]]
                }
-classes_heros = ["Mage", "Chasseur", "Paladin", "Chasseur de démons", "Druide", "Voleur", "Démoniste", "Guerrier",
-                 "Chevalier de la mort"]
 all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"]
 treasure_classes = ["Mage", "Chevalier de la mort", "Voleur", "Démoniste", "Guerrier"]
 treasure_leg = {"Mage": "Faucon d'azerite", "Chevalier de la mort": "Rat d'azerite", "Voleur": "Scorpion d'azerite", "Démoniste": "Serpent d'azerite", "Guerrier": "Buffle d'azerite"}
@@ -93,8 +91,6 @@ empty_action_line = {"carte_jouee": "",
    "pseudo_j": -99,
    "pseudo_adv": -99
 }
-for classe_heros in set(classes_heros):
-    empty_action_line[f"is_{classe_heros}"] = -99
 for i in range(10):
     empty_action_line[f"carte_en_main{i + 1}_j"] = -99
     empty_action_line[f"cost_carte_en_main{i + 1}_j"] = -99
@@ -173,7 +169,9 @@ class Plateau:
         Card.created = {}
 
         for player in self.players:
-            player.deck = import_deck(class_files[player.classe])
+            player_deck = random.choice(class_files[player.classe])
+            player.deck = import_deck(player_deck[0])
+            player.style = player_deck[1]
             player.initial_deck = [x.id for x in player.deck]
 
         """ Mélange des decks et tirage de la main de départ """
@@ -445,7 +443,7 @@ class Plateau:
 
 
 class Player:
-    def __init__(self, name, classe, style_deck):
+    def __init__(self, name, classe, style_deck=None):
         """ Profil de l'utilisateur ou de l'IA"""
         self.name = name
         self.classe = classe

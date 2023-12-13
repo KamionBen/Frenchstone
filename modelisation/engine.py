@@ -360,9 +360,9 @@ import random
 #             next_state = Orchestrator().tour_oldia_training(next_state, old_policy)
 #             if not next_state.game_on:
 #                 if next_state.winner.name == "NewIA":
-#                     return 500
+#                     return 10000
 #                 else:
-#                     return -500
+#                     return -10000
 #     elif action < 11:
 #         TourEnCours(next_state).jouer_carte(next_state.players[0].hand[action - 1])
 #     elif 11 <= action < 75:
@@ -390,9 +390,9 @@ import random
 #
 #     if not next_state.game_on:
 #         if next_state.winner.name == "NewIA":
-#             return 500
+#             return 10000
 #         else:
-#             return -500
+#             return -10000
 #
 #     def calc_advantage(state_game):
 #         advantage = (state_game["nbre_cartes_j"] - state_game["nbre_cartes_adv"]) + 0.8 * (
@@ -469,7 +469,7 @@ import random
 #             itemgetter(*generate_column_state_old(classes_heros_old))(self._state.get_gamestate()),
 #             dtype=np.int32)
 #         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-#         if reward in [-500, 500]:
+#         if reward in [-10000, 10000]:
 #             self._episode_ended = True
 #             return ts.termination(obs, reward)
 #         return ts.transition(obs, reward)
@@ -528,7 +528,7 @@ import random
 #         obs['observation'] = np.array(itemgetter(*generate_column_state(classes_heros))(self._state.get_gamestate()),
 #                                       dtype=np.int32)
 #         obs['valid_actions'] = np.array(legal_actions, dtype=np.bool_)
-#         if reward in [-500, 500]:
+#         if reward in [-10000, 10000]:
 #             self._episode_ended = True
 #             return ts.termination(obs, reward)
 #         return ts.transition(obs, reward)
@@ -1743,8 +1743,8 @@ class TourEnCours:
                                         drawable_cards.remove(card_drawn)
                                         player.deck.remove(card_drawn)
                                         if "scinde" in carte.effects["cri de guerre"][1]:
-                                            card_drawn.base_cost = ceil(card_drawn.base_cost/2)
-                                            card_drawn.boost(ceil(card_drawn.attack)/2, ceil(card_drawn.health)/2, fixed_stats=True)
+                                            card_drawn.base_cost = math.ceil(card_drawn.base_cost/2)
+                                            card_drawn.boost(math.ceil(card_drawn.attack)/2, math.ceil(card_drawn.health)/2, fixed_stats=True)
                                             copy_drawn = copy_card(card_drawn)
                                             player.hand.add(card_drawn)
                                             player.hand.add(copy_drawn)

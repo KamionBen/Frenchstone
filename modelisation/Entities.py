@@ -170,9 +170,6 @@ class Plateau:
         Card.created = {}
 
         for player in self.players:
-            player_deck = random.choice(class_files[player.classe])
-            player.deck = import_deck(player_deck[0])
-            player.style = player_deck[1]
             player.initial_deck = [x.id for x in player.deck]
 
         """ Mélange des decks et tirage de la main de départ """
@@ -451,7 +448,7 @@ class Player:
         self.style = style_deck
 
         # Cartes
-        self.deck, self.initial_deck = CardGroup(), []  # Le tas de cartes à l'envers
+        self.deck, self.initial_deck = deck, []  # Le tas de cartes à l'envers
         self.hand, self.cards_played, self.initial_hand = CardGroup(), [], []  # La main du joueur
         self.servants, self.lieux, self.secrets = CardGroup(), CardGroup(), CardGroup()
         self.serv_this_turn, self.spell_this_turn, self.drawn_this_turn, self.atk_this_turn, self.armor_this_turn, self.cards_this_turn, self.elem_this_turn = CardGroup(), 0, 0, 0, 0, [], 0

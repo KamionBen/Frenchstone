@@ -584,7 +584,7 @@
     },
     {
         "id": 47,
-        "name": "Sir Finley guide maritime",
+        "name": "Sir finley guide maritime",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": ["Murloc"],
@@ -664,11 +664,11 @@
         "cost": 1,
         "attack": 0,
         "health": 2,
-        "effects": {"rale d'agonie": ["invocation", ["allié"], "Poulet mort vivant"]}
+        "effects": {"rale d'agonie": ["invocation", ["allié"], "Volaille infecte"]}
     },
     {
         "id": 54,
-        "name": "Poulet mort vivant",
+        "name": "Volaille infecte",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": ["Mort-vivant"],
@@ -4789,7 +4789,7 @@
     },
     {
         "id": 395,
-        "name": "Contremaitresse Frigidara",
+        "name": "Contremaitresse frigidara",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
         "genre": [],
@@ -20082,7 +20082,7 @@
     },
     {
         "id": 1661,
-        "name": "Rat d'azerite",
+        "name": "Le rat d'azerite",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
         "genre": ["Élémentaire", "Bête"],
@@ -20300,7 +20300,7 @@
     },
     {
         "id": 1680,
-        "name": "Dragonnet flic flac",
+        "name": "Dragonnet flic floc",
         "classe": "Druide",
         "type": "Serviteur",
         "genre": ["Dragon"],

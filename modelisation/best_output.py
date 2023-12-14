@@ -58,14 +58,6 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, explorati
     return alpha, best_action
 
 
-def generate_plateau(plateau):
-    player = plateau.players[0]
-    adv = plateau.players[1]
-    player.health = 30
-    adv.health = 30
-    return plateau
-
-
 def return_best_action(plateau=None):
     player = plateau.players[0]
     adv = plateau.players[1]
@@ -151,12 +143,3 @@ def return_best_action(plateau=None):
     if cible is not None:
         print(f"Cible : {cible}")
     return max_reward, best_action
-
-
-class_j1 = "Paladin"
-class_j2 = random.choice(all_classes)
-deck_j1 = random.choice(class_files[class_j1])
-deck_j2 = random.choice(class_files[class_j2])
-players = [Player("NewIA", class_j1, import_deck(deck_j1[0]), style_deck=deck_j1[1]), Player("OldIA", class_j2,import_deck(deck_j2[0]), style_deck=deck_j2[1])].copy()
-plateau_depart = Plateau(pickle.loads(pickle.dumps(players, -1)))
-return_best_action(generate_plateau(plateau_depart))

@@ -131,8 +131,6 @@ def return_best_action(plateau=None):
         output_action = f"Titan utilisé : {titans[(best_action - 377) // 3].name}"
         choix = str((best_action - 377) % 3)
     print('                                       ')
-    print('----------- RESULTAT SIMULATION -----------')
-    print('                                       ')
     print(f"Joueur : {player.name}")
     print(f"Avantage estimé : {max_reward}")
     print(f"Meilleure action : {output_action}")

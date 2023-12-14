@@ -1022,7 +1022,7 @@
     },
     {
         "id": 83,
-        "name": "Mage de sang Thalnos",
+        "name": "Mage de sang thalnos",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": ["Mort-vivant"],
@@ -1721,7 +1721,7 @@
     },
     {
         "id": 141,
-        "name": "Prince Renathal",
+        "name": "Prince renathal",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
@@ -2929,7 +2929,7 @@
     },
     {
         "id": 241,
-        "name": "Taelan Fordring",
+        "name": "Taelan fordring",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
@@ -4886,7 +4886,7 @@
     },
     {
         "id": 403,
-        "name": "Le Recousu",
+        "name": "Le recousu",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
         "genre": ["Mort-vivant"],
@@ -5007,7 +5007,7 @@
     },
     {
         "id": 413,
-        "name": "Le Fleau",
+        "name": "Le fleau",
         "classe": "Chevalier de la mort",
         "type": "Sort",
         "genre": ["Ombre"],
@@ -5717,7 +5717,7 @@
     },
     {
         "id": 472,
-        "name": "Kayn Solfurie",
+        "name": "Kayn solfurie",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
         "genre": [],
@@ -10612,7 +10612,7 @@
     },
     {
         "id": 879,
-        "name": "Main d'adal",
+        "name": "Main d'a'dal",
         "classe": "Paladin",
         "type": "Sort",
         "genre": ["Sacré"],
@@ -14050,7 +14050,7 @@
     },
     {
         "id": 1164,
-        "name": "Illusioniste du fleau",
+        "name": "Illusionniste du fleau",
         "classe": "Voleur",
         "type": "Serviteur",
         "genre": ["Mort-vivant"],
@@ -18747,7 +18747,7 @@
     },
     {
         "id": 1551,
-        "name": "Percussioniste soliste",
+        "name": "Percussionniste soliste",
         "classe": "Guerrier",
         "type": "Serviteur",
         "genre": ["Dragon"],
@@ -20746,7 +20746,7 @@
     },
     {
         "id": 1717,
-        "name": "En avant aile d'argent",
+        "name": "En avant aile argent",
         "classe": "Paladin",
         "type": "Serviteur",
         "genre": ["Dragon"],

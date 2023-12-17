@@ -83,11 +83,11 @@ def return_best_action(plateau=None):
         if (best_action - 171) // 8 == 0:
             attaquant = "Joueur"
         else:
-            attaquant = player.servants[int((best_action - 171) // 8 - 1)].name
+            attaquant = player.servants[int((best_action - 171) // 8 - 1)]
         if (best_action - 171) % 8 == 0:
             cible = "Adversaire"
         else:
-            cible = adv.servants[int((best_action - 171) % 8 - 1)].name
+            cible = adv.servants[int((best_action - 171) % 8 - 1)]
     elif best_action < 251:
         output_action = "Pouvoir héroïque"
         if best_action == 235:
@@ -137,7 +137,13 @@ def return_best_action(plateau=None):
     if choix is not None:
         print(f"Choix : {choix}")
     if attaquant is not None:
-        print(f"Attaquant : {attaquant}")
+        if type(attaquant) == str:
+            print(f"Attaquant : {attaquant}")
+        else:
+            print(f"Attaquant : {attaquant.name} ({attaquant.attack, attaquant.health})")
     if cible is not None:
-        print(f"Cible : {cible}")
+        if type(cible) == str:
+            print(f"Attaquant : {cible}")
+        else:
+            print(f"Attaquant : {cible.name} ({cible.attack, cible.health})")
     return max_reward, best_action

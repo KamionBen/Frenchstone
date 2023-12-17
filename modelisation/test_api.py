@@ -7,8 +7,8 @@ from hslog.export import EntityTreeExporter, BaseExporter, FriendlyPlayerExporte
 from unidecode import unidecode
 from collections import Counter
 
-directory = "C:\Program Files (x86)\Hearthstone\Logs"
-logs_path = [x[0] for x in os.walk(directory)][-1] + "\\Power.log"
+# directory = "C:\Users\psmague\OneDrive - TF1\Logs"
+logs_path = "Power.log"
 cards_db, _ = hearthstone.cardxml.load(locale="frFR")
 
 
@@ -31,10 +31,11 @@ def guess_player(game):
 
 
 def get_current_inputs(game, player_number):
-    player_hand, player_left_deck = [], []
+    player_hand, player_left_deck, adv_left_deck = [], [], []
     player_servants, adv_servants = [], []
     discovery = [[]]
-    hero, hero_adv = {"weapon": None}, {"weapon": None}
+    hero = {"weapon": None, "all_dead_servants": [], "cards_played": []}
+    hero_adv = {"weapon": None, "all_dead_servants": [], "cards_played": []}
     for e in [x for x in game.entities if GameTag.CONTROLLER in x.tags.keys()]:
         if e.tags[GameTag.CONTROLLER] == player_number:
             """ Héros """
@@ -56,9 +57,18 @@ def get_current_inputs(game, player_number):
                 resources = e.tags[GameTag.RESOURCES] if GameTag.RESOURCES in e.tags.keys() else 0
                 hero["mana"] = resources - used_resources
                 hero["mana_max"] = resources
+                hero["cadavres"] = e.tags[GameTag.CORPSES] if GameTag.CORPSES in e.tags.keys() else 0
+                hero["played_this_turn"] = e.tags[GameTag.NUM_CARDS_PLAYED_THIS_TURN] if GameTag.NUM_CARDS_PLAYED_THIS_TURN in e.tags.keys() else 0
+                hero["drawn_this_turn"] = e.tags[GameTag.NUM_CARDS_DRAWN_THIS_TURN] if GameTag.NUM_CARDS_DRAWN_THIS_TURN in e.tags.keys() else 0
             elif e.zone == Zone.HAND:
                 card_name = standardize_name(cards_db[e.card_id].name)
                 card = get_card(card_name, name_index)
+                if GameTag.INFUSE in e.tags.keys():
+                    if e.tags[GameTag.INFUSE] == 1:
+                        card.effects["impregnation"][1] = e.tags[GameTag.TAG_SCRIPT_DATA_NUM_1]
+                    else:
+                        if e.tags[GameTag.INFUSED] == 1:
+                            card = get_card(card.effects["impregnation"][0], name_index)
                 card.cost = e.tags[GameTag.COST] if GameTag.COST in e.tags.keys() else 0
                 if card.type == "Serviteur":
                     card.boost(e.tags[GameTag.ATK] if GameTag.ATK in e.tags.keys() else 0, e.tags[GameTag.HEALTH], fixed_stats=True)
@@ -67,10 +77,20 @@ def get_current_inputs(game, player_number):
             elif e.zone == Zone.GRAVEYARD:
                 card_name = standardize_name(cards_db[e.card_id].name)
                 player_left_deck.append(card_name)
-            elif e.zone == Zone.PLAY:
                 if e.type == CardType.MINION:
-                    card_name = standardize_name(cards_db[e.card_id].name)
+                    hero["all_dead_servants"].append(card_name)
+                if GameTag.JUST_PLAYED in e.tags.keys():
+                    hero["cards_played"].append(card_name)
+            elif e.zone == Zone.PLAY:
+                card_name = standardize_name(cards_db[e.card_id].name)
+                if e.type == CardType.MINION:
                     card = get_card(card_name, name_index_servants)
+                    if GameTag.INFUSE in e.tags.keys():
+                        if e.tags[GameTag.INFUSE] == 1:
+                            card.effects["impregnation"][1] = e.tags[GameTag.TAG_SCRIPT_DATA_NUM_1]
+                        else:
+                            if e.tags[GameTag.INFUSED] == 1:
+                                card = get_card(card.effects["impregnation"][0], name_index)
                     card.cost = e.tags[GameTag.COST] if GameTag.COST in e.tags.keys() else 0
                     card.boost(e.tags[GameTag.ATK] if GameTag.ATK in e.tags.keys() else 0, e.tags[GameTag.HEALTH], fixed_stats=True)
                     card.blessure = e.tags[GameTag.DAMAGE] if GameTag.DAMAGE in e.tags.keys() else 0
@@ -117,6 +137,12 @@ def get_current_inputs(game, player_number):
                         else:
                             if "ruée" in card.effects:
                                 card.effects.pop("ruée")
+                    if GameTag.CHARGE in e.tags.keys():
+                        if e.tags[GameTag.CHARGE] == 1:
+                            card.effects["charge"] = 1
+                        else:
+                            if "charge" in card.effects:
+                                card.effects.pop("charge")
                     if GameTag.EXHAUSTED in e.tags.keys():
                         card.remaining_atk = 1 if not e.tags[GameTag.EXHAUSTED] else 0
                         if GameTag.JUST_PLAYED in e.tags.keys() and e.tags[GameTag.JUST_PLAYED] and not GameTag.RUSH in e.tags.keys():
@@ -126,10 +152,11 @@ def get_current_inputs(game, player_number):
                     player_servants.insert(0, card)
                     player_left_deck.append(card_name)
                 elif e.type == CardType.WEAPON:
-                    card_name = standardize_name(cards_db[e.card_id].name)
                     card = get_card(card_name, name_index_weapons)
                     card.health = e.tags[GameTag.DURABILITY]
                     hero["weapon"] = card
+                if GameTag.JUST_PLAYED in e.tags.keys():
+                    hero["cards_played"].append(card_name)
             elif e.zone == Zone.SETASIDE:
                 if 2509 in e.tags.keys():
                     card_name = standardize_name(cards_db[e.card_id].name)
@@ -151,10 +178,12 @@ def get_current_inputs(game, player_number):
                 hero_adv["armor"] = e.tags[GameTag.ARMOR] if GameTag.ARMOR in e.tags.keys() else 0
             elif e.type == CardType.PLAYER:
                 resources = e.tags[GameTag.RESOURCES] if GameTag.RESOURCES in e.tags.keys() else 0
+                cadavres = e.tags[GameTag.CORPSES] if GameTag.CORPSES in e.tags.keys() else 0
                 hero_adv["mana_max"] = resources
+                hero_adv["cadavres"] = cadavres
             elif e.zone == Zone.PLAY:
+                card_name = standardize_name(cards_db[e.card_id].name)
                 if e.type == CardType.MINION:
-                    card_name = standardize_name(cards_db[e.card_id].name)
                     card = get_card(card_name, name_index_servants)
                     card.cost = e.tags[GameTag.COST] if GameTag.COST in e.tags.keys() else 0
                     card.boost(e.tags[GameTag.ATK] if GameTag.ATK in e.tags.keys() else 0, e.tags[GameTag.HEALTH],
@@ -203,14 +232,29 @@ def get_current_inputs(game, player_number):
                         else:
                             if "ruée" in card.effects:
                                 card.effects.pop("ruée")
+                    if GameTag.CHARGE in e.tags.keys():
+                        if e.tags[GameTag.CHARGE] == 1:
+                            card.effects["charge"] = 1
+                        else:
+                            if "charge" in card.effects:
+                                card.effects.pop("charge")
                     adv_servants.insert(0, card)
+                    adv_left_deck.append(card_name)
                 elif e.type == CardType.WEAPON:
-                    card_name = standardize_name(cards_db[e.card_id].name)
                     card = get_card(card_name, name_index_weapons)
                     card.health = e.tags[GameTag.DURABILITY]
                     hero_adv["weapon"] = card
+                if GameTag.JUST_PLAYED in e.tags.keys():
+                    hero_adv["cards_played"].append(card_name)
+            elif e.zone == Zone.GRAVEYARD:
+                card_name = standardize_name(cards_db[e.card_id].name)
+                if e.type == CardType.MINION:
+                    hero_adv["all_dead_servants"].append(card_name)
+                if GameTag.JUST_PLAYED in e.tags.keys():
+                    hero_adv["cards_played"].append(card_name)
+                adv_left_deck.append(card_name)
     return {"hero": hero, "hero_adv": hero_adv, "player_hand": player_hand, "player_servants": player_servants, "player_left_deck": player_left_deck,
-            "adv_servants": adv_servants, "discovery": discovery}
+            "adv_servants": adv_servants, "discovery": discovery, "adv_left_deck": adv_left_deck}
 
 
 def modify_plateau(plateau, game, player_number=None):
@@ -220,6 +264,9 @@ def modify_plateau(plateau, game, player_number=None):
     left_deck = actual_state["player_left_deck"]
     initial_deck = [x.name for x in player.deck.cards + player.hand.cards]
     remaining_deck = list((Counter(initial_deck)-Counter(left_deck)).elements())
+    left_deck_adv = actual_state["adv_left_deck"]
+    initial_deck_adv = [x.name for x in adv.deck.cards + adv.hand.cards]
+    remaining_deck_adv = list((Counter(initial_deck_adv) - Counter(remaining_deck)).elements())
     player.health = actual_state["hero"]["health"]
     player.base_health = actual_state["hero"]["base_health"]
     player.armor = actual_state["hero"]["armor"]
@@ -231,15 +278,31 @@ def modify_plateau(plateau, game, player_number=None):
     player.dispo_pouvoir = True if actual_state["hero"]["dispo_hp"] else False
     player.cout_pouvoir_temp = actual_state["hero"]["cost_hp"]
     player.weapon = actual_state["hero"]["weapon"]
+    player.cadavres = actual_state["hero"]["cadavres"]
+    player.cards_this_turn = actual_state["hero"]["played_this_turn"] * [""]
+    player.drawn_this_turn = actual_state["hero"]["drawn_this_turn"]
     player.deck.cards = [get_card(x, name_index) for x in remaining_deck]
+    player.all_dead_servants = actual_state["hero"]["all_dead_servants"]
+    player.cards_played = actual_state["hero"]["cards_played"]
+    player.hand.cards = actual_state["player_hand"]
+    player.servants.cards = actual_state["player_servants"]
+
+    ########## ADVERSAIRE ############
+
     adv.health = actual_state["hero_adv"]["health"]
     adv.base_health = actual_state["hero_adv"]["base_health"]
     adv.armor = actual_state["hero_adv"]["armor"]
     adv.mana_max = actual_state["hero_adv"]["mana_max"]
     adv.weapon = actual_state["hero_adv"]["weapon"]
-    player.hand.cards = actual_state["player_hand"]
-    player.servants.cards = actual_state["player_servants"]
+    adv.attack, adv.inter_attack = 0, 0
+    adv.cadavres = actual_state["hero_adv"]["cadavres"]
+    adv.deck.cards = [get_card(x, name_index) for x in remaining_deck_adv]
+    adv.all_dead_servants = actual_state["hero_adv"]["all_dead_servants"]
+    adv.cards_played = actual_state["hero_adv"]["cards_played"]
     adv.servants.cards = actual_state["adv_servants"]
+
+    ##################################
+
     if actual_state["discovery"] != [[]]:
         if actual_state["discovery"][1] == "decouverte":
             actual_state["discovery"].pop(1)
@@ -248,7 +311,7 @@ def modify_plateau(plateau, game, player_number=None):
 
 
 class_j = "Paladin"
-class_adv = "Chasseur"
+class_adv = "Paladin"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()

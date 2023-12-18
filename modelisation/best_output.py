@@ -4,7 +4,7 @@ import gc
 import functools
 
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=3, exploration_toll=2.75):
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=4, exploration_toll=2.5):
     gc.disable()
     base_advantage = calc_advantage_minmax(state)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)

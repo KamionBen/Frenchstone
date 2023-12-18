@@ -17,17 +17,17 @@ dict_actions = {
         }
 
 all_classes = ["Chevalier de la mort", "Chasseur de démons", "Paladin", "Voleur", "Prêtre", "Chasseur", "Druide", "Mage", "Chaman", "Démoniste", "Guerrier"]
-class_files = {'Chasseur': [['chasseur.csv', "tempo"]],
+class_files = {'Chasseur': [['chasseur_highlander.csv', "tempo"], ['chasseur_arcanes.csv', "tempo"]],
                'Mage': [['mage_rainbow.csv', "tempo"]],
                'Paladin': [['pala_aggro.csv', "aggro"], ['pala_golems.csv', "tempo"], ['pala_highlander.csv', "tempo"]],
-               'Démoniste': [['demo_controle.csv', "controle"]],
-               'Chasseur de démons': [['dh_marginal.csv', "tempo"]],
-               'Druide': [['druid_dragons.csv', "tempo"]],
-               'Voleur': [['voleur_secrets.csv', "tempo"]],
-               'Guerrier': [['guerrier_controle.csv', "controle"]],
-               'Chevalier de la mort': [['dk_peste.csv', "controle"], ['dk_givre.csv', "aggro"]],
-               'Prêtre': [['shadow_priest.csv', "aggro"]],
-               'Chaman': [['chaman_totem.csv', "aggro"]]
+               'Démoniste': [['demo_controle.csv', "controle"], ['demo_deterrer.csv', "tempo"]],
+               'Chasseur de démons': [['dh_marginal.csv', "aggro"]],
+               'Druide': [['druid_dragons.csv', "tempo"], ['druid_treant.csv', "aggro"]],
+               'Voleur': [['voleur_meca.csv', "tempo"]],
+               'Guerrier': [['guerrier_controle.csv', "controle"],['guerrier_rock.csv', "tempo"]],
+               'Chevalier de la mort': [['dk_peste.csv', "controle"], ['dk_impie.csv', "aggro"]],
+               'Prêtre': [['pretre_automates.csv', "tempo"], ['pretre_ombre.csv', "aggro"]],
+               'Chaman': [['chaman_totem.csv', "aggro"], ['chaman_highlander.csv', "tempo"]]
                }
 all_genre_servants = ["Méca", "Murloc", "Élémentaire", "Bête", "Mort-vivant", "Totem", "Naga", "Pirate", "Dragon", "Huran", "Démon"]
 treasure_classes = ["Mage", "Chevalier de la mort", "Voleur", "Démoniste", "Guerrier"]

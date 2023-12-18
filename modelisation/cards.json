@@ -2214,7 +2214,7 @@
     },
     {
         "id": 182,
-        "name": "ETC agent artistique",
+        "name": "Etc agent artistique",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
@@ -2709,7 +2709,7 @@
     },
     {
         "id": 223,
-        "name": "Ini Glissorage",
+        "name": "Ini glissorage",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
@@ -3303,7 +3303,7 @@
     },
     {
         "id": 272,
-        "name": "Lor'themar Theron",
+        "name": "Lor'themar theron",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
@@ -10085,7 +10085,7 @@
     },
     {
         "id": 836,
-        "name": "Dame Naz'jar",
+        "name": "Dame naz'jar",
         "classe": "Mage",
         "type": "Serviteur",
         "genre": ["Naga"],

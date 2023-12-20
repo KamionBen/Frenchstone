@@ -1476,8 +1476,8 @@ class TourEnCours:
                                         elif "aléatoire" in carte.effects["cri de guerre"][1]:
                                             for _ in range(carte.effects["cri de guerre"][2]):
                                                 card_to_add = random.choice(all_spells_decouvrable)
-                                                if "if_deterrer" in carte.effects["cri de guerre"][1] and player.tresor >= 8:
-                                                    card_to_add.base_cost = 0
+                                                if "if_deterrer" in carte.effects["cri de guerre"][1]:
+                                                    card_to_add.base_cost = max(1, card_to_add.base_cost - player.tresor)
                                                 player.hand.add(card_to_add)
                                     elif "copy" in carte.effects["cri de guerre"][1]:
                                         if "from_adv_deck" in carte.effects["cri de guerre"][1]:
@@ -1951,11 +1951,11 @@ class TourEnCours:
                                 self.invoke_servant(invoked_servant, player)
                             elif "if_no_double" in carte.effects["cri de guerre"][1] and len([x.name for x in player.deck]) == len(set([x.name for x in player.deck])):
                                 potential_servants = [copy_card(x) for x in player.deck if x.type == "Serviteur"]
-                                if "four_copies_44" in carte.effects["cri de guerre"][1] and potential_servants:
+                                if "four_copies_55" in carte.effects["cri de guerre"][1] and potential_servants:
                                     to_invoke = random.sample(potential_servants, min(4, len(potential_servants)))
                                     for card in to_invoke:
                                         if len(player.servants) + len(player.lieux) < 7:
-                                            card.boost(4, 4, fixed_stats=True)
+                                            card.boost(5, 5, fixed_stats=True)
                                             self.invoke_servant(card, player)
                             elif "if_alone" in carte.effects["cri de guerre"][1] and len(player.servants) == 1:
                                 for crea in carte.effects["cri de guerre"][2]:
@@ -5954,7 +5954,7 @@ class TourEnCours:
                         self.invoke_servant(to_invoke, adv)
                         carte.effects["invocation"] = []
                 elif "cadavres_spent" in carte.effects["invocation"]:
-                    carte.effects["invocation"] = ["Fanshee"] * (2 + player.cadavres_repartis[3])
+                    carte.effects["invocation"] = ["Fanshee"] * (3 + player.cadavres_repartis[3])
                 elif "aléatoire" in carte.effects["invocation"]:
                     if "cost3" in carte.effects["invocation"]:
                         carte.effects["invocation"] = [random.choice([x["name"] for x in all_servants_decouvrables if x["cost"] == 3])]
@@ -6070,7 +6070,7 @@ class TourEnCours:
                         if "spend_cadavre" in carte.effects and player.cadavres >= carte.effects["spend_cadavre"][0] and "reincarnation" in carte.effects["spend_cadavre"]:
                             invoked_creature.effects["reincarnation"] = 1
                         elif carte.name == "Vive explosion necrotique":
-                            invoked_creature.boost(player.cadavres_repartis[1], player.cadavres_repartis[2])
+                            invoked_creature.boost(1 + player.cadavres_repartis[1], 1 + player.cadavres_repartis[2])
                         elif "relique" in carte.effects:
                             invoked_creature.boost(player.reliques - 1, player.reliques - 1)
                         elif carte.name == "Croissance miraculeuse":

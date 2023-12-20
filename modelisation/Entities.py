@@ -2334,9 +2334,9 @@ def deadly_attack(adv, serv):
 
 
 def calc_advantage_serv(servant, player, adv, serv_adv=False):
-    serv_advantage = 1.25 * servant.attack + 1.25 * servant.health
+    serv_advantage = 1.15 * servant.attack + 1.25 * servant.health
     if "bouclier divin" in servant.effects:
-        serv_advantage += 1.25 * servant.attack
+        serv_advantage += 0.9 * servant.attack
     if "rale d'agonie" in servant.effects:
         serv_advantage *= 1.25
     if "camouflage" in servant.effects:

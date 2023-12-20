@@ -220,7 +220,7 @@
     },
     {
         "id": 17,
-        "name": "Totem de puissance",
+        "name": "Totem de force",
         "classe": "Chaman",
         "type": "Serviteur",
         "genre": ["Totem"],
@@ -244,7 +244,7 @@
     },
     {
         "id": 19,
-        "name": "Roi Krush",
+        "name": "Roi krush",
         "classe": "Chasseur",
         "type": "Serviteur",
         "genre": ["Bête"],
@@ -632,7 +632,7 @@
     },
     {
         "id": 51,
-        "name": "Vendeuse d armures",
+        "name": "Vendeuse d'armures",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
@@ -2324,7 +2324,7 @@
     },
     {
         "id": 191,
-        "name": "Maitre lame Okani",
+        "name": "Maitre lame okani",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
@@ -2497,7 +2497,7 @@
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
-        "decouvrable": 1,
+        "decouvrable": 0,
         "cost": 4,
         "attack": 2,
         "health": 5,
@@ -2893,7 +2893,7 @@
     },
     {
         "id": 238,
-        "name": "Seigneur Runthak",
+        "name": "Seigneur runthak",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],
@@ -3339,7 +3339,7 @@
     },
     {
         "id": 275,
-        "name": "Prison de Yogg Saron",
+        "name": "Prison de yogg saron",
         "classe": "Neutre",
         "type": "Lieu",
         "genre": [],
@@ -4688,7 +4688,7 @@
         "cost": 5,
         "attack": 4,
         "health": 4,
-        "effects": {"cri de guerre": ["invocation", ["allié", "conditional", "until_cadavre", 8], "Marie ressuscite"]}
+        "effects": {"cri de guerre": ["invocation", ["allié", "conditional", "until_cadavre", 10], "Marie ressuscite"]}
     },
     {
         "id": 387,
@@ -4700,7 +4700,7 @@
         "cost": 1,
         "attack": 1,
         "health": 1,
-        "effects": {}
+        "effects": {"provocation": 1}
     },
     {
         "id": 388,
@@ -4935,7 +4935,7 @@
     },
     {
         "id": 407,
-        "name": "Seigneur Gargamoelle",
+        "name": "Seigneur gargamoelle",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
         "genre": ["Mort-vivant"],
@@ -4995,7 +4995,7 @@
     },
     {
         "id": 412,
-        "name": "Geant raccomode",
+        "name": "Geant raccommode",
         "classe": "Chevalier de la mort",
         "type": "Serviteur",
         "genre": ["Mort-vivant"],
@@ -5027,7 +5027,7 @@
         "cost": 10,
         "attack": null,
         "health": null,
-        "effects": {"damage": ["cadavres_spent", 5], "invocation": ["cadavres_spent"], "ciblage": ["tous", "tous"], "vol de vie": 1,
+        "effects": {"damage": ["cadavres_spent", 6], "invocation": ["cadavres_spent"], "ciblage": ["tous", "tous"], "vol de vie": 1,
             "vert": 1, "rouge": 1, "bleu": 1, "legendaire": true}
     },
     {
@@ -7661,7 +7661,7 @@
     },
     {
         "id": 633,
-        "name": "Anub'Rekhan",
+        "name": "Anub'rekhan",
         "classe": "Druide",
         "type": "Serviteur",
         "genre": ["Mort-vivant"],
@@ -8109,7 +8109,7 @@
     },
     {
         "id": 670,
-        "name": "Braconniere d'esprit",
+        "name": "Braconniere d'esprits",
         "classe": "Chasseur",
         "type": "Serviteur",
         "genre": [],
@@ -8673,7 +8673,7 @@
     },
     {
         "id": 719,
-        "name": "Halduron Luisaile",
+        "name": "Halduron luisaile",
         "classe": "Chasseur",
         "type": "Serviteur",
         "genre": [],
@@ -9309,7 +9309,7 @@
         "decouvrable": 1,
         "cost": 1,
         "attack": 1,
-        "health": 2,
+        "health": 1,
         "effects": {"cri de guerre": ["add_hand", ["allié"], ["Eclair des arcanes"]]}
     },
     {
@@ -11134,7 +11134,7 @@
         "type": "Sort",
         "genre": ["Sacré"],
         "decouvrable": 1,
-        "cost": 4,
+        "cost": 5,
         "attack": null,
         "health": null,
         "effects": {"boost": ["allservdamage_atk", [2, 2]], "ciblage": ["serviteur", "allié", "choisi"]}
@@ -12696,7 +12696,7 @@
         "cost": 6,
         "attack": 5,
         "health": 5,
-        "effects": {"rale d'agonie": ["invocation", ["allié", "all_serv_indirect"], 0], "legendaire": true}
+        "effects": {"provocation": 1, "rale d'agonie": ["invocation", ["allié", "all_serv_indirect"], 0], "legendaire": true}
     },
     {
         "id": 1052,
@@ -12844,7 +12844,7 @@
         "cost": 8,
         "attack": 5,
         "health": 5,
-        "effects": {"cri de guerre": ["invocation", ["in_deck", "allié", "four_copies_44", "conditional", "if_no_double"], []], "legendaire": true}
+        "effects": {"cri de guerre": ["invocation", ["in_deck", "allié", "four_copies_55", "conditional", "if_no_double"], []], "legendaire": true}
     },
     {
         "id": 1064,
@@ -14518,7 +14518,7 @@
         "cost": 0,
         "attack": null,
         "health": null,
-        "effects": {"invocation": ["Totem de soins", "Totem incendiaire", "Totem de puissance", "Totem de griffes de pierre"]}
+        "effects": {"invocation": ["Totem de soins", "Totem incendiaire", "Totem de force", "Totem de griffes de pierre"]}
     },
     {
         "id": 1202,
@@ -15098,7 +15098,7 @@
     },
     {
         "id": 1250,
-        "name": "Tendeuse de piege",
+        "name": "Tendeuse de pieges",
         "classe": "Chaman",
         "type": "Serviteur",
         "genre": [],
@@ -15506,7 +15506,7 @@
     },
     {
         "id": 1284,
-        "name": "Guerisseuse holi dae",
+        "name": "Guerisseuse holli'dae",
         "classe": "Chaman",
         "type": "Serviteur",
         "genre": [],
@@ -15524,7 +15524,7 @@
         "genre": [],
         "decouvrable": 0,
         "cost": 5,
-        "attack": 2,
+        "attack": 1,
         "health": 9,
         "effects": {"aura": ["invocation", ["allié", "if_attack"], "Grenouille"]}
     },
@@ -16283,10 +16283,10 @@
         "type": "Sort",
         "genre": ["Fiel"],
         "decouvrable": 0,
-        "cost": 2,
+        "cost": 3,
         "attack": null,
         "health": null,
-        "effects": {"damage": [["tous", "ennemi", "lowest_health"], 3], "played_if_defausse": 1}
+        "effects": {"damage": [["tous", "ennemi", "lowest_health"], 4], "played_if_defausse": 1}
     },
     {
         "id": 1348,
@@ -16835,7 +16835,7 @@
         "type": "Sort",
         "genre": ["Feu"],
         "decouvrable": 1,
-        "cost": 4,
+        "cost": 3,
         "attack": null,
         "health": null,
         "effects": {"pioche": ["allié", 2], "played_if_defausse": 1}
@@ -16959,7 +16959,7 @@
         "cost": 4,
         "attack": 2,
         "health": 6,
-        "effects": {"cri de guerre": ["add_hand", ["allié"], ["Tonneau de limon", "Tonneau de limon"]], "aura": ["reduc", ["sort", "Fiel", "alive", "vol de vie"], 1],
+        "effects": {"cri de guerre": ["add_hand", ["allié"], ["Tonneau de limon", "Tonneau de limon"]], "aura": ["reduc", ["sort", "Fiel", "alive", "vol de vie"], 2],
         "legendaire": true}
     },
     {
@@ -18575,7 +18575,7 @@
         "cost": 4,
         "attack": 16,
         "health": 16,
-        "effects": {"ruée": 1, "provocation": 1, "en sommeil": 8, "aura": ["reveil", ["deterrer"], 2], "legendaire": true}
+        "effects": {"ruée": 1, "provocation": 1, "en sommeil": 6, "aura": ["reveil", ["deterrer"], 2], "legendaire": true}
     },
     {
         "id": 1537,
@@ -18850,7 +18850,7 @@
         "decouvrable": 1,
         "cost": 6,
         "attack": 4,
-        "health": 4,
+        "health": 5,
         "effects": {"on_use": ["attack", ["insensible_attack", "serviteur", "ennemi", "aléatoire"]],
             "titan": [["boost", "self", "hero_attack", 5, [5, 0]],
                 ["boost", "self", "pioche", "arme", 1, [2, 2]],
@@ -19790,7 +19790,7 @@
     },
     {
         "id": 1637,
-        "name": "Protodrake egare",
+        "name": "Proto drake egare",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": ["Dragon"],
@@ -20137,7 +20137,7 @@
         "genre": ["Mort-vivant"],
         "decouvrable": 1,
         "cost": 4,
-        "attack": 1,
+        "attack": 2,
         "health": 8,
         "effects": {"aura": ["manip_cadavres", ["end_turn", "start_turn"], 5], "legendaire": true, "vert": 1, "rouge": 1}
     },
@@ -20306,7 +20306,7 @@
         "genre": ["Dragon"],
         "decouvrable": 1,
         "cost": 2,
-        "attack": 2,
+        "attack": 1,
         "health": 1,
         "effects": {"cri de guerre": ["mana_growth", ["allié", "conditional", "if_dragon_inhand"], 1]}
     },
@@ -20385,14 +20385,14 @@
     },
     {
         "id": 1687,
-        "name": "Matronne du desert",
+        "name": "Matrone du desert",
         "classe": "Druide",
         "type": "Serviteur",
         "genre": ["Dragon"],
         "decouvrable": 1,
         "cost": 4,
         "attack": 3,
-        "health": 5,
+        "health": 4,
         "effects": {"cri de guerre": ["refresh_mana", ["conditional", "if_dragon_inhand"], 4], "provocation": 1}
     },
     {
@@ -20860,7 +20860,7 @@
         "type": "Sort",
         "genre": [],
         "decouvrable": 1,
-        "cost": 7,
+        "cost": 8,
         "attack": null,
         "health": null,
         "effects": {"damage": ["tous", "ennemi", 3], "reduc": ["self", "adv_servants"]}
@@ -20957,9 +20957,9 @@
         "type": "Serviteur",
         "genre": [],
         "decouvrable": 1,
-        "cost": 4,
+        "cost": 3,
         "attack": 3,
-        "health": 5,
+        "health": 3,
         "effects": {"cri de guerre": ["add_hand", ["allié", "copy", "all_1_cards"], 0], "legendaire": true}
     },
     {
@@ -20972,7 +20972,7 @@
         "cost": 4,
         "attack": null,
         "health": null,
-        "effects": {"damage": ["add_hand", "Sombrefeuille en bouteille", "if_surplus", 8], "ciblage": ["serviteur", "ennemi", "choisi"]}
+        "effects": {"damage": ["add_hand", "Sombrefeuille en bouteille", "if_surplus", 10], "ciblage": ["serviteur", "ennemi", "choisi"]}
     },
     {
         "id": 1733,
@@ -21101,7 +21101,7 @@
         "type": "Sort",
         "genre": [],
         "decouvrable": 1,
-        "cost": 3,
+        "cost": 2,
         "attack": null,
         "health": null,
         "effects": {"add_hand": [["allié"], ["tous", "aléatoire", "other_class", 3]]}
@@ -21116,7 +21116,7 @@
         "cost": 3,
         "attack": 3,
         "health": 3,
-        "effects": {"aura": ["transformation", ["if_other_class", 3], "Velarok le menteur"], "legendaire": true}
+        "effects": {"aura": ["transformation", ["if_other_class", 1], "Velarok le menteur"], "legendaire": true}
     },
     {
         "id": 1745,
@@ -21391,9 +21391,9 @@
         "type": "Serviteur",
         "genre": ["Méca"],
         "decouvrable": 1,
-        "cost": 3,
-        "attack": 2,
-        "health": 2,
+        "cost": 2,
+        "attack": 1,
+        "health": 1,
         "effects": {"cri de guerre": ["damage", ["serviteur", "ennemi", "aléatoire", 1], 2],
             "bonne pioche": ["cri de guerre", ["damage", ["serviteur", "ennemi", "aléatoire", 2], 2], 1]}
     },

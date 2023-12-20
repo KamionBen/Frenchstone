@@ -22,23 +22,78 @@ def standardize_name(name):
 
 
 def guess_player(game):
-    tester = [(x.card_id, x.tags[GameTag.CONTROLLER]) for x in game.entities if GameTag.CONTROLLER in x.tags.keys() and x.zone == Zone.HAND][0]
-    if tester[0] is not None:
-        player_number = tester[1]
+    tester = [(x.card_id, x.tags[GameTag.CONTROLLER]) for x in game.entities if GameTag.CONTROLLER in x.tags.keys() and x.zone == Zone.HAND]
+    for test in tester:
+        if test[0] is None:
+            return 2 if test[1] == 1 else 1
+
+
+def mulligan_help(cards_mulligan, deck):
+    deck_wr = {"Protectrice vertueuse": 65.2,
+                "Soldate sanguine": 66.5,
+                "Sous cheffe immorale": 66.7,
+                "En avant aile argent": 67,
+                "Liadrin matriarche de sang": 60.8,
+                "Main d'a'dal": 61.7,
+                "Pour quel'thalas": 60.8,
+                "Boogie sans fin": 67.8,
+                "Regiment de bataille": 64.6,
+                "Sceau de sang": 61.9,
+                "Groga vorace": 66.2,
+                "Aura des croises": 61.9,
+                "Force de la gardienne": 62.4,
+                "Le purificateur": 52,
+                "Cor du seigneur des vents": 57,
+                "La comtesse": 60.1,
+                "Leviathan": 58.3,
+                "Raie de lumiere": 52.1}
+
+    remaining_deck = list((Counter(deck) - Counter(cards_mulligan)).elements())
+
+    for card in cards_mulligan:
+        if card != "La piece":
+            actual_value = deck_wr[card]
+            potential_value = sum([deck_wr[x] for x in remaining_deck])/len(remaining_deck)
+            if actual_value > potential_value:
+                print(card, "Keep")
+            else:
+                print(card, "Discard")
+
+
+def guess_deck_adv(game, player_number, class_deck):
+    adv_cards, num_common, best_guess = [], 0, []
+    for e in [x for x in game.entities if GameTag.CONTROLLER in x.tags.keys()]:
+        if e.tags[GameTag.CONTROLLER] != player_number:
+            if e.zone == Zone.GRAVEYARD:
+                card_name = standardize_name(cards_db[e.card_id].name)
+                adv_cards.append(card_name)
+            elif e.zone == Zone.PLAY:
+                if e.type == CardType.MINION or e.type == CardType.WEAPON:
+                    card_name = standardize_name(cards_db[e.card_id].name)
+                    adv_cards.append(card_name)
+    for deck in class_files[class_deck]:
+        deck_names = [x.name for x in import_deck(deck[0])]
+        common_cards = list((Counter(deck_names) & Counter(adv_cards)).elements())
+        if len(common_cards) > num_common:
+            num_common = len(common_cards)
+            best_guess = deck_names
+    if best_guess:
+        return best_guess
     else:
-        player_number = 2 if tester[1] == 1 else 1
-    return player_number
+        return deck_names
 
 
 def get_current_inputs(game, player_number):
-    player_hand, player_left_deck, adv_left_deck, player_secrets, player_attached = [], [], [], {}, []
+    player_hand, adv_hand, player_left_deck, adv_left_deck, player_secrets, player_attached = [None] * 11, [], [], [], {}, []
     player_servants, adv_servants = [], []
     discovery = [[]]
-    hero = {"weapon": None, "all_dead_servants": [], "cards_played": []}
+    hero = {"weapon": None, "all_dead_servants": [], "cards_played": [], "mulligan_state": False}
     hero_adv = {"weapon": None, "all_dead_servants": [], "cards_played": []}
-    for e in [x for x in game.entities if GameTag.CONTROLLER in x.tags.keys()]:
-        if e.tags[GameTag.CONTROLLER] == player_number:
-            """ Héros """
+    for e in [x for x in game.entities if (GameTag.CONTROLLER in x.tags.keys() or x.type == CardType.GAME)]:
+        if e.type == CardType.GAME:
+            if GameTag.TURN in e.tags.keys() and e.tags[GameTag.TURN] == 1:
+                hero["mulligan_state"] = True
+        elif e.tags[GameTag.CONTROLLER] == player_number:
             if e.type == CardType.HERO:
                 damage_hero = e.tags[GameTag.DAMAGE] if GameTag.DAMAGE in e.tags.keys() else 0
                 hero["health"] = e.tags[GameTag.HEALTH] - damage_hero
@@ -62,6 +117,7 @@ def get_current_inputs(game, player_number):
                 hero["drawn_this_turn"] = e.tags[GameTag.NUM_CARDS_DRAWN_THIS_TURN] if GameTag.NUM_CARDS_DRAWN_THIS_TURN in e.tags.keys() else 0
             elif e.zone == Zone.HAND:
                 card_name = standardize_name(cards_db[e.card_id].name)
+                position = e.tags[GameTag.ZONE_POSITION] - 1
                 card = get_card(card_name, name_index)
                 if GameTag.INFUSE in e.tags.keys():
                     if e.tags[GameTag.INFUSE] == 1:
@@ -72,7 +128,7 @@ def get_current_inputs(game, player_number):
                 card.cost = e.tags[GameTag.COST] if GameTag.COST in e.tags.keys() else 0
                 if card.type == "Serviteur":
                     card.boost(e.tags[GameTag.ATK] if GameTag.ATK in e.tags.keys() else 0, e.tags[GameTag.HEALTH], fixed_stats=True)
-                player_hand.insert(0, card)
+                player_hand[position] = card
                 player_left_deck.append(card_name)
             elif e.zone == Zone.GRAVEYARD:
                 card_name = standardize_name(cards_db[e.card_id].name)
@@ -184,6 +240,8 @@ def get_current_inputs(game, player_number):
                 cadavres = e.tags[GameTag.CORPSES] if GameTag.CORPSES in e.tags.keys() else 0
                 hero_adv["mana_max"] = resources
                 hero_adv["cadavres"] = cadavres
+            elif e.zone == Zone.HAND:
+                adv_hand.append(get_card("", name_index))
             elif e.zone == Zone.PLAY:
                 if e.type == CardType.MINION:
                     card_name = standardize_name(cards_db[e.card_id].name)
@@ -258,7 +316,7 @@ def get_current_inputs(game, player_number):
                 if GameTag.JUST_PLAYED in e.tags.keys():
                     hero_adv["cards_played"].append(card_name)
                 adv_left_deck.append(card_name)
-    return {"hero": hero, "hero_adv": hero_adv, "player_hand": player_hand, "player_servants": player_servants, "player_left_deck": player_left_deck,
+    return {"hero": hero, "hero_adv": hero_adv, "player_hand": player_hand, "adv_hand": adv_hand, "player_servants": player_servants, "player_left_deck": player_left_deck,
             "player_secrets": player_secrets, "player_attached": player_attached, "adv_servants": adv_servants, "discovery": discovery, "adv_left_deck": adv_left_deck}
 
 
@@ -270,8 +328,8 @@ def modify_plateau(plateau, game, player_number=None):
     initial_deck = [x.name for x in player.deck.cards + player.hand.cards]
     remaining_deck = list((Counter(initial_deck)-Counter(left_deck)).elements())
     left_deck_adv = actual_state["adv_left_deck"]
-    initial_deck_adv = [x.name for x in adv.deck.cards + adv.hand.cards]
-    remaining_deck_adv = list((Counter(initial_deck_adv) - Counter(remaining_deck)).elements())
+    initial_deck_adv = guess_deck_adv(game, player_number, adv.classe)
+    remaining_deck_adv = list((Counter(initial_deck_adv) - Counter(left_deck_adv)).elements())
     player.health = actual_state["hero"]["health"]
     player.base_health = actual_state["hero"]["base_health"]
     player.armor = actual_state["hero"]["armor"]
@@ -289,7 +347,7 @@ def modify_plateau(plateau, game, player_number=None):
     player.deck.cards = [get_card(x, name_index) for x in remaining_deck]
     player.all_dead_servants = actual_state["hero"]["all_dead_servants"]
     player.cards_played = actual_state["hero"]["cards_played"]
-    player.hand.cards = actual_state["player_hand"]
+    player.hand.cards = [x for x in actual_state["player_hand"] if x is not None]
     player.servants.cards = actual_state["player_servants"]
     player.attached = actual_state["player_attached"]
     player.secrets = actual_state["player_secrets"]
@@ -303,7 +361,13 @@ def modify_plateau(plateau, game, player_number=None):
     adv.weapon = actual_state["hero_adv"]["weapon"]
     adv.attack, adv.inter_attack = 0, 0
     adv.cadavres = actual_state["hero_adv"]["cadavres"]
-    adv.deck.cards = [get_card(x, name_index) for x in remaining_deck_adv]
+    if actual_state["adv_hand"]:
+        hand_names = random.choices(remaining_deck_adv, k=len(actual_state["adv_hand"]))
+    else:
+        hand_names = []
+    deck_names = list((Counter(remaining_deck_adv) - Counter(hand_names)).elements())
+    adv.hand.cards = [get_card(x, name_index) for x in hand_names]
+    adv.deck.cards = [get_card(x, name_index) for x in deck_names]
     adv.all_dead_servants = actual_state["hero_adv"]["all_dead_servants"]
     adv.cards_played = actual_state["hero_adv"]["cards_played"]
     adv.servants.cards = actual_state["adv_servants"]
@@ -312,9 +376,9 @@ def modify_plateau(plateau, game, player_number=None):
     ########## DECOUVERTES ###########
 
     if actual_state["discovery"] != [[]]:
-        if actual_state["discovery"][1] == "decouverte":
-            actual_state["discovery"].pop(1)
-            plateau.cards_chosen = actual_state["discovery"]
+        plateau.cards_chosen = actual_state["discovery"]
+    elif actual_state["hero"]["mulligan_state"]:
+        mulligan_help([x.name for x in player.hand], initial_deck)
 
     ##################################
     ############ AUTRES ##############
@@ -326,7 +390,7 @@ def modify_plateau(plateau, game, player_number=None):
 
 
 class_j = "Paladin"
-class_adv = "Voleur"
+class_adv = "Guerrier"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()
@@ -355,6 +419,7 @@ while True:
         print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
         plateau_reel = modify_plateau(pickle.loads(pickle.dumps(plateau_depart, -1)), running_game, player_number=player_number)
         max_reward, best_action = return_best_action(plateau_reel)
+        print(best_action, plateau_reel.players[0].hand.cards[(26 - 1) // 17])
         game_prec = running_game.tags
 
 # parser = LogParser()
@@ -365,6 +430,7 @@ while True:
 # export = exporter.export()
 # running_game = export.game
 # for e in running_game.entities:
-#     print(e.tags)
-#     print('----------------------------------')
+#     if e.zone == Zone.HAND and e.tags[GameTag.CONTROLLER] == 2:
+#         print(e.tags)
+#         print('----------------------------------')
 

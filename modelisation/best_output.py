@@ -29,14 +29,14 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=4, explorati
         first_estimate[0] = base_advantage
     first_estimate_sorted = np.array(first_estimate).argsort()
     to_simulate = -max(round(min(30, len(possible_new_states)) / (pow(exploration_toll, depth))), 1)
-    first_estimate_duplicates = [idx for idx, item in enumerate(first_estimate) if item in first_estimate[:idx]]
-    first_estimate_sorted1 = first_estimate_sorted[~np.in1d(first_estimate_sorted, first_estimate_duplicates)]
+    # first_estimate_duplicates = [idx for idx, item in enumerate(first_estimate) if item in first_estimate[:idx]]
+    # first_estimate_sorted1 = first_estimate_sorted[~np.in1d(first_estimate_sorted, first_estimate_duplicates)]
 
     if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
         if depth != 0:
-            possible_new_states = possible_new_states[first_estimate_sorted1[to_simulate:]]
+            possible_new_states = possible_new_states[first_estimate_sorted[to_simulate:]]
         else:
-            possible_new_states = possible_new_states[first_estimate_sorted1[-min(25, len(possible_new_states)):]]
+            possible_new_states = possible_new_states[first_estimate_sorted[-min(25, len(possible_new_states)):]]
 
     gc.enable()
 

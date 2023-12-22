@@ -16,7 +16,7 @@ def standardize_name(name):
     name = unidecode(name)
     name = name.replace("'", "\'").replace("’", "\'").replace("-", " ").replace("Œ", "Oe").replace("œ", "oe").lower()
     name = name.replace("é", "e").replace("â", "a").replace("à", "a").replace("î", "i").replace("è", "e").replace("ê", "e").replace("ë", "e")
-    name = name.replace(",", "").replace(" !", "").replace("ç", "c")
+    name = name.replace(",", "").replace(".", "").replace(" !", "").replace("ç", "c")
     name = name.capitalize()
     return name
 
@@ -84,7 +84,7 @@ def guess_deck_adv(game, player_number, class_deck):
 
 
 def get_current_inputs(game, player_number):
-    player_hand, adv_hand, player_left_deck, adv_left_deck, player_secrets, player_attached = [None] * 11, [], [], [], {}, []
+    player_hand, adv_hand, player_left_deck, adv_left_deck, player_secrets, player_attached = [None] * 11, [], [], [], [], []
     player_servants, adv_servants = [], []
     discovery = [[]]
     hero = {"weapon": None, "all_dead_servants": [], "cards_played": [], "mulligan_state": False}
@@ -225,7 +225,7 @@ def get_current_inputs(game, player_number):
                 card_name = standardize_name(cards_db[e.card_id].name)
                 card = get_card(card_name, name_index_spells)
                 if "secret" in card.effects:
-                    player_secrets.add(card)
+                    player_secrets.append(card)
                 else:
                     for element in card.effects["attach_hero"]:
                         player_attached.append(element)
@@ -235,11 +235,18 @@ def get_current_inputs(game, player_number):
                 hero_adv["health"] = e.tags[GameTag.HEALTH] - damage_hero
                 hero_adv["base_health"] = e.tags[GameTag.HEALTH]
                 hero_adv["armor"] = e.tags[GameTag.ARMOR] if GameTag.ARMOR in e.tags.keys() else 0
+            elif e.type == CardType.HERO_POWER:
+                hero_adv["cost_hp"] = e.tags[GameTag.COST]
+                hero_adv["dispo_hp"] = 1 if ((GameTag.EXHAUSTED in e.tags.keys() and not e.tags[GameTag.EXHAUSTED]) or (not GameTag.EXHAUSTED in e.tags.keys())) else 0
             elif e.type == CardType.PLAYER:
+                used_resources = e.tags[GameTag.RESOURCES_USED] if GameTag.RESOURCES_USED in e.tags.keys() else 0
                 resources = e.tags[GameTag.RESOURCES] if GameTag.RESOURCES in e.tags.keys() else 0
                 cadavres = e.tags[GameTag.CORPSES] if GameTag.CORPSES in e.tags.keys() else 0
+                hero_adv["mana"] = resources - used_resources
                 hero_adv["mana_max"] = resources
                 hero_adv["cadavres"] = cadavres
+                hero_adv["played_this_turn"] = e.tags[GameTag.NUM_CARDS_PLAYED_THIS_TURN] if GameTag.NUM_CARDS_PLAYED_THIS_TURN in e.tags.keys() else 0
+                hero_adv["drawn_this_turn"] = e.tags[GameTag.NUM_CARDS_DRAWN_THIS_TURN] if GameTag.NUM_CARDS_DRAWN_THIS_TURN in e.tags.keys() else 0
             elif e.zone == Zone.HAND:
                 adv_hand.append(get_card("", name_index))
             elif e.zone == Zone.PLAY:
@@ -350,17 +357,22 @@ def modify_plateau(plateau, game, player_number=None):
     player.hand.cards = [x for x in actual_state["player_hand"] if x is not None]
     player.servants.cards = actual_state["player_servants"]
     player.attached = actual_state["player_attached"]
-    player.secrets = actual_state["player_secrets"]
+    player.secrets.cards = actual_state["player_secrets"]
 
     ########## ADVERSAIRE ############
 
     adv.health = actual_state["hero_adv"]["health"]
     adv.base_health = actual_state["hero_adv"]["base_health"]
     adv.armor = actual_state["hero_adv"]["armor"]
+    adv.mana = actual_state["hero_adv"]["mana"]
     adv.mana_max = actual_state["hero_adv"]["mana_max"]
+    adv.dispo_pouvoir = True if actual_state["hero_adv"]["dispo_hp"] else False
+    adv.cout_pouvoir_temp = actual_state["hero_adv"]["cost_hp"]
     adv.weapon = actual_state["hero_adv"]["weapon"]
     adv.attack, adv.inter_attack = 0, 0
     adv.cadavres = actual_state["hero_adv"]["cadavres"]
+    adv.cards_this_turn = actual_state["hero_adv"]["played_this_turn"] * [""]
+    adv.drawn_this_turn = actual_state["hero_adv"]["drawn_this_turn"]
     if actual_state["adv_hand"]:
         hand_names = random.choices(remaining_deck_adv, k=len(actual_state["adv_hand"]))
     else:
@@ -390,7 +402,7 @@ def modify_plateau(plateau, game, player_number=None):
 
 
 class_j = "Paladin"
-class_adv = "Paladin"
+class_adv = "Chasseur"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()
@@ -418,8 +430,6 @@ while True:
         print('%%%%%%%%% RUNNING %%%%%%%%%%')
         print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
         plateau_reel = modify_plateau(pickle.loads(pickle.dumps(plateau_depart, -1)), running_game, player_number=player_number)
-        if plateau_reel.players[0].last_card.name != "":
-            print(plateau_reel.players[0].last_card.name)
         max_reward, best_action = return_best_action(plateau_reel)
         if 0 < best_action < 171:
             plateau_depart.players[0].last_card = plateau_reel.players[0].hand[(best_action - 1) // 17]

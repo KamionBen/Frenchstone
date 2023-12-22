@@ -2399,11 +2399,11 @@ def calc_advantage_minmax(state):
 
     if player.style == "aggro":
         if adv.style == "aggro":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.3, 0.1, 3, 3, 1, 0.2, 1, 3, 0.8
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.2, 0.1, 3, 3, 1, 0.2, 1.5, 3, 0.8
         elif adv.style == "tempo":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.2, 0.05, 3, 2, 1, 0.1, 0.5, 3.5, 1
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.4, 0.05, 3, 2, 1, 0.1, 0.7, 3.5, 1
         elif adv.style == "controle":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.75, 0, 1.75, 0.85, 1, 0.25, 0.25, 4, 1.5
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.7, 0, 1.75, 0.85, 1, 0.1, 0.35, 4, 1.25
     elif player.style == "tempo":
         if adv.style == "aggro":
             coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.75, 0.05, 1.3, 3, 1, 0.2, 2, 1.5, 1.25
@@ -2484,7 +2484,7 @@ def calc_advantage_minmax(state):
 
     """ Lethal on board adverse """
     if adv.servants and sum([x.attack for x in adv.servants]) >= player.health and not [x for x in player.servants if "provocation" in x.effects]:
-        advantage -= 300
+        advantage -= 1000
 
     return round(advantage, 2)
 

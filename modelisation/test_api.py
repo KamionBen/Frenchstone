@@ -390,7 +390,7 @@ def modify_plateau(plateau, game, player_number=None):
 
 
 class_j = "Paladin"
-class_adv = "Guerrier"
+class_adv = "Paladin"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()
@@ -418,8 +418,11 @@ while True:
         print('%%%%%%%%% RUNNING %%%%%%%%%%')
         print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
         plateau_reel = modify_plateau(pickle.loads(pickle.dumps(plateau_depart, -1)), running_game, player_number=player_number)
+        if plateau_reel.players[0].last_card.name != "":
+            print(plateau_reel.players[0].last_card.name)
         max_reward, best_action = return_best_action(plateau_reel)
-        print(best_action, plateau_reel.players[0].hand.cards[(26 - 1) // 17])
+        if 0 < best_action < 171:
+            plateau_depart.players[0].last_card = plateau_reel.players[0].hand[(best_action - 1) // 17]
         game_prec = running_game.tags
 
 # parser = LogParser()

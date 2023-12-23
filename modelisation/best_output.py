@@ -3,9 +3,12 @@ from engine import *
 import gc
 import functools
 
+total_actions = 0
 
-def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=4, exploration_toll=2.5):
+
+def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=10, exploration_toll=1):
     gc.disable()
+    global total_actions
     base_advantage = calc_advantage_minmax(state)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
     legal_actions = [i for i in range(len(legal_actions)) if legal_actions[i]]
@@ -41,6 +44,7 @@ def minimax(state, alpha=-1000, depth=0, best_action=-99, max_depth=4, explorati
     gc.enable()
 
     for new_state in possible_new_states:
+        total_actions += 1
         previous_reward = alpha
 
         """ On va chercher les feuilles de l'arbre pour en récuperer la valeur """
@@ -62,6 +66,7 @@ def return_best_action(plateau=None):
     player = plateau.players[0]
     adv = plateau.players[1]
     max_reward, best_action = minimax(plateau)
+    print(total_actions)
     cible, attaquant, choix = None, None, None
     output_action = ""
     if best_action == 0:

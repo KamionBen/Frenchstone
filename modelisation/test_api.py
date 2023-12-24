@@ -41,7 +41,7 @@ def mulligan_help(cards_mulligan, deck):
                 "Sceau de sang": 61.9,
                 "Groga vorace": 66.2,
                 "Aura des croises": 61.9,
-                "Force de la gardienne": 62.4,
+                "Force de la gardienne": 60,
                 "Le purificateur": 52,
                 "Cor du seigneur des vents": 57,
                 "La comtesse": 60.1,
@@ -110,7 +110,8 @@ def get_current_inputs(game, player_number):
             elif e.type == CardType.PLAYER:
                 used_resources = e.tags[GameTag.RESOURCES_USED] if GameTag.RESOURCES_USED in e.tags.keys() else 0
                 resources = e.tags[GameTag.RESOURCES] if GameTag.RESOURCES in e.tags.keys() else 0
-                hero["mana"] = resources - used_resources
+                temp_resources = e.tags[GameTag.TEMP_RESOURCES] if GameTag.TEMP_RESOURCES in e.tags.keys() else 0
+                hero["mana"] = resources + temp_resources - used_resources
                 hero["mana_max"] = resources
                 hero["cadavres"] = e.tags[GameTag.CORPSES] if GameTag.CORPSES in e.tags.keys() else 0
                 hero["played_this_turn"] = e.tags[GameTag.NUM_CARDS_PLAYED_THIS_TURN] if GameTag.NUM_CARDS_PLAYED_THIS_TURN in e.tags.keys() else 0
@@ -126,15 +127,18 @@ def get_current_inputs(game, player_number):
                         if e.tags[GameTag.INFUSED] == 1:
                             card = get_card(card.effects["impregnation"][0], name_index)
                 card.cost = e.tags[GameTag.COST] if GameTag.COST in e.tags.keys() else 0
+                if card.name in ["Raie de lumiere"]:
+                    card.base_cost = card.cost
                 if card.type == "Serviteur":
                     card.boost(e.tags[GameTag.ATK] if GameTag.ATK in e.tags.keys() else 0, e.tags[GameTag.HEALTH], fixed_stats=True)
                 player_hand[position] = card
                 player_left_deck.append(card_name)
             elif e.zone == Zone.GRAVEYARD:
                 card_name = standardize_name(cards_db[e.card_id].name)
+                card = get_card(card_name, name_index)
                 player_left_deck.append(card_name)
                 if e.type == CardType.MINION:
-                    hero["all_dead_servants"].append(card_name)
+                    hero["all_dead_servants"].append(card)
                 if GameTag.JUST_PLAYED in e.tags.keys():
                     hero["cards_played"].append(card_name)
             elif e.zone == Zone.PLAY:
@@ -402,7 +406,7 @@ def modify_plateau(plateau, game, player_number=None):
 
 
 class_j = "Paladin"
-class_adv = "Chasseur"
+class_adv = "Mage"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()

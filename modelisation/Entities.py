@@ -2210,8 +2210,7 @@ def generate_legal_vector_test(state):
 
     """ Nos serviteurs peuvent attaquer """
     for i in range(len(player.servants)):
-        if player.servants[i].remaining_atk * player.servants[i].attack > 0 and "en sommeil" not in player.servants[
-            i].effects:
+        if (player.servants[i].remaining_atk * player.servants[i].attack > 0) and "en sommeil" not in player.servants[i].effects:
             if not is_provoc:
                 legal_actions[171 + 8 * (i + 1)] = True
             if "ruée" in player.servants[i].effects:
@@ -2341,6 +2340,8 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
         serv_advantage *= 1.25
     if "camouflage" in servant.effects:
         serv_advantage *= 1.25
+    if "cleave" in servant.effects:
+        serv_advantage += 1.2 * servant.attack
     if "aura" in servant.effects:
         serv_advantage *= 1.5
     if "toxicite" in servant.effects:
@@ -2365,10 +2366,11 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
         """ Potentiel value trade adverse """
         value_trade = [calc_advantage_serv(x, adv, player, serv_adv=True) for x in adv.servants if (calc_advantage_serv(x, adv, player, serv_adv=True) < calc_advantage_serv(servant, player, adv, serv_adv=True)) and deadly_attack(x, servant)]
         if value_trade:
-            serv_advantage = min(serv_advantage, min(value_trade))
+            serv_advantage = 0.5 * serv_advantage + 0.5 * min(serv_advantage, min(value_trade))
         """ Potentiel d'être tué par le HP adverse """
         if servant.health == 1 and "bouclier divin" not in servant.effects and "camouflage" not in servant.effects and adv.classe in ["Chasseur de démons", "Mage", "Druide", "Chevalier de la mort", "Voleur"]:
-            serv_advantage = min(serv_advantage, 2)
+            serv_advantage /= (1 + 0.3 * (adv.mana_max - 1))
+
     return serv_advantage
 
 

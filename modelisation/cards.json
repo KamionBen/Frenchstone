@@ -3484,7 +3484,7 @@
     },
     {
         "id": 287,
-        "name": "Alextrasza la lieuse de vie",
+        "name": "Alexstrasza la lieuse de vie",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": ["Dragon"],
@@ -5393,7 +5393,7 @@
     },
     {
         "id": 445,
-        "name": "Dame S'theno",
+        "name": "Dame s'theno",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
         "genre": ["Naga"],
@@ -7035,7 +7035,7 @@
     },
     {
         "id": 581,
-        "name": "Kiri appele d'Elune",
+        "name": "Kiri appele d'elune",
         "classe": "Druide",
         "type": "Serviteur",
         "genre": [],

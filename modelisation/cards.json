@@ -7805,7 +7805,7 @@
     },
     {
         "id": 645,
-        "name": "Sesselie de la cour des Fae",
+        "name": "Sesselie de la cour des fae",
         "classe": "Druide",
         "type": "Serviteur",
         "genre": [],
@@ -21241,7 +21241,7 @@
     },
     {
         "id": 1755,
-        "name": "Dompteuse de dragonnet",
+        "name": "Dompteuse de dragonnets",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": [],

@@ -4,15 +4,13 @@ import gc
 import functools
 
 
-total_actions = 0
+total_actions, estimated_actions = 0, 1
 
-def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, exploration_toll=2.5):
+def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, exploration_toll=2.3, estimate=False):
     gc.disable()
-    global total_actions
-
-    #### On fixe un maximum d'actions calculables pour éviter les timeout ####
-    # if total_actions > 10000:
-    #     return alpha, best_action
+    global total_actions, estimated_actions
+    if total_actions > 8000:
+        return alpha, best_action
 
     base_advantage = calc_advantage_minmax(state)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
@@ -37,9 +35,10 @@ def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, explorat
         first_estimate[0] = base_advantage
     first_estimate_sorted_values = sorted(first_estimate, reverse=True)
     first_estimate_sorted = np.array(first_estimate).argsort()[::-1]
+    if depth != 0 and max_depth != 10:
+        baseline = [x[2] for x in possible_new_states if x[0] == 0][0]
+        possible_new_states = [x for x in possible_new_states if x[2] > baseline]
     to_simulate = max(round(min(30, len(possible_new_states)) / (pow(exploration_toll, depth))), 1)
-    # first_estimate_duplicates = [idx for idx, item in enumerate(first_estimate) if item in first_estimate[:idx]]
-    # first_estimate_sorted1 = first_estimate_sorted[~np.in1d(first_estimate_sorted, first_estimate_duplicates)]
 
     if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
         if depth != 0:
@@ -53,9 +52,21 @@ def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, explorat
         else:
             possible_new_states[i][2] = base_advantage
 
-
+    ### Dédoublonnage
+    possible_new_states = list(dict((x[2], x) for x in possible_new_states).values())
     # print(depth, to_simulate, alpha, base_advantage, [(x[0], x[2]) for x in possible_new_states])
     # print('------------------------------------')
+
+    if estimate:
+        estimated_actions *= len(possible_new_states)
+        if possible_new_states[0][0] != 0:
+            try:
+                minimax(possible_new_states[0][1], alpha, depth + 1, estimate=True)[0]
+            except:
+                return estimated_actions
+        else:
+            return estimated_actions
+
 
     gc.enable()
 
@@ -67,7 +78,7 @@ def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, explorat
         if new_state[0] == 0 or depth == max_depth:
             alpha = max(alpha, new_state[2])
         else:
-            alpha = minimax(new_state[1], alpha, depth+1)[0]
+            alpha = minimax(new_state[1], alpha, depth+1, max_depth=max_depth, exploration_toll=exploration_toll)[0]
 
         """ On met à jour alpha si nécessaire """
         if alpha > previous_reward and depth == 0:
@@ -80,9 +91,16 @@ def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, explorat
 def return_best_action(plateau=None):
     player = plateau.players[0]
     adv = plateau.players[1]
-    global total_actions
-    total_actions = 0
-    max_reward, best_action = minimax(plateau)
+    global total_actions, estimated_actions
+    total_actions, estimated_actions = 0, 1
+    potential_actions = minimax(plateau, estimate=True)
+    if potential_actions <= 2000:
+        max_reward, best_action = minimax(plateau, max_depth=10, exploration_toll=1, estimate=False)
+    else:
+        ratio_actions = potential_actions/2000
+        depth_max = 3 if ratio_actions > 3 else 4 if ratio_actions > 2 else 5
+        exp_toll = 1.75 + 0.5 * ratio_actions
+        max_reward, best_action = minimax(plateau, max_depth=depth_max, exploration_toll=exp_toll, estimate=False)
     print("Total actions", total_actions)
     cible, attaquant, choix = None, None, None
     output_action = ""

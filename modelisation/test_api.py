@@ -191,8 +191,8 @@ def get_current_inputs(game, player_number):
                         else:
                             if "reincarnation" in card.effects:
                                 card.effects.pop("reincarnation")
-                    if GameTag.RUSH in e.tags.keys():
-                        if e.tags[GameTag.RUSH] == 1:
+                    if GameTag.RUSH in e.tags.keys() and GameTag.ATTACKABLE_BY_RUSH in e.tags.keys():
+                        if e.tags[GameTag.RUSH] == 1 and e.tags[GameTag.ATTACKABLE_BY_RUSH] == 1:
                             card.effects["ruée"] = 1
                         else:
                             if "ruée" in card.effects:
@@ -406,7 +406,7 @@ def modify_plateau(plateau, game, player_number=None):
 
 
 class_j = "Paladin"
-class_adv = "Mage"
+class_adv = "Guerrier"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()

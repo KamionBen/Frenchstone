@@ -1769,7 +1769,10 @@ def generate_legal_vector_test(state):
                         i].cost <= player.mana)) and "entrave" not in serv_effects:
                 if player.hand[i].type == "Serviteur" and (
                         (len(player.servants) + len(player.lieux) < 7 and "reno_ranger" not in player.permanent_buff) or \
-                        (len(player.servants) + len(player.lieux) == 0 and "reno_ranger" in player.permanent_buff)):
+                        (len(player.servants) + len(player.lieux) == 0 and "reno_ranger" in player.permanent_buff))\
+                        and not [j for j in range(len(player.hand)) if player.hand[j].attack == player.hand[i].attack and \
+                                player.hand[j].health == player.hand[i].health and player.hand[j].effects == player.hand[i].effects and \
+                                player.hand[j].cost == player.hand[i].cost and j < i]:
                     """ Serviteurs avec cris de guerre ciblés """
                     if "cri de guerre" in serv_effects and "choisi" in serv_effects["cri de guerre"][1]:
                         if "serviteur" in serv_effects["cri de guerre"][1]:
@@ -1990,7 +1993,9 @@ def generate_legal_vector_test(state):
                                     "Méca" in player.servants[j].genre and player.hand[
                                 i].name == "Parasite degoulinant"):
                                 legal_actions[17 * i + j + 3] = True
-                elif player.hand[i].type.lower() == "sort" and "unplayable" not in serv_effects:
+                elif player.hand[i].type.lower() == "sort" and "unplayable" not in serv_effects \
+                    and not [j for j in range(len(player.hand)) if player.hand[j].effects == player.hand[i].effects and \
+                             player.hand[j].cost == player.hand[i].cost and j < i]:
                     if "ciblage" in serv_effects:
                         if "serviteur" in serv_effects["ciblage"]:
                             if "ennemi" in serv_effects["ciblage"]:
@@ -2171,7 +2176,10 @@ def generate_legal_vector_test(state):
                         legal_actions[17 * i + 1] = True
                 elif player.hand[i].type.lower() == "lieu" and (
                         (len(player.servants) + len(player.lieux) < 7 and "reno_ranger" not in player.permanent_buff) or \
-                        (len(player.servants) + len(player.lieux) == 0 and "reno_ranger" in player.permanent_buff)):
+                        (len(player.servants) + len(player.lieux) == 0 and "reno_ranger" in player.permanent_buff)) \
+                        and not [j for j in range(len(player.hand)) if player.hand[j].attack == player.hand[i].attack and \
+                                 player.hand[j].health == player.hand[i].health and player.hand[j].effects == player.hand[i].effects and \
+                                 player.hand[j].cost == player.hand[i].cost and j < i]:
                     legal_actions[17 * i + 1] = True
                 elif player.hand[i].type.lower() == "heros":
                     legal_actions[17 * i + 1] = True
@@ -2210,7 +2218,7 @@ def generate_legal_vector_test(state):
 
     """ Nos serviteurs peuvent attaquer """
     for i in range(len(player.servants)):
-        if (player.servants[i].remaining_atk * player.servants[i].attack > 0) and "en sommeil" not in player.servants[i].effects:
+        if (player.servants[i].remaining_atk * player.servants[i].attack > 0 and "en sommeil" not in player.servants[i].effects):
             if not is_provoc:
                 legal_actions[171 + 8 * (i + 1)] = True
             if "ruée" in player.servants[i].effects:

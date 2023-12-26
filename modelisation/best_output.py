@@ -4,15 +4,20 @@ import gc
 import functools
 
 
-total_actions, estimated_actions = 0, 1
+total_actions, estimated_actions, already_seen = 0, 1, []
 
 def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, exploration_toll=2.3, estimate=False):
     gc.disable()
     global total_actions, estimated_actions
-    if total_actions > 7000:
+    if total_actions > 10000:
         return alpha, best_action
 
     base_advantage = calc_advantage_minmax(state)
+    if not estimate:
+        if base_advantage in already_seen:
+            return alpha, best_action
+        else:
+            already_seen.append(base_advantage)
     legal_actions = np.array(generate_legal_vector_test(state), dtype=bool)
     legal_actions = [i for i in range(len(legal_actions)) if legal_actions[i]]
     if len(legal_actions) == 0:
@@ -25,45 +30,42 @@ def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, explorat
 
     state_saved = pickle.dumps(state, -1)
 
-    possible_new_states = np.array([
-         (action, Orchestrator().tour_ia_minmax(pickle.loads(state_saved), [], action, False)[0], 0) for action in legal_actions
-    ])
+    possible_new_states = [(action, Orchestrator().tour_ia_minmax(pickle.loads(state_saved), [], action, False)[0], 0) for action in legal_actions if action]
+    possible_new_states.append((0, state, base_advantage))
+    possible_new_states = np.array(possible_new_states)
 
     first_estimate = [calc_advantage_minmax(possible_new_states[i][1]) for i in range(len(possible_new_states))]
-
-    if len(possible_new_states) != 0 and possible_new_states[0][0] == 0:
-        first_estimate[0] = base_advantage
     first_estimate_sorted_values = sorted(first_estimate, reverse=True)
     first_estimate_sorted = np.array(first_estimate).argsort()[::-1]
-    if depth != 0 and max_depth != 10:
-        baseline = [x[2] for x in possible_new_states if x[0] == 0][0]
-        possible_new_states = [x for x in possible_new_states if x[2] > baseline]
-    to_simulate = max(round(min(30, len(possible_new_states)) / (pow(exploration_toll, depth))), 1)
+    if not estimate:
+        first_estimate_sorted_values = [x for x in first_estimate_sorted_values if x >= (1 + 0.08 * (base_advantage <= 0) - 0.08 *(base_advantage > 0)) * base_advantage]
+        first_estimate_sorted = first_estimate_sorted[:len(first_estimate_sorted_values)]
 
-    if not (251 <= min(legal_actions) and max(legal_actions) <= 254):
+    if not (251 <= min(legal_actions) and max(legal_actions) <= 254) and not estimate:
         if depth != 0:
+            to_simulate = max(round(min(30, len(possible_new_states)) / (pow(exploration_toll, depth))), 1)
             possible_new_states = possible_new_states[first_estimate_sorted[:to_simulate]]
         else:
             possible_new_states = possible_new_states[first_estimate_sorted[:min(25, len(possible_new_states))]]
 
+
     for i in range(len(possible_new_states)):
         if possible_new_states[i][0]:
             possible_new_states[i][2] = first_estimate_sorted_values[i]
-        else:
-            possible_new_states[i][2] = base_advantage
 
     ### Dédoublonnage
     possible_new_states = list(dict((x[2], x) for x in possible_new_states).values())
-    # print(depth, alpha, base_advantage, [(x[0], x[2]) for x in possible_new_states])
-    # print('------------------------------------')
+    if not estimate:
+        print(depth, alpha, base_advantage, [(x[0], x[2]) for x in possible_new_states])
+        print('------------------------------------')
 
     if estimate:
         estimated_actions *= len(possible_new_states)
-        if possible_new_states[0][0] != 0:
-            try:
-                minimax(possible_new_states[0][1], alpha, depth + 1, estimate=True)[0]
-            except:
-                return estimated_actions
+        try:
+            choice = random.choice([i for i in range(len(possible_new_states)) if possible_new_states[i][0]])
+            minimax(possible_new_states[choice][1], alpha, depth + 1, estimate=True)[0]
+        except:
+            return estimated_actions
         else:
             return estimated_actions
 
@@ -83,24 +85,28 @@ def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, explorat
         """ On met à jour alpha si nécessaire """
         if alpha > previous_reward and depth == 0:
             best_action = new_state[0]
-            if alpha == 10000:
-                break
     return alpha, best_action
 
 
 def return_best_action(plateau=None):
     player = plateau.players[0]
     adv = plateau.players[1]
-    global total_actions, estimated_actions
-    total_actions, estimated_actions = 0, 1
-    potential_actions = minimax(plateau, estimate=True)
-    if potential_actions <= 2000:
-        max_reward, best_action = minimax(plateau, max_depth=10, exploration_toll=1, estimate=False)
-    else:
-        ratio_actions = potential_actions/2000
-        depth_max = 3 if ratio_actions > 3 else 4 if ratio_actions > 2 else 5
-        exp_toll = 1.75 + 0.5 * ratio_actions
-        max_reward, best_action = minimax(plateau, max_depth=depth_max, exploration_toll=exp_toll, estimate=False)
+    global total_actions, estimated_actions, already_seen
+    # total_actions, estimated_actions, potential_actions, already_seen = 0, 1, 0, []
+    # for _ in range(10):
+    #     total_actions, estimated_actions, already_seen = 0, 1, []
+    #     potential_actions += round(minimax(plateau, estimate=True)/10)
+    total_actions, estimated_actions, already_seen = 0, 1, []
+    t0 = time.perf_counter()
+    # if potential_actions <= 3000:
+    max_reward, best_action = minimax(plateau, max_depth=10, exploration_toll=1, estimate=False)
+    # else:
+    #     ratio_actions = potential_actions/3000
+    #     depth_max = 3 if ratio_actions > 4 else 5 if ratio_actions > 2 else 6
+    #     exp_toll = 1.75 + 0.25 * ratio_actions
+    #     max_reward, best_action = minimax(plateau, max_depth=depth_max, exploration_toll=exp_toll, estimate=False)
+    t1 = time.perf_counter()
+    # print(round((t1 - t0), 2))
     print("Total actions", total_actions)
     cible, attaquant, choix = None, None, None
     output_action = ""

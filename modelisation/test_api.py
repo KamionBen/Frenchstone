@@ -406,7 +406,7 @@ def modify_plateau(plateau, game, player_number=None):
 
 
 class_j = "Paladin"
-class_adv = "Chasseur de démons"
+class_adv = "Mage"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()

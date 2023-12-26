@@ -2409,11 +2409,11 @@ def calc_advantage_minmax(state):
 
     if player.style == "aggro":
         if adv.style == "aggro":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.8, 0.02, 2.3, 2, 1, 0.2, 1.9, 3, 0.8
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.5, 0.02, 2.5, 2, 1, 0.2, 1.9, 3, 0.8
         elif adv.style == "tempo":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1, 0.02, 2, 1.7, 1, 0.1, 0.8, 3, 1
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.7, 0.02, 2.5, 1.7, 1, 0.1, 0.8, 3, 1
         elif adv.style == "controle":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.8, 0, 2, 0.9, 1, 0.1, 0.35, 3.25, 1.25
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.6, 0, 2.5, 0.9, 1, 0.1, 0.35, 3.25, 1.25
     elif player.style == "tempo":
         if adv.style == "aggro":
             coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.75, 0.05, 1.3, 3, 1, 0.2, 2, 1.5, 1.25

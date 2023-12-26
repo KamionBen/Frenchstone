@@ -1216,7 +1216,7 @@
     },
     {
         "id": 99,
-        "name": "Roc n roule",
+        "name": "Roc'n'roule",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": ["Élémentaire"],
@@ -5765,7 +5765,7 @@
     },
     {
         "id": 476,
-        "name": "Procureure Mel'tranix",
+        "name": "Procureure mel'tranix",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
         "genre": ["Démon"],

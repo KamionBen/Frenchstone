@@ -6167,7 +6167,7 @@
     },
     {
         "id": 509,
-        "name": "Artificier Xy'mox",
+        "name": "Artificier xy'mox",
         "classe": "Chasseur de démons",
         "type": "Serviteur",
         "genre": [],
@@ -8409,7 +8409,7 @@
     },
     {
         "id": 697,
-        "name": "Raz Naz'jan",
+        "name": "Raj naz'jan",
         "classe": "Chasseur",
         "type": "Serviteur",
         "genre": ["Naga"],
@@ -11832,7 +11832,7 @@
     },
     {
         "id": 980,
-        "name": "Pretresse Valishj",
+        "name": "Pretresse valishj",
         "classe": "Prêtre",
         "type": "Serviteur",
         "genre": ["Naga"],
@@ -19561,7 +19561,7 @@
     },
     {
         "id": 1618,
-        "name": "Revenant de flamme",
+        "name": "Revenant de flammes",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": ["Élémentaire"],

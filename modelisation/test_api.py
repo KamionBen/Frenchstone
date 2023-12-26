@@ -29,24 +29,24 @@ def guess_player(game):
 
 
 def mulligan_help(cards_mulligan, deck):
-    deck_wr = {"Protectrice vertueuse": 65.2,
-                "Soldate sanguine": 66.5,
-                "Sous cheffe immorale": 66.7,
-                "En avant aile argent": 67,
-                "Liadrin matriarche de sang": 60.8,
-                "Main d'a'dal": 61.7,
-                "Pour quel'thalas": 60.8,
-                "Boogie sans fin": 67.8,
-                "Regiment de bataille": 64.6,
-                "Sceau de sang": 61.9,
-                "Groga vorace": 66.2,
-                "Aura des croises": 61.9,
-                "Force de la gardienne": 60,
-                "Le purificateur": 52,
-                "Cor du seigneur des vents": 57,
-                "La comtesse": 60.1,
-                "Leviathan": 58.3,
-                "Raie de lumiere": 52.1}
+    deck_wr = {"Protectrice vertueuse": 64.6,
+                "Soldate sanguine": 68.5,
+                "Sous cheffe immorale": 68.7,
+                "En avant aile argent": 71,
+                "Liadrin matriarche de sang": 63,
+                "Main d'a'dal": 66.5,
+                "Boogie sans fin": 72.2,
+                "Aura d'adjointe": 64.4,
+                "Regiment de bataille": 68,
+                "Marteau de courroux": 65.7,
+                "Groga vorace": 68,
+                "Aura des croises": 62.5,
+                "Jitterbug": 71.1,
+                "Force de la gardienne": 67.6,
+                "Cor du seigneur des vents": 61.2,
+                "La comtesse": 65.2,
+                "Rayon prismatique": 68.8,
+                "Grace des jardins": 63.5}
 
     remaining_deck = list((Counter(deck) - Counter(cards_mulligan)).elements())
 
@@ -133,7 +133,7 @@ def get_current_inputs(game, player_number):
                     card.boost(e.tags[GameTag.ATK] if GameTag.ATK in e.tags.keys() else 0, e.tags[GameTag.HEALTH], fixed_stats=True)
                 player_hand[position] = card
                 player_left_deck.append(card_name)
-            elif e.zone == Zone.GRAVEYARD:
+            elif e.zone == Zone.GRAVEYARD and not e.type == CardType.ENCHANTMENT:
                 card_name = standardize_name(cards_db[e.card_id].name)
                 card = get_card(card_name, name_index)
                 player_left_deck.append(card_name)
@@ -320,7 +320,7 @@ def get_current_inputs(game, player_number):
                 if GameTag.JUST_PLAYED in e.tags.keys():
                     card_name = standardize_name(cards_db[e.card_id].name)
                     hero_adv["cards_played"].append(card_name)
-            elif e.zone == Zone.GRAVEYARD:
+            elif e.zone == Zone.GRAVEYARD and not e.type == CardType.ENCHANTMENT:
                 card_name = standardize_name(cards_db[e.card_id].name)
                 if e.type == CardType.MINION:
                     hero_adv["all_dead_servants"].append(card_name)
@@ -406,7 +406,7 @@ def modify_plateau(plateau, game, player_number=None):
 
 
 class_j = "Paladin"
-class_adv = "Guerrier"
+class_adv = "Chasseur de démons"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()
@@ -447,7 +447,8 @@ while True:
 # export = exporter.export()
 # running_game = export.game
 # for e in running_game.entities:
-#     if e.zone == Zone.HAND and e.tags[GameTag.CONTROLLER] == 2:
+#     if e.zone == Zone.GRAVEYARD:
 #         print(e.tags)
+#         print(e.card_id)
 #         print('----------------------------------')
 

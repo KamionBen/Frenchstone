@@ -6434,7 +6434,7 @@ class TourEnCours:
                             self.plt.cards_chosen = self.choice_decouverte(carte, type="serviteur", genre="Méca", classe="other_class")
                     elif "base_totem" in carte.effects["decouverte"]:
                         cardgroup = [get_card("Totem de soins", name_index_servants), get_card("Totem incendiaire", name_index_servants),
-                                     get_card("Totem de puissance", name_index_servants), get_card("Totem de griffes de pierre", name_index_servants)]
+                                     get_card("Totem de force", name_index_servants), get_card("Totem de griffes de pierre", name_index_servants)]
                         self.plt.cards_chosen = self.choice_decouverte(carte, type="serviteur", card_group=CardGroup(cardgroup))
                     elif "cost" in carte.effects["decouverte"]:
                         self.plt.cards_chosen = self.choice_decouverte(carte, type="serviteur", cost=carte.effects["decouverte"][-1])

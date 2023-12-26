@@ -20,10 +20,10 @@ all_classes = ["Chevalier de la mort", "Chasseur de démons", "Paladin", "Voleur
 class_files = {'Chasseur': [['chasseur_highlander.csv', "tempo"], ['chasseur_arcanes.csv', "tempo"]],
                'Mage': [['mage_rainbow.csv', "tempo"]],
                'Paladin': [['pala_aggro.csv', "aggro"], ['pala_golems.csv', "tempo"], ['pala_highlander.csv', "tempo"]],
-               'Démoniste': [['demo_controle.csv', "controle"], ['demo_deterrer.csv', "tempo"]],
+               'Démoniste': [['demo_controle.csv', "controle"], ['demo_tonneaux.csv', "tempo"]],
                'Chasseur de démons': [['dh_marginal.csv', "aggro"]],
                'Druide': [['druid_dragons.csv', "tempo"], ['druid_treant.csv', "aggro"]],
-               'Voleur': [['voleur_meca.csv', "tempo"]],
+               'Voleur': [['voleur_meca.csv', "aggro"], ['voleur_deterrer.csv', "tempo"]],
                'Guerrier': [['guerrier_controle.csv', "controle"],['guerrier_rock.csv', "tempo"]],
                'Chevalier de la mort': [['dk_peste.csv', "controle"], ['dk_impie.csv', "aggro"]],
                'Prêtre': [['pretre_automates.csv', "tempo"], ['pretre_ombre.csv', "aggro"]],
@@ -2341,11 +2341,11 @@ def deadly_attack(adv, serv):
 
 
 def calc_advantage_serv(servant, player, adv, serv_adv=False):
-    serv_advantage = 1.15 * servant.attack + 1.25 * servant.health
+    serv_advantage = 1.05 * servant.attack + 1.15 * servant.health
     if "bouclier divin" in servant.effects:
-        serv_advantage += 0.9 * servant.attack
+        serv_advantage += servant.attack
     if "rale d'agonie" in servant.effects:
-        serv_advantage *= 1.25
+        serv_advantage *= 1.2
     if "camouflage" in servant.effects:
         serv_advantage *= 1.25
     if "cleave" in servant.effects:
@@ -2357,7 +2357,7 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
     if "provocation" in servant.effects:
         serv_advantage += servant.health / player.health
     if "reincarnation" in servant.effects:
-        serv_advantage += 1.25 * servant.attack
+        serv_advantage += servant.attack
     if "gel" in servant.effects:
         serv_advantage -= 1.25 * servant.attack
     if "fragile" in servant.effects:
@@ -2383,10 +2383,10 @@ def calc_advantage_serv(servant, player, adv, serv_adv=False):
 
 
 def calc_advantage_card_hand(card, player):
-    if card.cost <= player.mana_max:
-        card_advantage = 1.5 + (0.1 * card.intrinsec_cost)
+    if player.style == "aggro":
+        card_advantage = 7
     else:
-        card_advantage = 2 + (0.12 * card.intrinsec_cost)
+        card_advantage = 7 + 0.12 * card.intrinsec_cost
     if not card.discount:
         card_advantage = card_advantage + min(0.75 * (card.intrinsec_cost - card.cost), 5)
     if card.type == "Serviteur":
@@ -2396,7 +2396,7 @@ def calc_advantage_card_hand(card, player):
         if "decouverte" in card.effects or "add_hand" in card.effects or "add_deck" in card.effects or "pioche" in card.effects or "dragage" in card.effects:
             card_advantage /= 2
     if "forged" in card.effects:
-        card_advantage += 3
+        card_advantage += 5
     if "fragile" in card.effects:
         card_advantage = card_advantage / 3
     return card_advantage
@@ -2409,11 +2409,11 @@ def calc_advantage_minmax(state):
 
     if player.style == "aggro":
         if adv.style == "aggro":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.2, 0.1, 3, 3, 1, 0.2, 1.5, 3, 0.8
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.8, 0.02, 2.3, 2, 1, 0.2, 1.9, 3, 0.8
         elif adv.style == "tempo":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.4, 0.05, 3, 2, 1, 0.1, 0.7, 3.5, 1
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1, 0.02, 2, 1.7, 1, 0.1, 0.8, 3, 1
         elif adv.style == "controle":
-            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.7, 0, 1.75, 0.85, 1, 0.1, 0.35, 4, 1.25
+            coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 0.8, 0, 2, 0.9, 1, 0.1, 0.35, 3.25, 1.25
     elif player.style == "tempo":
         if adv.style == "aggro":
             coef_hand, coef_deck, coef_board_j, coef_board_adv, coef_weapon, coef_mana, coef_health_j, coef_health_adv, coef_other = 1.75, 0.05, 1.3, 3, 1, 0.2, 2, 1.5, 1.25
@@ -2440,7 +2440,7 @@ def calc_advantage_minmax(state):
     hand_advantage = sum([calc_advantage_card_hand(card, player) for card in player.hand])
     if discounts:
         hand_advantage += 0.5 * mean(discounts)
-    hand_advantage -= 1.5 * len(adv.hand)
+    hand_advantage -= 3 * len(adv.hand)
     hand_advantage *= coef_hand
 
     """ Deck """

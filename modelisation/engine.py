@@ -10070,8 +10070,9 @@ class Orchestrator:
             creature.health = max(0, creature.base_health + creature.total_temp_boost[1] - creature.blessure)
             if ([x for x in player.attached if x[0] == "Aura d'adjointe"] and creature in player.servants and creature == player.servants.cards[0]) or\
                 ([x for x in adv.attached if x[0] == "Aura d'adjointe"] and creature in adv.servants and creature == adv.servants.cards[0]):
-                creature.attack += 3
-                creature.effects["vol de vie"] = 1
+                if not ("vol de vie" in creature.effects and creature.attack == creature.base_attack + 3):
+                    creature.attack += 3
+                    creature.effects["vol de vie"] = 1
             creature.surplus = 0
         if [x for x in player.servants.cards + adv.servants.cards if "infection" in x.effects and "conditional" in x.effects["infection"]]:
             for infected_creature in [x for x in player.servants.cards + adv.servants.cards if "infection" in x.effects and "conditional" in x.effects["infection"]]:

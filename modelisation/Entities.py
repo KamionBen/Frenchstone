@@ -1760,7 +1760,7 @@ def generate_legal_vector_test(state):
             if "reduc" in player.hand[i].effects and "self" in player.hand[i].effects["reduc"]:
                 if "total_serv" in player.hand[i].effects["reduc"]:
                     player.hand[i].cost = max(0, player.hand[i].cost - len(player.servants) + len(adv.servants))
-                elif "adv_servants" in player.hand[i].effects["reduc"]:
+                elif "adv_servants" in player.hand[i].effects["reduc"] and player.hand[i].cost == player.hand[i].base_cost:
                     player.hand[i].cost -= len(adv.servants)
             if ((player.hand[i].type == "Serviteur" and (
             player.hand[i].cost <= player.mana if "cost_armor" not in player.effects else player.hand[

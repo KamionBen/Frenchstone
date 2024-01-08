@@ -2819,7 +2819,7 @@
     },
     {
         "id": 232,
-        "name": "Reine Azshara",
+        "name": "Reine azshara",
         "classe": "Neutre",
         "type": "Serviteur",
         "genre": ["Naga"],
@@ -9962,7 +9962,7 @@
     },
     {
         "id": 826,
-        "name": "Commandante Sivara",
+        "name": "Commandante sivara",
         "classe": "Mage",
         "type": "Serviteur",
         "genre": ["Naga"],
@@ -20863,7 +20863,7 @@
         "cost": 8,
         "attack": null,
         "health": null,
-        "effects": {"damage": ["tous", "ennemi", 3], "reduc": ["self", "adv_servants"]}
+        "effects": {"damage": [["serviteur", "ennemi", "tous"], 3], "reduc": ["self", "adv_servants"]}
     },
     {
         "id": 1727,

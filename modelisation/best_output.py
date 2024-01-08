@@ -55,9 +55,9 @@ def minimax(state, alpha=-10000, depth=0, best_action=-99, max_depth=4, explorat
 
     ### Dédoublonnage
     possible_new_states = list(dict((x[2], x) for x in possible_new_states).values())
-    if not estimate:
-        print(depth, alpha, base_advantage, [(x[0], x[2]) for x in possible_new_states])
-        print('------------------------------------')
+    # if not estimate:
+    #     print(depth, alpha, base_advantage, [(x[0], x[2]) for x in possible_new_states])
+    #     print('------------------------------------')
 
     if estimate:
         estimated_actions *= len(possible_new_states)

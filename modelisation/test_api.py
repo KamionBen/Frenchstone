@@ -161,6 +161,12 @@ def get_current_inputs(game, player_number):
                         else:
                             if "bouclier divin" in card.effects:
                                 card.effects.pop("bouclier divin")
+                    if GameTag.LIFESTEAL in e.tags.keys():
+                        if e.tags[GameTag.LIFESTEAL] == 1:
+                            card.effects["vol de vie"] = 1
+                        else:
+                            if "vol de vie" in card.effects:
+                                card.effects.pop("vol de vie")
                     if GameTag.TAUNT in e.tags.keys():
                         if e.tags[GameTag.TAUNT] == 1:
                             card.effects["provocation"] = 1
@@ -207,6 +213,8 @@ def get_current_inputs(game, player_number):
                         card.remaining_atk = 1 if not e.tags[GameTag.EXHAUSTED] else 0
                         if GameTag.JUST_PLAYED in e.tags.keys() and e.tags[GameTag.JUST_PLAYED] and not GameTag.RUSH in e.tags.keys():
                             card.remaining_atk = 0
+                        elif GameTag.ATTACKABLE_BY_RUSH in e.tags.keys() and e.tags[GameTag.ATTACKABLE_BY_RUSH] == 1:
+                            card.remaining_atk = 1
                     else:
                         card.remaining_atk = 1
                     player_servants.insert(0, card)
@@ -268,6 +276,12 @@ def get_current_inputs(game, player_number):
                         else:
                             if "bouclier divin" in card.effects:
                                 card.effects.pop("bouclier divin")
+                    if GameTag.LIFESTEAL in e.tags.keys():
+                        if e.tags[GameTag.LIFESTEAL] == 1:
+                            card.effects["vol de vie"] = 1
+                        else:
+                            if "vol de vie" in card.effects:
+                                card.effects.pop("vol de vie")
                     if GameTag.TAUNT in e.tags.keys():
                         if e.tags[GameTag.TAUNT] == 1:
                             card.effects["provocation"] = 1
@@ -402,11 +416,17 @@ def modify_plateau(plateau, game, player_number=None):
     player.deck.shuffle()
     adv.deck.shuffle()
 
+    ### Tests ###
+    # print([(x.name, x.cost, x.base_cost) for x in player.hand.cards])
+    # print([(x.name, x.remaining_atk, x.attack, x.health, x.effects) for x in player.servants.cards])
+    # print(len(adv.servants.cards))
+    # print([x for x in adv.servants.cards])
+
     return plateau
 
 
 class_j = "Paladin"
-class_adv = "Mage"
+class_adv = "Guerrier"
 deck_j = ["pala_aggro.csv", "aggro"]
 deck_adv = random.choice(class_files[class_adv])
 players = [Player("Smaguy", class_j, import_deck(deck_j[0]), style_deck=deck_j[1]), Player("Adversaire", class_adv, import_deck(deck_adv[0]), style_deck=deck_adv[1])].copy()
